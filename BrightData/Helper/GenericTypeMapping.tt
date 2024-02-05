@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using BrightData.Buffer.Operations.Helper;
 using BrightData.Converter;
 using BrightData.ConstraintValidation;
+using BrightData.Buffer.Operations.Vectorisation;
 
 namespace BrightData.Helper
 {
@@ -68,42 +69,81 @@ namespace BrightData.Helper
 
         internal static ICanConvert ConvertToDecimal(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToDecimal", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToDecimal", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static ICanConvert ConvertToDouble(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToDouble", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToDouble", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static ICanConvert ConvertToFloat(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToFloat", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToFloat", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static ICanConvert ConvertToInt(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToInt", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToInt", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static ICanConvert ConvertToLong(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToLong", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToLong", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
          internal static ICanConvert ConvertToShort(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToShort", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToShort", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static ICanConvert ConvertToSignedByte(Type type, bool throwOnFailure = false)
         {
-<#= WriteNumericTypeMapping("ConvertToSignedByte", _ => "throwOnFailure") #>
+<#= WriteNumericTypeMapping("ConvertToSignedByte", ValidNumericTypeCodesIncludingBoolAndString, _ => "throwOnFailure") #>
         }
 
         internal static IAppendBlocks ColumnFilter(Type type, uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
         {
 <#= WriteSingleTypeMapping("ColumnFilter", x => $"columnIndex, columnType, (IDataTypeSpecification<{x}>)typeSpecification, nonConformingRowIndices") #>
+        }
+
+        internal static IOperation TypedIndexer(IReadOnlyBuffer buffer)
+        {
+            var type = buffer.DataType;
+<#= WriteSingleTypeMapping("TypedIndexer", x => $"(IReadOnlyBuffer<{x}>)buffer") #>
+        }
+
+        internal static IReadOnlyBuffer<ReadOnlyVector> OneHotConverter(IReadOnlyBuffer buffer, ICanIndex indexer)
+        {
+            var type = buffer.DataType;
+<#= WriteSingleTypeMapping("OneHotConverter", x => $"(IReadOnlyBuffer<{x}>)buffer, (ICanIndex<{x}>)indexer") #>
+        }
+
+        internal static IReadOnlyBuffer<int> CategoricalIndexConverter(IReadOnlyBuffer buffer, ICanIndex indexer)
+        {
+            var type = buffer.DataType;
+<#= WriteSingleTypeMapping("CategoricalIndexConverter", x => $"(IReadOnlyBuffer<{x}>)buffer, (ICanIndex<{x}>)indexer") #>
+        }
+
+        internal static IReadOnlyBuffer NormalizationConverter(IReadOnlyBuffer buffer, INormalize normalization)
+        {
+            var type = buffer.DataType;
+<#= WriteNumericTypeMapping("NormalizationConverter", ValidNumericTypeCodes, x => $"(IReadOnlyBuffer<{x}>)buffer, normalization") #>
+        }
+
+        internal static ICanVectorise NumericVectoriser(Type type)
+        {
+<#= WriteNumericTypeMapping("NumericVectoriser", ValidNumericTypeCodesIncludingBoolAndString, _ => "") #>
+        }
+
+        internal static ICanVectorise CategoricalIndexVectoriser(Type type)
+        {
+<#= WriteSingleTypeMapping("CategoricalIndexVectoriser", x => $"") #>
+        }
+
+        internal static ICanVectorise OneHotVectoriser(Type type, uint maxSize)
+        {
+<#= WriteSingleTypeMapping("OneHotVectoriser", x => $"maxSize") #>
         }
     }
 }
@@ -164,10 +204,23 @@ namespace BrightData.Helper
             yield return "DateOnly";
         }
     }
-    IEnumerable<(string TypeCode, string TypeName)> ValidNumericTypeCodes
+    IEnumerable<(string TypeCode, string TypeName)> ValidNumericTypeCodesIncludingBoolAndString
     {
         get {
             yield return ("Boolean", "bool");
+            yield return ("SByte", "sbyte");
+            yield return ("Single", "float");
+            yield return ("Double", "double");
+            yield return ("Decimal", "decimal");
+            yield return ("Int16", "short");
+            yield return ("Int32", "int");
+            yield return ("Int64", "long");
+            yield return ("String", "string");
+        }
+    }
+    IEnumerable<(string TypeCode, string TypeName)> ValidNumericTypeCodes
+    {
+        get {
             yield return ("SByte", "sbyte");
             yield return ("Single", "float");
             yield return ("Double", "double");
@@ -196,7 +249,7 @@ namespace BrightData.Helper
         }
 
         var msg = $"Could not create {typeName} for type {{type}}";
-        sb.AppendLine($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
+        sb.Append($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
         return sb.ToString();
     }
 
@@ -213,23 +266,23 @@ namespace BrightData.Helper
         }
 
         var msg = $"Could not create {typeName} for types {{type1}} and {{type2}}";
-        sb.AppendLine($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
+        sb.Append($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
         return sb.ToString();
     }
 
-    string WriteNumericTypeMapping(string typeName, Func<string, string> parameters)
+    string WriteNumericTypeMapping(string typeName, IEnumerable<(string TypeCode, string TypeName)> typeCodes, Func<string, string> parameters)
     {
         var sb = new StringBuilder();
 
         // write the type codes
         sb.AppendLine("\t\t\tvar typeCode = Type.GetTypeCode(type);");
-        foreach(var item in ValidNumericTypeCodes) {
+        foreach(var item in typeCodes) {
             sb.AppendLine($"\t\t\tif(typeCode == TypeCode.{item.TypeCode})");
             sb.AppendLine($"\t\t\t\treturn new {typeName}<{item.TypeName}>({parameters(item.TypeName)});");
         }
 
         var msg = $"Could not create {typeName} for type {{type}}";
-        sb.AppendLine($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
+        sb.Append($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
         return sb.ToString();
     }
 #>

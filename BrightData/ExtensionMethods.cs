@@ -295,6 +295,18 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Sets this as one hot encoded
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="isOneHotEncoded"></param>
+        /// <returns></returns>
+        public static MetaData SetIsOneHot(this MetaData metaData, bool isOneHotEncoded)
+        {
+            metaData.Set(Consts.IsCategorical, isOneHotEncoded);
+            return metaData;
+        }
+
+        /// <summary>
         /// Sets the name
         /// </summary>
         /// <param name="metaData"></param>

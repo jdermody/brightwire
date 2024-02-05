@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using BrightData.Helper;
 using BrightData.Types;
 
@@ -14,7 +16,7 @@ namespace BrightData.Buffer.Composite
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="BT"></typeparam>
-    internal abstract class CompositeBufferBase<T, BT> : ICompositeBuffer<T>
+    internal abstract class CompositeBufferBase<T, BT> : TypedBufferBase<T>, ICompositeBuffer<T>
         where T : notnull
         where BT : ICompositeBufferBlock<T>
     {
@@ -130,13 +132,7 @@ namespace BrightData.Buffer.Composite
                 yield return item;
         }
 
-        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
-        {
-            var block = await GetTypedBlock(blockIndex);
-            return block.AsObjects();
-        }
-
-        public virtual async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             uint currentIndex = 0;
 

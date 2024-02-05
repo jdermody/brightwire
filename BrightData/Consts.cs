@@ -72,6 +72,7 @@
         public const string IsNumeric                        = "IsNumeric";
         public const string IsTarget                         = "IsTarget";
         public const string IsCategorical                    = "IsCategorical";
+        public const string IsOneHot                         = "IsOneHot";
         public const string IsSequential                     = "IsSequential";
         public const string HasBeenAnalysed                  = "HasBeenAnalysed";
         public const string Mode                             = "Mode";

@@ -17,7 +17,7 @@ namespace BrightData.Parquet
 {
     public static class ExtensionMethods
     {
-        public static async Task<IDataTable> LoadFromParquet(this BrightDataContext context, Stream inputStream, Stream? outputStream)
+        public static async Task<IDataTable> CreateTableFromParquet(this BrightDataContext context, Stream inputStream, Stream? outputStream)
         {
             var reader = await ParquetReader.CreateAsync(inputStream);
             var fields = reader.Schema.DataFields;
@@ -70,7 +70,9 @@ namespace BrightData.Parquet
 
         public static async Task WriteAsParquet(this IDataTable dataTable, Stream output)
         {
-            var fields = dataTable.ColumnMetaData.Zip(dataTable.ColumnTypes).Select((x, i) => new DataField(x.First.GetName($"Column {i + 1}"), x.Second.GetDataType(), false, false));
+            var fields = dataTable.ColumnMetaData
+                .Zip(dataTable.ColumnTypes).Select((x, i) => new DataField(x.First.GetName($"Column {i + 1}"), x.Second.GetDataType(), false, false))
+                .ToArray();
             var schema = new ParquetSchema(fields);
             var columns = dataTable.GetColumns();
             var firstColumn = columns[0];
@@ -79,17 +81,15 @@ namespace BrightData.Parquet
             using var writer = await ParquetWriter.CreateAsync(schema, output);
             writer.CompressionMethod = CompressionMethod.Gzip;
             writer.CompressionLevel = System.IO.Compression.CompressionLevel.Optimal;
-            for (var i = 0; i < firstColumn.BlockCount; i++) {
-                using ParquetRowGroupWriter blockWriter = writer.CreateRowGroup();
+            for (uint i = 0; i < firstColumn.BlockCount; i++) {
+                using var blockWriter = writer.CreateRowGroup();
                 foreach (var column in columns) {
-                    
+                    var metaData = column.MetaData.AllKeys.ToDictionary(x => x, x => column.MetaData.Get(x)?.ToString() ?? "");
+                    var array = await column.GetBlock(i);
+                    await blockWriter.WriteColumnAsync(new DataColumn(fields[i], array), metaData);
                 }
-                //await groupWriter.WriteColumnAsync(idColumn);
-                //await groupWriter.WriteColumnAsync(cityColumn);
             }
         }
-
-        //static DataColumn GetColumnBlock()
 
         static ICompositeBuffer CreateColumn(ParquetRowGroupReader reader, DataField field, MetaData columnMetaData, IBuildDataTables builder)
         {

@@ -45,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 

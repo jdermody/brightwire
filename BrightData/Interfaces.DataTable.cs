@@ -591,6 +591,13 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         IAsyncEnumerable<object> EnumerateAll();
+
+        /// <summary>
+        /// Returns the specified block as an array
+        /// </summary>
+        /// <param name="blockIndex"></param>
+        /// <returns></returns>
+        Task<Array> GetBlock(uint blockIndex);
     }
 
     /// <summary>
@@ -766,10 +773,22 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Maps objects to a consistent index
+    /// </summary>
+    public interface ICanIndex : IHaveSize
+    {
+        /// <summary>
+        /// Returns the mapping
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<string, uint> GetMapping();
+    }
+
+    /// <summary>
     /// Maps objects of type T to an index
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICanIndex<T> : IHaveSize
+    public interface ICanIndex<T> : ICanIndex
     {
         /// <summary>
         /// Returns the index associated with the object

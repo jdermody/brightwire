@@ -756,7 +756,18 @@ namespace BrightData
         ) {
             
             var output = CreateCompositeBuffer<int>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = GenericActivator.Create<IOperation>(typeof(ToCategoricalIndexConversion<>).MakeGenericType(buffer.DataType), buffer, output);
+            var index = GenericTypeMapping.TypedIndexer(buffer);
+            await index.Execute();
+            var indexer = (ICanIndex)index;
+            var mapping = indexer.GetMapping();
+
+            var metaData = output.MetaData;
+            metaData.SetIsCategorical(true);
+            foreach (var category in mapping.OrderBy(d => d.Value))
+                metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
+
+            var categories = GenericTypeMapping.CategoricalIndexConverter(buffer, indexer);
+            var conversion = GenericTypeMapping.BufferCopyOperation(categories, output);
             await conversion.Execute();
             return output;
         }
@@ -818,9 +829,17 @@ namespace BrightData
             else if (buffer.DataType == typeof(IndexList))
                 conversion = new CustomConversion<IndexList, ReadOnlyVector>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
             else {
-                var index = GenericActivator.Create<IOperation>(typeof(TypedIndexer<>).MakeGenericType(buffer.DataType), buffer);
+                var index = GenericTypeMapping.TypedIndexer(buffer);
                 await index.Execute();
-                conversion = GenericActivator.Create<IOperation>(typeof(OneHotConversion<>).MakeGenericType(buffer.DataType), buffer, index, output);
+                var indexer = (ICanIndex)index;
+                var vectorBuffer = GenericTypeMapping.OneHotConverter(buffer, indexer);
+                conversion = GenericTypeMapping.BufferCopyOperation(vectorBuffer, output);
+                var categoryIndex = indexer.GetMapping();
+
+                var metaData = output.MetaData;
+                metaData.SetIsOneHot(true);
+                foreach (var category in categoryIndex)
+                    metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
             }
             await conversion.Execute();
             return output;

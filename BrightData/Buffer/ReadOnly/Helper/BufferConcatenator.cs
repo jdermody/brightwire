@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
@@ -11,7 +13,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
     /// Concatenates multiple buffers into one single buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class BufferConcatenator<T> : IReadOnlyBufferWithMetaData<T> where T : notnull
+    internal class BufferConcatenator<T> : TypedBufferBase<T>, IReadOnlyBufferWithMetaData<T> where T : notnull
     {
         readonly IReadOnlyBufferWithMetaData<T>[] _buffers;
 
@@ -56,7 +58,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
                 await buffer.ForEachBlock(callback, notify, message, ct);
         }
 
-        public Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        public override Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             uint curr = 0;
             foreach (var buffer in _buffers)

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Helper;
 using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter

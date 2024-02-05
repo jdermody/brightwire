@@ -542,6 +542,23 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                var ret = new TableRow<T1, T2>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2>(_dataTable, i + offset, a1[i], a2[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
             uint columnIndex1 = 0,
@@ -686,6 +703,27 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3>(_dataTable, i + offset, a1[i], a2[i], a3[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
             uint columnIndex1 = 0,
@@ -848,6 +886,31 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
             uint columnIndex1 = 0,
@@ -1028,6 +1091,35 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
             uint columnIndex1 = 0,
@@ -1226,6 +1318,39 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                var b6 = _input6.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5, b6);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var a6 = (T6[])b6.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                if (len != a6.Length)
+                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5, T6>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
             uint columnIndex1 = 0,
@@ -1442,6 +1567,43 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                var b6 = _input6.GetBlock(blockIndex);
+                var b7 = _input7.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5, b6, b7);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var a6 = (T6[])b6.Result;
+                var a7 = (T7[])b7.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                if (len != a6.Length)
+                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                if (len != a7.Length)
+                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
             uint columnIndex1 = 0,
@@ -1676,6 +1838,47 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                var b6 = _input6.GetBlock(blockIndex);
+                var b7 = _input7.GetBlock(blockIndex);
+                var b8 = _input8.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5, b6, b7, b8);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var a6 = (T6[])b6.Result;
+                var a7 = (T7[])b7.Result;
+                var a8 = (T8[])b8.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                if (len != a6.Length)
+                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                if (len != a7.Length)
+                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                if (len != a8.Length)
+                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
             uint columnIndex1 = 0,
@@ -1928,6 +2131,51 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                var b6 = _input6.GetBlock(blockIndex);
+                var b7 = _input7.GetBlock(blockIndex);
+                var b8 = _input8.GetBlock(blockIndex);
+                var b9 = _input9.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5, b6, b7, b8, b9);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var a6 = (T6[])b6.Result;
+                var a7 = (T7[])b7.Result;
+                var a8 = (T8[])b8.Result;
+                var a9 = (T9[])b9.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                if (len != a6.Length)
+                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                if (len != a7.Length)
+                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                if (len != a8.Length)
+                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                if (len != a9.Length)
+                    throw new Exception($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i], a9[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             uint columnIndex1 = 0,
@@ -2198,6 +2446,55 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                var b2 = _input2.GetBlock(blockIndex);
+                var b3 = _input3.GetBlock(blockIndex);
+                var b4 = _input4.GetBlock(blockIndex);
+                var b5 = _input5.GetBlock(blockIndex);
+                var b6 = _input6.GetBlock(blockIndex);
+                var b7 = _input7.GetBlock(blockIndex);
+                var b8 = _input8.GetBlock(blockIndex);
+                var b9 = _input9.GetBlock(blockIndex);
+                var b10 = _input10.GetBlock(blockIndex);
+                await Task.WhenAll(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10);
+                var a1 = (T1[])b1.Result;
+                var a2 = (T2[])b2.Result;
+                var a3 = (T3[])b3.Result;
+                var a4 = (T4[])b4.Result;
+                var a5 = (T5[])b5.Result;
+                var a6 = (T6[])b6.Result;
+                var a7 = (T7[])b7.Result;
+                var a8 = (T8[])b8.Result;
+                var a9 = (T9[])b9.Result;
+                var a10 = (T10[])b10.Result;
+                var len = a1.Length;
+                if (len != a2.Length)
+                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                if (len != a3.Length)
+                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                if (len != a4.Length)
+                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                if (len != a5.Length)
+                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                if (len != a6.Length)
+                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                if (len != a7.Length)
+                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                if (len != a8.Length)
+                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                if (len != a9.Length)
+                    throw new Exception($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
+                if (len != a10.Length)
+                    throw new Exception($"Expected blocks to have same size - block {10} had length {a10.Length} but expected {len}");
+                var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i], a9[i], a10[i]);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             uint columnIndex1 = 0,

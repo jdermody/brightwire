@@ -715,64 +715,6 @@
             <param name="input"></param>
             <param name="output"></param>
         </member>
-        <member name="T:BrightData.Buffer.Operations.Conversion.NumericUnmanagedConversion`2">
-            <summary>
-            Converts numbers to unmanaged types
-            </summary>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="output"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Conversion.NumericUnmanagedConversion`2.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendToBuffer{`1})">
-            <summary>
-            Converts numbers to unmanaged types
-            </summary>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="output"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Conversion.OneHotConversion`1">
-            <summary>
-            One hot conversion
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="indexer"></param>
-            <param name="output"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Conversion.OneHotConversion`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.ICanIndex{`0},BrightData.IAppendToBuffer{BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector})">
-            <summary>
-            One hot conversion
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="indexer"></param>
-            <param name="output"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Conversion.ToCategoricalIndexConversion`1">
-            <summary>
-            Maps each item to a consistent index (category)
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Conversion.ToStringConversion`1">
-            <summary>
-            Converts to a string
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="output"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Conversion.ToStringConversion`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.IAppendToBuffer{System.String})">
-            <summary>
-            Converts to a string
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="input"></param>
-            <param name="output"></param>
-        </member>
         <member name="T:BrightData.Buffer.Operations.Helper.SimpleNumericAnalysis`1">
             <summary>
             Casts to double to perform numerical analysis
@@ -843,13 +785,13 @@
             Vectorisation of booleans
             </summary>
         </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectorisation`1">
+        <member name="T:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectoriser`1">
             <summary>
             Vectorisation to single index
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectorisation`1.#ctor">
+        <member name="M:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectoriser`1.#ctor">
             <summary>
             Vectorisation to single index
             </summary>
@@ -954,6 +896,22 @@
             <typeparam name="FT"></typeparam>
             <typeparam name="TT"></typeparam>
             <param name="from"></param>
+        </member>
+        <member name="T:BrightData.Buffer.ReadOnly.Converter.CategoricalIndexConverter`1">
+            <summary>
+            Converts the values in the buffer to a single categorical index
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="from"></param>
+            <param name="indexer"></param>
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Converter.CategoricalIndexConverter`1.#ctor(BrightData.IReadOnlyBuffer{`0},BrightData.ICanIndex{`0})">
+            <summary>
+            Converts the values in the buffer to a single categorical index
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="from"></param>
+            <param name="indexer"></param>
         </member>
         <member name="T:BrightData.Buffer.ReadOnly.Converter.NormalizationConverter`1">
             <summary>
@@ -2908,6 +2866,14 @@
             </summary>
             <param name="metaData"></param>
             <param name="isCategorical"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SetIsOneHot(BrightData.Types.MetaData,System.Boolean)">
+            <summary>
+            Sets this as one hot encoded
+            </summary>
+            <param name="metaData"></param>
+            <param name="isOneHotEncoded"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.SetName(BrightData.Types.MetaData,System.String)">
@@ -7328,6 +7294,17 @@
             <param name="notify">Notify about progress (optional)</param>
             <param name="msg">Message to notification when operation starts (optional)</param>
             <param name="ct">Cancellation token (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.ICanIndex">
+            <summary>
+            Maps objects to a consistent index
+            </summary>
+        </member>
+        <member name="M:BrightData.ICanIndex.GetMapping">
+            <summary>
+            Returns the mapping
+            </summary>
             <returns></returns>
         </member>
         <member name="T:BrightData.ICanIndex`1">

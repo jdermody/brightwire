@@ -6,7 +6,7 @@ namespace BrightData.Buffer.Operations.Vectorisation
     /// Vectorisation to single index
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CategoricalIndexVectorisation<T>() : OneHotVectoriser<T>(1)
+    internal class CategoricalIndexVectoriser<T>() : OneHotVectoriser<T>(1)
         where T : notnull
     {
         protected override void Vectorise(in T item, Span<float> buffer)

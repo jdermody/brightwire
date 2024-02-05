@@ -29,6 +29,8 @@ namespace BrightData.Buffer.ReadOnly.Helper
             return buffer.EnumerateAll();
         }
 
+        public Task<Array> GetBlock(uint blockIndex) => buffer.GetBlock(blockIndex);
+
         public Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
             return buffer.ForEachBlock(callback, notify, message, ct);

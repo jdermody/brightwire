@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BrightData;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
-namespace BrightData.DataTable
+namespace BrightData.DataTable.Helper
 {
     /// <summary>
     /// A collection of vectorisers (such as from the columns of a data table)
@@ -60,14 +61,8 @@ namespace BrightData.DataTable
             if (metaData is not null && metaData.Length != Vectorisers.Length)
                 throw new ArgumentException("If meta data is provided then there should be one for each vectoriser", nameof(metaData));
 
-            await foreach (var item in DoVectorise(buffers))
+            await foreach (var item in DoVectorise(buffers, metaData))
                 yield return item;
-
-            if (metaData is not null)
-            {
-                for (int i = 0, len = metaData.Length; i < len; i++)
-                    Vectorisers[i].WriteTo(metaData[i]);
-            }
         }
 
         /// <summary>
@@ -110,7 +105,7 @@ namespace BrightData.DataTable
             var indices = SourceColumnIndices ?? stackalloc uint[(int)data.Size];
             if (SourceColumnIndices is null)
             {
-                for (int i = 0; i < data.Size; i++)
+                for (var i = 0; i < data.Size; i++)
                     indices[i] = (uint)i;
             }
 
@@ -137,11 +132,8 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public async IAsyncEnumerable<float[,]> Vectorise(IReadOnlyBufferWithMetaData[] buffers)
         {
-            await foreach (var item in DoVectorise(buffers))
+            await foreach (var item in DoVectorise(buffers, buffers.Select(x => x.MetaData).ToArray()))
                 yield return item;
-
-            for (int i = 0, len = buffers.Length; i < len; i++)
-                Vectorisers[i].WriteTo(buffers[i].MetaData);
         }
 
         /// <summary>
@@ -152,7 +144,7 @@ namespace BrightData.DataTable
         /// <returns></returns>
         public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(table.AllOrSpecifiedColumnIndices(false, columnIndices)));
 
-        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers) where T : IReadOnlyBuffer
+        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers, MetaData[]? metaData) where T : IReadOnlyBuffer
         {
             if (buffers.Length != Vectorisers.Length)
                 throw new ArgumentException($"Expected to receive {Vectorisers.Length} buffers (not {buffers.Length})", nameof(buffers));
@@ -179,6 +171,12 @@ namespace BrightData.DataTable
                 }
                 await Task.WhenAll(tasks);
                 yield return buffer;
+            }
+
+            if (metaData is not null)
+            {
+                for (var i = 0; i < len; i++)
+                    Vectorisers[i].WriteTo(metaData[i]);
             }
         }
     }

@@ -14,6 +14,7 @@ using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Helper;
 using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
@@ -913,7 +914,7 @@ namespace BrightData
                         buffer = buffer.ConvertTo<double>();
                         dataType = BrightDataType.Double;
                     }
-                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataType.GetDataType()), buffer, model);
+                    columns[i] = GenericTypeMapping.NormalizationConverter(buffer, model);
                 }
                 else
                     columns[i] = column;
@@ -950,7 +951,7 @@ namespace BrightData
             for (uint i = 0; i < dataTable.ColumnCount; i++) {
                 var column = dataTable.GetColumn(i);
                 if (columnMutationTable.TryGetValue(i, out var model))
-                    columns[i] = GenericActivator.Create<IReadOnlyBuffer>(typeof(NormalizationConverter<>).MakeGenericType(dataTable.ColumnTypes[i].GetDataType()), column, model);
+                    columns[i] = GenericTypeMapping.NormalizationConverter(column, model);
                 else
                     columns[i] = column;
             }
@@ -1431,12 +1432,12 @@ namespace BrightData
             if (dataType == BrightDataType.Boolean)
                 ret = new BooleanVectoriser();
             else if (cls.HasFlag(ColumnClass.Numeric))
-                ret = GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(buffer.DataType));
+                ret = GenericTypeMapping.NumericVectoriser(buffer.DataType);
             else if (cls.HasFlag(ColumnClass.Categorical)) {
                 if (oneHotEncodeCategoricalData)
                     ret = await GetOneHotEncoder(buffer, metaData);
                 else
-                    ret = GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(buffer.DataType));
+                    ret = GenericTypeMapping.CategoricalIndexVectoriser(buffer.DataType);
             }
             else if (cls.HasFlag(ColumnClass.IndexBased))
                 ret = await GetIndexBasedVectoriser(buffer, metaData);
@@ -1473,7 +1474,8 @@ namespace BrightData
                     if (size == 0)
                         throw new Exception("Expected to find a distinct size of items");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(buffer.DataType), size);
+
+                return GenericTypeMapping.OneHotVectoriser(buffer.DataType, size);
             }
 
             static async Task<ICanVectorise> GetTensorVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
@@ -1485,7 +1487,8 @@ namespace BrightData
                     if (size == 0)
                         throw new Exception("Expected to find non empty tensors");
                 }
-                return GenericActivator.Create<ICanVectorise>(typeof(TensorVectoriser<>).MakeGenericType(buffer.DataType), size);
+
+                return CreateTensorVectoriser(buffer.DataType, size);
             }
         }
 
@@ -1543,10 +1546,10 @@ namespace BrightData
                 var vectoriser = vectorisers[index++] = type switch {
                     VectorisationType.Tensor            => CreateTensorVectoriser(dataType, size),
                     VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(size-1),
-                    VectorisationType.CategoricalIndex  => GenericActivator.Create<ICanVectorise>(typeof(CategoricalIndexVectorisation<>).MakeGenericType(dataType)),
+                    VectorisationType.CategoricalIndex  => GenericTypeMapping.CategoricalIndexVectoriser(dataType),
                     VectorisationType.IndexList         => new IndexListVectoriser(size-1),
-                    VectorisationType.Numeric           => GenericActivator.Create<ICanVectorise>(typeof(NumericVectoriser<>).MakeGenericType(dataType)),
-                    VectorisationType.OneHot            => GenericActivator.Create<ICanVectorise>(typeof(OneHotVectoriser<>).MakeGenericType(dataType), size),
+                    VectorisationType.Numeric           => GenericTypeMapping.NumericVectoriser(dataType),
+                    VectorisationType.OneHot            => GenericTypeMapping.OneHotVectoriser(dataType, size),
                     VectorisationType.Boolean           => new BooleanVectoriser(),
                     _                                   => throw new NotImplementedException()
                 };

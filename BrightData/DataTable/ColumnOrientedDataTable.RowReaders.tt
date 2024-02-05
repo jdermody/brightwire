@@ -89,6 +89,7 @@ namespace BrightData.DataTable
         var allBlockSpans = String.Join(", ", range.Select(x => $"block{x}.Span"));
         var allReadOnlySpans = String.Join(", ", range.Select(x => $"ReadOnlySpan<T{x}> span{x}"));
         var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
+        var allArrayValues = String.Join(", ", range.Select(x => $"a{x}[i]"));
 #>      
         public async IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>
@@ -220,6 +221,27 @@ namespace BrightData.DataTable
             }
 
             public IAsyncEnumerator<TableRow<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+<# for(var j = 1; j <= i; j++) { #>
+                var b<#= j #> = _input<#= j #>.GetBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= allBs #>);
+<# for(var j = 1; j <= i; j++) { #>
+                var a<#= j #> = (T<#= j #>[])b<#= j #>.Result;
+<# } #>
+                var len = a1.Length;
+<# for(var j = 2; j <= i; j++) { #>
+                if (len != a<#= j #>.Length)
+                    throw new Exception($"Expected blocks to have same size - block {<#= j #>} had length {a<#= j #>.Length} but expected {len}");
+<# } #>
+                var ret = new TableRow<<#= typeString #>>[len];
+                var offset = blockIndex * _input1.BlockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<<#= typeString #>>(_dataTable, i + offset, <#= allArrayValues #>);
+                return ret;
+            }
         }
         public IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
 <# for(var j = 1; j <= i; j++) { #>

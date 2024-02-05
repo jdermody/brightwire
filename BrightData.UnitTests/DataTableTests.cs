@@ -433,8 +433,8 @@ namespace BrightData.UnitTests
             converted.ColumnTypes[0].Should().Be(columnType);
             converted.ColumnTypes[1].Should().Be(columnType);
 
-            await foreach (var (b1, b2) in converted.Enumerate<T, T>())
-                b1.Should().Be(b2);
+            await foreach (var row in converted.Enumerate<T, T>())
+                row.C1.Should().Be(row.C2);
         }
 
         [Fact]

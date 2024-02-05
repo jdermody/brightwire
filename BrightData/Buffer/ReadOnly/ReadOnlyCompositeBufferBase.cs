@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
@@ -12,7 +14,7 @@ namespace BrightData.Buffer.ReadOnly
     /// Read only composite buffer base class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal abstract class ReadOnlyCompositeBufferBase<T> : IReadOnlyBuffer<T> where T : notnull
+    internal abstract class ReadOnlyCompositeBufferBase<T> : TypedBufferBase<T>, IReadOnlyBuffer<T> where T : notnull
     {
         readonly Stream _stream;
         readonly (long Position, uint Size)[] _blockData;
@@ -67,7 +69,7 @@ namespace BrightData.Buffer.ReadOnly
             notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
-        public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             var (position, size) = _blockData[blockIndex];
             var data = new byte[size];

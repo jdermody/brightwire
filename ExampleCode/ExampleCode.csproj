@@ -10,7 +10,7 @@
   <ItemGroup>
 	  <PackageReference Include="BetterConsoleTables" Version="1.1.3" />
 	  <PackageReference Include="MKL.NET.win-x64" Version="2022.0.0.115" />
-	  <PackageReference Include="SharpCompress" Version="0.32.2" />
+	  <PackageReference Include="SharpCompress" Version="0.36.0" />
   </ItemGroup>
 
   <ItemGroup>

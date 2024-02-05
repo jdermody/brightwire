@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Helper;
 using BrightData.Types;
 using BrightWire.ExecutionGraph.Helper;
 

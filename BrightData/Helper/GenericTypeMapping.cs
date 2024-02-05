@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using BrightData.Buffer.Operations.Helper;
 using BrightData.Converter;
 using BrightData.ConstraintValidation;
+using BrightData.Buffer.Operations.Vectorisation;
 
 namespace BrightData.Helper
 {
@@ -54,7 +55,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new ToStringConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
 			throw new NotImplementedException($"Could not create ToStringConverter for type {type}");
-
         }
 
         internal static IDataAnalyser ConvertToStringFrequencyAnalysis(Type type, uint writeCount)
@@ -97,7 +97,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new ConvertToStringFrequencyAnalysis<DateOnly>(writeCount);
 			throw new NotImplementedException($"Could not create ConvertToStringFrequencyAnalysis for type {type}");
-
         }
 
         internal static IReadOnlyBuffer<object> ToObjectConverter(IReadOnlyBuffer from)
@@ -141,7 +140,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new ToObjectConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)from);
 			throw new NotImplementedException($"Could not create ToObjectConverter for type {type}");
-
         }
 
         internal static IReadOnlyBuffer CastConverter(Type type2, IReadOnlyBuffer from)
@@ -726,7 +724,6 @@ namespace BrightData.Helper
 			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
 				return new CastConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from);
 			throw new NotImplementedException($"Could not create CastConverter for types {type1} and {type2}");
-
         }
 
         internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
@@ -1311,7 +1308,6 @@ namespace BrightData.Helper
 			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
 				return new TypeConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, DateOnly>)converter);
 			throw new NotImplementedException($"Could not create TypeConverter for types {type1} and {type2}");
-
         }
 
         internal static IOperation IndexedCopyOperation(IReadOnlyBuffer from, IAppendToBuffer to, IEnumerable<uint> indices)
@@ -1355,7 +1351,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new IndexedCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendToBuffer<DateOnly>)to, indices);
 			throw new NotImplementedException($"Could not create IndexedCopyOperation for type {type}");
-
         }
 
         internal static IOperation BufferCopyOperation(IReadOnlyBuffer from, IAppendBlocks to, Action? onComplete = null)
@@ -1399,7 +1394,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new BufferCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendBlocks<DateOnly>)to, onComplete);
 			throw new NotImplementedException($"Could not create BufferCopyOperation for type {type}");
-
         }
 
         internal static ISimpleNumericAnalysis SimpleNumericAnalysis(IReadOnlyBuffer buffer)
@@ -1443,7 +1437,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new SimpleNumericAnalysis<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
 			throw new NotImplementedException($"Could not create SimpleNumericAnalysis for type {type}");
-
         }
 
         internal static ICanConvert ConvertToDecimal(Type type, bool throwOnFailure = false)
@@ -1465,8 +1458,9 @@ namespace BrightData.Helper
 				return new ConvertToDecimal<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToDecimal<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToDecimal<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToDecimal for type {type}");
-
         }
 
         internal static ICanConvert ConvertToDouble(Type type, bool throwOnFailure = false)
@@ -1488,8 +1482,9 @@ namespace BrightData.Helper
 				return new ConvertToDouble<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToDouble<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToDouble<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToDouble for type {type}");
-
         }
 
         internal static ICanConvert ConvertToFloat(Type type, bool throwOnFailure = false)
@@ -1511,8 +1506,9 @@ namespace BrightData.Helper
 				return new ConvertToFloat<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToFloat<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToFloat<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToFloat for type {type}");
-
         }
 
         internal static ICanConvert ConvertToInt(Type type, bool throwOnFailure = false)
@@ -1534,8 +1530,9 @@ namespace BrightData.Helper
 				return new ConvertToInt<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToInt<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToInt<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToInt for type {type}");
-
         }
 
         internal static ICanConvert ConvertToLong(Type type, bool throwOnFailure = false)
@@ -1557,8 +1554,9 @@ namespace BrightData.Helper
 				return new ConvertToLong<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToLong<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToLong<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToLong for type {type}");
-
         }
 
          internal static ICanConvert ConvertToShort(Type type, bool throwOnFailure = false)
@@ -1580,8 +1578,9 @@ namespace BrightData.Helper
 				return new ConvertToShort<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToShort<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToShort<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToShort for type {type}");
-
         }
 
         internal static ICanConvert ConvertToSignedByte(Type type, bool throwOnFailure = false)
@@ -1603,8 +1602,9 @@ namespace BrightData.Helper
 				return new ConvertToSignedByte<int>(throwOnFailure);
 			if(typeCode == TypeCode.Int64)
 				return new ConvertToSignedByte<long>(throwOnFailure);
+			if(typeCode == TypeCode.String)
+				return new ConvertToSignedByte<string>(throwOnFailure);
 			throw new NotImplementedException($"Could not create ConvertToSignedByte for type {type}");
-
         }
 
         internal static IAppendBlocks ColumnFilter(Type type, uint columnIndex, BrightDataType columnType, HashSet<uint> nonConformingRowIndices, IDataTypeSpecification typeSpecification)
@@ -1647,7 +1647,264 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new ColumnFilter<DateOnly>(columnIndex, columnType, (IDataTypeSpecification<DateOnly>)typeSpecification, nonConformingRowIndices);
 			throw new NotImplementedException($"Could not create ColumnFilter for type {type}");
+        }
 
+        internal static IOperation TypedIndexer(IReadOnlyBuffer buffer)
+        {
+            var type = buffer.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new TypedIndexer<bool>((IReadOnlyBuffer<bool>)buffer);
+			if(typeCode == TypeCode.SByte)
+				return new TypedIndexer<sbyte>((IReadOnlyBuffer<sbyte>)buffer);
+			if(typeCode == TypeCode.Single)
+				return new TypedIndexer<float>((IReadOnlyBuffer<float>)buffer);
+			if(typeCode == TypeCode.Double)
+				return new TypedIndexer<double>((IReadOnlyBuffer<double>)buffer);
+			if(typeCode == TypeCode.Decimal)
+				return new TypedIndexer<decimal>((IReadOnlyBuffer<decimal>)buffer);
+			if(typeCode == TypeCode.String)
+				return new TypedIndexer<string>((IReadOnlyBuffer<string>)buffer);
+			if(typeCode == TypeCode.Int16)
+				return new TypedIndexer<short>((IReadOnlyBuffer<short>)buffer);
+			if(typeCode == TypeCode.Int32)
+				return new TypedIndexer<int>((IReadOnlyBuffer<int>)buffer);
+			if(typeCode == TypeCode.Int64)
+				return new TypedIndexer<long>((IReadOnlyBuffer<long>)buffer);
+			if(typeCode == TypeCode.DateTime)
+				return new TypedIndexer<DateTime>((IReadOnlyBuffer<DateTime>)buffer);
+			if(type == typeof(IndexList))
+				return new TypedIndexer<IndexList>((IReadOnlyBuffer<IndexList>)buffer);
+			if(type == typeof(WeightedIndexList))
+				return new TypedIndexer<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer);
+			if(type == typeof(ReadOnlyVector))
+				return new TypedIndexer<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer);
+			if(type == typeof(ReadOnlyMatrix))
+				return new TypedIndexer<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)buffer);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new TypedIndexer<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)buffer);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new TypedIndexer<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)buffer);
+			if(type == typeof(TimeOnly))
+				return new TypedIndexer<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer);
+			if(type == typeof(DateOnly))
+				return new TypedIndexer<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
+			throw new NotImplementedException($"Could not create TypedIndexer for type {type}");
+        }
+
+        internal static IReadOnlyBuffer<ReadOnlyVector> OneHotConverter(IReadOnlyBuffer buffer, ICanIndex indexer)
+        {
+            var type = buffer.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new OneHotConverter<bool>((IReadOnlyBuffer<bool>)buffer, (ICanIndex<bool>)indexer);
+			if(typeCode == TypeCode.SByte)
+				return new OneHotConverter<sbyte>((IReadOnlyBuffer<sbyte>)buffer, (ICanIndex<sbyte>)indexer);
+			if(typeCode == TypeCode.Single)
+				return new OneHotConverter<float>((IReadOnlyBuffer<float>)buffer, (ICanIndex<float>)indexer);
+			if(typeCode == TypeCode.Double)
+				return new OneHotConverter<double>((IReadOnlyBuffer<double>)buffer, (ICanIndex<double>)indexer);
+			if(typeCode == TypeCode.Decimal)
+				return new OneHotConverter<decimal>((IReadOnlyBuffer<decimal>)buffer, (ICanIndex<decimal>)indexer);
+			if(typeCode == TypeCode.String)
+				return new OneHotConverter<string>((IReadOnlyBuffer<string>)buffer, (ICanIndex<string>)indexer);
+			if(typeCode == TypeCode.Int16)
+				return new OneHotConverter<short>((IReadOnlyBuffer<short>)buffer, (ICanIndex<short>)indexer);
+			if(typeCode == TypeCode.Int32)
+				return new OneHotConverter<int>((IReadOnlyBuffer<int>)buffer, (ICanIndex<int>)indexer);
+			if(typeCode == TypeCode.Int64)
+				return new OneHotConverter<long>((IReadOnlyBuffer<long>)buffer, (ICanIndex<long>)indexer);
+			if(typeCode == TypeCode.DateTime)
+				return new OneHotConverter<DateTime>((IReadOnlyBuffer<DateTime>)buffer, (ICanIndex<DateTime>)indexer);
+			if(type == typeof(IndexList))
+				return new OneHotConverter<IndexList>((IReadOnlyBuffer<IndexList>)buffer, (ICanIndex<IndexList>)indexer);
+			if(type == typeof(WeightedIndexList))
+				return new OneHotConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, (ICanIndex<WeightedIndexList>)indexer);
+			if(type == typeof(ReadOnlyVector))
+				return new OneHotConverter<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer, (ICanIndex<ReadOnlyVector>)indexer);
+			if(type == typeof(ReadOnlyMatrix))
+				return new OneHotConverter<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)buffer, (ICanIndex<ReadOnlyMatrix>)indexer);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new OneHotConverter<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)buffer, (ICanIndex<ReadOnlyTensor3D>)indexer);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new OneHotConverter<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)buffer, (ICanIndex<ReadOnlyTensor4D>)indexer);
+			if(type == typeof(TimeOnly))
+				return new OneHotConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer, (ICanIndex<TimeOnly>)indexer);
+			if(type == typeof(DateOnly))
+				return new OneHotConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer, (ICanIndex<DateOnly>)indexer);
+			throw new NotImplementedException($"Could not create OneHotConverter for type {type}");
+        }
+
+        internal static IReadOnlyBuffer<int> CategoricalIndexConverter(IReadOnlyBuffer buffer, ICanIndex indexer)
+        {
+            var type = buffer.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new CategoricalIndexConverter<bool>((IReadOnlyBuffer<bool>)buffer, (ICanIndex<bool>)indexer);
+			if(typeCode == TypeCode.SByte)
+				return new CategoricalIndexConverter<sbyte>((IReadOnlyBuffer<sbyte>)buffer, (ICanIndex<sbyte>)indexer);
+			if(typeCode == TypeCode.Single)
+				return new CategoricalIndexConverter<float>((IReadOnlyBuffer<float>)buffer, (ICanIndex<float>)indexer);
+			if(typeCode == TypeCode.Double)
+				return new CategoricalIndexConverter<double>((IReadOnlyBuffer<double>)buffer, (ICanIndex<double>)indexer);
+			if(typeCode == TypeCode.Decimal)
+				return new CategoricalIndexConverter<decimal>((IReadOnlyBuffer<decimal>)buffer, (ICanIndex<decimal>)indexer);
+			if(typeCode == TypeCode.String)
+				return new CategoricalIndexConverter<string>((IReadOnlyBuffer<string>)buffer, (ICanIndex<string>)indexer);
+			if(typeCode == TypeCode.Int16)
+				return new CategoricalIndexConverter<short>((IReadOnlyBuffer<short>)buffer, (ICanIndex<short>)indexer);
+			if(typeCode == TypeCode.Int32)
+				return new CategoricalIndexConverter<int>((IReadOnlyBuffer<int>)buffer, (ICanIndex<int>)indexer);
+			if(typeCode == TypeCode.Int64)
+				return new CategoricalIndexConverter<long>((IReadOnlyBuffer<long>)buffer, (ICanIndex<long>)indexer);
+			if(typeCode == TypeCode.DateTime)
+				return new CategoricalIndexConverter<DateTime>((IReadOnlyBuffer<DateTime>)buffer, (ICanIndex<DateTime>)indexer);
+			if(type == typeof(IndexList))
+				return new CategoricalIndexConverter<IndexList>((IReadOnlyBuffer<IndexList>)buffer, (ICanIndex<IndexList>)indexer);
+			if(type == typeof(WeightedIndexList))
+				return new CategoricalIndexConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, (ICanIndex<WeightedIndexList>)indexer);
+			if(type == typeof(ReadOnlyVector))
+				return new CategoricalIndexConverter<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer, (ICanIndex<ReadOnlyVector>)indexer);
+			if(type == typeof(ReadOnlyMatrix))
+				return new CategoricalIndexConverter<ReadOnlyMatrix>((IReadOnlyBuffer<ReadOnlyMatrix>)buffer, (ICanIndex<ReadOnlyMatrix>)indexer);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new CategoricalIndexConverter<ReadOnlyTensor3D>((IReadOnlyBuffer<ReadOnlyTensor3D>)buffer, (ICanIndex<ReadOnlyTensor3D>)indexer);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new CategoricalIndexConverter<ReadOnlyTensor4D>((IReadOnlyBuffer<ReadOnlyTensor4D>)buffer, (ICanIndex<ReadOnlyTensor4D>)indexer);
+			if(type == typeof(TimeOnly))
+				return new CategoricalIndexConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer, (ICanIndex<TimeOnly>)indexer);
+			if(type == typeof(DateOnly))
+				return new CategoricalIndexConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer, (ICanIndex<DateOnly>)indexer);
+			throw new NotImplementedException($"Could not create CategoricalIndexConverter for type {type}");
+        }
+
+        internal static IReadOnlyBuffer NormalizationConverter(IReadOnlyBuffer buffer, INormalize normalization)
+        {
+            var type = buffer.DataType;
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.SByte)
+				return new NormalizationConverter<sbyte>((IReadOnlyBuffer<sbyte>)buffer, normalization);
+			if(typeCode == TypeCode.Single)
+				return new NormalizationConverter<float>((IReadOnlyBuffer<float>)buffer, normalization);
+			if(typeCode == TypeCode.Double)
+				return new NormalizationConverter<double>((IReadOnlyBuffer<double>)buffer, normalization);
+			if(typeCode == TypeCode.Decimal)
+				return new NormalizationConverter<decimal>((IReadOnlyBuffer<decimal>)buffer, normalization);
+			if(typeCode == TypeCode.Int16)
+				return new NormalizationConverter<short>((IReadOnlyBuffer<short>)buffer, normalization);
+			if(typeCode == TypeCode.Int32)
+				return new NormalizationConverter<int>((IReadOnlyBuffer<int>)buffer, normalization);
+			if(typeCode == TypeCode.Int64)
+				return new NormalizationConverter<long>((IReadOnlyBuffer<long>)buffer, normalization);
+			throw new NotImplementedException($"Could not create NormalizationConverter for type {type}");
+        }
+
+        internal static ICanVectorise NumericVectoriser(Type type)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new NumericVectoriser<bool>();
+			if(typeCode == TypeCode.SByte)
+				return new NumericVectoriser<sbyte>();
+			if(typeCode == TypeCode.Single)
+				return new NumericVectoriser<float>();
+			if(typeCode == TypeCode.Double)
+				return new NumericVectoriser<double>();
+			if(typeCode == TypeCode.Decimal)
+				return new NumericVectoriser<decimal>();
+			if(typeCode == TypeCode.Int16)
+				return new NumericVectoriser<short>();
+			if(typeCode == TypeCode.Int32)
+				return new NumericVectoriser<int>();
+			if(typeCode == TypeCode.Int64)
+				return new NumericVectoriser<long>();
+			if(typeCode == TypeCode.String)
+				return new NumericVectoriser<string>();
+			throw new NotImplementedException($"Could not create NumericVectoriser for type {type}");
+        }
+
+        internal static ICanVectorise CategoricalIndexVectoriser(Type type)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new CategoricalIndexVectoriser<bool>();
+			if(typeCode == TypeCode.SByte)
+				return new CategoricalIndexVectoriser<sbyte>();
+			if(typeCode == TypeCode.Single)
+				return new CategoricalIndexVectoriser<float>();
+			if(typeCode == TypeCode.Double)
+				return new CategoricalIndexVectoriser<double>();
+			if(typeCode == TypeCode.Decimal)
+				return new CategoricalIndexVectoriser<decimal>();
+			if(typeCode == TypeCode.String)
+				return new CategoricalIndexVectoriser<string>();
+			if(typeCode == TypeCode.Int16)
+				return new CategoricalIndexVectoriser<short>();
+			if(typeCode == TypeCode.Int32)
+				return new CategoricalIndexVectoriser<int>();
+			if(typeCode == TypeCode.Int64)
+				return new CategoricalIndexVectoriser<long>();
+			if(typeCode == TypeCode.DateTime)
+				return new CategoricalIndexVectoriser<DateTime>();
+			if(type == typeof(IndexList))
+				return new CategoricalIndexVectoriser<IndexList>();
+			if(type == typeof(WeightedIndexList))
+				return new CategoricalIndexVectoriser<WeightedIndexList>();
+			if(type == typeof(ReadOnlyVector))
+				return new CategoricalIndexVectoriser<ReadOnlyVector>();
+			if(type == typeof(ReadOnlyMatrix))
+				return new CategoricalIndexVectoriser<ReadOnlyMatrix>();
+			if(type == typeof(ReadOnlyTensor3D))
+				return new CategoricalIndexVectoriser<ReadOnlyTensor3D>();
+			if(type == typeof(ReadOnlyTensor4D))
+				return new CategoricalIndexVectoriser<ReadOnlyTensor4D>();
+			if(type == typeof(TimeOnly))
+				return new CategoricalIndexVectoriser<TimeOnly>();
+			if(type == typeof(DateOnly))
+				return new CategoricalIndexVectoriser<DateOnly>();
+			throw new NotImplementedException($"Could not create CategoricalIndexVectoriser for type {type}");
+        }
+
+        internal static ICanVectorise OneHotVectoriser(Type type, uint maxSize)
+        {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.Boolean)
+				return new OneHotVectoriser<bool>(maxSize);
+			if(typeCode == TypeCode.SByte)
+				return new OneHotVectoriser<sbyte>(maxSize);
+			if(typeCode == TypeCode.Single)
+				return new OneHotVectoriser<float>(maxSize);
+			if(typeCode == TypeCode.Double)
+				return new OneHotVectoriser<double>(maxSize);
+			if(typeCode == TypeCode.Decimal)
+				return new OneHotVectoriser<decimal>(maxSize);
+			if(typeCode == TypeCode.String)
+				return new OneHotVectoriser<string>(maxSize);
+			if(typeCode == TypeCode.Int16)
+				return new OneHotVectoriser<short>(maxSize);
+			if(typeCode == TypeCode.Int32)
+				return new OneHotVectoriser<int>(maxSize);
+			if(typeCode == TypeCode.Int64)
+				return new OneHotVectoriser<long>(maxSize);
+			if(typeCode == TypeCode.DateTime)
+				return new OneHotVectoriser<DateTime>(maxSize);
+			if(type == typeof(IndexList))
+				return new OneHotVectoriser<IndexList>(maxSize);
+			if(type == typeof(WeightedIndexList))
+				return new OneHotVectoriser<WeightedIndexList>(maxSize);
+			if(type == typeof(ReadOnlyVector))
+				return new OneHotVectoriser<ReadOnlyVector>(maxSize);
+			if(type == typeof(ReadOnlyMatrix))
+				return new OneHotVectoriser<ReadOnlyMatrix>(maxSize);
+			if(type == typeof(ReadOnlyTensor3D))
+				return new OneHotVectoriser<ReadOnlyTensor3D>(maxSize);
+			if(type == typeof(ReadOnlyTensor4D))
+				return new OneHotVectoriser<ReadOnlyTensor4D>(maxSize);
+			if(type == typeof(TimeOnly))
+				return new OneHotVectoriser<TimeOnly>(maxSize);
+			if(type == typeof(DateOnly))
+				return new OneHotVectoriser<DateOnly>(maxSize);
+			throw new NotImplementedException($"Could not create OneHotVectoriser for type {type}");
         }
     }
 }

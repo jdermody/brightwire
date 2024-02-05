@@ -7,9 +7,9 @@ using System.Threading;
 using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
-using BrightData.DataTable;
 using System.Threading.Tasks;
 using BrightWire.ExecutionGraph.Helper;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire
 {

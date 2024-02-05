@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly.Converter
@@ -12,7 +14,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
     /// <typeparam name="FT"></typeparam>
     /// <typeparam name="TT"></typeparam>
     /// <param name="from"></param>
-    abstract class ReadOnlyConverterBase<FT, TT>(IReadOnlyBuffer<FT> from) : IReadOnlyBuffer<TT>
+    abstract class ReadOnlyConverterBase<FT, TT>(IReadOnlyBuffer<FT> from) : TypedBufferBase<TT>, IReadOnlyBuffer<TT>
         where FT : notnull
         where TT : notnull
     {
@@ -41,19 +43,13 @@ namespace BrightData.Buffer.ReadOnly.Converter
             }, notify, message, ct);
         }
 
-        public async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)
         {
             var block = await from.GetTypedBlock(blockIndex);
             var ret = new Memory<TT>(new TT[block.Length]);
             for (var i = 0; i < block.Length; i++)
                 ret.Span[i] = Convert(block.Span[i]);
             return ret;
-        }
-
-        public async Task<ReadOnlyMemory<object>> GetBlock(uint blockIndex)
-        {
-            var block = await GetTypedBlock(blockIndex);
-            return block.AsObjects();
         }
 
         public async IAsyncEnumerable<TT> EnumerateAllTyped()

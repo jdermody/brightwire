@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
@@ -12,7 +14,7 @@ namespace BrightData.Buffer.ReadOnly
     /// Read only buffer that reads from a section of a byte block reader
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class BlockReaderReadOnlyBuffer<T> : IReadOnlyBufferWithMetaData<T> where T : unmanaged
+    internal class BlockReaderReadOnlyBuffer<T> : TypedBufferBase<T>, IReadOnlyBufferWithMetaData<T> where T : unmanaged
     {
         readonly IByteBlockReader _reader;
         readonly uint _offset, _byteSize, _sizeOfT;
@@ -47,7 +49,7 @@ namespace BrightData.Buffer.ReadOnly
             notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
-        public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;

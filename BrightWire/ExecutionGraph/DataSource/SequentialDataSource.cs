@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
-using BrightData.DataTable;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {

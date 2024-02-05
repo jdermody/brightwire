@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightData.DataTable;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {

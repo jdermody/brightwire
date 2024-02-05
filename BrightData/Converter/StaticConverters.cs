@@ -39,16 +39,16 @@ namespace BrightData.Converter
         /// <returns></returns>
         public static ICanConvert GetConverter(Type typeFrom, Type typeTo)
         {
-            return Type.GetTypeCode(typeFrom) switch {
-                TypeCode.Boolean => ConvertToBoolean(typeTo),
-                TypeCode.SByte   => GenericTypeMapping.ConvertToSignedByte(typeTo),
-                TypeCode.Int16   => GenericTypeMapping.ConvertToShort(typeTo),
-                TypeCode.Int32   => GenericTypeMapping.ConvertToInt(typeTo),
-                TypeCode.Int64   => GenericTypeMapping.ConvertToLong(typeTo),
-                TypeCode.Single  => GenericTypeMapping.ConvertToFloat(typeTo),
-                TypeCode.Double  => GenericTypeMapping.ConvertToDouble(typeTo),
-                TypeCode.Decimal => GenericTypeMapping.ConvertToDecimal(typeTo),
-                _                => throw new NotImplementedException()
+            return Type.GetTypeCode(typeTo) switch {
+                TypeCode.Boolean => ConvertToBoolean(typeFrom),
+                TypeCode.SByte   => GenericTypeMapping.ConvertToSignedByte(typeFrom),
+                TypeCode.Int16   => GenericTypeMapping.ConvertToShort(typeFrom),
+                TypeCode.Int32   => GenericTypeMapping.ConvertToInt(typeFrom),
+                TypeCode.Int64   => GenericTypeMapping.ConvertToLong(typeFrom),
+                TypeCode.Single  => GenericTypeMapping.ConvertToFloat(typeFrom),
+                TypeCode.Double  => GenericTypeMapping.ConvertToDouble(typeFrom),
+                TypeCode.Decimal => GenericTypeMapping.ConvertToDecimal(typeFrom),
+                _                => throw new NotImplementedException($"Could not create type mapping for {typeFrom} to {typeTo}")
             };
         }
 

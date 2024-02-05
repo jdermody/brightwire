@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
@@ -14,7 +16,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
     /// <param name="index"></param>
     /// <param name="mapper"></param>
     internal class MappedReadOnlyBuffer<IT, T>(IReadOnlyBufferWithMetaData<IT> index, BlockMapper<IT, T> mapper)
-        : IReadOnlyBufferWithMetaData<T>
+        : TypedBufferBase<T>, IReadOnlyBufferWithMetaData<T>
         where IT : notnull
         where T : notnull
     {
@@ -32,7 +34,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
             }, notify, msg, ct);
         }
 
-        public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
+        public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;

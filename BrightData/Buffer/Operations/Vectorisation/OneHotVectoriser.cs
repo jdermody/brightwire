@@ -32,6 +32,7 @@ namespace BrightData.Buffer.Operations.Vectorisation
 
         public override void WriteTo(MetaData metaData)
         {
+            metaData.SetIsOneHot(true);
             foreach (var item in _table.OrderBy(d => d.Value))
                 metaData.Set(Consts.CategoryPrefix + item.Value, item.Key);
         }
