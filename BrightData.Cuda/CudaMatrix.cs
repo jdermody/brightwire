@@ -3,12 +3,10 @@
 namespace BrightData.Cuda
 {
     /// <inheritdoc />
-    public class CudaMatrix : MutableMatrix<CudaLinearAlgebraProvider>
+    /// <inheritdoc />
+    public class CudaMatrix(INumericSegment<float> data, uint rows, uint columns, CudaLinearAlgebraProvider lap) 
+        : MutableMatrix<CudaLinearAlgebraProvider>(data, rows, columns, lap)
     {
-        /// <inheritdoc />
-        public CudaMatrix(INumericSegment<float> data, uint rows, uint columns, CudaLinearAlgebraProvider lap) : base(data, rows, columns, lap)
-        {
-        }
 
         /// <inheritdoc />
         public override IVector GetColumnVector(uint index)

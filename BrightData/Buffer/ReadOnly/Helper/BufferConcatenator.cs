@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
@@ -43,7 +42,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
         public Type DataType { get; }
         public MetaData MetaData { get; }
 
-        public async IAsyncEnumerable<object> EnumerateAll()
+        public override async IAsyncEnumerable<object> EnumerateAll()
         {
             foreach (var buffer in _buffers)
             {
@@ -70,7 +69,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
             throw new Exception("Block not found");
         }
 
-        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        public override async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             foreach (var buffer in _buffers)
             {
@@ -78,7 +77,5 @@ namespace BrightData.Buffer.ReadOnly.Helper
                     yield return item;
             }
         }
-
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
     }
 }

@@ -1595,6 +1595,83 @@
         <member name="P:BrightData.DataTable.Columns.Tensor4DColumnType.Size">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.DataTable.Helper.VectorisationModel">
+            <summary>
+            A collection of vectorisers (such as from the columns of a data table)
+            </summary>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.#ctor(BrightData.ICanVectorise[])">
+            <summary>
+            Initialise the model from a collection of vectorisers
+            </summary>
+            <param name="vectorisers"></param>
+        </member>
+        <member name="P:BrightData.DataTable.Helper.VectorisationModel.OutputSize">
+            <summary>
+            The combined output size of all vectorisers
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.Helper.VectorisationModel.Vectorisers">
+            <summary>
+            The source vectorisers
+            </summary>
+        </member>
+        <member name="P:BrightData.DataTable.Helper.VectorisationModel.SourceColumnIndices">
+            <summary>
+            The source column indices from the data table (if available)
+            </summary>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.Types.MetaData[])">
+            <summary>
+            Vectorise the buffers as an enumerable
+            </summary>
+            <param name="buffers">Buffers to vectoriser</param>
+            <param name="metaData">Metadata in which to store the vectorisation parameters</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:BrightData.DataTable.Helper.VectorisationModel.VectorCallback">
+            <summary>
+            Called for each vector
+            </summary>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.ForEachVector(BrightData.IReadOnlyBufferWithMetaData[],BrightData.DataTable.Helper.VectorisationModel.VectorCallback)">
+            <summary>
+            Vectorise the buffers and pass each vector to a callback
+            </summary>
+            <param name="buffers"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.ICanRandomlyAccessData)">
+            <summary>
+            Single vectorisation
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(System.Object[])">
+            <summary>
+            Single vectorisation
+            </summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IReadOnlyBufferWithMetaData[])">
+            <summary>
+            Vectorise the buffers as an enumerable
+            </summary>
+            <param name="buffers"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Vectorise the data table
+            </summary>
+            <param name="table"></param>
+            <param name="columnIndices">List of column indices to vectorise (optional)</param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.DataTable.Rows.GenericTableRow">
             <summary>
             Generic table row - column types are not specified
@@ -1687,83 +1764,6 @@
             Retrieves a value based on column index
             </summary>
             <param name="columnIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.DataTable.VectorisationModel">
-            <summary>
-            A collection of vectorisers (such as from the columns of a data table)
-            </summary>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.#ctor(BrightData.ICanVectorise[])">
-            <summary>
-            Initialise the model from a collection of vectorisers
-            </summary>
-            <param name="vectorisers"></param>
-        </member>
-        <member name="P:BrightData.DataTable.VectorisationModel.OutputSize">
-            <summary>
-            The combined output size of all vectorisers
-            </summary>
-        </member>
-        <member name="P:BrightData.DataTable.VectorisationModel.Vectorisers">
-            <summary>
-            The source vectorisers
-            </summary>
-        </member>
-        <member name="P:BrightData.DataTable.VectorisationModel.SourceColumnIndices">
-            <summary>
-            The source column indices from the data table (if available)
-            </summary>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.Types.MetaData[])">
-            <summary>
-            Vectorise the buffers as an enumerable
-            </summary>
-            <param name="buffers">Buffers to vectoriser</param>
-            <param name="metaData">Metadata in which to store the vectorisation parameters</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="T:BrightData.DataTable.VectorisationModel.VectorCallback">
-            <summary>
-            Called for each vector
-            </summary>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.ForEachVector(BrightData.IReadOnlyBufferWithMetaData[],BrightData.DataTable.VectorisationModel.VectorCallback)">
-            <summary>
-            Vectorise the buffers and pass each vector to a callback
-            </summary>
-            <param name="buffers"></param>
-            <param name="callback"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.Vectorise(BrightData.ICanRandomlyAccessData)">
-            <summary>
-            Single vectorisation
-            </summary>
-            <param name="data"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.Vectorise(System.Object[])">
-            <summary>
-            Single vectorisation
-            </summary>
-            <param name="values"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.Vectorise(BrightData.IReadOnlyBufferWithMetaData[])">
-            <summary>
-            Vectorise the buffers as an enumerable
-            </summary>
-            <param name="buffers"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.VectorisationModel.Vectorise(BrightData.IDataTable,System.UInt32[])">
-            <summary>
-            Vectorise the data table
-            </summary>
-            <param name="table"></param>
-            <param name="columnIndices">List of column indices to vectorise (optional)</param>
             <returns></returns>
         </member>
         <member name="T:BrightData.TableRow`2">
@@ -7133,6 +7133,13 @@
             <summary>
             Enumerates all objects within the buffer
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyBuffer.GetBlock(System.UInt32)">
+            <summary>
+            Returns the specified block as an array
+            </summary>
+            <param name="blockIndex"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.IReadOnlyBuffer`1">

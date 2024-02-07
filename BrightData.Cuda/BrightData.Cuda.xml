@@ -387,8 +387,10 @@
         </member>
         <member name="T:BrightData.Cuda.CudaMatrix">
             <inheritdoc />
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.#ctor(BrightData.INumericSegment{System.Single},System.UInt32,System.UInt32,BrightData.Cuda.CudaLinearAlgebraProvider)">
+            <inheritdoc />
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.GetColumnVector(System.UInt32)">

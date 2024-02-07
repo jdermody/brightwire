@@ -157,7 +157,6 @@ namespace ExampleCode
         {
             Start(context, useMkl, useCuda);
             using var mnist = await context.Mnist();
-            context.LinearAlgebraProvider.BindThread();
             await mnist.TrainConvolutionalNeuralNetwork();
         }
 

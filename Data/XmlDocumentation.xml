@@ -226,7 +226,7 @@
 				<param type="System.ReadOnlySpan&lt;T&gt;" name="block" summary="" />
 			</method>
 </interface>
-<interface name="BrightData.IAppendToBuffer" base="">
+<interface name="BrightData.IAppendToBuffer" base="BrightData.IAppendBlocks">
 	<summary>
 		Appends an object to a buffer
 	</summary>
@@ -402,7 +402,15 @@
 				<param type="TF" name="data" summary="Object to convert" />
 			</method>
 </interface>
-<interface name="BrightData.ICanIndex&lt;T&gt;" base="BrightData.IHaveSize">
+<interface name="BrightData.ICanIndex" base="BrightData.IHaveSize">
+	<summary>
+		Maps objects to a consistent index
+	</summary>
+		<method type="System.Collections.Generic.Dictionary&lt;System.String, System.UInt32&gt;" name="GetMapping">
+		<summary>Returns the mapping</summary>
+			</method>
+</interface>
+<interface name="BrightData.ICanIndex&lt;T&gt;" base="BrightData.ICanIndex">
 	<summary>
 		Maps objects of type T to an index
 	</summary>
@@ -643,10 +651,10 @@
 		<summary>Creates a new data source, using the current as a template but replacing the data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="The new data table" />
 			</method>
-	<property type="BrightData.DataTable.VectorisationModel" name="InputVectoriser">
+	<property type="BrightData.DataTable.Helper.VectorisationModel" name="InputVectoriser">
 		<summary>Table vectoriser to create a feature vector</summary>
 	</property>
-	<property type="BrightData.DataTable.VectorisationModel" name="OutputVectoriser">
+	<property type="BrightData.DataTable.Helper.VectorisationModel" name="OutputVectoriser">
 		<summary>Table vectoriser to create a target vector</summary>
 	</property>
 </interface>
@@ -856,6 +864,11 @@
 		<summary>Returns a typed column</summary>
 				<param type="System.UInt32" name="index" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBufferWithMetaData&lt;TT&gt;" name="GetColumn">
+		<summary>Returns a typed column after applying a conversion function to each value</summary>
+				<param type="System.UInt32" name="index" summary="" />
+				<param type="System.Func&lt;FT, TT&gt;" name="converter" summary="" />
+			</method>
 	<method type="System.Threading.Tasks.Task&lt;BrightData.Types.MetaData[]&gt;" name="GetColumnAnalysis">
 		<summary>Returns column analysis of the specified columns (or all if none specified)</summary>
 				<param type="System.UInt32[]" name="columnIndices" summary="" />
@@ -870,7 +883,7 @@
 				<param type="System.UInt32" name="columnIndex" summary="" />
 				<param type="System.UInt32[]" name="rowIndices" summary="" />
 			</method>
-	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.DataTable.TableRow&gt;" name="EnumerateRows">
+	<method type="System.Collections.Generic.IAsyncEnumerable&lt;BrightData.DataTable.Rows.GenericTableRow&gt;" name="EnumerateRows">
 		<summary>Enumerates all rows of the table</summary>
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
@@ -888,11 +901,11 @@
 				<param type="System.IO.Stream" name="stream" summary="" />
 				<param type="System.UInt32[]" name="rowIndices" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.TableRow[]&gt;" name="GetRows">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Rows.GenericTableRow[]&gt;" name="GetRows">
 		<summary>Returns an array of rows</summary>
 				<param type="System.UInt32[]" name="rowIndices" summary="" />
 			</method>
-	<property type="BrightData.DataTable.TableRow" name="this">
+	<property type="BrightData.DataTable.Rows.GenericTableRow" name="this">
 		<summary>Returns a row from the table</summary>
 	</property>
 </interface>
@@ -1864,6 +1877,10 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	<method type="System.Collections.Generic.IAsyncEnumerable&lt;System.Object&gt;" name="EnumerateAll">
 		<summary>Enumerates all objects within the buffer</summary>
 			</method>
+	<method type="System.Threading.Tasks.Task&lt;System.Array&gt;" name="GetBlock">
+		<summary>Returns the specified block as an array</summary>
+				<param type="System.UInt32" name="blockIndex" summary="" />
+			</method>
 </interface>
 <interface name="BrightData.IReadOnlyBuffer&lt;T&gt;" base="BrightData.IReadOnlyBuffer">
 	<summary>
@@ -2034,7 +2051,7 @@ https://en.wikipedia.org/wiki/Singular_value_decomposition</summary>
 	</summary>
 		<method type="(System.String Label, System.Single Weight)[]" name="Classify">
 		<summary>Classifies a convertible row</summary>
-				<param type="BrightData.DataTable.TableRow" name="row" summary="Row to classify" />
+				<param type="BrightData.DataTable.Rows.GenericTableRow" name="row" summary="Row to classify" />
 			</method>
 </interface>
 <interface name="BrightData.ISetLinearAlgebraProvider" base="">
@@ -3210,10 +3227,10 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary></summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 			</method>
-	<property type="BrightData.DataTable.VectorisationModel" name="InputVectoriser">
+	<property type="BrightData.DataTable.Helper.VectorisationModel" name="InputVectoriser">
 		<summary></summary>
 	</property>
-	<property type="BrightData.DataTable.VectorisationModel" name="OutputVectoriser">
+	<property type="BrightData.DataTable.Helper.VectorisationModel" name="OutputVectoriser">
 		<summary></summary>
 	</property>
 	<method type="System.UInt32[][]" name="GetSequentialBatches" is-static="false">
@@ -3780,6 +3797,11 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Casts a buffer to another type</summary>
 				<param type="BrightData.IReadOnlyBuffer&lt;FT&gt;" name="buffer" summary="" />
 			</method>
+	<method type="BrightData.IReadOnlyBuffer" name="ConvertUnmanagedTo" is-static="true">
+		<summary>Converts the buffer that contains an unmanaged type to the specified type</summary>
+				<param type="BrightData.IReadOnlyBuffer" name="buffer" summary="" />
+				<param type="System.Type" name="type" summary="" />
+			</method>
 </class>
 <class name="BrightData.ExtensionMethods" base="" is-static="true" is-abstract="false">
 	<summary>
@@ -3887,6 +3909,11 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 		<summary>Sets this as categorical</summary>
 				<param type="BrightData.Types.MetaData" name="metaData" summary="" />
 				<param type="System.Boolean" name="isCategorical" summary="" />
+			</method>
+	<method type="BrightData.Types.MetaData" name="SetIsOneHot" is-static="true">
+		<summary>Sets this as one hot encoded</summary>
+				<param type="BrightData.Types.MetaData" name="metaData" summary="" />
+				<param type="System.Boolean" name="isOneHotEncoded" summary="" />
 			</method>
 	<method type="BrightData.Types.MetaData" name="SetName" is-static="true">
 		<summary>Sets the name</summary>
@@ -4152,7 +4179,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="System.UInt32" name="maxRows" summary="Maximum number of rows to read" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.TableRow[]&gt;" name="Head" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Rows.GenericTableRow[]&gt;" name="Head" is-static="true">
 		<summary>Returns the head (first few rows) of the data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32" name="size" summary="Number of rows to return" />
@@ -4281,7 +4308,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.ICanRandomlyAccessData" name="segment" summary="" />
 				<param type="System.UInt32" name="columnIndex" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.TableRow[]&gt;" name="Sample" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Rows.GenericTableRow[]&gt;" name="Sample" is-static="true">
 		<summary>Samples rows from the data table</summary>
 				<param type="BrightData.IDataTable" name="table" summary="" />
 				<param type="System.UInt32" name="sampleSize" summary="Number of rows to sample" />
@@ -4420,10 +4447,10 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="System.Threading.Tasks.Task&lt;T[]&gt;" name="MapRows" is-static="true">
 		<summary>Maps table rows to another type</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
-				<param type="System.Func&lt;BrightData.DataTable.TableRow, T&gt;" name="mapper" summary="" />
+				<param type="System.Func&lt;BrightData.DataTable.Rows.GenericTableRow, T&gt;" name="mapper" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.TableRow[]&gt;" name="GetAllRows" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Rows.GenericTableRow[]&gt;" name="GetAllRows" is-static="true">
 		<summary>Returns all rows in the table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
@@ -4465,18 +4492,18 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.Types.MetaData" name="metaData" summary="" />
 				<param type="System.Boolean" name="oneHotEncodeCategoricalData" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.VectorisationModel&gt;" name="GetVectoriser" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Helper.VectorisationModel&gt;" name="GetVectoriser" is-static="true">
 		<summary>Creates a vectoriser for the specified columns in a data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.Boolean" name="oneHotEncodeCategoricalData" summary="" />
 				<param type="System.UInt32[]" name="columnIndices" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.VectorisationModel&gt;" name="GetVectoriser" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Helper.VectorisationModel&gt;" name="GetVectoriser" is-static="true">
 		<summary>Creates a vectoriser from multiple buffers</summary>
 				<param type="BrightData.IReadOnlyBufferWithMetaData[]" name="buffers" summary="" />
 				<param type="System.Boolean" name="oneHotEncodeCategoricalData" summary="" />
 			</method>
-	<method type="BrightData.DataTable.VectorisationModel" name="GetVectoriser" is-static="true">
+	<method type="BrightData.DataTable.Helper.VectorisationModel" name="GetVectoriser" is-static="true">
 		<summary>Creates a vectoriser from saved metadata</summary>
 				<param type="BrightData.Types.MetaData[]" name="metaData" summary="" />
 			</method>
@@ -4517,7 +4544,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.String" name="path" summary="" />
 			</method>
-	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.TableRow[]&gt;" name="GetSlice" is-static="true">
+	<method type="System.Threading.Tasks.Task&lt;BrightData.DataTable.Rows.GenericTableRow[]&gt;" name="GetSlice" is-static="true">
 		<summary>Returns a slice of rows from the data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="System.UInt32" name="start" summary="" />
@@ -4526,7 +4553,7 @@ https://en.wikipedia.org/wiki/Decision_tree_learning
 	<method type="System.Threading.Tasks.Task&lt;BrightData.IBuildDataTables&gt;" name="Project" is-static="true">
 		<summary>Creates a new data table from the existing and a projection function that will be applied to each row</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
-				<param type="System.Func&lt;BrightData.DataTable.TableRow, System.Object[]&gt;" name="projection" summary="" />
+				<param type="System.Func&lt;BrightData.DataTable.Rows.GenericTableRow, System.Object[]&gt;" name="projection" summary="" />
 				<param type="System.Threading.CancellationToken" name="ct" summary="" />
 			</method>
 	<method type="System.Threading.Tasks.Task&lt;BrightData.IDataTable&gt;" name="CreateTable" is-static="true">
@@ -5747,7 +5774,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="T" name="empty" summary="Null value for T" />
 				<param type="System.Int32" name="minObservations" summary="Minimum number of data points to record an observation" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(BrightData.DataTable.TableRow Row, (System.String Label, System.Single Weight)[] Classification)&gt;" name="Classify" is-static="true">
+	<method type="System.Collections.Generic.IEnumerable&lt;(BrightData.DataTable.Rows.GenericTableRow Row, (System.String Label, System.Single Weight)[] Classification)&gt;" name="Classify" is-static="true">
 		<summary>Classifies each row in the data table</summary>
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
 				<param type="BrightWire.IRowClassifier" name="classifier" summary="" />
@@ -5824,7 +5851,7 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.Action&lt;BrightWire.Models.GraphModel&gt;" name="onImprovement" summary="Optional callback for when the test data score has improved against the error metric" />
 				<param type="System.Int32" name="testCadence" summary="Determines how many epochs elapse before the test data is evaluated" />
 			</method>
-	<method type="System.Collections.Generic.IEnumerable&lt;(BrightData.DataTable.TableRow Row, (System.String Label, System.Single Weight)[] Classification)&gt;" name="Classify" is-static="true">
+	<method type="System.Collections.Generic.IEnumerable&lt;(BrightData.DataTable.Rows.GenericTableRow Row, (System.String Label, System.Single Weight)[] Classification)&gt;" name="Classify" is-static="true">
 		<summary>Classifies each row of the data table</summary>
 				<param type="BrightWire.IRowClassifier" name="classifier" summary="" />
 				<param type="BrightData.IDataTable" name="dataTable" summary="" />
@@ -6080,6 +6107,11 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.Type" name="type" summary="Type to create" />
 			</method>
 </class>
+<class name="BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase" base="BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase&lt;BrightData.ICanRandomlyAccessData&gt;" is-static="false" is-abstract="true">
+	<summary>
+		Base class for data tables that work with generic data table rows
+	</summary>
+</class>
 <class name="BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider" base="" is-static="false" is-abstract="false">
 	<summary>
 		Prebuilt gradient descent optimisers
@@ -6119,11 +6151,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<summary>
 		Graph engine execution context
 	</summary>
-	<method type="System.Void" name="GraphExecutionContext" is-static="false">
-		<summary>Constructor</summary>
-				<param type="BrightWire.IGraphEngine" name="graphEngine" summary="Graph engine" />
-				<param type="System.Boolean" name="wantInputInExecutionResults" summary="True to save the graph input in the execution results" />
-			</method>
 	<method type="System.Void" name="Dispose" is-static="false">
 		<summary></summary>
 			</method>
@@ -6769,6 +6796,10 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="BrightData.IReadOnlyVector[]" name="rows" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="CreateMatrixFromRows" is-static="false">
+		<summary>Creates a matrix from the rows supplied as read only vectors</summary>
+				<param type="BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector[]" name="rows" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="CreateMatrixFromRows" is-static="false">
 		<summary>Creates a matrix from the rows supplied</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;System.Single[]&gt;" name="rows" summary="" />
 			</method>
@@ -6783,6 +6814,10 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 	<method type="BrightData.IMatrix" name="CreateMatrixFromRows" is-static="false">
 		<summary>Creates a matrix from the rows supplied as tensor segments</summary>
 				<param type="BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;[]" name="rows" summary="" />
+			</method>
+	<method type="BrightData.IMatrix" name="CreateMatrixFromRows" is-static="false">
+		<summary>Creates a matrix from the rows supplied as tensor segments</summary>
+				<param type="System.Collections.Generic.List&lt;BrightData.IReadOnlyNumericSegment&lt;System.Single&gt;&gt;" name="rows" summary="" />
 			</method>
 	<method type="BrightData.IMatrix" name="CreateMatrixFromRows" is-static="false">
 		<summary>Creates a matrix from the rows supplied as tensor segments</summary>
@@ -7674,11 +7709,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 				<param type="System.Boolean" name="isSequential" summary="" />
 				<param type="BrightWire.MiniBatchSequenceType" name="type" summary="" />
 				<param type="System.UInt32" name="sequenceIndex" summary="" />
-			</method>
-	<method type="System.Void" name="MiniBatch" is-static="false">
-		<summary>Creates a sequential mini batch</summary>
-				<param type="System.UInt32[]" name="rows" summary="The indices of the rows in this mini batch" />
-				<param type="BrightWire.IDataSource" name="dataSource" summary="Associated data source" />
 			</method>
 	<method type="System.Void" name="Add" is-static="false">
 		<summary>Adds another item to the sequential mini batch</summary>
@@ -9427,11 +9457,6 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient</summary>
 		<summary>L2 regularisation</summary>
 	</property>
 </class>
-<class name="BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase" base="BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase&lt;BrightData.ICanRandomlyAccessData&gt;" is-static="false" is-abstract="true">
-	<summary>
-		Base class for data tables that work with data table rows
-	</summary>
-</class>
 <class name="BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence" base="" is-static="false" is-abstract="false">
 	<summary>
 		A sequence within a mini batch
@@ -9674,29 +9699,10 @@ Double not or punctuation stops the not mode</summary>
 	<summary>
 		Static methods to create converters
 	</summary>
-	<method type="BrightData.ICanConvert&lt;T, System.Decimal&gt;" name="GetConverterToDecimal" is-static="true">
-		<summary>Creates a converter to decimals</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Double&gt;" name="GetConverterToDouble" is-static="true">
-		<summary>Creates a converter to doubles</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Single&gt;" name="GetConverterToFloat" is-static="true">
-		<summary>Creates a converter to floats</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int32&gt;" name="GetConverterToInt" is-static="true">
-		<summary>Creates a converter to integers</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int64&gt;" name="GetConverterToLong" is-static="true">
-		<summary>Creates a converter to longs (Int64)</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.Int16&gt;" name="GetConverterToShort" is-static="true">
-		<summary>Creates a converter to shorts (Int16)</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;T, System.SByte&gt;" name="GetConverterToSignedByte" is-static="true">
-		<summary>Creates a convert to signed bytes</summary>
-			</method>
-	<method type="BrightData.ICanConvert&lt;TF, TT&gt;" name="GetNumericConverter" is-static="true">
+	<method type="BrightData.ICanConvert" name="GetConverter" is-static="true">
 		<summary>Creates a numeric converter from TF to TT</summary>
+				<param type="System.Type" name="typeFrom" summary="" />
+				<param type="System.Type" name="typeTo" summary="" />
 			</method>
 	<method type="BrightData.ICanConvert&lt;TF, TT&gt;" name="GetConverter" is-static="true">
 		<summary>Creates a converter from TF to TT</summary>
@@ -9892,7 +9898,7 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.UInt32[]" name="indices" summary="Indices of the data vectors to use in the averaged vector" />
 			</method>
 </class>
-<class name="BrightData.DataTable.VectorisationModel" base="" is-static="false" is-abstract="false">
+<class name="BrightData.DataTable.Helper.VectorisationModel" base="" is-static="false" is-abstract="false">
 	<summary>
 		A collection of vectorisers (such as from the columns of a data table)
 	</summary>
@@ -9917,7 +9923,7 @@ Double not or punctuation stops the not mode</summary>
 	<method type="System.Threading.Tasks.Task" name="ForEachVector" is-static="false">
 		<summary>Vectorise the buffers and pass each vector to a callback</summary>
 				<param type="BrightData.IReadOnlyBufferWithMetaData[]" name="buffers" summary="" />
-				<param type="BrightData.DataTable.VectorisationModel.VectorCallback" name="callback" summary="" />
+				<param type="BrightData.DataTable.Helper.VectorisationModel.VectorCallback" name="callback" summary="" />
 			</method>
 	<method type="System.Single[]" name="Vectorise" is-static="false">
 		<summary>Single vectorisation</summary>

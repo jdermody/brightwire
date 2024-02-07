@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using BrightData.Helper;
 using BrightData.Types;
 
@@ -91,7 +90,7 @@ namespace BrightData.Buffer.Composite
             notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
-        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        public override async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             // read from in memory blocks
             if (_inMemoryBlocks is not null)
@@ -124,12 +123,6 @@ namespace BrightData.Buffer.Composite
                     yield return _currBlock.WrittenMemory.Span[i];
                 }
             }
-        }
-
-        public async IAsyncEnumerable<object> EnumerateAll()
-        {
-            await foreach(var item in EnumerateAllTyped())
-                yield return item;
         }
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
@@ -175,8 +168,6 @@ namespace BrightData.Buffer.Composite
                 return _currBlock.WrittenMemory;
             throw new Exception("Unexpected - failed to find block");
         }
-
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
         public virtual void Append(in T item)
         {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly.Converter
@@ -24,7 +23,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
         public uint BlockSize => from.BlockSize;
         public uint BlockCount => from.BlockCount;
         public Type DataType => typeof(TT);
-        public async IAsyncEnumerable<object> EnumerateAll()
+        public override async IAsyncEnumerable<object> EnumerateAll()
         {
             await foreach (var item in from.EnumerateAll()) {
                 yield return Convert((FT)item);
@@ -52,12 +51,10 @@ namespace BrightData.Buffer.ReadOnly.Converter
             return ret;
         }
 
-        public async IAsyncEnumerable<TT> EnumerateAllTyped()
+        public override async IAsyncEnumerable<TT> EnumerateAllTyped()
         {
             await foreach (var item in from.EnumerateAllTyped())
                 yield return Convert(item);
         }
-
-        public IAsyncEnumerator<TT> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
     }
 }

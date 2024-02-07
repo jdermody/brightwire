@@ -39,7 +39,7 @@ namespace BrightData.Parquet
                 using var rowGroupReader = reader.OpenRowGroupReader(i);
                 for (var j = 0; j < columnCount; j++) {
                     var field = fields[j];
-                    var buffer = columns[i] ??= CreateColumn(rowGroupReader, field, columnMetaData[i], builder);
+                    var buffer = columns[j] ??= CreateColumn(rowGroupReader, field, columnMetaData[i], builder);
                     var columnType = columnTypes[j];
                     tasks[j] = rowGroupReader.ReadColumnAsync(fields[j]).ContinueWith(x => {
                         var parquetData = x.Result.Data;
@@ -70,23 +70,30 @@ namespace BrightData.Parquet
 
         public static async Task WriteAsParquet(this IDataTable dataTable, Stream output)
         {
-            var fields = dataTable.ColumnMetaData
+            var dataFields = dataTable.ColumnMetaData
                 .Zip(dataTable.ColumnTypes).Select((x, i) => new DataField(x.First.GetName($"Column {i + 1}"), x.Second.GetDataType(), false, false))
                 .ToArray();
-            var schema = new ParquetSchema(fields);
+            var schema = new ParquetSchema(dataFields.Cast<Field>().ToArray());
             var columns = dataTable.GetColumns();
             var firstColumn = columns[0];
 
-            // write each block
+            // create a parquet writer
             using var writer = await ParquetWriter.CreateAsync(schema, output);
             writer.CompressionMethod = CompressionMethod.Gzip;
             writer.CompressionLevel = System.IO.Compression.CompressionLevel.Optimal;
+
+            // write the meta data
+            writer.CustomMetadata = dataTable.MetaData.AllKeys.ToDictionary(x => x, x => dataTable.MetaData.Get(x)?.ToString() ?? "");
+
+            // write each block
             for (uint i = 0; i < firstColumn.BlockCount; i++) {
                 using var blockWriter = writer.CreateRowGroup();
+                var columnIndex = 0;
                 foreach (var column in columns) {
                     var metaData = column.MetaData.AllKeys.ToDictionary(x => x, x => column.MetaData.Get(x)?.ToString() ?? "");
                     var array = await column.GetBlock(i);
-                    await blockWriter.WriteColumnAsync(new DataColumn(fields[i], array), metaData);
+                    await blockWriter.WriteColumnAsync(new DataColumn(dataFields[columnIndex], array), metaData);
+                    ++columnIndex;
                 }
             }
         }

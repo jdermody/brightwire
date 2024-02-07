@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
@@ -65,21 +64,13 @@ namespace BrightData.Buffer.ReadOnly
             return ret;
         }
 
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
-
-        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        public override async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < BlockCount; i++) {
                 var block = await GetTypedBlock(i);
                 for (var j = 0; j < block.Length; j++)
                     yield return block.Span[j];
             }
-        }
-
-        public async IAsyncEnumerable<object> EnumerateAll()
-        {
-            await foreach(var item in EnumerateAllTyped())
-                yield return item;
         }
 
         public MetaData MetaData { get; }

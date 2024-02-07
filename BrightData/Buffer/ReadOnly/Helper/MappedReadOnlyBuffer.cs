@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using BrightData.Types;
 
 namespace BrightData.Buffer.ReadOnly.Helper
@@ -43,9 +42,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
             return ret;
         }
 
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
-
-        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        public override async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < BlockCount; i++)
             {
@@ -53,12 +50,6 @@ namespace BrightData.Buffer.ReadOnly.Helper
                 for (var j = 0; j < block.Length; j++)
                     yield return block.Span[j];
             }
-        }
-
-        public async IAsyncEnumerable<object> EnumerateAll()
-        {
-            await foreach (var item in EnumerateAllTyped())
-                yield return item;
         }
 
         public MetaData MetaData => index.MetaData;

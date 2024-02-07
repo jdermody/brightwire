@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.DataTable.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
@@ -37,12 +36,6 @@ namespace BrightData.Buffer.ReadOnly
         public uint BlockSize { get; }
         public uint BlockCount { get; }
         public Type DataType => typeof(T);
-
-        public async IAsyncEnumerable<object> EnumerateAll()
-        {
-            await foreach(var item in EnumerateAllTyped())
-                yield return item;
-        }
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
@@ -84,7 +77,7 @@ namespace BrightData.Buffer.ReadOnly
             return Get(data);
         }
 
-        public async IAsyncEnumerable<T> EnumerateAllTyped()
+        public override async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < BlockCount; i++) {
                 var (position, size) = _blockData[i];
@@ -103,8 +96,6 @@ namespace BrightData.Buffer.ReadOnly
                     yield return typedData.Span[j];
             }
         }
-
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
         protected abstract ReadOnlyMemory<T> Get(ReadOnlyMemory<byte> byteData);
     }
