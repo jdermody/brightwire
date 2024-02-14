@@ -1,5 +1,4 @@
 ﻿using System;
-using BrightData.Converter;
 using BrightData.Helper;
 
 namespace BrightData.Buffer.Operations.Vectorisation

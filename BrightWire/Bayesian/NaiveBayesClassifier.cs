@@ -19,12 +19,11 @@ namespace BrightWire.Bayesian
         {
             readonly uint _columnIndex = summary.ColumnIndex;
             readonly Dictionary<string, double> _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
-            readonly double _nullValue = nullValue;
 
             public double GetProbability(GenericTableRow row)
             {
 	            var val = row.Get<string>(_columnIndex);
-                return _probability.GetValueOrDefault(val, _nullValue);
+                return _probability.GetValueOrDefault(val, nullValue);
             }
         }
         class ContinuousColumn(NaiveBayes.Column column) : IProbabilityProvider

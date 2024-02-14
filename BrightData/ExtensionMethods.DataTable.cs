@@ -10,7 +10,6 @@ using BrightData.Analysis;
 using BrightData.Buffer.ByteBlockReaders;
 using BrightData.Buffer.Operations;
 using BrightData.Buffer.Operations.Vectorisation;
-using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;

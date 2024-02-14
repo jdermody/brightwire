@@ -92,13 +92,6 @@ namespace BrightWire.Helper
             model.InputChannel.WriteTo(writer);
         }
 
-        public static void ReadFrom(BrightDataContext _, BinaryReader reader, ExecutionGraphModel.Wire model)
-        {
-            model.FromId = reader.ReadString();
-            model.ToId = reader.ReadString();
-            model.InputChannel = (uint)reader.ReadInt32();
-        }
-
         public static void WriteTo(BernoulliNaiveBayes model, BinaryWriter writer)
         {
             model.ClassData.WriteTo(writer);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BrightData.Converter;
 using BrightData.Helper;
 
 namespace BrightData.Buffer.Operations.Helper

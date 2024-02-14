@@ -354,6 +354,20 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="rows"></param>
         /// <returns></returns>
+        public virtual IMatrix CreateMatrixFromRows(INumericSegment<float>[] rows)
+        {
+            var columns = rows[0].Size;
+            var ret = CreateMatrix((uint)rows.Length, columns, false);
+            for (var i = 0; i < rows.Length; i++)
+                rows[i].CopyTo(ret.GetRow((uint)i));
+            return ret;
+        }
+
+        /// <summary>
+        /// Creates a matrix from the rows supplied as tensor segments
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <returns></returns>
         public virtual IMatrix CreateMatrixFromRows(List<IReadOnlyNumericSegment<float>> rows) => CreateMatrixFromRows(rows.AsSpan());
 
         /// <summary>
@@ -437,6 +451,20 @@ namespace BrightData.LinearAlgebra
         /// <param name="columns"></param>
         /// <returns></returns>
         public virtual IMatrix CreateMatrixFromColumns(IReadOnlyNumericSegment<float>[] columns)
+        {
+            var rows = columns[0].Size;
+            var ret = CreateMatrix(rows, (uint)columns.Length, false);
+            for (var i = 0; i < columns.Length; i++)
+                columns[i].CopyTo(ret.GetColumn((uint)i));
+            return ret;
+        }
+
+        /// <summary>
+        /// Creates a matrix from the columns supplied as tensor segments
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public virtual IMatrix CreateMatrixFromColumns(INumericSegment<float>[] columns)
         {
             var rows = columns[0].Size;
             var ret = CreateMatrix(rows, (uint)columns.Length, false);

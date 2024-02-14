@@ -4,7 +4,7 @@ using BrightData.LinearAlgebra;
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
     /// <summary>
-    /// Initalises all weights to a constant
+    /// Initializes all weights to a constant
     /// </summary>
     internal class Constant(LinearAlgebraProvider lap, float biasValue = 0f, float weightValue = 1f)
         : IWeightInitialisation

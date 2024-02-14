@@ -23,7 +23,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {
-                    //for(uint i = batch.SequenceCount-1; i >= 0; i++) {
                     foreach(var i in batch.SequenceCount.AsRange().Reverse()) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];

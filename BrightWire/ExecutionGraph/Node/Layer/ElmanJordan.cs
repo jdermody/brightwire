@@ -9,7 +9,7 @@ using BrightWire.ExecutionGraph.Helper;
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
     /// <summary>
-    /// Elman or Joran style recurrent neural network
+    /// Elman or Jordan style recurrent neural network
     /// https://en.wikipedia.org/wiki/Recurrent_neural_network#Elman_networks_and_Jordan_networks
     /// </summary>
     internal class ElmanJordan : NodeBase, IHaveMemoryNode

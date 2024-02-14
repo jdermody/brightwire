@@ -20,6 +20,9 @@ namespace BrightWire.ExecutionGraph.Node
         string? _name;
         List<WireToNode> _output = [];
 
+        public delegate void ForwardDelegate(NodeBase previous, NodeBase current, IGraphData input, IGraphData? output);
+        public event ForwardDelegate? OnForward;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -91,6 +94,7 @@ namespace BrightWire.ExecutionGraph.Node
         {
             // execute the node
             var (from, output, backProp) = ForwardSingleStep(signal, channel, context, prev);
+            OnForward?.Invoke(from, this, signal, output);
 
             // add to the context history
             if (prev != null)
@@ -138,11 +142,7 @@ namespace BrightWire.ExecutionGraph.Node
             if (existing != null && connectedTo != null && wireList != null) {
                 foreach (var wire in Output) {
                     var sendTo = wire.SendTo;
-                    wireList.Add(new ExecutionGraphModel.Wire {
-                        FromId = _id,
-                        InputChannel = wire.Channel,
-                        ToId = sendTo.Id
-                    });
+                    wireList.Add(new ExecutionGraphModel.Wire(_id, sendTo.Id, wire.Channel));
                     if (existing.Add(sendTo))
                         connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
                 }

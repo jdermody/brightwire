@@ -21,30 +21,6 @@ namespace BrightWire.ExecutionGraph.Engine
         public IDataSource? DataSource { get; private set; } = null;
 		public LinearAlgebraProvider LinearAlgebraProvider { get; } = lap;
 
-        //public void AddExecutionResult(IGraphSequenceContext context)
-        //{
-        //    var output = context.Output;
-        //    _executionResults.Add((context, output.Any()
-        //            ? output.Select(o => o.GetMatrix()).ToArray()
-        //            : new[] { context.Data.GetMatrix() }
-        //        ));
-        //}
-
-		//protected override IEnumerable<ExecutionResult> GetResults()
-		//{
-  //          foreach (var (context, data) in _executionResults) {
-		//		uint outputIndex = 0;
-		//		foreach (var output in data) {
-		//			yield return new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex);
-		//			++outputIndex;
-		//		}
-		//		context.Dispose();
-		//		foreach (var matrix in data)
-		//			matrix.Dispose();
-		//	}
-		//	_executionResults.Clear();
-  //      }
-
         public ExecutionGraphSequenceContext CreateContext(GraphExecutionContext executionContext, MiniBatch.Sequence sequence) => new(executionContext, sequence);
 
         async IAsyncEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation)
@@ -131,8 +107,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(DataSource, null);
             using var executionContext = new GraphExecutionContext(this);
-            // ReSharper disable once AccessToDisposedClosure
-            executionContext.Add(provider.GetMiniBatches(1/*, mb => Execute(executionContext, mb)*/));
+            executionContext.Add(provider.GetMiniBatches(1));
 
             while (executionContext.GetNextOperation() is { } operation) {
                 LinearAlgebraProvider.PushScope();
@@ -143,28 +118,6 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider.PopScope();
             DataSource = null;
         }
-
-        //protected ExecutionResult _Execute(float[] input)
-        //{
-        //    _lap.PushLayer();
-        //    ExecutionResult ret = null;
-        //    _dataSource = new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0);
-        //    var provider = new MiniBatchProvider(_dataSource, _lap.Context.Random);
-        //    using (var executionContext = new ExecutionContext(_lap)) {
-        //        executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-        //        IGraphOperation operation;
-        //        while ((operation = executionContext.GetNextOperation()) != null) {
-        //            operation.Execute(executionContext);
-        //            _ClearContextList();
-        //        }
-
-        //        ret = _GetResults().Single();
-        //    }
-        //    _lap.PopLayer();
-        //    _dataSource = null;
-        //    return ret;
-        //}
 
         public async IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {

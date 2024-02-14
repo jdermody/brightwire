@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using BrightData.Buffer.Operations;
 using BrightData.Buffer.Operations.Conversion;
-using BrightData.Buffer.Operations.Helper;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Converter;
 using BrightData.Converter;

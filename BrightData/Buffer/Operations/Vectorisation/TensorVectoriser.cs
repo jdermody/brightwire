@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
-using CommunityToolkit.HighPerformance;
 using System;
 
 namespace BrightData.Buffer.Operations.Vectorisation

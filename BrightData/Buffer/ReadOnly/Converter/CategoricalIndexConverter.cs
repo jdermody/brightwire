@@ -1,11 +1,4 @@
-﻿using BrightData.LinearAlgebra.ReadOnly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightData.Buffer.ReadOnly.Converter
+﻿namespace BrightData.Buffer.ReadOnly.Converter
 {
     /// <summary>
     /// Converts the values in the buffer to a single categorical index

@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = errorSignal.GetMatrix();
-                IReadOnlyNumericSegment<float>[] rowList = matrix.SoftmaxDerivativePerRow(rows);
+                var rowList = matrix.SoftmaxDerivativePerRow(rows);
                 var ret = lap.CreateMatrixFromRows(rowList);
                 rowList.DisposeAll();
                 return errorSignal.ReplaceWith(ret);
