@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.ConstraintValidation
+namespace BrightData.DataTable.ConstraintValidation
 {
     /// <summary>
     /// Data type specification base

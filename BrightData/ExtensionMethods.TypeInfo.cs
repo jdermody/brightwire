@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BrightData.ConstraintValidation;
+using BrightData.DataTable.ConstraintValidation;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;

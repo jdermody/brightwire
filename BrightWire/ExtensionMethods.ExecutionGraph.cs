@@ -162,6 +162,30 @@ namespace BrightWire
 	    }
 
         /// <summary>
+        /// Aligns the output of sequential graph execution into an ordered list of results
+        /// </summary>
+        /// <param name="results">Output from sequential graph execution</param>
+        public static IReadOnlyVector[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+        {
+            var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
+            foreach (var result in results) {
+                var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
+                var rows = result.MiniBatchSequence.MiniBatch.Rows;
+                var outputRows = result.Output;
+                for (var i = 0; i < outputRows.Length; i++) {
+                    var rowIndex = rows[i];
+                    ret.Add((rowIndex, sequenceIndex), outputRows[i]);
+                }
+            }
+            return ret.GroupBy(d => d.Key.RowIndex)
+                    .Select(g => (g.Key, g.OrderBy(d => d.Key.SequenceIndex).Select(d => d.Value).ToArray()))
+                    .OrderBy(d => d.Key)
+                    .Select(d => d.Item2)
+                    .ToArray()
+                ;
+        }
+
+        /// <summary>
         /// Converts the matrix to a generic IGraphData
         /// </summary>
         /// <param name="matrix">Matrix to convert</param>

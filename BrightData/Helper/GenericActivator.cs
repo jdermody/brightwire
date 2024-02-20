@@ -17,7 +17,7 @@ namespace BrightData.Helper
         /// <typeparam name="T">Type to cast created object to</typeparam>
         /// <param name="type">Type of object to create</param>
         /// <param name="args">Arguments to pass to constructor</param>
-        public static T Create<T>(Type type, params object?[]? args)
+        public static T Create<T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type, params object?[]? args)
         {
             var ret = Activator.CreateInstance(type, args);
             return ret != null
@@ -55,7 +55,7 @@ namespace BrightData.Helper
         /// <param name="type">Type to create</param>
         /// <typeparam name="T">Type to return (created object cast to this type)</typeparam>
         /// <returns></returns>
-        public static T CreateUninitialized<T>(Type type)
+        public static T CreateUninitialized<T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] Type type)
         {
             return (T)RuntimeHelpers.GetUninitializedObject(type);
         }

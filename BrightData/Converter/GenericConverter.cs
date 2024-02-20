@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BrightData.Converter
 {
-	/// <summary>
-	/// Converts via a type converter
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="fallback"></param>
-    internal class GenericConverter<T>(T? fallback = default)
+    /// <summary>
+    /// Converts via a type converter
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="fallback"></param>
+    internal class GenericConverter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T? fallback = default)
         where T : struct
     {
 	    readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(T));
@@ -25,3 +26,4 @@ namespace BrightData.Converter
 	    }
     }
 }
+                                                                    

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BrightData.ConstraintValidation
+namespace BrightData.DataTable.ConstraintValidation
 {
     /// <summary>
     /// 
@@ -22,7 +22,8 @@ namespace BrightData.ConstraintValidation
 
         public void Append(ReadOnlySpan<T> inputBlock)
         {
-            foreach (var item in inputBlock) {
+            foreach (var item in inputBlock)
+            {
                 if (!filter.IsValid(item))
                     nonConformingRowIndices.Add(_index);
                 ++_index;

@@ -577,7 +577,7 @@ namespace BrightData.Cuda.CudaToolkit
                         conf.NumAttrs = (uint)arraySize;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CuLaunchAttribute));
+                    var paramsSize = Marshal.SizeOf<CuLaunchAttribute>();
 
                     if (arraySize > 0) {
                         conf.Attrs = Marshal.AllocHGlobal(arraySize * paramsSize);
@@ -774,7 +774,7 @@ namespace BrightData.Cuda.CudaToolkit
                         conf.NumAttrs = (uint)arraySize;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CuLaunchAttribute));
+                    var paramsSize = Marshal.SizeOf<CuLaunchAttribute>();
 
                     if (arraySize > 0) {
                         conf.Attrs = Marshal.AllocHGlobal(arraySize * paramsSize);
@@ -823,7 +823,7 @@ namespace BrightData.Cuda.CudaToolkit
                         conf.NumAttrs = (uint)arraySize;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CuLaunchAttribute));
+                    var paramsSize = Marshal.SizeOf<CuLaunchAttribute>();
                     if (arraySize > 0) {
                         conf.Attrs = Marshal.AllocHGlobal(arraySize * paramsSize);
                     }
@@ -916,7 +916,7 @@ namespace BrightData.Cuda.CudaToolkit
                         arraySize = nodeParams.ExtSemArray.Length;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -965,7 +965,7 @@ namespace BrightData.Cuda.CudaToolkit
 
                 try {
                     const int arraySize = 0;
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     Marshal.WriteIntPtr(mainPtr + 0, IntPtr.Zero);
@@ -1020,7 +1020,7 @@ namespace BrightData.Cuda.CudaToolkit
                         arraySize = nodeParams.ExtSemArray.Length;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreSignalParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -1077,7 +1077,7 @@ namespace BrightData.Cuda.CudaToolkit
                         arraySize = nodeParams.ExtSemArray.Length;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     if (arraySize > 0) {
@@ -1125,7 +1125,7 @@ namespace BrightData.Cuda.CudaToolkit
 
                 try {
                     const int arraySize = 0;
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
                     Marshal.WriteIntPtr(mainPtr + 0, IntPtr.Zero);
@@ -1179,7 +1179,7 @@ namespace BrightData.Cuda.CudaToolkit
                         arraySize = nodeParams.ExtSemArray.Length;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CudaExternalSemaphoreWaitParams));
+                    var paramsSize = Marshal.SizeOf<CudaExternalSemaphoreSignalParams>();
 
                     mainPtr = Marshal.AllocHGlobal(2 * IntPtr.Size + sizeof(int));
 
@@ -1231,7 +1231,7 @@ namespace BrightData.Cuda.CudaToolkit
                 try {
                     retVal = cuGraphBatchMemOpNodeGetParamsInternal(hNode, ref parameters);
                     var arraySize = (int)parameters.Count;
-                    var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
+                    var paramsSize = Marshal.SizeOf<CuStreamBatchMemOpParams>();
 
                     if (arraySize > 0) {
                         nodeParamsOut.ParamArray = new CuStreamBatchMemOpParams[arraySize];
@@ -1270,7 +1270,7 @@ namespace BrightData.Cuda.CudaToolkit
                         parameters.Count = (uint)arraySize;
                     }
 
-                    var paramsSize = Marshal.SizeOf(typeof(CuStreamBatchMemOpParams));
+                    var paramsSize = Marshal.SizeOf<CuStreamBatchMemOpParams>();
                     if (arraySize > 0) {
                         parameters.ParamArray = Marshal.AllocHGlobal(arraySize * paramsSize);
                     }
@@ -1307,7 +1307,7 @@ namespace BrightData.Cuda.CudaToolkit
                 try {
                     retVal = cuGraphMemAllocNodeGetParamsInternal(hNode, ref parameters);
                     var arraySize = (int)parameters.accessDescCount;
-                    var paramsSize = Marshal.SizeOf(typeof(CuMemAccessDesc));
+                    var paramsSize = Marshal.SizeOf<CuMemAccessDesc>();
 
                     if (arraySize > 0) {
                         paramsOut.accessDescs = new CuMemAccessDesc[arraySize];

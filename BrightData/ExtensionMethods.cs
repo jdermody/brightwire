@@ -489,23 +489,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Builds a table of the generic methods from a type
-        /// </summary>
-        /// <param name="type">Type to inspect</param>
-        /// <param name="bindingFlags">Method flags</param>
-        /// <returns></returns>
-        public static Dictionary<string, MethodInfo> GetGenericMethods(
-            this Type type, 
-            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
-        ) {
-            return type.GetMethods(bindingFlags)
-                .Where(m => m.IsGenericMethod)
-                .GroupBy(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First())
-            ;
-        }
-
-        /// <summary>
         /// Enumerates a stream as a series of structs. This is best for small structs such as int32 etc. as the values are not passed by reference.
         /// </summary>
         /// <typeparam name="T"></typeparam>

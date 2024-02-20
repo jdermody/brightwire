@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer.Operations;
-using BrightData.ConstraintValidation;
+using BrightData.DataTable.ConstraintValidation;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -46,7 +47,7 @@ namespace BrightWire.Models
             /// <summary>
             /// The .NET type name of the node type
             /// </summary>
-            public string TypeName { get; set; } = "";
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]public string TypeName { get; set; } = "";
 
             /// <summary>
             /// The unique id within the graph

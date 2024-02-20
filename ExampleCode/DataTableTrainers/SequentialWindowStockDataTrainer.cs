@@ -39,7 +39,7 @@ namespace ExampleCode.DataTableTrainers
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
-                var results = (await executionEngine.Execute(testData).ToListAsync()).OrderSequentialOutput();
+                var results = await executionEngine.Execute(testData).OrderSequentialOutput();
                 var expectedOutput = await Test.GetColumn<ReadOnlyVector>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();

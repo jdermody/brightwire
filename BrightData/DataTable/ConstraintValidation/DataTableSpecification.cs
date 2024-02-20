@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using BrightData;
 
-namespace BrightData.ConstraintValidation
+namespace BrightData.DataTable.ConstraintValidation
 {
     /// <summary>
     /// Data table specification

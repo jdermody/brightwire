@@ -79,6 +79,6 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
         public static Dim3 Min(Dim3 aValue, Dim3 bValue) => new(System.Math.Min(aValue.X, bValue.X), System.Math.Min(aValue.Y, bValue.Y), System.Math.Min(aValue.Z, bValue.Z));
         public static Dim3 Max(Dim3 aValue, Dim3 bValue) => new(System.Math.Max(aValue.X, bValue.X), System.Math.Max(aValue.Y, bValue.Y), System.Math.Max(aValue.Z, bValue.Z));
-        public uint Size => (uint)Marshal.SizeOf(this);
+        public uint Size => (uint)Marshal.SizeOf<Dim3>();
     }
 }

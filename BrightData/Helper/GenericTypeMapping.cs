@@ -7,8 +7,8 @@ using BrightData.Buffer.Operations;
 using System.Collections.Generic;
 using BrightData.Buffer.Operations.Helper;
 using BrightData.Converter;
-using BrightData.ConstraintValidation;
 using BrightData.Buffer.Operations.Vectorisation;
+using BrightData.DataTable.ConstraintValidation;
 
 namespace BrightData.Helper
 {

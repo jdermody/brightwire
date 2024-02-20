@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace BrightWire.Helper
@@ -8,7 +9,7 @@ namespace BrightWire.Helper
 	/// </summary>
     internal static class TypeLoader
     {
-	    public static Type LoadType(string typeName)
+	    public static Type LoadType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]string typeName)
 	    {
 		    var type = Type.GetType(typeName, false) ?? Type.GetType(
                 typeName, 

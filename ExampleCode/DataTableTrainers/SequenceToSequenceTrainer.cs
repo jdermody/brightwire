@@ -42,9 +42,7 @@ namespace ExampleCode.DataTableTrainers
             ExecutionGraphModel? bestModel = null;
             await engine.Train(40, testData, g => bestModel = g.Graph);
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-
-            var output = await executionEngine.Execute(testData).ToListAsync();
-            var orderedOutput = output.OrderSequentialOutput();
+            var orderedOutput = await executionEngine.Execute(testData).OrderSequentialOutput();
 
             // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
@@ -103,8 +101,7 @@ namespace ExampleCode.DataTableTrainers
             await engine.Train(10, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-            var output = await executionEngine.Execute(testData).ToListAsync();
-            var orderedOutput = output.OrderSequentialOutput();
+            var orderedOutput = await executionEngine.Execute(testData).OrderSequentialOutput();
 
             // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()

@@ -44,7 +44,6 @@ namespace BrightData.DataTable
         readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
         readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
         readonly Lazy<IReadOnlyBuffer<object>[]>                    _genericColumns;
-        readonly MethodInfo                                         _createColumnReader;
         BlockMapper<DataRangeColumnType, ReadOnlyVector>            _vectorMapper;
         BlockMapper<MatrixColumnType, ReadOnlyMatrix>               _matrixMapper;
         BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D>           _tensor3DMapper;
@@ -86,8 +85,6 @@ namespace BrightData.DataTable
             MetaData ??= new();
 
             // create column readers
-            var genericMethods  = GetType().GetGenericMethods();
-            _createColumnReader = genericMethods[nameof(CreateColumnReader)];
             _columnReader       = new IReadOnlyBufferWithMetaData[ColumnCount];
             CreateColumnReaders();
 
@@ -118,12 +115,12 @@ namespace BrightData.DataTable
                 var prevColumnType = ColumnTypes[i - 1];
                 var (prevType, prevSize) = prevColumnType.GetColumnType();
                 var nextOffset = prevOffset + prevSize * RowCount;
-                CreateColumnReader(_createColumnReader, prevColumnType, prevType, i - 1, prevOffset, nextOffset - prevOffset);
+                CreateColumnReader(prevColumnType, prevType, i - 1, prevOffset, nextOffset - prevOffset);
                 prevOffset = nextOffset;
             }
             var lastColumnType = ColumnTypes[_columns.Length - 1];
             var (lastColumnDataType, _) = lastColumnType.GetColumnType();
-            CreateColumnReader(_createColumnReader, lastColumnType, lastColumnDataType, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
+            CreateColumnReader(lastColumnType, lastColumnDataType, (uint)_columns.Length - 1, prevOffset, _header.DataOffset + _header.DataSizeBytes - prevOffset);
         }
 
         async Task<List<string>> ReadStrings(uint headerStringOffset, uint headerStringSizeBytes)
@@ -448,9 +445,44 @@ namespace BrightData.DataTable
             return reader.GetItems(rowIndices);
         }
 
-        void CreateColumnReader(MethodInfo createColumnReader, BrightDataType dataType, Type type, uint columnIndex, uint offset, uint size)
+        void CreateColumnReader(BrightDataType dataType, Type type, uint columnIndex, uint offset, uint size)
         {
-            var reader = (IReadOnlyBufferWithMetaData)createColumnReader.MakeGenericMethod(type).Invoke(this, [columnIndex, offset, size])!;
+            IReadOnlyBufferWithMetaData reader;
+            if(type == typeof(bool))
+                reader = new BlockReaderReadOnlyBuffer<bool>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(sbyte))
+                reader = new BlockReaderReadOnlyBuffer<sbyte>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(short))
+                reader = new BlockReaderReadOnlyBuffer<short>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(int))
+                reader = new BlockReaderReadOnlyBuffer<int>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(long))
+                reader = new BlockReaderReadOnlyBuffer<long>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(float))
+                reader = new BlockReaderReadOnlyBuffer<float>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(double))
+                reader = new BlockReaderReadOnlyBuffer<double>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(decimal))
+                reader = new BlockReaderReadOnlyBuffer<decimal>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(uint))
+                reader = new BlockReaderReadOnlyBuffer<uint>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(DateTime))           
+                reader = new BlockReaderReadOnlyBuffer<DateTime>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
+            else if(type == typeof(TimeOnly))           
+                reader = new BlockReaderReadOnlyBuffer<TimeOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
+            else if(type == typeof(DateOnly))           
+                reader = new BlockReaderReadOnlyBuffer<DateOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
+            else if(type == typeof(DataRangeColumnType))           
+                reader = new BlockReaderReadOnlyBuffer<DataRangeColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(MatrixColumnType))           
+                reader = new BlockReaderReadOnlyBuffer<MatrixColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(Tensor3DColumnType))           
+                reader = new BlockReaderReadOnlyBuffer<Tensor3DColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(Tensor4DColumnType))           
+                reader = new BlockReaderReadOnlyBuffer<Tensor4DColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else
+                throw new NotImplementedException($"{type} is not a supported column type");
+
             _columnReader[columnIndex] = dataType switch {
                 BrightDataType.String            => new MappedReadOnlyBuffer<uint, string>((IReadOnlyBufferWithMetaData<uint>)reader, GetStrings),
                 BrightDataType.BinaryData        => new MappedReadOnlyBuffer<DataRangeColumnType, BinaryData>((IReadOnlyBufferWithMetaData<DataRangeColumnType>)reader, GetBinaryData),
@@ -502,9 +534,6 @@ namespace BrightData.DataTable
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
-
-        BlockReaderReadOnlyBuffer<T> CreateColumnReader<T>(uint columnIndex, uint offset, uint size) where T : unmanaged => 
-            new(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
 
         public GenericTableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
     }

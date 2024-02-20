@@ -16,6 +16,7 @@
     <PackageReleaseNotes>performance refactor</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 

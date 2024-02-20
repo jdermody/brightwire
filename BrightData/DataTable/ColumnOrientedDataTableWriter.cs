@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,15 +23,12 @@ namespace BrightData.DataTable
         readonly IProvideDataBlocks? _tempData;
         readonly int               _blockSize;
         readonly uint?             _maxInMemoryBlocks;
-        readonly MethodInfo        _writeStructs;
 
         public ColumnOrientedDataTableWriter(IProvideDataBlocks? tempData = null, int blockSize = Consts.DefaultBlockSize, uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         {
             _tempData = tempData;
             _blockSize = blockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
-            var methods = typeof(ColumnOrientedDataTableWriter).GetGenericMethods();
-            _writeStructs = methods[nameof(WriteStructs)];
         }
 
         public async Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output)
@@ -94,7 +90,7 @@ namespace BrightData.DataTable
                 else if (dataType == BrightDataType.Tensor4D)
                     await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
                 else
-                    await (Task)_writeStructs.MakeGenericMethod(columnType).Invoke(this, [columnSegment, output])!;
+                    await WriteStructs(columnSegment, output);
             }
             header.DataSizeBytes = (uint)(output.Position - header.DataOffset);
 
@@ -186,12 +182,40 @@ namespace BrightData.DataTable
             return ret;
         }
 
+        static Task WriteStructs(IReadOnlyBuffer buffer, Stream stream)
+        {
+            var type = buffer.DataType;
+            if (type == typeof(bool))
+                return WriteStructs((IReadOnlyBuffer<bool>)buffer, stream);
+            if (type == typeof(sbyte))
+                return WriteStructs((IReadOnlyBuffer<sbyte>)buffer, stream);
+            if (type == typeof(short))
+                return WriteStructs((IReadOnlyBuffer<short>)buffer, stream);
+            if (type == typeof(int))
+                return WriteStructs((IReadOnlyBuffer<int>)buffer, stream);
+            if (type == typeof(long))
+                return WriteStructs((IReadOnlyBuffer<long>)buffer, stream);
+            if (type == typeof(float))
+                return WriteStructs((IReadOnlyBuffer<float>)buffer, stream);
+            if (type == typeof(double))
+                return WriteStructs((IReadOnlyBuffer<double>)buffer, stream);
+            if (type == typeof(decimal))
+                return WriteStructs((IReadOnlyBuffer<decimal>)buffer, stream);
+            if (type == typeof(uint))
+                return WriteStructs((IReadOnlyBuffer<uint>)buffer, stream);
+            if (type == typeof(DateTime))
+                return WriteStructs((IReadOnlyBuffer<DateTime>)buffer, stream);
+            if (type == typeof(TimeOnly))
+                return WriteStructs((IReadOnlyBuffer<TimeOnly>)buffer, stream);
+            if (type == typeof(DateOnly))
+                return WriteStructs((IReadOnlyBuffer<DateOnly>)buffer, stream);
+            throw new NotImplementedException($"{type} is not a supported column type");
+        }
         static Task WriteStructs<T>(IReadOnlyBuffer<T> input, Stream stream) where T : unmanaged
         {
             return input.ForEachBlock(block => stream.Write(MemoryMarshal.AsBytes(block)));
         }
-
-        delegate void CopyDelegate<CT, T>(in T from, ref CT to) 
+        delegate void CopyDelegate<CT, T>(in T from, ref CT to)
             where T : notnull 
             where CT : unmanaged
         ;

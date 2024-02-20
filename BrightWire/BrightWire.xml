@@ -1895,7 +1895,7 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.ElmanJordan">
             <summary>
-            Elman or Joran style recurrent neural network
+            Elman or Jordan style recurrent neural network
             https://en.wikipedia.org/wiki/Recurrent_neural_network#Elman_networks_and_Jordan_networks
             </summary>
         </member>
@@ -2255,12 +2255,12 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
             <summary>
-            Initalises all weights to a constant
+            Initializes all weights to a constant
             </summary>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Constant.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single,System.Single)">
             <summary>
-            Initalises all weights to a constant
+            Initializes all weights to a constant
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Gaussian">
@@ -2757,6 +2757,12 @@
             </summary>
             <param name="factory"></param>
             <param name="graph">Serialised graph</param>
+        </member>
+        <member name="M:BrightWire.ExtensionMethods.OrderSequentialOutput(System.Collections.Generic.IAsyncEnumerable{BrightWire.Models.ExecutionResult})">
+            <summary>
+            Aligns the output of sequential graph execution into an ordered list of results
+            </summary>
+            <param name="results">Output from sequential graph execution</param>
         </member>
         <member name="M:BrightWire.ExtensionMethods.OrderSequentialOutput(System.Collections.Generic.IEnumerable{BrightWire.Models.ExecutionResult})">
             <summary>
@@ -4635,6 +4641,11 @@
             <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel.Wire">
+            <summary>
+            Wires connect nodes (aka edges)
+            </summary>
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.#ctor(System.String,System.String,System.UInt32)">
             <summary>
             Wires connect nodes (aka edges)
             </summary>

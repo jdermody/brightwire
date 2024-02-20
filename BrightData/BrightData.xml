@@ -1095,88 +1095,6 @@
             <typeparam name="T"></typeparam>
             <param name="stream"></param>
         </member>
-        <member name="T:BrightData.ConstraintValidation.ColumnFilter`1">
-            <summary>
-            
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="columnIndex"></param>
-            <param name="columnType"></param>
-            <param name="filter"></param>
-            <param name="nonConformingRowIndices"></param>
-        </member>
-        <member name="M:BrightData.ConstraintValidation.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
-            <summary>
-            
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="columnIndex"></param>
-            <param name="columnType"></param>
-            <param name="filter"></param>
-            <param name="nonConformingRowIndices"></param>
-        </member>
-        <member name="T:BrightData.ConstraintValidation.DataTableSpecification">
-            <summary>
-            Data table specification
-            </summary>
-            <param name="dataTable"></param>
-        </member>
-        <member name="M:BrightData.ConstraintValidation.DataTableSpecification.#ctor(BrightData.IDataTable)">
-            <summary>
-            Data table specification
-            </summary>
-            <param name="dataTable"></param>
-        </member>
-        <member name="T:BrightData.ConstraintValidation.DataTypeSpecificationBase`1">
-            <summary>
-            Data type specification base
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
-            <param name="type"></param>
-            <param name="canRepeat"></param>
-            <param name="children"></param>
-        </member>
-        <member name="M:BrightData.ConstraintValidation.DataTypeSpecificationBase`1.#ctor(System.String,BrightData.DataSpecificationType,System.Boolean,BrightData.IDataTypeSpecification[])">
-            <summary>
-            Data type specification base
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
-            <param name="type"></param>
-            <param name="canRepeat"></param>
-            <param name="children"></param>
-        </member>
-        <member name="T:BrightData.ConstraintValidation.FieldSpecification`1">
-            <summary>
-            Field specification
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
-            <param name="canRepeat"></param>
-        </member>
-        <member name="M:BrightData.ConstraintValidation.FieldSpecification`1.#ctor(System.String,System.Boolean)">
-            <summary>
-            Field specification
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
-            <param name="canRepeat"></param>
-        </member>
-        <member name="T:BrightData.ConstraintValidation.ThrowOnInvalidConstraint`1">
-            <summary>
-            Throws an exception if a constraint fails validation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="predicate"></param>
-        </member>
-        <member name="M:BrightData.ConstraintValidation.ThrowOnInvalidConstraint`1.#ctor(BrightData.ConstraintValidation.ThrowOnInvalidConstraint{`0}.Predicate)">
-            <summary>
-            Throws an exception if a constraint fails validation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="predicate"></param>
-        </member>
         <member name="T:BrightData.Consts">
             <summary>
             Constants
@@ -1594,6 +1512,88 @@
         </member>
         <member name="P:BrightData.DataTable.Columns.Tensor4DColumnType.Size">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.DataTable.ConstraintValidation.ColumnFilter`1">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="columnType"></param>
+            <param name="filter"></param>
+            <param name="nonConformingRowIndices"></param>
+        </member>
+        <member name="M:BrightData.DataTable.ConstraintValidation.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="columnType"></param>
+            <param name="filter"></param>
+            <param name="nonConformingRowIndices"></param>
+        </member>
+        <member name="T:BrightData.DataTable.ConstraintValidation.DataTableSpecification">
+            <summary>
+            Data table specification
+            </summary>
+            <param name="dataTable"></param>
+        </member>
+        <member name="M:BrightData.DataTable.ConstraintValidation.DataTableSpecification.#ctor(BrightData.IDataTable)">
+            <summary>
+            Data table specification
+            </summary>
+            <param name="dataTable"></param>
+        </member>
+        <member name="T:BrightData.DataTable.ConstraintValidation.DataTypeSpecificationBase`1">
+            <summary>
+            Data type specification base
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="type"></param>
+            <param name="canRepeat"></param>
+            <param name="children"></param>
+        </member>
+        <member name="M:BrightData.DataTable.ConstraintValidation.DataTypeSpecificationBase`1.#ctor(System.String,BrightData.DataSpecificationType,System.Boolean,BrightData.IDataTypeSpecification[])">
+            <summary>
+            Data type specification base
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="type"></param>
+            <param name="canRepeat"></param>
+            <param name="children"></param>
+        </member>
+        <member name="T:BrightData.DataTable.ConstraintValidation.FieldSpecification`1">
+            <summary>
+            Field specification
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="canRepeat"></param>
+        </member>
+        <member name="M:BrightData.DataTable.ConstraintValidation.FieldSpecification`1.#ctor(System.String,System.Boolean)">
+            <summary>
+            Field specification
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <param name="canRepeat"></param>
+        </member>
+        <member name="T:BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint`1">
+            <summary>
+            Throws an exception if a constraint fails validation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="predicate"></param>
+        </member>
+        <member name="M:BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint`1.#ctor(BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint{`0}.Predicate)">
+            <summary>
+            Throws an exception if a constraint fails validation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="predicate"></param>
         </member>
         <member name="T:BrightData.DataTable.Helper.VectorisationModel">
             <summary>
@@ -2988,14 +2988,6 @@
             </summary>
             <param name="items"></param>
             <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetGenericMethods(System.Type,System.Reflection.BindingFlags)">
-            <summary>
-            Builds a table of the generic methods from a type
-            </summary>
-            <param name="type">Type to inspect</param>
-            <param name="bindingFlags">Method flags</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``1(System.IO.Stream,System.UInt32,System.Int32)">
@@ -9283,6 +9275,13 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(BrightData.INumericSegment{System.Single}[])">
+            <summary>
+            Creates a matrix from the rows supplied as tensor segments
+            </summary>
+            <param name="rows"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromRows(System.Collections.Generic.List{BrightData.IReadOnlyNumericSegment{System.Single}})">
             <summary>
             Creates a matrix from the rows supplied as tensor segments
@@ -9340,6 +9339,13 @@
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(BrightData.IReadOnlyNumericSegment{System.Single}[])">
+            <summary>
+            Creates a matrix from the columns supplied as tensor segments
+            </summary>
+            <param name="columns"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.CreateMatrixFromColumns(BrightData.INumericSegment{System.Single}[])">
             <summary>
             Creates a matrix from the columns supplied as tensor segments
             </summary>
