@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;
@@ -48,15 +49,19 @@ namespace BrightData.Cuda
         public override string ProviderName => Name;
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type VectorType { get; } = typeof(CudaVector);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type MatrixType { get; } = typeof(CudaMatrix);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type Tensor3DType { get; } = typeof(CudaTensor3D);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type Tensor4DType { get; } = typeof(CudaTensor4D);
 
         /// <summary>
@@ -161,7 +166,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float DotProduct(INumericSegment<float> tensor, INumericSegment<float> tensor2)
+        public override float DotProduct(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2)
         {
             float ret = 0;
             CudaBlasNativeMethods.cublasSdot_v2_64(Provider.Blas, tensor.Size, GetDeviceMemoryPtr(tensor).DevicePointer, 1, GetDeviceMemoryPtr(tensor2).DevicePointer, 1, ref ret);
@@ -169,7 +174,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Add(INumericSegment<float> tensor, float scalar)
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, float scalar)
         {
             var ret = (CudaTensorSegment)CreateSegment(tensor.Size, false);
             Provider.MemSet(ret.DeviceMemory, scalar, ret.Size);
@@ -178,7 +183,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Add(INumericSegment<float> tensor, INumericSegment<float> tensor2)
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2)
         {
             var size = GetSize(tensor, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
@@ -190,21 +195,21 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override void AddInPlace(INumericSegment<float> target, INumericSegment<float> other)
+        public override void AddInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(target, other);
             Provider.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
         /// <inheritdoc />
-        public override void AddInPlace(INumericSegment<float> target, INumericSegment<float> other, float coefficient1, float coefficient2)
+        public override void AddInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             Provider.AddInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Add(INumericSegment<float> tensor, INumericSegment<float> tensor2, float coefficient1, float coefficient2)
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
@@ -227,21 +232,21 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float CosineDistance(INumericSegment<float> tensor, INumericSegment<float> other)
+        public override float CosineDistance(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(tensor, other);
             return Provider.CosineDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> LeakyReluDerivative(INumericSegment<float> tensor)
+        public override INumericSegment<float> LeakyReluDerivative(IReadOnlyNumericSegment<float> tensor)
         {
             var ret = Provider.LeakyReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size);
             return new CudaTensorSegment(ret);
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> PointwiseMultiply(INumericSegment<float> tensor1, INumericSegment<float> tensor2)
+        public override INumericSegment<float> PointwiseMultiply(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = new CudaTensorSegment(Provider.PointwiseMultiply(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor2), size));
@@ -249,21 +254,21 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override void SubtractInPlace(INumericSegment<float> target, INumericSegment<float> other)
+        public override void SubtractInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(target, other);
             Provider.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, 1f, 1f);
         }
 
         /// <inheritdoc />
-        public override void SubtractInPlace(INumericSegment<float> target, INumericSegment<float> other, float coefficient1, float coefficient2)
+        public override void SubtractInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other, float coefficient1, float coefficient2)
         {
             var size = GetSize(target, other);
             Provider.SubtractInPlace(GetDeviceMemoryPtr(target), GetDeviceMemoryPtr(other), size, coefficient1, coefficient2);
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Multiply(INumericSegment<float> target, float scalar)
+        public override INumericSegment<float> Multiply(IReadOnlyNumericSegment<float> target, float scalar)
         {
             var ret = (CudaTensorSegment)CreateSegment(target.Size, false);
             ret.DeviceMemory.CopyToDevice(GetDeviceMemoryPtr(target));
@@ -272,7 +277,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float L2Norm(INumericSegment<float> segment) // => Provider.Blas.Norm2(GetDeviceVariable(segment), 1);
+        public override float L2Norm(IReadOnlyNumericSegment<float> segment) // => Provider.Blas.Norm2(GetDeviceVariable(segment), 1);
         {
             var result = 0f;
             CudaBlasNativeMethods.cublasSnrm2_v2(Provider.Blas, (int)segment.Size, GetDeviceMemoryPtr(segment).DevicePointer, 1, ref result);
@@ -280,7 +285,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Subtract(INumericSegment<float> tensor1, INumericSegment<float> tensor2)
+        public override INumericSegment<float> Subtract(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
@@ -291,7 +296,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> PointwiseDivide(INumericSegment<float> tensor1, INumericSegment<float> tensor2)
+        public override INumericSegment<float> PointwiseDivide(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = Provider.PointwiseDivide(GetDeviceMemoryPtr(tensor1), GetDeviceMemoryPtr(tensor2), size);
@@ -299,7 +304,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Subtract(INumericSegment<float> tensor1, INumericSegment<float> tensor2, float coefficient1, float coefficient2)
+        public override INumericSegment<float> Subtract(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2, float coefficient1, float coefficient2)
         {
             var size = GetSize(tensor1, tensor2);
             var ret = (CudaTensorSegment)CreateSegment(size, false);
@@ -309,7 +314,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float L1Norm(INumericSegment<float> segment)
+        public override float L1Norm(IReadOnlyNumericSegment<float> segment)
         {
             var abs = Abs(segment);
             try {
@@ -321,17 +326,17 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override bool IsEntirelyFinite(INumericSegment<float> segment) => Provider.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
+        public override bool IsEntirelyFinite(IReadOnlyNumericSegment<float> segment) => Provider.IsFinite(GetDeviceMemoryPtr(segment), segment.Size);
 
         /// <inheritdoc />
-        public override INumericSegment<float> Reverse(INumericSegment<float> segment)
+        public override INumericSegment<float> Reverse(IReadOnlyNumericSegment<float> segment)
         {
             var ret = Provider.Reverse(GetDeviceMemoryPtr(segment), segment.Size);
             return new CudaTensorSegment(ret);
         }
 
         /// <inheritdoc />
-        public override float MeanSquaredDistance(INumericSegment<float> tensor, INumericSegment<float> other)
+        public override float MeanSquaredDistance(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(tensor, other);
             var temp = Subtract(tensor, other);
@@ -345,7 +350,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float SquaredEuclideanDistance(INumericSegment<float> tensor, INumericSegment<float> other)
+        public override float SquaredEuclideanDistance(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> other)
         {
             var temp = Subtract(tensor, other);
             try {
@@ -358,57 +363,57 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float EuclideanDistance(INumericSegment<float> tensor, INumericSegment<float> other)
+        public override float EuclideanDistance(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(tensor, other);
             return Provider.EuclideanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
         /// <inheritdoc />
-        public override float ManhattanDistance(INumericSegment<float> tensor, INumericSegment<float> other)
+        public override float ManhattanDistance(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(tensor, other);
             return Provider.ManhattanDistance(GetDeviceMemoryPtr(tensor), GetDeviceMemoryPtr(other), size);
         }
 
         /// <inheritdoc />
-        public override float Average(INumericSegment<float> segment) => Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size) / segment.Size;
+        public override float Average(IReadOnlyNumericSegment<float> segment) => Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size) / segment.Size;
 
         /// <inheritdoc />
-        public override INumericSegment<float> Abs(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.Abs(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Abs(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.Abs(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Log(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.Log(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Log(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.Log(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Squared(INumericSegment<float> tensor) => PointwiseMultiply(tensor, tensor);
+        public override INumericSegment<float> Squared(IReadOnlyNumericSegment<float> tensor) => PointwiseMultiply(tensor, tensor);
 
         /// <inheritdoc />
-        public override INumericSegment<float> Sigmoid(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.Sigmoid(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Sigmoid(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.Sigmoid(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> SigmoidDerivative(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.SigmoidDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> SigmoidDerivative(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.SigmoidDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Tanh(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.TanH(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Tanh(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.TanH(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> TanhDerivative(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.TanHDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> TanhDerivative(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.TanHDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Exp(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.Exp(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Exp(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.Exp(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Relu(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.Relu(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> Relu(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.Relu(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> ReluDerivative(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> ReluDerivative(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.ReluDerivative(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> LeakyRelu(INumericSegment<float> tensor) => new CudaTensorSegment(Provider.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
+        public override INumericSegment<float> LeakyRelu(IReadOnlyNumericSegment<float> tensor) => new CudaTensorSegment(Provider.LeakyRelu(GetDeviceMemoryPtr(tensor), tensor.Size));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Softmax(INumericSegment<float> tensor) => Softmax(GetDeviceMemoryPtr(tensor), 1);
+        public override INumericSegment<float> Softmax(IReadOnlyNumericSegment<float> tensor) => Softmax(GetDeviceMemoryPtr(tensor), 1);
         CudaTensorSegment Softmax(IDeviceMemoryPtr ptr, uint stride)
         {
             var max = Provider.FindMinAndMax(ptr, ptr.Size, stride).Max;
@@ -420,7 +425,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix SoftmaxDerivative(INumericSegment<float> tensor) => SoftmaxDerivative(GetDeviceMemoryPtr(tensor), 1);
+        public override IMatrix SoftmaxDerivative(IReadOnlyNumericSegment<float> tensor) => SoftmaxDerivative(GetDeviceMemoryPtr(tensor), 1);
         IMatrix SoftmaxDerivative(IDeviceMemoryPtr ptr, uint stride)
         {
             var ret = Provider.VectorSoftmaxDerivative(ptr, ptr.Size, stride);
@@ -428,13 +433,13 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> Pow(INumericSegment<float> tensor, float power) => new CudaTensorSegment(Provider.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
+        public override INumericSegment<float> Pow(IReadOnlyNumericSegment<float> tensor, float power) => new CudaTensorSegment(Provider.Pow(GetDeviceMemoryPtr(tensor), tensor.Size, power));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Sqrt(INumericSegment<float> tensor, float adjustment = FloatMath.AlmostZero) => new CudaTensorSegment(Provider.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, adjustment));
+        public override INumericSegment<float> Sqrt(IReadOnlyNumericSegment<float> tensor, float adjustment = FloatMath.AlmostZero) => new CudaTensorSegment(Provider.Sqrt(GetDeviceMemoryPtr(tensor), tensor.Size, adjustment));
 
         /// <inheritdoc />
-        public override void PointwiseDivideInPlace(INumericSegment<float> target, INumericSegment<float> other)
+        public override void PointwiseDivideInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(target, other);
             var ptr = GetDeviceMemoryPtr(target);
@@ -450,7 +455,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override void PointwiseMultiplyInPlace(INumericSegment<float> target, INumericSegment<float> other)
+        public override void PointwiseMultiplyInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             var size = GetSize(target, other);
             var ptr = GetDeviceMemoryPtr(target);
@@ -478,7 +483,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float StdDev(INumericSegment<float> tensor, float? mean)
+        public override float StdDev(IReadOnlyNumericSegment<float> tensor, float? mean)
         {
             return Provider.FindStdDev(GetDeviceMemoryPtr(tensor), tensor.Size, mean ?? Average(tensor));
         }
@@ -665,7 +670,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float> CherryPickIndices(INumericSegment<float> tensor, params uint[] indices)
+        public override INumericSegment<float> CherryPickIndices(IReadOnlyNumericSegment<float> tensor, params uint[] indices)
         {
             var data = Provider.VectorCopy(GetDeviceMemoryPtr(tensor), indices);
             return new CudaTensorSegment(data);
@@ -1086,7 +1091,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override float Sum(INumericSegment<float> segment)
+        public override float Sum(IReadOnlyNumericSegment<float> segment)
         {
             return Provider.SumValues(GetDeviceMemoryPtr(segment), segment.Size);
         }

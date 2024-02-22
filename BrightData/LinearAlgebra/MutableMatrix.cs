@@ -107,7 +107,7 @@ namespace BrightData.LinearAlgebra
         {
             temp = SpanOwner<float>.Allocate((int)TotalSize);
             var span = temp.Span;
-            fixed (float* ptr = &MemoryMarshal.GetReference(span)) {
+            fixed (float* ptr = span) {
                 Segment.CopyTo(ptr, (int)rowIndex * (int)RowCount, (int)RowCount, (int)ColumnCount);
             }
             return span;
@@ -156,7 +156,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, (ind, val) => {
+            var ret = Segment.MapParallel((ind, val) => {
                 var i = ind % RowCount;
                 var j = ind / RowCount;
                 return mutator(i, j, val);
@@ -167,7 +167,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, (ind, val) => {
+            var ret = Segment.MapParallel((ind, val) => {
                 var i = ind % RowCount;
                 var j = ind / RowCount;
                 return mutator(i, j, val);

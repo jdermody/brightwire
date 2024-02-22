@@ -62,6 +62,11 @@ namespace BrightData
         {
             public void Invoke(int i) => segment[i] = action(segment[i]);
         }
+        readonly unsafe struct MutateIndexedAction<T>(Func<uint, T, T> action, T* segment) : IAction
+            where T : unmanaged
+        {
+            public void Invoke(int i) => segment[i] = action((uint)i, segment[i]);
+        }
         readonly unsafe struct AnalyseAction<T>(Action<T, uint> action, T* segment) : IAction
             where T : unmanaged
         {
@@ -368,13 +373,37 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            fixed (T* xfp = &MemoryMarshal.GetReference(span)) {
+            fixed (T* xfp = span) {
                 if (size >= Consts.MinimumSizeForParallel)
                     ParallelHelper.For(0, size, new MutateAction<T>(mutator, xfp));
                 else {
                     var xp = xfp;
                     for (uint i = 0; i < size; i++) {
                         *xp = mutator(*xp);
+                        ++xp;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates a span in place by applying a mutation function (potentially called in parallel) to each element
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="mutator"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace<T>(
+            this Span<T> span, 
+            Func<uint, T, T> mutator
+        ) where T: unmanaged, INumber<T>
+        {
+            var size = span.Length;
+            fixed (T* xfp = span) {
+                if (size >= Consts.MinimumSizeForParallel)
+                    ParallelHelper.For(0, size, new MutateIndexedAction<T>(mutator, xfp));
+                else {
+                    var xp = xfp;
+                    for (uint i = 0; i < size; i++) {
+                        *xp = mutator(i, *xp);
                         ++xp;
                     }
                 }
@@ -551,7 +580,7 @@ namespace BrightData
             span, 
             other, 
             (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = (a * coefficient1) + (b * coefficient2), 
-            (a,b) => (a * coefficient1) + (b * coefficient2)
+            (a, b) => (a * coefficient1) + (b * coefficient2)
         );
 
         /// <summary>

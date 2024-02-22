@@ -107,39 +107,38 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 decoderMiniBatch.PreviousMiniBatch = encoderMiniBatch;
                 return encoderMiniBatch;
             }
-            else {
-                await foreach (var row in GetRows(rows)) {
-                    var input = row.C1;
-                    var output = row.C2;
-                    for (uint i = 0, len = input.RowCount; i < len; i++) {
-                        if (!inputData.TryGetValue(i, out var temp))
-                            inputData.Add(i, temp = []);
-                        temp.Add(input.GetReadOnlyRow(i));
 
-                        if (output != null) {
-                            if (!outputData.TryGetValue(i, out temp))
-                                outputData.Add(i, temp = []);
-                            temp.Add(output.GetReadOnlyRow(i));
-                        }
+            await foreach (var row in GetRows(rows)) {
+                var input = row.C1;
+                var output = row.C2;
+                for (uint i = 0, len = input.RowCount; i < len; i++) {
+                    if (!inputData.TryGetValue(i, out var temp))
+                        inputData.Add(i, temp = []);
+                    temp.Add(input.GetReadOnlyRow(i));
+
+                    if (output != null) {
+                        if (!outputData.TryGetValue(i, out temp))
+                            outputData.Add(i, temp = []);
+                        temp.Add(output.GetReadOnlyRow(i));
                     }
                 }
-
-                var miniBatch = new MiniBatch(rows, this);
-                foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                    var input = lap.CreateMatrixFromRows(item.Value);
-                    IGraphData? output = null;
-                    if (outputData.TryGetValue(item.Key, out var outputList))
-                        output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputList)).AsGraphData();
-                    var type = (item.Key == 0)
-                            ? MiniBatchSequenceType.SequenceStart
-                            : item.Key == (inputData.Count - 1)
-                                ? MiniBatchSequenceType.SequenceEnd
-                                : MiniBatchSequenceType.Standard
-                        ;
-                    miniBatch.Add(type, input.AsGraphData(), output);
-                }
-                return miniBatch;
             }
+
+            var miniBatch = new MiniBatch(rows, this);
+            foreach (var item in inputData.OrderBy(kv => kv.Key)) {
+                var input = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(item.Value));
+                IGraphData? output = null;
+                if (outputData.TryGetValue(item.Key, out var outputList))
+                    output = lap.CreateMatrixFromRows(CollectionsMarshal.AsSpan(outputList)).AsGraphData();
+                var type = (item.Key == 0)
+                        ? MiniBatchSequenceType.SequenceStart
+                        : item.Key == (inputData.Count - 1)
+                            ? MiniBatchSequenceType.SequenceEnd
+                            : MiniBatchSequenceType.Standard
+                    ;
+                miniBatch.Add(type, input.AsGraphData(), output);
+            }
+            return miniBatch;
         }
 
         public override uint[][] GetSequentialBatches()

@@ -126,14 +126,14 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public T Map(Func<float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, mutator);
+            var ret = Segment.MapParallel(mutator);
             return Create(ret);
         }
 
         /// <inheritdoc />
         public void MapInPlace(Func<float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, mutator);
+            var ret = Segment.MapParallel(mutator);
             try {
                 ret.CopyTo(Segment);
             }

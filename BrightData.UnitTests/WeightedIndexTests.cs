@@ -151,9 +151,9 @@ namespace BrightData.UnitTests
         {
             var stringTable = new Dictionary<string, uint>();
             return [
-                new("Document 1", GetWordCount(new[] { "it", "is", "going", "to", "rain", "today" }, stringTable)),
-                new("Document 2", GetWordCount(new[] { "today", "i", "am", "not", "going", "outside" }, stringTable)),
-                new("Document 3", GetWordCount(new[] { "i", "am", "going", "to", "watch", "the", "season", "premiere" }, stringTable))
+                new("Document 1", GetWordCount([ "it", "is", "going", "to", "rain", "today" ], stringTable)),
+                new("Document 2", GetWordCount([ "today", "i", "am", "not", "going", "outside" ], stringTable)),
+                new("Document 3", GetWordCount([ "i", "am", "going", "to", "watch", "the", "season", "premiere" ], stringTable))
             ];
         }
 
@@ -161,8 +161,7 @@ namespace BrightData.UnitTests
         public void TfIdf()
         {
             var documents = GetSampleDocuments();
-            var tfidf = documents.Tfidf();
-            foreach (var (document, weightedTerms) in tfidf) {
+            foreach (var (document, weightedTerms) in documents.TfIdf()) {
                 // check that each index is positive
                 weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
             }
@@ -172,8 +171,7 @@ namespace BrightData.UnitTests
         public void Bm25Plus()
         {
             var documents = GetSampleDocuments();
-            var tfidf = documents.Bm25Plus();
-            foreach (var (document, weightedTerms) in tfidf) {
+            foreach (var (document, weightedTerms) in documents.Bm25Plus()) {
                 // check that each index is positive
                 weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
             }

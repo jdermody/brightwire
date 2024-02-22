@@ -1471,4 +1471,26 @@ namespace BrightData
         /// <returns></returns>
         new ITensor4D Clone();
     }
+
+    /// <summary>
+    /// Cost functions measure the difference between predicted vs expected outputs
+    /// </summary>
+    public interface ICostFunction<T> where T: unmanaged, INumber<T>
+    {
+        /// <summary>
+        /// Calculates the cost between the predicated vs the expected values
+        /// </summary>
+        /// <param name="predicted"></param>
+        /// <param name="expected"></param>
+        /// <returns></returns>
+        T Cost(IReadOnlyNumericSegment<T> predicted, IReadOnlyNumericSegment<T> expected);
+
+        /// <summary>
+        /// Calculates the gradient of the cost function between the predicted vs expected values
+        /// </summary>
+        /// <param name="predicted"></param>
+        /// <param name="expected"></param>
+        /// <returns></returns>
+        IReadOnlyNumericSegment<T> Gradient(IReadOnlyNumericSegment<T> predicted, IReadOnlyNumericSegment<T> expected);
+    }
 }

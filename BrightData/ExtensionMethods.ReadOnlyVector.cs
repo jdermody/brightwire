@@ -94,26 +94,26 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float FindDistance(this IReadOnlyVector vector, IReadOnlyVector other, DistanceMetric distance) => vector.ReadOnlySegment.FindDistance(other.ReadOnlySegment, distance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static INumericSegment<float> Apply(IReadOnlyVector vector, IReadOnlyVector other, OnReadOnlySpans<float, MemoryOwner<float>> mutator)
+        static INumericSegment<float> Apply(IReadOnlyVector vector, IReadOnlyVector other, TransformReadOnlySpans<float, MemoryOwner<float>> mutator)
         {
-            var result = vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, mutator);
+            var result = vector.ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, mutator);
             return new ArrayPoolTensorSegment(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float Apply(IReadOnlyVector vector, IReadOnlyVector other, OnReadOnlySpans<float, float> mutator)
+        static float Apply(IReadOnlyVector vector, IReadOnlyVector other, TransformReadOnlySpans<float, float> mutator)
         {
-            return vector.ReadOnlySegment.GetReadOnlySpans(other.ReadOnlySegment, mutator);
+            return vector.ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, mutator);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static INumericSegment<float> Apply(IReadOnlyVector vector, OnReadOnlySpan<float, MemoryOwner<float>> mutator)
+        static INumericSegment<float> Apply(IReadOnlyVector vector, TransformReadOnlySpan<float, MemoryOwner<float>> mutator)
         {
-            var result = vector.ReadOnlySegment.GetReadOnlySpan(mutator);
+            var result = vector.ReadOnlySegment.ApplyReadOnlySpan(mutator);
             return new ArrayPoolTensorSegment(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float Apply(IReadOnlyVector vector, OnReadOnlySpan<float, float> mutator)
+        static float Apply(IReadOnlyVector vector, TransformReadOnlySpan<float, float> mutator)
         {
-            return vector.ReadOnlySegment.GetReadOnlySpan(mutator);
+            return vector.ReadOnlySegment.ApplyReadOnlySpan(mutator);
         }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

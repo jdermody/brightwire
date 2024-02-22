@@ -80,14 +80,14 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public IVector MapIndexed(Func<uint, float, float> mutator)
         {
-            var ret = Lap.MapParallel(Segment, mutator);
+            var ret = Segment.MapParallel(mutator);
             return Create(ret);
         }
 
         /// <inheritdoc />
         public void MapIndexedInPlace(Func<uint, float, float> mutator)
         {
-            Lap.MapParallelInPlace(Segment, mutator);
+            Segment.MapParallelInPlace(mutator);
         }
 
         /// <inheritdoc />

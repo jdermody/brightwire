@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -157,7 +158,9 @@ namespace BrightData.Helper
         /// <param name="reader"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Create<T>(this BrightDataContext context, BinaryReader reader)
+        public static T Create<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]T>(
+            this BrightDataContext context, 
+            BinaryReader reader)
             where T : ICanInitializeFromBinaryReader
         {
             T ret;
@@ -182,7 +185,9 @@ namespace BrightData.Helper
         /// <param name="context"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] ReadObjectArray<T>(this BinaryReader reader, BrightDataContext context)
+        public static T[] ReadObjectArray<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]T>(
+            this BinaryReader reader, 
+            BrightDataContext context)
             where T : ICanInitializeFromBinaryReader
         {
             var len = reader.ReadInt32();

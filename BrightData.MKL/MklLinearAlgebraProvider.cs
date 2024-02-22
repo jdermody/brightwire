@@ -1,6 +1,8 @@
 ﻿using BrightData.LinearAlgebra;
 using MKLNET;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using BrightData.Helper;
 
 // ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 namespace BrightData.MKL
@@ -32,7 +34,7 @@ namespace BrightData.MKL
     /// <summary>
     /// Linear algebra provider that uses the Intel MKL library
     /// </summary>
-    public class MklLinearAlgebraProvider : LinearAlgebraProvider
+    public unsafe class MklLinearAlgebraProvider : LinearAlgebraProvider
     {
         /// <inheritdoc />
         public MklLinearAlgebraProvider(BrightDataContext context) : base(context)
@@ -44,15 +46,19 @@ namespace BrightData.MKL
         public override string ProviderName => "mkl";
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type VectorType { get; } = typeof(MklVector);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type MatrixType { get; } = typeof(MklMatrix);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type Tensor3DType { get; } = typeof(MklTensor3D);
 
         /// <inheritdoc />
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
         public override Type Tensor4DType { get; } = typeof(MklTensor4D);
 
         /// <inheritdoc />
@@ -67,105 +73,115 @@ namespace BrightData.MKL
         /// <inheritdoc />
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
-        INumericSegment<float> Apply(INumericSegment<float>  tensor, INumericSegment<float> tensor2, bool initialiseToZero, Action<int, float[], float[], float[]> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            var result = CreateSegment(size, initialiseToZero);
-            mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
-            return result;
-        }
-        INumericSegment<float> ApplyUnderlying(INumericSegment<float>  tensor, INumericSegment<float> tensor2, bool initialiseToZero, Action<int, float[], int, int, float[], int, int, float[], int, int> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            var underlying = tensor.GetUnderlyingArray();
-            var underlying2 = tensor2.GetUnderlyingArray();
-            var result = CreateSegment(size, initialiseToZero);
-            mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride, result.GetUnderlyingArray().Array!, 0, 1);
-            return result;
-        }
-
-        INumericSegment<float> ApplyWithNewSize(INumericSegment<float>  tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, Action<float[], float[], float[]> mkl)
+        delegate void ApplyNewSizeCallback(float* a, float* b, float* r);
+        INumericSegment<float> ApplyWithNewSize(INumericSegment<float> tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, ApplyNewSizeCallback callback)
         {
             var result = CreateSegment(resultSize, initialiseToZero);
-            mkl(tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
+            tensor.ApplyReadOnlySpans(tensor2, (a, b) => {
+                fixed(float* p1 = a)
+                fixed (float* p2 = b)
+                fixed(float* r = result.GetUnderlyingArray().Array!) {
+                    callback(p1, p2, r);
+                }
+            });
             return result;
         }
 
-        INumericSegment<float> Apply(INumericSegment<float> tensor, bool initialiseToZero, Action<int, float[], float[]> mkl)
-        {
-            var result = CreateSegment(tensor.Size, initialiseToZero);
-            mkl((int)tensor.Size, tensor.GetLocalOrNewArray(), result.GetUnderlyingArray().Array!);
-            return result;
-        }
-        INumericSegment<float> ApplyUnderlying(INumericSegment<float> tensor, bool initialiseToZero, Action<int, float[], int, int, float[], int, int> mkl)
-        {
-            var result = CreateSegment(tensor.Size, initialiseToZero);
-            var underlying = tensor.GetUnderlyingArray();
-            mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, result.GetUnderlyingArray().Array!, 0, 1);
-            return result;
-        }
-
-        static float Apply(INumericSegment<float> tensor, Func<int, float[], float> mkl)
-        {
-            return mkl((int)tensor.Size, tensor.GetLocalOrNewArray());
-        }
-        static float ApplyUnderlying(INumericSegment<float>  tensor, Func<int, float[], int, int, float> mkl)
-        {
-            var underlying = tensor.GetUnderlyingArray();
-            return mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride);
-        }
-
-        static float Apply(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, Func<int, float[], float[], float> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            return mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
-        }
-        static float ApplyUnderlying(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, Func<int, float[], int, int, float[], int, int, float> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            var underlying = tensor.GetUnderlyingArray();
-            var underlying2 = tensor2.GetUnderlyingArray();
-            return mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride);
-        }
-
-        static void Apply(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, Action<int, float[], float[]> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            mkl((int)size, tensor.GetLocalOrNewArray(), tensor2.GetLocalOrNewArray());
-        }
-        static void ApplyUnderlying(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, Action<int, float[], int, int, float[], int, int> mkl)
-        {
-            var size = GetSize(tensor, tensor2);
-            var underlying = tensor.GetUnderlyingArray();
-            var underlying2 = tensor2.GetUnderlyingArray();
-            mkl((int)size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride, underlying2.Array!, (int)underlying2.Offset, (int)underlying2.Stride);
-        }
-
-        static void ApplyUnderlying(INumericSegment<float>  tensor, Action<int, float[], int, int> mkl)
-        {
-            var underlying = tensor.GetUnderlyingArray();
-            mkl((int)tensor.Size, underlying.Array!, (int)underlying.Offset, (int)underlying.Stride);
-        }
-
-        INumericSegment<float>  Clone(INumericSegment<float>  tensor, float coefficient)
+        INumericSegment<float> Clone(IReadOnlyNumericSegment<float> tensor, float coefficient)
         {
             var result = CreateSegment(tensor.Size, false);
             tensor.CopyTo(result);
-            Blas.scal((int)tensor.Size, coefficient, result.GetUnderlyingArray().Array!, 0, 1);
+            if (Math.Abs(coefficient - 1) > FloatMath.AlmostZero) {
+                fixed (float* ptr = result.Contiguous!.ReadOnlySpan) {
+                    Blas.Unsafe.scal((int)tensor.Size, coefficient, ptr, 1);
+                }
+            }
+            return result;
+        }
+
+        delegate RT TraverseCallback<out RT>(int size, float* x, int incX);
+        static RT Traverse<RT>(IReadOnlyNumericSegment<float> x, TraverseCallback<RT> callback)
+        {
+            if (x is INumericSegment<float> x2)
+                return Traverse(x2, callback);
+            return x.ApplyReadOnlySpan(a => {
+                fixed(float* p1 = a) {
+                    return callback(a.Length, p1, 1);
+                }
+            });
+        }
+        static RT Traverse<RT>(INumericSegment<float> x, TraverseCallback<RT> callback)
+        {
+            var (xa, xo, xs) = x.GetUnderlyingArray();
+            if (xa is null)
+                throw new Exception("Expected segments with underlying arrays");
+
+            fixed(float* p1 = xa) {
+                return callback((int)x.Size, p1 + xo, (int)xs);
+            }
+        }
+
+        delegate RT DoubleTraverseCallback<out RT>(int size, float* x, int incX, float* y, int incY);
+        static RT Traverse<RT>(IReadOnlyNumericSegment<float> x, IReadOnlyNumericSegment<float> y, DoubleTraverseCallback<RT> callback)
+        {
+            if (x is INumericSegment<float> x2 && y is INumericSegment<float> y2)
+                return Traverse(x2, y2, callback);
+            return x.ApplyReadOnlySpans(y, (a, b) => {
+                fixed(float* p1 = a)
+                fixed (float* p2 = b) {
+                    return callback(a.Length, p1, 1, p2, 1);
+                }
+            });
+        }
+        static RT Traverse<RT>(INumericSegment<float> x, INumericSegment<float> y, DoubleTraverseCallback<RT> callback)
+        {
+            var (xa, xo, xs) = x.GetUnderlyingArray();
+            var (ya, yo, ys) = y.GetUnderlyingArray();
+            if (xa is null || ya is null)
+                throw new Exception("Expected segments with underlying arrays");
+
+            fixed(float* p1 = xa)
+            fixed (float* p2 = ya) {
+                return callback((int)x.Size, p1 + xo, (int)xs, p2 + yo, (int)ys);
+            }
+        }
+        delegate void DoubleZipCallback(int size, float* x, float* y, float* r);
+        INumericSegment<float> Zip(IReadOnlyNumericSegment<float> x, IReadOnlyNumericSegment<float> y, bool initialiseToZero, DoubleZipCallback callback)
+        {
+            var result = CreateSegment(x.Size, initialiseToZero);
+            x.ApplyReadOnlySpans(y, (a, b) => {
+                fixed(float* p1 = a)
+                fixed (float* p2 = b)
+                fixed(float* r = result.GetUnderlyingArray().Array!) {
+                    callback(a.Length, p1, p2, r);
+                }
+            });
+            return result;
+        }
+        delegate void CopyCallback(int size, float* x, float* r);
+        INumericSegment<float> Copy(IReadOnlyNumericSegment<float> tensor, bool initialiseToZero, CopyCallback callback)
+        {
+            var result = CreateSegment(tensor.Size, initialiseToZero);
+            tensor.ApplyReadOnlySpan(a => {
+                fixed(float* ap = a)
+                fixed(float* r = result.GetUnderlyingArray().Array!) {
+                    callback(a.Length, ap, r);
+                }
+            });
             return result;
         }
 
         /// <inheritdoc />
-        public override float DotProduct(INumericSegment<float>  tensor, INumericSegment<float>  tensor2) => ApplyUnderlying(tensor, tensor2, Blas.dot);
+        public override float DotProduct(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2) => Traverse(tensor, tensor2, Blas.Unsafe.dot);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Add(INumericSegment<float>  tensor, INumericSegment<float>  tensor2) => ApplyUnderlying(tensor, tensor2, false, Vml.Add);
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2) => Zip(tensor, tensor2, false, Vml.Unsafe.Add);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Abs(INumericSegment<float>  tensor) => ApplyUnderlying(tensor, false, Vml.Abs);
+        public override INumericSegment<float> Abs(IReadOnlyNumericSegment<float> tensor) => Copy(tensor, false, Vml.Unsafe.Abs);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Add(INumericSegment<float>  tensor, INumericSegment<float>  tensor2, float coefficient1, float coefficient2)
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, IReadOnlyNumericSegment<float> tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor);
             AddInPlace(ret, tensor2, coefficient1, coefficient2);
@@ -173,10 +189,13 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Multiply(INumericSegment<float>  target, float scalar) => Clone(target, scalar);
+        public override INumericSegment<float> Multiply(IReadOnlyNumericSegment<float> target, float scalar) => Clone(target, scalar);
 
         /// <inheritdoc />
-        public override void MultiplyInPlace(INumericSegment<float>  target, float scalar) => ApplyUnderlying(target, (n, a, o, s) => Blas.scal(n, scalar, a, o, s));
+        public override void MultiplyInPlace(INumericSegment<float> target, float scalar) => Traverse(target, (n, a, i) => {
+            Blas.Unsafe.scal(n, scalar, a, i);
+            return true;
+        });
 
         /// <inheritdoc />
         public override IMatrix Multiply(IMatrix matrix, IMatrix other)
@@ -186,7 +205,7 @@ namespace BrightData.MKL
                 columnsB = (int)other.ColumnCount
             ;
             var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.RowCount * other.ColumnCount, false, (a, b, r) => {
-                Blas.gemm(
+                Blas.Unsafe.gemm(
                     Layout.ColMajor,
                     Trans.No,
                     Trans.No,
@@ -209,18 +228,20 @@ namespace BrightData.MKL
         /// <inheritdoc />
         public override IMatrix Transpose(IMatrix matrix)
         {
-            var rows = (int)matrix.RowCount;
-            var cols = (int)matrix.ColumnCount;
+            var rows = (UIntPtr)matrix.RowCount;
+            var cols = (UIntPtr)matrix.ColumnCount;
 
-            var ret = Apply(matrix.Segment, false, (size, a, r) => {
-                System.Buffer.BlockCopy(a, 0, r, 0, size * sizeof(float));
+            var ret = Copy(matrix.Segment, false, (size, a, r) => {
+                var ap = new Span<float>(a, size);
+                var rp = new Span<float>(r, size);
+                ap.CopyTo(rp);
                 Blas.imatcopy(
-                    LayoutChar.ColMajor, 
+                    LayoutChar.ColMajor,
                     TransChar.Yes,
                     rows,
                     cols,
-                    1f, 
-                    r,
+                    1f,
+                    rp,
                     rows,
                     cols
                 );
@@ -237,7 +258,7 @@ namespace BrightData.MKL
                 rowsB = (int)other.RowCount
             ;
             var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.ColumnCount * other.ColumnCount, false, (a, b, r) => {
-                Blas.gemm(
+                Blas.Unsafe.gemm(
                     Layout.ColMajor,
                     Trans.Yes,
                     Trans.No,
@@ -265,7 +286,7 @@ namespace BrightData.MKL
                 rowsB = (int)other.RowCount
             ;
             var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.RowCount * other.RowCount, false, (a, b, r) => {
-                Blas.gemm(
+                Blas.Unsafe.gemm(
                     Layout.ColMajor,
                     Trans.No,
                     Trans.Yes,
@@ -324,74 +345,77 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override float L1Norm(INumericSegment<float>  segment) => ApplyUnderlying(segment, Blas.asum);
+        public override float L1Norm(IReadOnlyNumericSegment<float> segment) => Traverse(segment, Blas.Unsafe.asum);
 
         /// <inheritdoc />
-        public override float L2Norm(INumericSegment<float>  segment) => ApplyUnderlying(segment, Blas.nrm2);
+        public override float L2Norm(IReadOnlyNumericSegment<float> segment) => Traverse(segment, Blas.Unsafe.nrm2);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Exp(INumericSegment<float>  tensor) => ApplyUnderlying(tensor, false, Vml.Exp);
+        public override INumericSegment<float> Exp(IReadOnlyNumericSegment<float> tensor) => Copy(tensor, false, Vml.Unsafe.Exp);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Tanh(INumericSegment<float>  tensor) => ApplyUnderlying(tensor, false, Vml.Tanh);
+        public override INumericSegment<float> Tanh(IReadOnlyNumericSegment<float> tensor) => Copy(tensor, false, Vml.Unsafe.Tanh);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  PointwiseMultiply(INumericSegment<float>  tensor1, INumericSegment<float>  tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Mul);
+        public override INumericSegment<float> PointwiseMultiply(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2) => Zip(tensor1, tensor2, false, Vml.Unsafe.Mul);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  PointwiseDivide(INumericSegment<float>  tensor1, INumericSegment<float>  tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Div);
+        public override INumericSegment<float> PointwiseDivide(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2) => Zip(tensor1, tensor2, false, Vml.Unsafe.Div);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Log(INumericSegment<float>  tensor) => ApplyUnderlying(tensor, false, Vml.Ln);
+        public override INumericSegment<float> Log(IReadOnlyNumericSegment<float> tensor) => Copy(tensor, false, Vml.Unsafe.Ln);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Subtract(INumericSegment<float>  tensor1, INumericSegment<float>  tensor2) => ApplyUnderlying(tensor1, tensor2, false, Vml.Sub);
+        public override INumericSegment<float> Subtract(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2) => Zip(tensor1, tensor2, false, Vml.Unsafe.Sub);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Squared(INumericSegment<float>  tensor) => ApplyUnderlying(tensor, false, Vml.Sqr);
+        public override INumericSegment<float> Squared(IReadOnlyNumericSegment<float> tensor) => Copy(tensor, false, Vml.Unsafe.Sqr);
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Add(INumericSegment<float>  tensor, float scalar) => Apply(tensor, false, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
+        public override INumericSegment<float> Add(IReadOnlyNumericSegment<float> tensor, float scalar) => Copy(tensor, false, (n, a, r) => Vml.Unsafe.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
 
         /// <inheritdoc />
-        public override void AddInPlace(INumericSegment<float>  target, INumericSegment<float>  other)
+        public override void AddInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
-            using var ret = ApplyUnderlying(target, other, false, Vml.Add);
+            using var ret = Zip(target, other, false, Vml.Unsafe.Add);
             ret.CopyTo(target);
         }
 
         /// <inheritdoc />
-        public override void AddInPlace(INumericSegment<float>  target, INumericSegment<float>  other, float coefficient1, float coefficient2)
+        public override void AddInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other, float coefficient1, float coefficient2)
         {
-            ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2, y, yo, ys, coefficient1, x, xo, xs));
+            Traverse(target, other, (n, x, incX, y, incY) => {
+                Blas.Unsafe.axpby(n, coefficient2, y, incY, coefficient1, x, incX);
+                return true;
+            });
         }
 
         /// <inheritdoc />
-        public override void AddInPlace(INumericSegment<float>  target, float scalar)
+        public override void AddInPlace(INumericSegment<float> target, float scalar)
         {
-            using var ret = Apply(target, false, (n, a, r) => Vml.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
+            using var ret = Copy(target, false, (n, a, r) => Vml.Unsafe.LinearFrac(n, a, a, 1, scalar, 0, 1, r));
             ret.CopyTo(target);
         }
 
         /// <inheritdoc />
-        public override void PointwiseDivideInPlace(INumericSegment<float>  target, INumericSegment<float>  other)
+        public override void PointwiseDivideInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             using var temp = PointwiseDivide(target, other);
             temp.CopyTo(target);
         }
 
         /// <inheritdoc />
-        public override void PointwiseMultiplyInPlace(INumericSegment<float>  target, INumericSegment<float>  other)
+        public override void PointwiseMultiplyInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             using var temp = PointwiseMultiply(target, other);
             temp.CopyTo(target);
         }
 
         /// <inheritdoc />
-        public override INumericSegment<float>  Pow(INumericSegment<float>  tensor, float power) => ApplyUnderlying(tensor, false, (n, x, xo, xs, r, ro, rs) => Vml.Powx(n, x, xo, xs, power, r, ro, rs));
-
+        public override INumericSegment<float> Pow(IReadOnlyNumericSegment<float> tensor, float power) => Copy(tensor, false, (n, a, r) => Vml.Unsafe.Powx(n, a, power, r));
+        
         /// <inheritdoc />
-        public override INumericSegment<float>  Subtract(INumericSegment<float>  tensor1, INumericSegment<float>  tensor2, float coefficient1, float coefficient2)
+        public override INumericSegment<float> Subtract(IReadOnlyNumericSegment<float> tensor1, IReadOnlyNumericSegment<float> tensor2, float coefficient1, float coefficient2)
         {
             var ret = Clone(tensor1);
             SubtractInPlace(ret, tensor2, coefficient1, coefficient2);
@@ -399,16 +423,19 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override void SubtractInPlace(INumericSegment<float>  target, INumericSegment<float>  other)
+        public override void SubtractInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
         {
             using var temp = Subtract(target, other);
             temp.CopyTo(target);
         }
 
         /// <inheritdoc />
-        public override void SubtractInPlace(INumericSegment<float>  target, INumericSegment<float>  other, float coefficient1, float coefficient2)
+        public override void SubtractInPlace(INumericSegment<float>  target, IReadOnlyNumericSegment<float>  other, float coefficient1, float coefficient2)
         {
-            ApplyUnderlying(target, other, (n, x, xo, xs, y, yo, ys) => Blas.axpby(n, coefficient2 * -1, y, yo, ys, coefficient1, x, xo, xs));
+            Traverse(target, other, (n, x, incX, y, incY) => {
+                Blas.Unsafe.axpby(n, coefficient2 * -1, y, incY, coefficient1, x, incX);
+                return true;
+            });
         }
 
         /// <inheritdoc />

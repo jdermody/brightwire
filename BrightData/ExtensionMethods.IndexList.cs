@@ -184,7 +184,7 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A newly weighted classification set</returns>
-        public static WeightedIndexListWithLabel<T>[] Tfidf<T>(this IReadOnlyList<WeightedIndexListWithLabel<T>> data) where T: notnull
+        public static WeightedIndexListWithLabel<T>[] TfIdf<T>(this IReadOnlyList<WeightedIndexListWithLabel<T>> data) where T: notnull
         {
             int len = data.Count, i = 0;
             var ret = new WeightedIndexListWithLabel<T>[len];

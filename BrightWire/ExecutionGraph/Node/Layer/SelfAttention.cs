@@ -88,13 +88,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 
             // form the new attention as a product of the weights
-            using var softmax = weights!.Softmax();
+            using var softMax = weights!.Softmax();
             using var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
             var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
             var index = 0;
-            foreach (var (first, second) in softmax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
+            foreach (var (first, second) in softMax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
                 // save the average weight across the batch for diagnostics
-                var multiplyWeight = first.ReadOnlySegment.GetReadOnlySpan(x => x.Average());
+                var multiplyWeight = first.ReadOnlySegment.ApplyReadOnlySpan(x => x.Average());
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
