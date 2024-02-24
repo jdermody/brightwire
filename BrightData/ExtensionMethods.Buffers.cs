@@ -180,9 +180,9 @@ namespace BrightData
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
         {
             var blocks = indices.Select((x, i) => (TargetIndex: (uint)i, BlockIndex: x / buffer.BlockSize, RelativeIndex: x % buffer.BlockSize))
-                .GroupBy(x => x.BlockIndex)
-                .OrderBy(x => x.Key)
-            ;
+                    .GroupBy(x => x.BlockIndex)
+                    .OrderBy(x => x.Key)
+                ;
             var ret = new T[indices.Length];
             foreach (var block in blocks) {
                 var blockMemory = await buffer.GetTypedBlock(block.Key);

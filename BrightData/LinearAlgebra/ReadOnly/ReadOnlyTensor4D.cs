@@ -41,7 +41,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                     temp.Dispose();
                 offset += TensorSize;
             }
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -77,7 +77,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             Depth = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
             Count = BinaryPrimitives.ReadUInt32LittleEndian(data[12..]);
             var floats = data[HeaderSize..].Cast<byte, float>();
-            ReadOnlySegment = new ReadOnlyTensorSegment(floats.ToArray());
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(floats.ToArray());
             _valueSemantics = new(this);
         }
 
@@ -95,7 +95,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -135,7 +135,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             RowCount = reader.ReadUInt32();
             Depth = reader.ReadUInt32();
             Count = reader.ReadUInt32();
-            ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(reader.BaseStream.ReadArray<float>(Size));
             Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
@@ -190,7 +190,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// <inheritdoc />
         public IReadOnlyTensor3D GetTensor(uint index)
         {
-            var segment = new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index * TensorSize, 1, TensorSize);
+            var segment = new ReadOnlyTensorSegmentWrapper<float>(ReadOnlySegment, index * TensorSize, 1, TensorSize);
             return new ReadOnlyTensor3D(segment, Depth, RowCount, ColumnCount);
         }
 

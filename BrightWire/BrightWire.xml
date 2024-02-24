@@ -360,7 +360,7 @@
             Segment table adapter for tables with vector data
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter.#ctor(BrightData.IDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter.#ctor(BrightData.IDataTable,System.UInt32[],System.UInt32,System.Nullable{System.UInt32})">
             <summary>
             Segment table adapter for tables with vector data
             </summary>

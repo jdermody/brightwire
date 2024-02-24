@@ -43,7 +43,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrix(Matrix(index), RowCount, ColumnCount);
 
-        MutableTensorSegmentWrapper Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
+        MutableTensorSegmentWrapper<float> Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
         public uint Depth { get; private set; }

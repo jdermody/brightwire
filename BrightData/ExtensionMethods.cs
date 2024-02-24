@@ -780,13 +780,13 @@ namespace BrightData
         /// Writes items from an async enumerable to a list
         /// </summary>
         /// <param name="items"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="ct"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> items, CancellationToken cancellationToken = default)
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> items, CancellationToken ct = default)
         {
             var results = new List<T>();
-            await foreach (var item in items.WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach (var item in items.WithCancellation(ct))
                 results.Add(item);
             return results;
         }

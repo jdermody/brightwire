@@ -22,7 +22,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 32);
 
@@ -57,7 +57,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create the engine
             var learningRate = 0.01f;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
@@ -91,7 +91,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var learningRate = 0.01f;
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);

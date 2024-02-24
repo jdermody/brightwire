@@ -33,21 +33,21 @@ namespace BrightData.DataTable
             public uint DataTypeSize;
             public readonly override string ToString() => $"{DataType} ({DataTypeSize})";
         }
-        protected readonly IByteBlockReader                         _reader;
-        protected readonly TableHeader                              _header;
-        protected readonly Column[]                                 _columns;
-        protected readonly IReadOnlyBufferWithMetaData[]            _columnReader;
-        protected readonly MetaData[]                               _columnMetaData;
-        protected Lazy<Task<List<string>>>                          _strings;
-        readonly Lazy<Task<ReadOnlyMemory<float>>>                  _tensors;
-        readonly Lazy<Task<ReadOnlyMemory<byte>>>                   _data;
-        readonly Lazy<Task<ReadOnlyMemory<uint>>>                   _indices;
-        readonly Lazy<Task<ReadOnlyMemory<WeightedIndexList.Item>>> _weightedIndices;
-        readonly Lazy<IReadOnlyBuffer<object>[]>                    _genericColumns;
-        BlockMapper<DataRangeColumnType, ReadOnlyVector>            _vectorMapper;
-        BlockMapper<MatrixColumnType, ReadOnlyMatrix>               _matrixMapper;
-        BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D>           _tensor3DMapper;
-        BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D>           _tensor4DMapper;
+        protected readonly IByteBlockReader               _reader;
+        protected readonly TableHeader                    _header;
+        protected readonly Column[]                       _columns;
+        protected readonly IReadOnlyBufferWithMetaData[]  _columnReader;
+        protected readonly MetaData[]                     _columnMetaData;
+        readonly Lazy<IReadOnlyBuffer<object>[]>          _genericColumns;
+        BlockMapper<DataRangeColumnType, ReadOnlyVector>  _vectorMapper;
+        BlockMapper<MatrixColumnType, ReadOnlyMatrix>     _matrixMapper;
+        BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D> _tensor3DMapper;
+        BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D> _tensor4DMapper;
+        List<string>?                                     _strings;
+        ReadOnlyMemory<byte>?                             _binaryData;
+        ReadOnlyMemory<float>?                            _tensors;
+        ReadOnlyMemory<uint>?                             _indices;
+        ReadOnlyMemory<WeightedIndexList.Item>?           _weightedIndices;
 
         ColumnOrientedDataTable(BrightDataContext context, TableHeader header, Column[] columns, ReadOnlyMemory<byte> metaData, IByteBlockReader reader)
         {
@@ -89,11 +89,11 @@ namespace BrightData.DataTable
             CreateColumnReaders();
 
             // create data readers
-            _strings            = new(() => ReadStrings(_header.StringOffset, _header.StringSizeBytes));
-            _tensors            = new(() => GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes));
-            _data               = new(() => GetBlock<byte>(_header.DataOffset, _header.DataSizeBytes));
-            _indices            = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
-            _weightedIndices    = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
+            //_strings            = new(() => ReadStrings(_header.StringOffset, _header.StringSizeBytes));
+            //_tensors            = new(() => GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes));
+            //_data               = new(() => GetBlock<byte>(_header.DataOffset, _header.DataSizeBytes));
+            //_indices            = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
+            //_weightedIndices    = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
             _genericColumns     = new(GetColumnsAsObjectBuffers);
         }
 
@@ -139,100 +139,76 @@ namespace BrightData.DataTable
             return ret.Cast<byte, T>();
         }
 
-        protected ReadOnlyMemory<string> GetStrings(ReadOnlySpan<uint> indices)
+        delegate RT GetItem<T, out RT>(in T item);
+        static RT[] Copy<T, RT>(ReadOnlyMemory<T> block, GetItem<T, RT> getItem)
         {
             var index = 0;
-            var stringTable = _strings.Value.Result;
-            var ret = new string[indices.Length];
-            foreach (var item in indices)
-                ret[index++] = stringTable[(int)item];
-            return ret;
-        }
-        protected string GetString(uint index) => _strings.Value.Result[(int)index];
-
-        protected ReadOnlyMemory<BinaryData> GetBinaryData(ReadOnlySpan<DataRangeColumnType> span)
-        {
-            var index = 0;
-            var ret = new BinaryData[span.Length];
-            foreach (ref readonly var item in span)
-                ret[index++] = GetBinaryData(item);
-            return ret;
-        }
-        protected BinaryData GetBinaryData(in DataRangeColumnType dataRange)
-        {
-            var data = _data.Value.Result.Span.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new BinaryData(data);
-        }
-
-        protected ReadOnlyMemory<ReadOnlyVector> GetVectors(ReadOnlySpan<DataRangeColumnType> span)
-        {
-            var index = 0;
-            var ret = new ReadOnlyVector[span.Length];
-            var data = GetTensorData();
-            foreach (ref readonly var item in span)
-                ret[index++] = new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size));
+            var ret = new RT[block.Length];
+            foreach (ref readonly var item in block.Span)
+                ret[index++] = getItem(in item);
             return ret;
         }
 
-        protected ReadOnlyMemory<ReadOnlyMatrix> GetMatrices(ReadOnlySpan<MatrixColumnType> span)
+        protected async Task<ReadOnlyMemory<string>> GetStrings(ReadOnlyMemory<uint> block)
         {
-            var index = 0;
-            var ret = new ReadOnlyMatrix[span.Length];
-            var data = GetTensorData();
-            foreach (ref readonly var item in span)
-                ret[index++] = new ReadOnlyMatrix(data.Slice((int)item.StartIndex, (int)item.Size), item.RowCount, item.ColumnCount);
-            return ret;
+            var data = await GetStringData();
+            return Copy(block, (in uint item) => data[(int)item]);
         }
 
-        protected ReadOnlyMemory<ReadOnlyTensor3D> Get3DTensors(ReadOnlySpan<Tensor3DColumnType> span)
+        protected async Task<ReadOnlyMemory<BinaryData>> GetBinaryData(ReadOnlyMemory<DataRangeColumnType> block)
         {
-            var index = 0;
-            var ret = new ReadOnlyTensor3D[span.Length];
-            var data = GetTensorData();
-            foreach (ref readonly var item in span)
-                ret[index++] = new ReadOnlyTensor3D(data.Slice((int)item.StartIndex, (int)item.Size), item.Depth, item.RowCount, item.ColumnCount);
-            return ret;
+            var data = await GetBinaryData();
+            return Copy(block, (in DataRangeColumnType item) => new BinaryData(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
-        protected ReadOnlyMemory<ReadOnlyTensor4D> Get4DTensors(ReadOnlySpan<Tensor4DColumnType> span)
+        protected async Task<ReadOnlyMemory<ReadOnlyVector>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
         {
-            var index = 0;
-            var ret = new ReadOnlyTensor4D[span.Length];
-            var data = GetTensorData();
-            foreach (ref readonly var item in span)
-                ret[index++] = new ReadOnlyTensor4D(data.Slice((int)item.StartIndex, (int)item.Size), item.Count, item.Depth, item.RowCount, item.ColumnCount);
-            return ret;
+            var data = await GetTensorData();
+            try {
+                return Copy(block, (in DataRangeColumnType item) => new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size)));
+            }
+            catch (Exception ex) {
+                Console.WriteLine();
+                Console.WriteLine($"{data.Length}:{block.Span.ToArray().Max(x => x.StartIndex)}");
+                throw;
+            }
         }
 
-        protected ReadOnlyMemory<IndexList> GetIndexLists(ReadOnlySpan<DataRangeColumnType> span)
+        protected async Task<ReadOnlyMemory<ReadOnlyMatrix>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
         {
-            var index = 0;
-            var ret = new IndexList[span.Length];
-            var data = _indices.Value.Result;
-            foreach (ref readonly var item in span)
-                ret[index++] = new IndexList(data.Slice((int)item.StartIndex, (int)item.Size));
-            return ret;
-        }
-        protected IndexList GetIndexList(in DataRangeColumnType dataRange)
-        {
-            var data = _indices.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new IndexList(data);
+            var data = await GetTensorData();
+            return Copy(block, (in MatrixColumnType item) => new ReadOnlyMatrix(data.Slice((int)item.StartIndex, (int)item.Size), item.RowCount, item.ColumnCount));
         }
 
-        protected ReadOnlyMemory<WeightedIndexList> GetWeightedIndexLists(ReadOnlySpan<DataRangeColumnType> span)
+        protected async Task<ReadOnlyMemory<ReadOnlyTensor3D>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
         {
-            var index = 0;
-            var ret = new WeightedIndexList[span.Length];
-            var data = _weightedIndices.Value.Result;
-            foreach (ref readonly var item in span)
-                ret[index++] = new WeightedIndexList(data.Slice((int)item.StartIndex, (int)item.Size));
-            return ret;
+            var data = await GetTensorData();
+            return Copy(block, (in Tensor3DColumnType item) => new ReadOnlyTensor3D(data.Slice((int)item.StartIndex, (int)item.Size), item.Depth, item.RowCount, item.ColumnCount));
         }
-        protected WeightedIndexList GetWeightedIndexList(in DataRangeColumnType dataRange)
+
+        protected async Task<ReadOnlyMemory<ReadOnlyTensor4D>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
         {
-            var data = _weightedIndices.Value.Result.Slice((int)dataRange.StartIndex, (int)dataRange.Size);
-            return new WeightedIndexList(data);
+            var data = await GetTensorData();
+            return Copy(block, (in Tensor4DColumnType item) => new ReadOnlyTensor4D(data.Slice((int)item.StartIndex, (int)item.Size), item.Count, item.Depth, item.RowCount, item.ColumnCount));
         }
+
+        protected async Task<ReadOnlyMemory<IndexList>> GetIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
+        {
+            var data = await GetIndices();
+            return Copy(block, (in DataRangeColumnType item) => new IndexList(data.Slice((int)item.StartIndex, (int)item.Size)));
+        }
+
+        protected async Task<ReadOnlyMemory<WeightedIndexList>> GetWeightedIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
+        {
+            var data = await GetWeightedIndices();
+            return Copy(block, (in DataRangeColumnType item) => new WeightedIndexList(data.Slice((int)item.StartIndex, (int)item.Size)));
+        }
+
+        public async Task<ReadOnlyMemory<float>> GetTensorData() => _tensors ??= await GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes);
+        public async Task<ReadOnlyMemory<byte>> GetBinaryData() => _binaryData ??= await GetBlock<byte>(_header.BinaryDataOffset, _header.BinaryDataSizeBytes);
+        public async Task<ReadOnlyMemory<uint>> GetIndices() => _indices ??= await GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes);
+        public async Task<ReadOnlyMemory<WeightedIndexList.Item>> GetWeightedIndices() => _weightedIndices ??= await GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes);
+        public async Task<List<string>> GetStringData() => _strings ??= await ReadStrings(_header.StringOffset, _header.StringSizeBytes);
 
         public uint RowCount => _header.RowCount;
         public uint ColumnCount => _header.ColumnCount;
@@ -339,8 +315,6 @@ namespace BrightData.DataTable
             var writer = new ColumnOrientedDataTableWriter();
             await writer.Write(MetaData, GetColumns(columnIndices), stream);
         }
-
-        public ReadOnlyMemory<float> GetTensorData() => _tensors.Value.Result;
 
         public void SetTensorMappers(
             BlockMapper<DataRangeColumnType, ReadOnlyVector> vectorMapper,

@@ -22,7 +22,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// <param name="data"></param>
         public ReadOnlyVector(ReadOnlyMemory<float> data)
         {
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -76,7 +76,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
             var data = reader.BaseStream.ReadArray<float>(size);
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 

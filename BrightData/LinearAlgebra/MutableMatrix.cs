@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -75,7 +76,7 @@ namespace BrightData.LinearAlgebra
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new MutableTensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
+            return new MutableTensorSegmentWrapper<float>(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
@@ -83,7 +84,7 @@ namespace BrightData.LinearAlgebra
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new ReadOnlyTensorSegmentWrapper(Segment, index, RowCount, ColumnCount);
+            return new ReadOnlyTensorSegmentWrapper<float>(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
@@ -91,7 +92,7 @@ namespace BrightData.LinearAlgebra
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new MutableTensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
+            return new MutableTensorSegmentWrapper<float>(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
@@ -99,7 +100,7 @@ namespace BrightData.LinearAlgebra
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new ReadOnlyTensorSegmentWrapper(Segment, index * RowCount, 1, RowCount);
+            return new ReadOnlyTensorSegmentWrapper<float>(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
@@ -130,7 +131,17 @@ namespace BrightData.LinearAlgebra
         public virtual IVector GetColumnVector(uint index) => Lap.CreateVector(GetColumn(index));
 
         /// <inheritdoc />
-        public IMatrix Transpose() => Lap.Transpose(this);
+        public virtual IMatrix Transpose()
+        {
+            var (buffer, rowCount, columnCount) = ReadOnlySegment.ApplyReadOnlySpan(x => x.Transpose(RowCount, ColumnCount));
+            return new BrightMatrix(new ArrayPoolTensorSegment<float>(buffer), rowCount, columnCount, LinearAlgebraProvider);
+        }
+
+        IReadOnlyMatrix IReadOnlyMatrix.Transpose()
+        {
+            var (segment, rowCount, columnCount) = ReadOnlySegment.Transpose(RowCount, ColumnCount);
+            return new ReadOnlyMatrix(segment, rowCount, columnCount);
+        }
 
         /// <inheritdoc />
         public IMatrix Multiply(IMatrix other) => Lap.Multiply(this, other);

@@ -17,7 +17,7 @@ namespace ExampleCode.DataTableTrainers
         ) {
             var context = Training.Context;
             var graph = context.CreateGraphFactory();
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             context.LinearAlgebraProvider.BindThread();
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label

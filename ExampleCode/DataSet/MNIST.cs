@@ -7,6 +7,7 @@ using BetterConsoleTables;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Cuda.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -168,7 +169,7 @@ namespace ExampleCode.DataSet
 
             // map for CUDA
             if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, ret));
 
             return ret;
         }
@@ -186,7 +187,7 @@ namespace ExampleCode.DataSet
 
             // map for CUDA
             if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-                _tensorCache.Add(new CudaTensorDataCache(cudaProvider, ret));
+                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, ret));
 
             return ret;
         }

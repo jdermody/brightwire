@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BrightData.Cuda.CudaToolkit;
+using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.LinearAlgebra;
 
 namespace BrightData.Cuda
@@ -82,5 +83,17 @@ namespace BrightData.Cuda
             if (result != CuBlasStatus.Success)
                 throw new CudaBlasException(result);
         }
+
+        internal static CudaDeviceVariable<float> GetDeviceVariable(this INumericSegment<float> segment) => GetDeviceMemoryPtr(segment).DeviceVariable;
+        internal static IDeviceMemoryPtr GetDeviceMemoryPtr(this IReadOnlyNumericSegment<float> segment)
+        {
+            if (segment is not CudaTensorSegment cudaSegment) 
+                throw new Exception("CUDA tensors can only be used with other CUDA tensors");
+            if (!segment.IsValid)
+                throw new Exception("CUDA tensor was not valid");
+            return cudaSegment.DeviceMemory;
+        }
+
+        internal static CuDevicePtr GetDevicePointer(this IReadOnlyNumericSegment<float> segment) => GetDeviceMemoryPtr(segment).DevicePointer;
     }
 }

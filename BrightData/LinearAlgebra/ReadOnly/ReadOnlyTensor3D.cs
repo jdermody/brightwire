@@ -40,7 +40,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                     temp.Dispose();
                 offset += MatrixSize;
             }
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -70,7 +70,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             ColumnCount = BinaryPrimitives.ReadUInt32LittleEndian(data);
             RowCount = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
             Depth = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
-            ReadOnlySegment = new ReadOnlyTensorSegment(data[HeaderSize..].Cast<byte, float>().ToArray());
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data[HeaderSize..].Cast<byte, float>().ToArray());
             _valueSemantics = new(this);
         }
 
@@ -86,7 +86,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             Depth = depth;
             RowCount = rowCount;
             ColumnCount = columnCount;
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -109,7 +109,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
             Depth = reader.ReadUInt32();
-            ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(reader.BaseStream.ReadArray<float>(Size));
             Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
@@ -169,7 +169,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// <inheritdoc />
         public IReadOnlyMatrix GetMatrix(uint index)
         {
-            var segment = new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index * MatrixSize, 1, MatrixSize);
+            var segment = new ReadOnlyTensorSegmentWrapper<float>(ReadOnlySegment, index * MatrixSize, 1, MatrixSize);
             return new ReadOnlyMatrix(segment, RowCount, ColumnCount);
         }
 

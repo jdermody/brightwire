@@ -95,6 +95,7 @@ namespace BrightData.Cuda
 			_leakyRelu,
 			_leakyReluDerivative,
 			_memSet,
+            _memCpy,
 			_sumColumns,
 			_pointwiseDivide,
 			_sqrt,
@@ -211,6 +212,7 @@ namespace BrightData.Cuda
 			_relu                   = _kernel.LoadFunction("RELU");
 			_reluDerivative         = _kernel.LoadFunction("RELUDerivative");
 			_memSet                 = _kernel.LoadFunction("MemSet");
+            _memCpy                 = _kernel.LoadFunction("MemCpy");
 			_sumColumns             = _kernel.LoadFunction("SumColumns");
 			_pointwiseDivide        = _kernel.LoadFunction("PointwiseDivide");
 			_sqrt                   = _kernel.LoadFunction("Sqrt");
@@ -529,6 +531,11 @@ namespace BrightData.Cuda
 		{
 			Invoke(_memSet, stream, count, data.DevicePointer, value, count, offset, increment);
 		}
+
+        internal void MemCpy(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint count, CuStream* stream = null, uint offsetA = 0, uint offsetB = 0, uint incrementA = 1, uint incrementB = 1)
+        {
+            Invoke(_memCpy, stream, count, a.DevicePointer, b.DevicePointer, count, offsetA, offsetB, incrementA, incrementB);
+        }
 
 		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, uint size, float valueAdjustment, uint ai = 1, uint bi = 1, CuStream* stream = null)
 		{

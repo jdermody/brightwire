@@ -82,8 +82,8 @@ namespace ExampleCode.DataTableTrainers
             var testTable = await GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
             var graph = _context.CreateGraphFactory();
 
-            var trainingData = graph.CreateDataSource(trainingTable);
-            var testData = graph.CreateDataSource(testTable);
+            var trainingData = await graph.CreateDataSource(trainingTable);
+            var testData = await graph.CreateDataSource(testTable);
 
             // use rms prop gradient descent and xavier weight initialisation
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
@@ -120,7 +120,7 @@ namespace ExampleCode.DataTableTrainers
             var indexer = GetIndexer();
             var training = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
             var test = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
-            var trainingData = graph.CreateDataSource(training, 0);
+            var trainingData = await graph.CreateDataSource(training, 0);
             var testData = trainingData.CloneWith(test);
             var outputSize = trainingData.GetOutputSizeOrThrow();
 
@@ -274,7 +274,7 @@ namespace ExampleCode.DataTableTrainers
             var graph = _context.CreateGraphFactory();
             var trainingTable = await CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
             var testTable = await CreateTable(_indexedSentencesTest, bernoulli, multinomial);
-            var training = graph.CreateDataSource(trainingTable);
+            var training = await graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
             var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.01f, batchSize: 128);

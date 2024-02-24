@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -26,6 +27,18 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="data">Binary data blob</param>
         public BinaryData(params byte[] data) => _data = data;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="memory"></param>
+        public BinaryData(ReadOnlyMemory<byte> memory)
+        {
+            if (MemoryMarshal.TryGetArray(memory, out var segment) && segment.Offset == 0)
+                _data = segment.Array!;
+            else
+                _data = memory.ToArray();
+        }
 
         /// <summary>
         /// Constructor

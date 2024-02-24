@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;
 using BrightData.LinearAlgebra.ReadOnly;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Cuda.Helper
 {
@@ -15,17 +17,10 @@ namespace BrightData.Cuda.Helper
         readonly CudaLinearAlgebraProvider _lap;
         readonly IDeviceMemoryPtr          _data;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="table"></param>
-        public CudaTensorDataCache(CudaLinearAlgebraProvider lap, IDataTable table)
+        CudaTensorDataCache(CudaLinearAlgebraProvider lap, IDataTable table, ReadOnlyMemory<float> tensorData)
         {
-            lap.BindThread();
-
             // copy entire tensor block into CUDA device
-            var tensorData = table.GetTensorData();
+            lap.BindThread();
             _data = new DeviceMemoryBlock(null, new CudaDeviceVariable<float>(tensorData.Length));
             _data.CopyToDevice(tensorData.Span, 0);
             _lap = lap;
@@ -34,52 +29,64 @@ namespace BrightData.Cuda.Helper
             table.SetTensorMappers(GetVectors, GetMatrices, Get3DTensors, Get4DTensors);
         }
 
-        ReadOnlyMemory<ReadOnlyVector> GetVectors(ReadOnlySpan<DataRangeColumnType> span)
+        /// <summary>
+        /// Creates a CUDA tensor cache
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public static async Task<CudaTensorDataCache> Create(CudaLinearAlgebraProvider lap, IDataTable table)
+        {
+            var tensorData = await table.GetTensorData();
+            return new(lap, table, tensorData);
+        }
+
+        Task<ReadOnlyMemory<ReadOnlyVector>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var index = 0;
-            var ret = new ReadOnlyVector[span.Length];
-            foreach (ref readonly var item in span) {
+            var ret = new ReadOnlyVector[block.Length];
+            foreach (ref readonly var item in block.Span) {
                 var devicePtr = _data.Offset(item.StartIndex, item.Size);
-                var segment = new CudaTensorSegment(devicePtr);
+                var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment);
             }
-            return ret;
+            return Task.FromResult(new ReadOnlyMemory<ReadOnlyVector>(ret));
         }
 
-        ReadOnlyMemory<ReadOnlyMatrix> GetMatrices(ReadOnlySpan<MatrixColumnType> span)
+        Task<ReadOnlyMemory<ReadOnlyMatrix>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
         {
             var index = 0;
-            var ret = new ReadOnlyMatrix[span.Length];
-            foreach (ref readonly var item in span) {
+            var ret = new ReadOnlyMatrix[block.Length];
+            foreach (ref readonly var item in block.Span) {
                 var devicePtr = _data.Offset(item.StartIndex, item.Size);
-                var segment = new CudaTensorSegment(devicePtr);
+                var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.RowCount, item.ColumnCount);
             }
-            return ret;
+            return Task.FromResult(new ReadOnlyMemory<ReadOnlyMatrix>(ret));
         }
 
-        ReadOnlyMemory<ReadOnlyTensor3D> Get3DTensors(ReadOnlySpan<Tensor3DColumnType> span)
+        Task<ReadOnlyMemory<ReadOnlyTensor3D>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
         {
             var index = 0;
-            var ret = new ReadOnlyTensor3D[span.Length];
-            foreach (ref readonly var item in span) {
+            var ret = new ReadOnlyTensor3D[block.Length];
+            foreach (ref readonly var item in block.Span) {
                 var devicePtr = _data.Offset(item.StartIndex, item.Size);
-                var segment = new CudaTensorSegment(devicePtr);
+                var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.Depth, item.RowCount, item.ColumnCount);
             }
-            return ret;
+            return Task.FromResult(new ReadOnlyMemory<ReadOnlyTensor3D>(ret));
         }
 
-        ReadOnlyMemory<ReadOnlyTensor4D> Get4DTensors(ReadOnlySpan<Tensor4DColumnType> span)
+        Task<ReadOnlyMemory<ReadOnlyTensor4D>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
         {
             var index = 0;
-            var ret = new ReadOnlyTensor4D[span.Length];
-            foreach (ref readonly var item in span) {
+            var ret = new ReadOnlyTensor4D[block.Length];
+            foreach (ref readonly var item in block.Span) {
                 var devicePtr = _data.Offset(item.StartIndex, item.Size);
-                var segment = new CudaTensorSegment(devicePtr);
+                var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.Count, item.Depth, item.RowCount, item.ColumnCount);
             }
-            return ret;
+            return Task.FromResult(new ReadOnlyMemory<ReadOnlyTensor4D>(ret));
         }
 
         /// <inheritdoc />

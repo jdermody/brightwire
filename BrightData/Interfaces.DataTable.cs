@@ -7,6 +7,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 using BrightData.DataTable.Columns;
 using BrightData.DataTable.Rows;
+using System.Runtime.CompilerServices;
 
 namespace BrightData
 {
@@ -336,7 +337,7 @@ namespace BrightData
     /// <typeparam name="T"></typeparam>
     /// <param name="span"></param>
     /// <returns></returns>
-    public delegate ReadOnlyMemory<T> BlockMapper<FT, T>(ReadOnlySpan<FT> span);
+    public delegate Task<ReadOnlyMemory<T>> BlockMapper<FT, T>(ReadOnlyMemory<FT> span);
 
     /// <summary>
     /// Provides tensor data
@@ -347,7 +348,7 @@ namespace BrightData
         /// Returns the entire block of tensor data
         /// </summary>
         /// <returns></returns>
-        ReadOnlyMemory<float> GetTensorData();
+        Task<ReadOnlyMemory<float>> GetTensorData();
 
         /// <summary>
         /// Sets the tensor mapping functions

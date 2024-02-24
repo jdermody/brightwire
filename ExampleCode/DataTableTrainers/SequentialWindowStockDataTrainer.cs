@@ -22,7 +22,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.WeightInitialisation.Xavier);
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 128);
 

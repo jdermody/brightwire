@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 
 namespace BrightData.LinearAlgebra.Segments
 {
     /// <summary>
     /// A tensor segment that wraps another tensor segment
     /// </summary>
-    public class MutableTensorSegmentWrapper : ReadOnlyTensorSegmentWrapper, INumericSegment<float>
+    public class MutableTensorSegmentWrapper<T> : ReadOnlyTensorSegmentWrapper<T>, INumericSegment<T> where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Constructor
@@ -15,7 +16,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <param name="offset">First index within the wrapped tensor segment</param>
         /// <param name="stride">Stride within the wrapped tensor segment</param>
         /// <param name="length">Number of values in this tensor segment</param>
-        public MutableTensorSegmentWrapper(INumericSegment<float> segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
+        public MutableTensorSegmentWrapper(INumericSegment<T> segment, uint offset, uint stride, uint length) : base(segment, offset, stride, length)
         {
             UnderlyingSegment = segment;
         }
@@ -23,45 +24,45 @@ namespace BrightData.LinearAlgebra.Segments
         /// <summary>
         /// The segment that was wrapped by this tensor segment
         /// </summary>
-        public new INumericSegment<float> UnderlyingSegment { get; }
+        public new INumericSegment<T> UnderlyingSegment { get; }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public new float this[int index]
+        public new T this[int index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public new float this[uint index]
+        public new T this[uint index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public new float this[long index]
+        public new T this[long index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public new float this[ulong index]
+        public new T this[ulong index]
         {
             get => UnderlyingSegment[Offset + index * Stride];
             set => UnderlyingSegment[Offset + index * Stride] = value;
         }
 
         /// <inheritdoc />
-        public void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
+        public void CopyFrom(ReadOnlySpan<T> span, uint targetOffset)
         {
             if (Stride == 1 && !UnderlyingSegment.IsWrapper)
             {
                 var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
                 if (array is not null && stride == 1)
                 {
-                    span.CopyTo(new Span<float>(array, (int)(offset + Offset + targetOffset), (int)(Size - targetOffset)));
+                    span.CopyTo(new Span<T>(array, (int)(offset + Offset + targetOffset), (int)(Size - targetOffset)));
                     return;
                 }
             }
@@ -75,11 +76,11 @@ namespace BrightData.LinearAlgebra.Segments
         public void Clear()
         {
             for (uint i = 0; i < Size; i++)
-                this[i] = 0f;
+                this[i] = T.Zero;
         }
 
         /// <inheritdoc />
-        public (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray()
+        public (T[]? Array, uint Offset, uint Stride) GetUnderlyingArray()
         {
             var (array, offset, stride) = UnderlyingSegment.GetUnderlyingArray();
             return (array, offset + Offset, stride + Stride);

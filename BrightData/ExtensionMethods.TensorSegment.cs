@@ -118,7 +118,7 @@ namespace BrightData
         public static IEnumerable<IReadOnlyNumericSegment<float>> Split(this IReadOnlyNumericSegment<float> segment, uint blockCount)
         {
             for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
-                yield return new ReadOnlyTensorSegmentWrapper(segment, i, 1, blockSize);
+                yield return new ReadOnlyTensorSegmentWrapper<float>(segment, i, 1, blockSize);
         }
 
         /// <summary>
@@ -534,9 +534,10 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives each value from the segment</param>
         /// <returns></returns>
-        public static INumericSegment<float> MapParallel(this IReadOnlyNumericSegment<float> segment, Func<float /* value */, float /* new value */> mapper)
+        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
         {
-            return segment.ApplyReadOnlySpan(x => x.MapParallel(mapper)).ToSegment();
+            var ret = segment.ApplyReadOnlySpan(x => x.MapParallel(mapper));
+            return new ArrayPoolTensorSegment<T>(ret);
         }
 
         /// <summary>
@@ -544,7 +545,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives each value from the segment</param>
-        public static void MapParallelInPlace(this INumericSegment<float> segment, Func<float /* value */, float /* new value */> mapper)
+        public static void MapParallelInPlace<T>(this INumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
         {
             segment.ApplySpan(true, x => x.MutateInPlace(mapper));
         }
@@ -555,9 +556,10 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
         /// <returns></returns>
-        public static INumericSegment<float> MapParallel(this IReadOnlyNumericSegment<float> segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
+        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<uint /* index */, T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
         {
-            return segment.ApplyReadOnlySpan(x => x.MapParallel(mapper)).ToSegment();
+            var ret = segment.ApplyReadOnlySpan(x => x.MapParallel(mapper));
+            return new ArrayPoolTensorSegment<T>(ret);
         }
 
         /// <summary>
@@ -565,9 +567,20 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
-        public static void MapParallelInPlace(this INumericSegment<float> segment, Func<uint /* index */, float /* value */, float /* new value */> mapper)
+        public static void MapParallelInPlace<T>(this INumericSegment<T> segment, Func<uint /* index */, T /* value */, T /* new value */> mapper) where T: unmanaged, INumber<T>
         {
             segment.ApplySpan(true, x => x.MutateInPlace(mapper));
+        }
+
+        public static (IReadOnlyNumericSegment<T> Segment, uint RowCount, uint ColumnCount) Transpose<T>(this IReadOnlyNumericSegment<T> segment, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
+        {
+            var (buffer, newRowCount, newColumnCount) = segment.ApplyReadOnlySpan(x => x.Transpose(rowCount, columnCount));
+            try {
+                return (new ReadOnlyTensorSegment<T>(buffer.Memory.ToArray()), newRowCount, newColumnCount);
+            }
+            finally {
+                buffer.Dispose();
+            }
         }
     }
 }

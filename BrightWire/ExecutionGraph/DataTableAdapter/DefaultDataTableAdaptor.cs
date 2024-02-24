@@ -12,12 +12,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
+        DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices).Result;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()).Result;
+            InputVectoriser = inputVectoriser;
+            OutputVectoriser = outputVectoriser;
+        }
+
+        public static async Task<DefaultDataTableAdapter> Create(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
+        {
+            return new DefaultDataTableAdapter(
+                dataTable,
+                inputVectoriser ?? await dataTable.GetVectoriser(true, featureColumns),
+                outputVectoriser ?? await dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()),
+                featureColumns
+            );
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)

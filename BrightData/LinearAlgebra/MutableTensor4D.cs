@@ -157,7 +157,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="index"></param>
         /// <returns></returns>
         public IReadOnlyTensor3D GetTensorAsReadOnly(uint index) => new ReadOnlyTensor3D(Tensor(index), Depth, RowCount, ColumnCount);
-        MutableTensorSegmentWrapper Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
+        MutableTensorSegmentWrapper<float> Tensor(uint index) => new(Segment, index * TensorSize, 1, TensorSize);
 
         /// <inheritdoc />
         public override string ToString() => $"Tensor4D (Count: {Count}, Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";

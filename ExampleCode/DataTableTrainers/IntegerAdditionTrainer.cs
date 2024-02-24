@@ -24,7 +24,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.001f, batchSize: 16);
 
@@ -44,7 +44,7 @@ namespace ExampleCode.DataTableTrainers
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-                var testData2 = graph.CreateDataSource(await BinaryIntegers.Addition(_context, 8));
+                var testData2 = await graph.CreateDataSource(await BinaryIntegers.Addition(_context, 8));
                 var results = await executionEngine.Execute(testData2, 128, null, true).ToListAsync();
 
                 // group the output

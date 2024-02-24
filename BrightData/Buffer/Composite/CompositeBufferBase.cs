@@ -173,7 +173,8 @@ namespace BrightData.Buffer.Composite
             if (ConstraintValidator?.Allow(item) == false)
                 return;
 
-            EnsureCurrentBlock().GetNext() = item;
+            var block = EnsureCurrentBlock().GetAwaiter().GetResult();
+            block.GetNext() = item;
             if (_distinct?.Add(item) == true && _distinct.Count >= _maxDistinctItems)
                 _distinct = null;
             ++Size;
@@ -188,7 +189,7 @@ namespace BrightData.Buffer.Composite
         public IReadOnlySet<T>? DistinctSet => _distinct;
         public IConstraintValidator<T>? ConstraintValidator { get; set; }
 
-        protected BT EnsureCurrentBlock()
+        protected async Task<BT> EnsureCurrentBlock()
         {
             if (_currBlock?.HasFreeCapacity != true)
             {
@@ -197,7 +198,7 @@ namespace BrightData.Buffer.Composite
                     if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value)
                     {
                         _currentDataBlock ??= (_dataBlockProvider ??= new TempFileProvider()).Get(Id);
-                        _currBlock.WriteTo(_currentDataBlock);
+                        await _currBlock.WriteTo(_currentDataBlock);
                         ++_blocksInFile;
                     }
                     else

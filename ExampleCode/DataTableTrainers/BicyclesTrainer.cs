@@ -30,11 +30,11 @@ namespace ExampleCode.DataTableTrainers
         //    }
         //}
 
-        public Task TrainNeuralNetwork()
+        public async Task TrainNeuralNetwork()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
@@ -49,7 +49,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagation()
             ;
 
-            return engine.Train(50, testData);
+            await engine.Train(50, testData);
         }
     }
 }

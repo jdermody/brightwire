@@ -232,9 +232,6 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.RowSums(BrightData.IMatrix)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Transpose(BrightData.IMatrix)">
-            <inheritdoc />
-        </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.TransposeSecondAndMultiply(BrightData.IMatrix,BrightData.IMatrix)">
             <inheritdoc />
         </member>
@@ -399,6 +396,9 @@
         <member name="M:BrightData.Cuda.CudaMatrix.GetRowVector(System.UInt32)">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.Transpose">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Cuda.CudaProvider">
             <summary>
             Manages the bright wire cuda kernels and implements the cuda linear algebra provider
@@ -515,12 +515,13 @@
             Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.#ctor(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.IDataTable)">
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Create(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.IDataTable)">
             <summary>
-            Constructor
+            Creates a CUDA tensor cache
             </summary>
             <param name="lap"></param>
             <param name="table"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Dispose">
             <inheritdoc />

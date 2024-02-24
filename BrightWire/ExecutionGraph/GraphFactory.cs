@@ -16,6 +16,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
@@ -195,7 +196,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table to convert</param>
         /// <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
         /// <returns></returns>
-        public IDataSource CreateDataSource(IDataTable dataTable, params uint[] featureColumns)
+        public async Task<IDataSource> CreateDataSource(IDataTable dataTable, params uint[] featureColumns)
 		{
 			var columns = dataTable.ColumnTypes;
 			var targetColumn = dataTable.GetTargetColumnOrThrow();
@@ -217,7 +218,7 @@ namespace BrightWire.ExecutionGraph
 
 				// one to one
 				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Vector)
-					return new VectorBasedDataTableAdapter(dataTable, featureColumns);
+					return await VectorBasedDataTableAdapter.Create(dataTable, featureColumns);
 
 				// one to many
 				if (featureColumnType == BrightDataType.Vector && targetColumnType == BrightDataType.Matrix)
@@ -233,15 +234,15 @@ namespace BrightWire.ExecutionGraph
 
 				// index list
 				if (featureColumnType == BrightDataType.IndexList)
-					return new IndexListDataTableAdapter(dataTable, null, featureColumns);
+					return await IndexListDataTableAdapter.Create(dataTable, null, featureColumns);
 
 				// weighted index list
 				if (featureColumnType == BrightDataType.WeightedIndexList)
-					return new WeightedIndexListDataTableAdapter(dataTable, null, featureColumns);
+					return await WeightedIndexListDataTableAdapter.Create(dataTable, null, featureColumns);
 			}
 
 			// default adapter
-			return new DefaultDataTableAdapter(dataTable, null, null, featureColumns);
+			return await DefaultDataTableAdapter.Create(dataTable, null, null, featureColumns);
 		}
 
         /// <summary>

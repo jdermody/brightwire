@@ -158,8 +158,8 @@ namespace BrightData.MKL
             });
             return result;
         }
-        delegate void CopyCallback(int size, float* x, float* r);
-        INumericSegment<float> Copy(IReadOnlyNumericSegment<float> tensor, bool initialiseToZero, CopyCallback callback)
+        internal delegate void CopyCallback(int size, float* x, float* r);
+        internal INumericSegment<float> Copy(IReadOnlyNumericSegment<float> tensor, bool initialiseToZero, CopyCallback callback)
         {
             var result = CreateSegment(tensor.Size, initialiseToZero);
             tensor.ApplyReadOnlySpan(a => {
@@ -223,30 +223,6 @@ namespace BrightData.MKL
                 );
             });
             return CreateMatrix(matrix.RowCount, other.ColumnCount, ret);
-        }
-
-        /// <inheritdoc />
-        public override IMatrix Transpose(IMatrix matrix)
-        {
-            var rows = (UIntPtr)matrix.RowCount;
-            var cols = (UIntPtr)matrix.ColumnCount;
-
-            var ret = Copy(matrix.Segment, false, (size, a, r) => {
-                var ap = new Span<float>(a, size);
-                var rp = new Span<float>(r, size);
-                ap.CopyTo(rp);
-                Blas.imatcopy(
-                    LayoutChar.ColMajor,
-                    TransChar.Yes,
-                    rows,
-                    cols,
-                    1f,
-                    rp,
-                    rows,
-                    cols
-                );
-            });
-            return CreateMatrix(matrix.ColumnCount, matrix.RowCount, ret);
         }
 
         /// <inheritdoc />

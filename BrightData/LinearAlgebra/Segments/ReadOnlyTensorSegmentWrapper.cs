@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace BrightData.LinearAlgebra.Segments
 {
     /// <summary>
     /// Read only tensor segment wrapper
     /// </summary>
-    public class ReadOnlyTensorSegmentWrapper : IReadOnlyNumericSegment<float>
+    public class ReadOnlyTensorSegmentWrapper<T> : IReadOnlyNumericSegment<T> where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Constructor
@@ -17,7 +18,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <param name="offset">First index within the wrapped tensor segment</param>
         /// <param name="stride">Stride within the wrapped tensor segment</param>
         /// <param name="length">Number of values in this tensor segment</param>
-        public ReadOnlyTensorSegmentWrapper(IReadOnlyNumericSegment<float> segment, uint offset, uint stride, uint length)
+        public ReadOnlyTensorSegmentWrapper(IReadOnlyNumericSegment<T> segment, uint offset, uint stride, uint length)
         {
             UnderlyingSegment = segment;
             Offset = offset;
@@ -50,7 +51,7 @@ namespace BrightData.LinearAlgebra.Segments
         /// <summary>
         /// The segment that was wrapped by this tensor segment
         /// </summary>
-        public IReadOnlyNumericSegment<float> UnderlyingSegment { get; }
+        public IReadOnlyNumericSegment<T> UnderlyingSegment { get; }
 
         /// <summary>
         /// First index within the wrapped tensor segment
@@ -66,19 +67,19 @@ namespace BrightData.LinearAlgebra.Segments
         public bool IsWrapper => true;
 
         /// <inheritdoc />
-        public float this[int index] => UnderlyingSegment[Offset + index * Stride];
+        public T this[int index] => UnderlyingSegment[Offset + index * Stride];
 
         /// <inheritdoc />
-        public float this[uint index] => UnderlyingSegment[Offset + index * Stride];
+        public T this[uint index] => UnderlyingSegment[Offset + index * Stride];
 
         /// <inheritdoc />
-        public float this[long index] => UnderlyingSegment[Offset + index * Stride];
+        public T this[long index] => UnderlyingSegment[Offset + index * Stride];
 
         /// <inheritdoc />
-        public float this[ulong index] => UnderlyingSegment[Offset + index * Stride];
+        public T this[ulong index] => UnderlyingSegment[Offset + index * Stride];
 
         /// <inheritdoc />
-        public IEnumerable<float> Values
+        public IEnumerable<T> Values
         {
             get
             {
@@ -88,22 +89,22 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public float[] ToNewArray() => Values.ToArray();
+        public T[] ToNewArray() => Values.ToArray();
 
         /// <inheritdoc />
-        public void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
+        public void CopyTo(INumericSegment<T> segment, uint sourceOffset, uint targetOffset)
         {
-            if (Stride == 1 && !UnderlyingSegment.IsWrapper && UnderlyingSegment is INumericSegment<float> underlyingSegment)
+            if (Stride == 1 && !UnderlyingSegment.IsWrapper && UnderlyingSegment is INumericSegment<T> underlyingSegment)
             {
                 var (array, offset, stride) = underlyingSegment.GetUnderlyingArray();
                 if (array is not null && stride == 1)
                 {
-                    segment.CopyFrom(new ReadOnlySpan<float>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetOffset);
+                    segment.CopyFrom(new ReadOnlySpan<T>(array, (int)(offset + Offset + sourceOffset), (int)(Size - sourceOffset)), targetOffset);
                     return;
                 }
             }
 
-            using var tempBuffer = SpanOwner<float>.Allocate((int)(Size - sourceOffset));
+            using var tempBuffer = SpanOwner<T>.Allocate((int)(Size - sourceOffset));
             var span = tempBuffer.Span;
             for (var i = 0; i < Size; i++)
                 span[i] = this[i + sourceOffset];
@@ -111,29 +112,29 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public void CopyTo(Span<float> destination)
+        public void CopyTo(Span<T> destination)
         {
             for (var i = 0; i < Size; i++)
                 destination[i] = this[i];
         }
 
         /// <inheritdoc />
-        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        public unsafe void CopyTo(T* destination, int offset, int stride, int count)
         {
             for (var i = 0; i < count; i++)
                 *destination++ = this[offset + stride * i];
         }
 
         /// <inheritdoc />
-        public IHaveReadOnlyContiguousSpan<float>? Contiguous => null;
+        public IHaveReadOnlyContiguousSpan<T>? Contiguous => null;
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed)
         {
             if (Stride == 1)
                 return UnderlyingSegment.GetSpan(ref temp, out wasTempUsed).Slice((int)Offset, (int)Size);
 
-            temp = SpanOwner<float>.Allocate((int)Size);
+            temp = SpanOwner<T>.Allocate((int)Size);
             var span = temp.Span;
             CopyTo(span);
             wasTempUsed = true;

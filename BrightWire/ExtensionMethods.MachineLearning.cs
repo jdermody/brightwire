@@ -225,7 +225,7 @@ namespace BrightWire
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(trainingTable);
+            var trainingData = await graph.CreateDataSource(trainingTable);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize);
 
             // create the network

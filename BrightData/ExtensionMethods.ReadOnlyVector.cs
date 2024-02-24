@@ -97,7 +97,7 @@ namespace BrightData
         static INumericSegment<float> Apply(IReadOnlyVector vector, IReadOnlyVector other, TransformReadOnlySpans<float, MemoryOwner<float>> mutator)
         {
             var result = vector.ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, mutator);
-            return new ArrayPoolTensorSegment(result);
+            return new ArrayPoolTensorSegment<float>(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float Apply(IReadOnlyVector vector, IReadOnlyVector other, TransformReadOnlySpans<float, float> mutator)
@@ -108,7 +108,7 @@ namespace BrightData
         static INumericSegment<float> Apply(IReadOnlyVector vector, TransformReadOnlySpan<float, MemoryOwner<float>> mutator)
         {
             var result = vector.ReadOnlySegment.ApplyReadOnlySpan(mutator);
-            return new ArrayPoolTensorSegment(result);
+            return new ArrayPoolTensorSegment<float>(result);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float Apply(IReadOnlyVector vector, TransformReadOnlySpan<float, float> mutator)

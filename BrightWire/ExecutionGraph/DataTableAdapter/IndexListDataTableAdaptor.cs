@@ -16,15 +16,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public IndexListDataTableAdapter(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns)
+        IndexListDataTableAdapter(IDataTable dataTable, VectorisationModel outputVectoriser, uint[] featureColumns, uint inputSize)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()).Result;
+            OutputVectoriser = outputVectoriser;
             OutputSize = OutputVectoriser.OutputSize;
+            InputSize = inputSize;
+        }
 
-            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Result.Select(m => m.GetIndexAnalysis());
-            InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
+        public static async Task<IndexListDataTableAdapter> Create(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns)
+        {
+            var analysis = (await dataTable.GetColumnAnalysis(featureColumns)).Select(m => m.GetIndexAnalysis());
+            var inputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
+            return new(dataTable, outputVectoriser ?? await dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()), featureColumns, inputSize);
         }
 
         protected override async IAsyncEnumerable<(IndexList, float[])> GetRows(uint[] rows)
@@ -57,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new IndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns);
+            return new IndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns, InputSize);
         }
     }
 }

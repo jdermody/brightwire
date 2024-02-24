@@ -412,7 +412,7 @@ namespace BrightData
                     : await targetColumn.GetTypedBlock(blockIndex++);
                 for (var i = 0; i < len; i++) {
                     var memory = blockMemory.Span.GetRowSpan(i).ToArray();
-                    yield return (new ReadOnlyTensorSegment(memory), targetColumn is null ? null : targetBlock.Span[i]);
+                    yield return (new ReadOnlyTensorSegment<float>(memory), targetColumn is null ? null : targetBlock.Span[i]);
                 }
             }
         }

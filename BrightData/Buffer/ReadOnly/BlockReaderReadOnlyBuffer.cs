@@ -16,8 +16,8 @@ namespace BrightData.Buffer.ReadOnly
     {
         readonly IByteBlockReader _reader;
         readonly uint _offset, _byteSize, _sizeOfT;
-        ReadOnlyMemory<T>? _lastBlock;
-        uint _lastBlockIndex;
+        ReadOnlyMemory<T>? _lastBlock = null;
+        uint _lastBlockIndex = uint.MaxValue;
 
         public BlockReaderReadOnlyBuffer(IByteBlockReader reader, MetaData metadata, uint offset, uint byteSize, uint blockSize = Consts.DefaultBlockSize)
         {
@@ -54,11 +54,11 @@ namespace BrightData.Buffer.ReadOnly
             if (_lastBlockIndex == blockIndex && _lastBlock.HasValue)
                 return _lastBlock.Value;
 
-            _lastBlockIndex = blockIndex;
             var start = _offset + blockIndex * BlockSize * _sizeOfT;
             var end = Math.Min(start + BlockSize * _sizeOfT, _byteSize + _offset);
             var byteBlock = await _reader.GetBlock(start, end - start);
             var ret = byteBlock.Cast<byte, T>();
+            _lastBlockIndex = blockIndex;
             _lastBlock = ret;
             return ret;
         }

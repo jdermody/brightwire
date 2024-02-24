@@ -125,7 +125,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
-        public virtual Task TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
+        public virtual async Task TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -139,7 +139,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
 
             // create the training and test data sources
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
@@ -154,7 +154,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            return engine.Train(numIterations, testData, null, testCadence);
+            await engine.Train(numIterations, testData, null, testCadence);
         }
     }
 }

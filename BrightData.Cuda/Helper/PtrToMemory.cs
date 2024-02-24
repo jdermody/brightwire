@@ -46,7 +46,7 @@ namespace BrightData.Cuda.Helper
         }
         public unsafe void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource)
         {
-            fixed (float* p = &MemoryMarshal.GetReference(span))
+            fixed (float* p = span)                                                                             
             {
                 DeviceVariable.CopyToDevice((IntPtr)p, offsetSource, 0, (int)Size * sizeof(float));
             }

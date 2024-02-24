@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -9,18 +10,18 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment based on a float array
     /// </summary>
-    public class MutableTensorSegment : INumericSegment<float>, IHaveReadOnlyContiguousSpan<float>
+    public class MutableTensorSegment<T> : INumericSegment<T>, IHaveReadOnlyContiguousSpan<T> where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Underlying array
         /// </summary>
-        protected readonly float[] _data;
+        protected readonly T[] _data;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Array of values</param>
-        public MutableTensorSegment(params float[] data)
+        public MutableTensorSegment(params T[] data)
         {
             _data = data;
         }
@@ -55,24 +56,24 @@ namespace BrightData.LinearAlgebra.Segments
         public virtual string SegmentType => Consts.ArrayBased;
 
         /// <inheritdoc />
-        public virtual float[] ToNewArray() => _data.ToArray();
+        public virtual T[] ToNewArray() => _data.ToArray();
 
         /// <inheritdoc />
-        public virtual IEnumerable<float> Values => _data;
+        public virtual IEnumerable<T> Values => _data;
 
         /// <inheritdoc />
-        public virtual void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
+        public virtual void CopyTo(INumericSegment<T> segment, uint sourceOffset, uint targetOffset)
         {
             segment.CopyFrom(_data.AsSpan((int)sourceOffset), targetOffset);
         }
 
         /// <inheritdoc />
-        public virtual void CopyTo(Span<float> destination) => ReadOnlySpan.CopyTo(destination);
+        public virtual void CopyTo(Span<T> destination) => ReadOnlySpan.CopyTo(destination);
 
         /// <inheritdoc />
-        public unsafe void CopyTo(float* destination, int offset, int stride, int count)
+        public unsafe void CopyTo(T* destination, int offset, int stride, int count)
         {
-            fixed (float* ptr = &_data[offset])
+            fixed (T* ptr = &_data[offset])
             {
                 var p = ptr;
                 for (var i = 0; i < count; i++)
@@ -84,16 +85,16 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public IHaveReadOnlyContiguousSpan<float> Contiguous => this;
+        public IHaveReadOnlyContiguousSpan<T> Contiguous => this;
 
         /// <inheritdoc />
-        public virtual void CopyFrom(ReadOnlySpan<float> span, uint targetOffset)
+        public virtual void CopyFrom(ReadOnlySpan<T> span, uint targetOffset)
         {
             span.CopyTo(_data.AsSpan((int)targetOffset));
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
+        public ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed)
         {
             wasTempUsed = false;
             return ReadOnlySpan;
@@ -112,28 +113,28 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public float this[int index]
+        public T this[int index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public float this[uint index]
+        public T this[uint index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public float this[long index]
+        public T this[long index]
         {
             get => _data[index];
             set => _data[index] = value;
         }
 
         /// <inheritdoc cref="INumericSegment{T}" />
-        public float this[ulong index]
+        public T this[ulong index]
         {
             get => _data[index];
             set => _data[index] = value;
@@ -142,16 +143,16 @@ namespace BrightData.LinearAlgebra.Segments
         /// <inheritdoc />
         public unsafe void Clear()
         {
-            fixed (float* ptr = &_data[0])
+            fixed (T* ptr = &_data[0])
             {
                 Unsafe.InitBlock(ptr, 0, Size * sizeof(float));
             }
         }
 
         /// <inheritdoc />
-        public (float[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
+        public (T[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
 
         /// <inheritdoc />
-        public virtual ReadOnlySpan<float> ReadOnlySpan => new(_data);
+        public virtual ReadOnlySpan<T> ReadOnlySpan => new(_data);
     }
 }

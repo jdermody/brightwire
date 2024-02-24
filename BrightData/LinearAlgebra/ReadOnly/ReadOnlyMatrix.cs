@@ -20,7 +20,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
 
         ReadOnlyMatrix(ReadOnlyMemory<float> data)
         {
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -71,7 +71,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 for (uint i = 0, len = (uint)data.Length; i < len; i++)
                     *p++ = initializer(i % rows, i / rows);
             }
-            ReadOnlySegment = new ReadOnlyTensorSegment(data);
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 throw new Exception("Unexpected array size");
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
-            ReadOnlySegment = new ReadOnlyTensorSegment(reader.BaseStream.ReadArray<float>(Size));
+            ReadOnlySegment = new ReadOnlyTensorSegment<float>(reader.BaseStream.ReadArray<float>(Size));
             Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
@@ -147,10 +147,17 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IMatrix Create(LinearAlgebraProvider lap) => lap.CreateMatrix(RowCount, ColumnCount, ReadOnlySegment);
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> GetReadOnlyRow(uint index) => new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index, RowCount, ColumnCount);
+        public IReadOnlyMatrix Transpose()
+        {
+            var (segment, rowCount, columnCount) = ReadOnlySegment.Transpose(RowCount, ColumnCount);
+            return new ReadOnlyMatrix(segment, rowCount, columnCount);
+        }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint index) => new ReadOnlyTensorSegmentWrapper(ReadOnlySegment, index * RowCount, 1, RowCount);
+        public IReadOnlyNumericSegment<float> GetReadOnlyRow(uint index) => new ReadOnlyTensorSegmentWrapper<float>(ReadOnlySegment, index, RowCount, ColumnCount);
+
+        /// <inheritdoc />
+        public IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint index) => new ReadOnlyTensorSegmentWrapper<float>(ReadOnlySegment, index * RowCount, 1, RowCount);
 
         /// <inheritdoc />
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrix);

@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             if (model != null) {
                 // create a new network to execute the learned network
                 var executionEngine = graph.CreateExecutionEngine(model);
-                var output = await executionEngine.Execute(graph.CreateDataSource(Test)).ToListAsync();
+                var output = await executionEngine.Execute(await graph.CreateDataSource(Test)).ToListAsync();
                 if (writeResults) {
                     var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");

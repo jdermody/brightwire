@@ -96,7 +96,7 @@ namespace BrightData.Buffer.Composite
         {
             while (inputBlock.Length > 0)
             {
-                var block = EnsureCurrentBlock();
+                var block = EnsureCurrentBlock().GetAwaiter().GetResult();
                 var countToWrite = Math.Min(inputBlock.Length, (int)block.AvailableCapacity);
                 var itemsToWrite = inputBlock[..countToWrite];
                 block.Write(itemsToWrite);

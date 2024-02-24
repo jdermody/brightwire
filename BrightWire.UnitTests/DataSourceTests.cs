@@ -32,7 +32,7 @@ namespace BrightWire.UnitTests
 			builder.AddRow(0.2f, 0.6, "a", "d");
 
 			var table = await builder.BuildInMemory();
-            var dataSource = _factory.CreateDataSource(table);
+            var dataSource = await _factory.CreateDataSource(table);
 			var miniBatch = await dataSource.Get([1]);
 			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetReadOnlyRow(0);
 			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetReadOnlyRow(0);

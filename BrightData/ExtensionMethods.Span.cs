@@ -447,7 +447,7 @@ namespace BrightData
         public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged
         {
             var size = span.Length;
-            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
+            fixed (T* fp = span) {
                 if (size >= Consts.MinimumSizeForParallel)
                     ParallelHelper.For(0, size, new AnalyseAction<T>(analyser, fp));
                 else {

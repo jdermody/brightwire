@@ -7,7 +7,7 @@ namespace ExampleCode.DataTableTrainers
 {
     class AdultTrainer(IDataTable? table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public virtual Task TrainNeuralNetwork()
+        public virtual async Task TrainNeuralNetwork()
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -21,7 +21,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
 
             // create the training and test data sources
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
@@ -36,7 +36,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            return engine.Train(20, testData);
+            await engine.Train(20, testData);
         }
     }
 }

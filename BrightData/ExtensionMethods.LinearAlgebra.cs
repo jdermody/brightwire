@@ -526,9 +526,9 @@ namespace BrightData
         {
             var ret = new IReadOnlyVector[matrix.RowCount];
             if (makeCopy) {
-                var segment = new ReadOnlyTensorSegment(matrix.ToArray());
+                var segment = new ReadOnlyTensorSegment<float>(matrix.ToArray());
                 for (uint i = 0; i < matrix.RowCount; i++)
-                    ret[i] = new ReadOnlyTensorSegmentWrapper(segment, i, matrix.RowCount, matrix.ColumnCount).ToReadOnlyVector();
+                    ret[i] = new ReadOnlyTensorSegmentWrapper<float>(segment, i, matrix.RowCount, matrix.ColumnCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < matrix.RowCount; i++)
@@ -547,9 +547,9 @@ namespace BrightData
         {
             var ret = new IReadOnlyVector[matrix.ColumnCount];
             if (makeCopy) {
-                var segment = new MutableTensorSegment(matrix.ToArray());
+                var segment = new MutableTensorSegment<float>(matrix.ToArray());
                 for (uint i = 0; i < matrix.ColumnCount; i++)
-                    ret[i] = new MutableTensorSegmentWrapper(segment, i * matrix.RowCount, 1, matrix.RowCount).ToReadOnlyVector();
+                    ret[i] = new MutableTensorSegmentWrapper<float>(segment, i * matrix.RowCount, 1, matrix.RowCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < matrix.ColumnCount; i++)

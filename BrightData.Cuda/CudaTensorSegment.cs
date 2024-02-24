@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using BrightData.Cuda.CudaToolkit;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment(IDeviceMemoryPtr data) : INumericSegment<float>
+    internal class CudaTensorSegment(IDeviceMemoryPtr data, CudaProvider provider) : INumericSegment<float>
     {
         const string CudaSegmentType = "cuda";
 
@@ -78,17 +80,31 @@ namespace BrightData.Cuda
             DeviceMemory.CopyToDevice(span, targetOffset);
         }
 
-        public void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
+        public unsafe void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
-            if (segment.SegmentType == CudaSegmentType) {
-                var other = (CudaTensorSegment)segment;
-                var target = targetOffset == 0 ? other.DeviceMemory : other.DeviceMemory.Offset(targetOffset, other.DeviceMemory.Size - targetOffset);
-                var source = sourceOffset == 0 ? DeviceMemory : DeviceMemory.Offset(sourceOffset, DeviceMemory.Size - sourceOffset);
-                target.CopyToDevice(source);
+            if (segment.SegmentType == CudaSegmentType)
+                Copy(DeviceMemory, (CudaTensorSegment)segment, sourceOffset, targetOffset);
+            else if (segment is MutableTensorSegmentWrapper<float> { UnderlyingSegment.SegmentType: CudaSegmentType } wrapper) {
+                if(wrapper.Stride == 1)
+                    Copy(DeviceMemory, (CudaTensorSegment)wrapper.UnderlyingSegment, sourceOffset, targetOffset + wrapper.Offset);
+                else {
+                    if (sourceOffset != 0 || targetOffset != 0)
+                        throw new Exception("Not supported");
+                    var other = (CudaTensorSegment)wrapper.UnderlyingSegment;
+                    provider.MemCpy(other.DeviceMemory, DeviceMemory, wrapper.Size, null, wrapper.Offset, 0, wrapper.Stride, 1);
+                }
             }
             else {
                 using var buffer = ToNewMemoryOwner();
                 segment.CopyFrom(buffer.Span[(int)sourceOffset..], targetOffset);
+            }
+            return;
+
+            static void Copy(IDeviceMemoryPtr sourceSegment, CudaTensorSegment targetSegment, uint sourceOffset, uint targetOffset)
+            {
+                var target = targetOffset == 0 ? targetSegment.DeviceMemory : targetSegment.DeviceMemory.Offset(targetOffset, targetSegment.DeviceMemory.Size - targetOffset);
+                var source = sourceOffset == 0 ? sourceSegment : sourceSegment.Offset(sourceOffset, sourceSegment.Size - sourceOffset);
+                target.CopyToDevice(source);
             }
         }
 

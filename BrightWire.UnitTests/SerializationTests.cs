@@ -37,7 +37,7 @@ namespace BrightWire.UnitTests
         static async Task<(GraphFactory, IDataSource)> MakeGraphAndData(BrightDataContext context)
         {
             var graph = new GraphFactory(context.LinearAlgebraProvider);
-            var data = graph.CreateDataSource(await And.Get(context));
+            var data = await graph.CreateDataSource(await And.Get(context));
             return (graph, data);
         }
 

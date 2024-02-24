@@ -117,7 +117,7 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual INumericSegment<float> CreateSegment(params float[] data) => new MutableTensorSegment(data);
+        public virtual INumericSegment<float> CreateSegment(params float[] data) => new MutableTensorSegment<float>(data);
 
         /// <summary>
         /// Creates a tensor segment
@@ -125,7 +125,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="size">Segment size</param>
         /// <param name="initialiseToZero">True to initialize the all values in the segment to zero</param>
         /// <returns></returns>
-        public virtual INumericSegment<float> CreateSegment(uint size, bool initialiseToZero) => new ArrayPoolTensorSegment(MemoryOwner<float>.Allocate((int)size, initialiseToZero ? AllocationMode.Clear : AllocationMode.Default));
+        public virtual INumericSegment<float> CreateSegment(uint size, bool initialiseToZero) => new ArrayPoolTensorSegment<float>(MemoryOwner<float>.Allocate((int)size, initialiseToZero ? AllocationMode.Clear : AllocationMode.Default));
 
         /// <summary>
         /// Creates a tensor segment
@@ -139,7 +139,7 @@ namespace BrightData.LinearAlgebra
             var ptr = ret.Span;
             for (var i = 0; i < ptr.Length; i++)
                 ptr[i] = initializer((uint)i);
-            return new ArrayPoolTensorSegment(ret);
+            return new ArrayPoolTensorSegment<float>(ret);
         }
 
         /// <summary>
@@ -1187,46 +1187,6 @@ namespace BrightData.LinearAlgebra
         public virtual INumericSegment<float> CherryPickIndices(IReadOnlyNumericSegment<float> tensor, params uint[] indices) => tensor.ApplyReadOnlySpan(x => x.CherryPickIndices(indices)).ToSegment();
 
         /// <summary>
-        /// Calculate the matrix transpose
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns></returns>
-        public virtual unsafe IMatrix Transpose(IMatrix matrix)
-        {
-            var columnCount = matrix.ColumnCount;
-            var rowCount = matrix.RowCount;
-            var ret = CreateMatrix(columnCount, rowCount, false);
-            var temp = SpanOwner<float>.Empty;
-            fixed (float* matrixPtr = matrix.Segment.GetSpan(ref temp, out var wasTempUsed))
-            fixed (float* retPtr = ret.Segment.Contiguous!.ReadOnlySpan) {
-                CacheTranspose(matrixPtr, matrix.RowCount, matrix.ColumnCount, 0, matrix.RowCount, 0, matrix.ColumnCount, retPtr);
-                if (wasTempUsed)
-                    temp.Dispose();
-            }
-            return ret;
-        }
-
-        static unsafe void CacheTranspose(float* from, uint rows, uint columns, uint rb, uint re, uint cb, uint ce, float* to)
-        {
-            uint r = re - rb, c = ce - cb;
-            if (r <= 16 && c <= 16) {
-                for (var i = rb; i < re; i++) {
-                    for (var j = cb; j < ce; j++) {
-                        to[i * columns + j] = from[j * rows + i];
-                    }
-                }
-            }
-            else if (r >= c) {
-                CacheTranspose(from, rows, columns, rb, rb + (r / 2), cb, ce, to);
-                CacheTranspose(from, rows, columns, rb + (r / 2), re, cb, ce, to);
-            }
-            else {
-                CacheTranspose(from, rows, columns, rb, re, cb, cb + (c / 2), to);
-                CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
-            }
-        }
-
-        /// <summary>
         /// Multiplies the matrix with a vector
         /// </summary>
         /// <param name="matrix"></param>
@@ -1252,9 +1212,8 @@ namespace BrightData.LinearAlgebra
                 throw new Exception("Matrix sizes do not agree");
 
             // transpose so that we can get contiguous vectors
-            using var transposedThis = Transpose(matrix1);
+            using var transposedThis = matrix1.Transpose();
             return MultiplyWithThisTransposed(transposedThis, matrix2);
-            //return OldMultiply(matrix, other);
         }
 
         unsafe IMatrix MultiplyWithThisTransposed(IMatrix transposedThis, IMatrix other)
@@ -1288,42 +1247,6 @@ namespace BrightData.LinearAlgebra
 
             return ret;
         }
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //static unsafe void MatrixMultiply(float* a, float* b, int size, uint rows, uint cols, float* ret)
-        //{
-        //    var vectorSize = Vector<float>.Count;
-        //    var numVectors = size / vectorSize;
-        //    var ceiling = numVectors * vectorSize;
-        //    var totalSize = rows * cols;
-
-        //    [MethodImpl(MethodImplOptions.AggressiveInlining)]void Multiply(long index)
-        //    {
-        //        var i = (uint)(index % rows);
-        //        var j = (uint)(index / rows);
-
-        //        var xPtr = &a[i * size];
-        //        var yPtr = &b[j * size];
-        //        var xVectors = (Vector<float>*)xPtr;
-        //        var yVectors = (Vector<float>*)yPtr;
-
-        //        var vSum = Vector<float>.Zero;
-        //        for (var z = 0; z < numVectors; z++)
-        //            vSum += xVectors[z] * yVectors[z];
-
-        //        var sum = Vector.Dot(vSum, Vector<float>.One);
-        //        for (var z = ceiling; z < size; z++)
-        //            sum += xPtr[z] * yPtr[z];
-        //        ret[j * rows + i] = sum;
-        //    }
-
-        //    if (totalSize >= Consts.MinimumSizeForParallel)
-        //        Parallel.For(0, totalSize, Multiply);
-        //    else {
-        //        for (uint ind = 0; ind < totalSize; ind++)
-        //            Multiply(ind);
-        //    }
-        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static unsafe void MatrixMultiplyChunked(float* a, float* b, int size, uint rows, uint cols, float* ret)
@@ -2068,7 +1991,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual IMatrix GetMatrix(ITensor3D tensor, uint index)
         {
-            var segment = new MutableTensorSegmentWrapper(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
+            var segment = new MutableTensorSegmentWrapper<float>(tensor.Segment, index * tensor.MatrixSize, 1, tensor.MatrixSize);
             return CreateMatrix(tensor.RowCount, tensor.ColumnCount, segment);
         }
 
@@ -2080,7 +2003,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public virtual ITensor3D GetTensor(ITensor4D tensor, uint index)
         {
-            var segment = new MutableTensorSegmentWrapper(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
+            var segment = new MutableTensorSegmentWrapper<float>(tensor.Segment, index * tensor.TensorSize, 1, tensor.TensorSize);
             return CreateTensor3D(tensor.Depth, tensor.RowCount, tensor.ColumnCount, segment);
         }
 
@@ -2262,6 +2185,6 @@ namespace BrightData.LinearAlgebra
         /// </summary>
         /// <param name="memoryOwner"></param>
         /// <returns></returns>
-        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment(memoryOwner);
+        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment<float>(memoryOwner);
     }
 }

@@ -82,7 +82,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create a training engine
             const float trainingRate = 0.003f;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate);
 
@@ -184,7 +184,7 @@ namespace ExampleCode.DataTableTrainers
 
                 // create a training engine
                 const float trainingRate = 0.003f;
-                var trainingData = graph.CreateDataSource(item.Training.Table);
+                var trainingData = await graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
                 var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 64);
 

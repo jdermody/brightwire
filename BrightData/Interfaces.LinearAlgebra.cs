@@ -336,6 +336,12 @@ namespace BrightData
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
         IMatrix Create(LinearAlgebraProvider lap);
+
+        /// <summary>
+        /// Returns the transpose of this matrix
+        /// </summary>
+        /// <returns></returns>
+        IReadOnlyMatrix Transpose();
     }
 
     /// <summary>
@@ -1015,7 +1021,7 @@ namespace BrightData
         /// Returns the transpose of this matrix
         /// </summary>
         /// <returns></returns>
-        IMatrix Transpose();
+        new IMatrix Transpose();
 
         /// <summary>
         /// Multiply this matrix with another matrix (matrix multiplication)

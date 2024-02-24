@@ -25,7 +25,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create the engine
             const float trainingRate = 0.003f;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 8);
             engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
@@ -82,7 +82,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.00375f, 8);
 
@@ -139,7 +139,7 @@ namespace ExampleCode.DataTableTrainers
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
             Training.MetaData.Set("Seq2Seq", true);
 
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 

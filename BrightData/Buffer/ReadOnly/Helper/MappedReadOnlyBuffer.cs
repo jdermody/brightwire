@@ -25,11 +25,11 @@ namespace BrightData.Buffer.ReadOnly.Helper
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify, string? msg, CancellationToken ct = default)
         {
-            await index.ForEachBlock(x =>
+            for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++)
             {
-                var mapped = mapper(x);
-                callback(mapped.Span);
-            }, notify, msg, ct);
+                var block = await GetTypedBlock(i);
+                callback(block.Span);
+            }
         }
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
@@ -37,7 +37,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
             if (blockIndex >= BlockCount)
                 return ReadOnlyMemory<T>.Empty;
             var indices = await index.GetTypedBlock(blockIndex);
-            var ret = mapper(indices.Span);
+            var ret = await mapper(indices);
             return ret;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
@@ -14,11 +15,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         /// <summary>
         /// Segment table adapter for tables with vector data
         /// </summary>
-        public VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns) : base(dataTable, featureColumns)
+        VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns, uint inputSize, uint? outputSize) : base(dataTable, featureColumns)
         {
-            var firstRow = _buffer.GetItem(0).Result;
-            InputSize = firstRow.C1.Size;
-            OutputSize = firstRow.C2.Size;
+            InputSize = inputSize;
+            OutputSize = outputSize;
+        }
+
+        public static async Task<VectorBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
+        {
+            var buffer = dataTable.GetRowsBuffer<ReadOnlyVector, ReadOnlyVector>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
+            var firstRow = await buffer.GetItem(0);
+            return new(dataTable, featureColumns, firstRow.C1.Size, firstRow.C2.Size);
         }
 
         public override uint InputSize { get; }
@@ -47,7 +54,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new VectorBasedDataTableAdapter(dataTable, _featureColumns);
+            return new VectorBasedDataTableAdapter(dataTable, _featureColumns, InputSize, OutputSize);
         }
     }
 }
