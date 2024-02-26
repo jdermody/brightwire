@@ -125,7 +125,11 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IMatrix GetMatrix(uint index) => Lap.GetMatrix(this, index);
+        public virtual IMatrix GetMatrix(uint index)
+        {
+            var segment = new MutableTensorSegmentWrapper<float>(Segment, index * MatrixSize, 1, MatrixSize);
+            return Lap.CreateMatrix(RowCount, ColumnCount, segment);
+        }
 
         /// <inheritdoc />
         public ITensor3D AddPadding(uint padding) => Lap.AddPadding(this, padding);

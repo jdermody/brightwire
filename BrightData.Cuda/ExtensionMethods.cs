@@ -6,6 +6,7 @@ using System.Reflection;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.Segments;
 
 namespace BrightData.Cuda
 {
@@ -95,5 +96,29 @@ namespace BrightData.Cuda
         }
 
         internal static CuDevicePtr GetDevicePointer(this IReadOnlyNumericSegment<float> segment) => GetDeviceMemoryPtr(segment).DevicePointer;
+
+        internal static (IDeviceMemoryPtr Ptr, uint Stride) GetDeviceMemory(this IReadOnlyNumericSegment<float> segment)
+        {
+            var foundWrapper = false;
+            uint offset = 0, stride = 0, size = uint.MaxValue;
+            while (segment is MutableTensorSegmentWrapper<float> wrapper) {
+                offset += wrapper.Offset;
+                stride += wrapper.Stride;
+                size = wrapper.Size;
+                foundWrapper = true;
+                segment = wrapper.UnderlyingSegment;
+            }
+            if (segment is CudaTensorSegment cudaSegment) {
+                if (!segment.IsValid)
+                    throw new Exception("CUDA tensor was not valid");
+
+                var ptr = cudaSegment.DeviceMemory;
+                if(offset > 0 || (foundWrapper && size != segment.Size))
+                    ptr = ptr.Offset(offset, size);
+                return (ptr, foundWrapper ? stride : 1);
+            }
+
+            throw new Exception("CUDA tensors can only be used with other CUDA tensors");
+        }
     }
 }

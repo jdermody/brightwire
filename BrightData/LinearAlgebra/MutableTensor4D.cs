@@ -1,5 +1,6 @@
 ﻿using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
@@ -125,31 +126,106 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public ITensor3D GetTensor(uint index) => Lap.GetTensor(this, index);
+        public virtual ITensor3D GetTensor(uint index)
+        {
+            var segment = new MutableTensorSegmentWrapper<float>(Segment, index * TensorSize, 1, TensorSize);
+            return Lap.CreateTensor3D(Depth, RowCount, ColumnCount, segment);
+        }
 
         /// <inheritdoc />
-        public ITensor4D AddPadding(uint padding) => Lap.AddPadding(this, padding);
+        public virtual ITensor4D AddPadding(uint padding)
+        {
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                ptr[(int)i] = subTensor.AddPadding(padding);
+            }
+
+            return Lap.CreateTensor4DAndThenDisposeInput(ptr);
+        }
 
         /// <inheritdoc />
-        public ITensor4D RemovePadding(uint padding) => Lap.RemovePadding(this, padding);
+        public virtual ITensor4D RemovePadding(uint padding)
+        {
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                ptr[(int)i] = subTensor.RemovePadding(padding);
+            }
+
+            return Lap.CreateTensor4DAndThenDisposeInput(ptr);
+        }
 
         /// <inheritdoc />
-        public (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices) => Lap.MaxPool(this, filterWidth, filterHeight, xStride, yStride, saveIndices);
+        public virtual (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        {
+            var indexList = saveIndices
+                ? new ITensor3D[Count]
+                : null;
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                var (result, indices) = subTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
+                ptr[(int)i] = result;
+                if (indexList != null && indices != null)
+                    indexList[i] = indices;
+            }
+
+            return (Lap.CreateTensor4DAndThenDisposeInput(ptr), indexList != null ? Lap.CreateTensor4DAndThenDisposeInput(indexList) : null);
+        }
 
         /// <inheritdoc />
-        public ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.ReverseMaxPool(this, indices, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+        public virtual ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        {
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                using var indexTensor = indices.GetTensor(i);
+                var result = subTensor.ReverseMaxPool(indexTensor, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
+                ptr[(int)i] = result;
+            }
+
+            return Lap.CreateTensor4DAndThenDisposeInput(ptr);
+        }
 
         /// <inheritdoc />
-        public ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.Im2Col(this, filterWidth, filterHeight, xStride, yStride);
+        public virtual ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        {
+            using var temp = SpanOwner<IMatrix>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                ptr[(int)i] = subTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
+            }
+
+            return Lap.CreateTensor3DAndThenDisposeInput(ptr);
+        }
 
         /// <inheritdoc />
-        public ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride) => Lap.ReverseIm2Col(this, filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+        public virtual ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        {
+            using var temp = SpanOwner<ITensor3D>.Allocate((int)Count, AllocationMode.Default);
+            var ptr = temp.Span;
+
+            for (uint i = 0; i < Count; i++) {
+                using var subTensor = GetTensor(i);
+                ptr[(int)i] = subTensor.ReverseIm2Col(filter, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+            }
+
+            return Lap.CreateTensor4DAndThenDisposeInput(ptr);
+        }
 
         /// <inheritdoc />
         public IVector ColumnSums() => Lap.ColumnSums(this);
-
-        /// <inheritdoc />
-        public IVector RowSums() => Lap.ColumnSums(this);
 
         /// <summary>
         /// Returns a read only tensor

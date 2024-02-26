@@ -874,22 +874,6 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void Tensor4DRowSums()
-        {
-            var data = Enumerable.Range(0, 5)
-                .Select(_ => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
-            using var cpuTensor = _cpu.CreateTensor4D(data);
-            using var cpu = cpuTensor.RowSums();
-
-            using var gpuTensor = _cuda.CreateTensor4D(data);
-            using var gpu = gpuTensor.RowSums();
-
-            using var mklTensor = _mkl.CreateTensor4D(data);
-            using var mkl = mklTensor.RowSums();
-            AssertSame(cpu, gpu, mkl);
-        }
-
-        [Fact]
         public void Tensor4DGetTensorAt()
         {
             var data = 5.AsRange()

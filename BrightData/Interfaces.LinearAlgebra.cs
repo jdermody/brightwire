@@ -1135,25 +1135,25 @@ namespace BrightData
         /// Adds a tensor segment to each row of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachRow(INumericSegment<float> segment);
+        void AddToEachRow(IReadOnlyNumericSegment<float> segment);
 
         /// <summary>
         /// Adds a tensor segment to each column of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachColumn(INumericSegment<float> segment);
+        void AddToEachColumn(IReadOnlyNumericSegment<float> segment);
 
         /// <summary>
         /// Multiplies each row of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachRowWith(INumericSegment<float> segment);
+        void MultiplyEachRowWith(IReadOnlyNumericSegment<float> segment);
 
         /// <summary>
         /// Multiplies each column of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachColumnWith(INumericSegment<float> segment);
+        void MultiplyEachColumnWith(IReadOnlyNumericSegment<float> segment);
 
         /// <summary>
         /// Computes the per row software of this matrix
@@ -1166,7 +1166,7 @@ namespace BrightData
         /// </summary>
         /// <param name="rows"></param>
         /// <returns></returns>
-        INumericSegment<float>[] SoftmaxDerivativePerRow(INumericSegment<float>[] rows);
+        INumericSegment<float>[] SoftmaxDerivativePerRow(IReadOnlyNumericSegment<float>[] rows);
 
         /// <summary>
         /// Clones the matrix
@@ -1464,12 +1464,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         IVector ColumnSums();
-        
-        /// <summary>
-        /// Computes the sum of all rows
-        /// </summary>
-        /// <returns></returns>
-        IVector RowSums();
 
         /// <summary>
         /// Clones the tensor

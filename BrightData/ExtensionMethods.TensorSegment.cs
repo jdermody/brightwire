@@ -19,6 +19,13 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
+        /// Creates a tensor segment from a memory owner
+        /// </summary>
+        /// <param name="memoryOwner"></param>
+        /// <returns></returns>
+        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment<float>(memoryOwner);
+
+        /// <summary>
         /// Converts the tensor segment to a sparse format (only non-zero entries are preserved)
         /// </summary>
         /// <param name="segment"></param>

@@ -73,8 +73,8 @@ namespace BrightData.MKL
         /// <inheritdoc />
         public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
-        delegate void ApplyNewSizeCallback(float* a, float* b, float* r);
-        INumericSegment<float> ApplyWithNewSize(INumericSegment<float> tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, ApplyNewSizeCallback callback)
+        internal delegate void ApplyNewSizeCallback(float* a, float* b, float* r);
+        internal INumericSegment<float> ApplyWithNewSize(INumericSegment<float> tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, ApplyNewSizeCallback callback)
         {
             var result = CreateSegment(resultSize, initialiseToZero);
             tensor.ApplyReadOnlySpans(tensor2, (a, b) => {
@@ -198,129 +198,6 @@ namespace BrightData.MKL
         });
 
         /// <inheritdoc />
-        public override IMatrix Multiply(IMatrix matrix, IMatrix other)
-        {
-            int rowsA = (int)matrix.RowCount, 
-                columnsARowsB = (int)matrix.ColumnCount, 
-                columnsB = (int)other.ColumnCount
-            ;
-            var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.RowCount * other.ColumnCount, false, (a, b, r) => {
-                Blas.Unsafe.gemm(
-                    Layout.ColMajor,
-                    Trans.No,
-                    Trans.No,
-                    rowsA,
-                    columnsB,
-                    columnsARowsB,
-                    1f,
-                    a,
-                    rowsA,
-                    b,
-                    columnsARowsB,
-                    0f,
-                    r,
-                    rowsA
-                );
-            });
-            return CreateMatrix(matrix.RowCount, other.ColumnCount, ret);
-        }
-
-        /// <inheritdoc />
-        public override IMatrix TransposeFirstAndMultiply(IMatrix matrix, IMatrix other)
-        {
-            int rowsA = (int)matrix.RowCount, 
-                columnsA = (int)matrix.ColumnCount, 
-                columnsB = (int)other.ColumnCount, 
-                rowsB = (int)other.RowCount
-            ;
-            var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.ColumnCount * other.ColumnCount, false, (a, b, r) => {
-                Blas.Unsafe.gemm(
-                    Layout.ColMajor,
-                    Trans.Yes,
-                    Trans.No,
-                    columnsA,
-                    columnsB,
-                    rowsB,
-                    1f,
-                    a,
-                    rowsA,
-                    b,
-                    rowsB,
-                    0f,
-                    r,
-                    columnsA
-                );
-            });
-            return CreateMatrix(matrix.ColumnCount, other.ColumnCount, ret);
-        }
-
-        /// <inheritdoc />
-        public override IMatrix TransposeSecondAndMultiply(IMatrix matrix, IMatrix other)
-        {
-            int rowsA = (int)matrix.RowCount, 
-                columnsARowsB = (int)matrix.ColumnCount, 
-                rowsB = (int)other.RowCount
-            ;
-            var ret = ApplyWithNewSize(matrix.Segment, other.Segment, matrix.RowCount * other.RowCount, false, (a, b, r) => {
-                Blas.Unsafe.gemm(
-                    Layout.ColMajor,
-                    Trans.No,
-                    Trans.Yes,
-                    rowsA,
-                    rowsB,
-                    columnsARowsB,
-                    1f,
-                    a,
-                    rowsA,
-                    b,
-                    rowsB,
-                    0f,
-                    r,
-                    rowsA
-                );
-            });
-            return CreateMatrix(matrix.RowCount, other.RowCount, ret);
-        }
-
-        /// <inheritdoc />
-        public override (IMatrix U, IVector S, IMatrix VT) Svd(IMatrix matrix)
-        {
-            var rows = (int)matrix.RowCount;
-            var cols = (int)matrix.ColumnCount;
-            var mn = Math.Min(rows, cols);
-            var buffer = matrix.Segment.GetLocalOrNewArray();
-
-            var s = CreateSegment((uint)mn, false);
-            var u = CreateSegment((uint)(rows * rows), false);
-            var vt = CreateSegment((uint)(cols * cols), false);
-            using var rWork = CreateSegment((uint)mn, false);
-
-            var ret = Lapack.gesvd(
-                Layout.ColMajor,
-                'A',
-                'A',
-                rows,
-                cols,
-                buffer,
-                rows,
-                s.GetUnderlyingArray().Array!,
-                u.GetUnderlyingArray().Array!,
-                rows,
-                vt.GetUnderlyingArray().Array!,
-                cols,
-                rWork.GetUnderlyingArray().Array!
-            );
-            if (ret != 0)
-                throw new Exception("Failed to compute SVD");
-
-            return (
-                CreateMatrix((uint)rows, (uint)rows, u),
-                CreateVector(s),
-                CreateMatrix((uint)cols, (uint)cols, vt)
-            );
-        }
-
-        /// <inheritdoc />
         public override float L1Norm(IReadOnlyNumericSegment<float> segment) => Traverse(segment, Blas.Unsafe.asum);
 
         /// <inheritdoc />
@@ -414,18 +291,18 @@ namespace BrightData.MKL
             });
         }
 
-        /// <inheritdoc />
-        public override ITensor3D Multiply(ITensor3D tensor, IMatrix other)
-        {
-            // TODO: gemm_batch_strided
-            return base.Multiply(tensor, other);
-        }
+        ///// <inheritdoc />
+        //public override ITensor3D Multiply(ITensor3D tensor, IMatrix other)
+        //{
+        //    // TODO: gemm_batch_strided
+        //    return base.Multiply(tensor, other);
+        //}
 
-        /// <inheritdoc />
-        public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix other)
-        {
-            // TODO: gemm_batch_strided
-            return base.TransposeFirstAndMultiply(tensor, other);
-        }
+        ///// <inheritdoc />
+        //public override ITensor3D TransposeFirstAndMultiply(ITensor3D tensor, IMatrix other)
+        //{
+        //    // TODO: gemm_batch_strided
+        //    return base.TransposeFirstAndMultiply(tensor, other);
+        //}
     }
 }
