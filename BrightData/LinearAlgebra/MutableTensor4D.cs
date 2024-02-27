@@ -225,7 +225,22 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IVector ColumnSums() => Lap.ColumnSums(this);
+        public virtual IVector ColumnSums()
+        {
+            IVector? ret = null;
+            for (uint i = 0, count = Count; i < count; i++) {
+                using var subTensor = GetTensor(i);
+                using var tensorAsMatrix = subTensor.Reshape(subTensor.RowCount * subTensor.ColumnCount, subTensor.Depth);
+                var columnSums = tensorAsMatrix.ColumnSums();
+                if (ret == null)
+                    ret = columnSums;
+                else {
+                    ret.AddInPlace(columnSums);
+                    columnSums.Dispose();
+                }
+            }
+            return ret ?? Lap.CreateVector(Depth, true);
+        }
 
         /// <summary>
         /// Returns a read only tensor

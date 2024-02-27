@@ -96,6 +96,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(ReadOnlySegment);
 
         /// <inheritdoc />
+        public float[] ToArray() => ReadOnlySegment.ToArray();
+
+        /// <inheritdoc />
         public IReadOnlyNumericSegment<float> ReadOnlySegment { get; private set; }
 
         /// <inheritdoc />

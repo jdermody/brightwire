@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -185,7 +184,7 @@ namespace BrightData.LinearAlgebra
 
             // transpose so that we can get contiguous vectors
             using var transposedThis = Transpose();
-            return MultiplyWithThisTransposed(lap, transposedThis, other);
+            return MultiplyWithThisTransposed(Lap, transposedThis, other);
         }
 
         /// <inheritdoc />
@@ -202,7 +201,7 @@ namespace BrightData.LinearAlgebra
         {
             if (RowCount != other.RowCount)
                 throw new Exception("Matrix sizes do not agree");
-            return MultiplyWithThisTransposed(lap, this, other);
+            return MultiplyWithThisTransposed(Lap, this, other);
         }
 
         /// <inheritdoc />
@@ -359,6 +358,15 @@ namespace BrightData.LinearAlgebra
             var ceiling = numVectors * vectorSize;
             var totalSize = rows * cols;
 
+            if (totalSize >= Consts.MinimumSizeForParallel)
+                Parallel.For(0, totalSize / ChunkSize + 1, x => Multiply(x * ChunkSize));
+            else {
+                for (uint ind = 0; ind < totalSize; ind += ChunkSize)
+                    Multiply(ind);
+            }
+
+            return;
+
             [MethodImpl(MethodImplOptions.AggressiveInlining)]void Multiply(long startIndex)
             {
                 for(long index = startIndex, len = Math.Min(startIndex + ChunkSize, totalSize); index < len; index++) {
@@ -379,13 +387,6 @@ namespace BrightData.LinearAlgebra
                         sum += xPtr[z] * yPtr[z];
                     ret[j * rows + i] = sum;
                 }
-            }
-
-            if (totalSize >= Consts.MinimumSizeForParallel)
-                Parallel.For(0, totalSize / ChunkSize + 1, x => Multiply(x * ChunkSize));
-            else {
-                for (uint ind = 0; ind < totalSize; ind += ChunkSize)
-                    Multiply(ind);
             }
         }
 

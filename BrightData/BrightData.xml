@@ -7894,6 +7894,12 @@
             <param name="lap">Linear algebra provider</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IReadOnlyVector.ToArray">
+            <summary>
+            Returns all values in an array
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IHaveMatrixDimensions">
             <summary>
             Matrix dimensions
@@ -8529,12 +8535,6 @@
             Applies a mapping function that also accepts the vector index (vector will be modified in place)
             </summary>
             <param name="mutator"></param>
-        </member>
-        <member name="M:BrightData.IVector.ToArray">
-            <summary>
-            Returns all values in an array
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:BrightData.IVector.Clone">
             <summary>
@@ -10039,148 +10039,12 @@
             <param name="indices"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ColumnSums(BrightData.ITensor4D)">
-            <summary>
-            Returns the sum of each matrix column
-            </summary>
-            <param name="tensor"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.L1Regularisation(BrightData.INumericSegment{System.Single},System.Single)">
             <summary>
             In place L1 regularization of the tensor
             </summary>
             <param name="segment"></param>
             <param name="coefficient"></param>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddPadding(BrightData.ITensor3D,System.UInt32)">
-            <summary>
-            Applies zero padding to each matrix in the tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="padding"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.RemovePadding(BrightData.ITensor3D,System.UInt32)">
-            <summary>
-            Removes padding from each matrix in a tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="padding"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Im2Col(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Applies the convolutional operator the 3D tensor to obtain a matrix
-            </summary>
-            <param name="tensor"></param>
-            <param name="filterWidth"></param>
-            <param name="filterHeight"></param>
-            <param name="xStride"></param>
-            <param name="yStride"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseIm2Col(BrightData.ITensor3D,BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Reverses a previous Im2Col operation
-            </summary>
-            <param name="tensor"></param>
-            <param name="filter"></param>
-            <param name="outputRows"></param>
-            <param name="outputColumns"></param>
-            <param name="outputDepth"></param>
-            <param name="filterWidth"></param>
-            <param name="filterHeight"></param>
-            <param name="xStride"></param>
-            <param name="yStride"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.MaxPool(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
-            <summary>
-            Calculates the max pooling operator of the 3D tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="filterWidth"></param>
-            <param name="filterHeight"></param>
-            <param name="xStride"></param>
-            <param name="yStride"></param>
-            <param name="saveIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.ReverseMaxPool(BrightData.ITensor3D,BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Calculates a reverse max pool operation
-            </summary>
-            <param name="tensor"></param>
-            <param name="indices"></param>
-            <param name="outputRows"></param>
-            <param name="outputColumns"></param>
-            <param name="filterWidth"></param>
-            <param name="filterHeight"></param>
-            <param name="xStride"></param>
-            <param name="yStride"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddMatrices(BrightData.ITensor3D)">
-            <summary>
-            Creates the pointwise sum of each matrix within the 3D tensor
-            </summary>
-            <param name="tensor"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensor3D,BrightData.IMatrix)">
-            <summary>
-            Multiplies each sub matrix within the 3D tensor with another matrix
-            </summary>
-            <param name="tensor"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.ITensor3D,BrightData.IMatrix)">
-            <summary>
-            Transposes each sub matrix within the 3D tensor and then multiplies them with another matrix
-            </summary>
-            <param name="tensor"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachRow(BrightData.ITensor3D,BrightData.IVector)">
-            <summary>
-            Adds a vector to each row of each matrix within the tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="vector"></param>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.AddToEachColumn(BrightData.ITensor3D,BrightData.IVector)">
-            <summary>
-            Adds a vector to each column of each matrix within the tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="vector"></param>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.Multiply(BrightData.ITensor3D,BrightData.ITensor4D)">
-            <summary>
-            Multiplies each sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeFirstAndMultiply(BrightData.ITensor3D,BrightData.ITensor4D)">
-            <summary>
-            Multiplies each transposed sub matrix within the 3D tensor with a reshaped matrix from each sub 3D tensor within the 4D tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.TransposeSecondAndMultiply(BrightData.ITensor3D,BrightData.ITensor4D)">
-            <summary>
-            Multiplies each sub matrix within the 3D tensor with the transposed reshaped matrix from each sub 3D tensor within the 4D tensor
-            </summary>
-            <param name="tensor"></param>
-            <param name="other"></param>
-            <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider.FindDistances(BrightData.IVector[],System.Collections.Generic.IReadOnlyList{BrightData.IVector},BrightData.DistanceMetric)">
             <summary>
@@ -10482,13 +10346,13 @@
         <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.Im2Col(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.ReverseIm2Col(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.MaxPool(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.ReverseMaxPool(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.ReverseIm2Col(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableTensor3D`1.AddAllMatrices">
@@ -11313,6 +11177,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector.Create(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector.ToArray">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector.ReadOnlySegment">

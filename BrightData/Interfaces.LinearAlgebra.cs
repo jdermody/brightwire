@@ -277,6 +277,12 @@ namespace BrightData
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
         IVector Create(LinearAlgebraProvider lap);
+
+        /// <summary>
+        /// Returns all values in an array
+        /// </summary>
+        /// <returns></returns>
+        float[] ToArray();
     }
 
     /// <summary>
@@ -923,12 +929,6 @@ namespace BrightData
         /// </summary>
         /// <param name="mutator"></param>
         void MapIndexedInPlace(Func<uint, float, float> mutator);
-
-        /// <summary>
-        /// Returns all values in an array
-        /// </summary>
-        /// <returns></returns>
-        float[] ToArray();
 
         /// <summary>
         /// Clones the vector

@@ -64,5 +64,23 @@ namespace BrightData.Cuda
             var (ret, rows, cols) = Provider.TensorAddPadding(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, padding);
             return Lap.CreateTensor4D(Count, Depth, rows, cols, Lap.CreateCudaTensorSegment(ret));
         }
+
+        /// <inheritdoc />
+        public override IVector ColumnSums()
+        {
+            uint matrixSize = MatrixSize, tensorSize = TensorSize, depth = Depth, count = Count;
+            var ret = (CudaTensorSegment)Lap.CreateSegment(depth, true);
+            var tensorMemory = Segment.GetDeviceMemoryPtr();
+            var retMemory = ret.DeviceMemory;
+            using var singleBlock = Provider.Allocate(count * matrixSize, null, true);
+
+            for (uint i = 0; i < count; i++) {
+                var tensorPtr = tensorMemory.Offset(i * tensorSize, tensorSize);
+                var retPtr = singleBlock.Offset(i * matrixSize, matrixSize);
+                using var columnSums = Provider.SumColumns(tensorPtr, matrixSize, depth, retPtr);
+                Provider.AddInPlace(retMemory, columnSums, depth, 1f, 1f);
+            }
+            return Lap.CreateVector(ret);
+        }
     }
 }
