@@ -47,7 +47,7 @@ namespace BrightData.UnitTests
         {
             var first = WeightedIndexList.Create((0, 0.5f), (1, 0.5f));
             var second = WeightedIndexList.Create((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Average);
+            var merged = WeightedIndexList.Merge(new[] { first, second }, mergeOperation:AggregationType.Average);
 
             merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(0.5f);

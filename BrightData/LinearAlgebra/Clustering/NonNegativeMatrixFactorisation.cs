@@ -1,23 +1,16 @@
-﻿using BrightWire.ExecutionGraph.ErrorMetric;
+﻿using BrightData.LinearAlgebra.CostFunctions;
 using System.Linq;
-using BrightData;
-using BrightData.LinearAlgebra;
 
-namespace BrightWire.Unsupervised
+namespace BrightData.LinearAlgebra.Clustering
 {
-    /// <summary>
-    /// Non-negative matrix factorisation based clustering
-    /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
-    /// </summary>
-    internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, IErrorMetric? costFunction = null)
-        : IClusteringStrategy
+    internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) : IClusteringStrategy
     {
-        readonly IErrorMetric _costFunction = costFunction ?? new Quadratic();
+        readonly ICostFunction<float> _costFunction = costFunction ?? new QuadraticCostFunction(lap);
 
-        public uint[][] Cluster(IReadOnlyVector[] data, uint numClusters, DistanceMetric metric)
+        public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
         {
             // create the main matrix
-            using var v = lap.CreateMatrixFromRows(data);
+            using var v = lap.CreateMatrixFromRows(vectors);
 
             // create the weights and features
             var context = lap.Context;
@@ -59,10 +52,10 @@ namespace BrightWire.Unsupervised
                     .ToList();
                 
                 return documentClusters
-                    .GroupBy(d => d.MaxIndex)
-                    .Select(g => g.Select(d => (uint)d.Index).ToArray())
-                    .ToArray()
-                ;
+                        .GroupBy(d => d.MaxIndex)
+                        .Select(g => g.Select(d => (uint)d.Index).ToArray())
+                        .ToArray()
+                    ;
             }
             finally {
                 weights.Dispose();
@@ -70,9 +63,6 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        float DifferenceCost(IMatrix m1, IMatrix m2) => m1.AllRowsAsReadOnly(false)
-            .Zip(m2.AllRowsAsReadOnly(false), (r1, r2) => _costFunction.Compute(r1.ToArray(), r2.ToArray()))
-            .Average()
-        ;
+        float DifferenceCost(IReadOnlyMatrix m1, IReadOnlyMatrix m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
     }
 }

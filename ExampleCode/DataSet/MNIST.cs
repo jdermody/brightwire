@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BetterConsoleTables;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Cuda.Helper;
-using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -33,9 +31,9 @@ namespace ExampleCode.DataSet
             uint batchSize = 128
         )
         {
-            Console.Write("Loading MNIST...");
+            var logger = context.UserNotifications;
+            logger?.OnMessage("Loading MNIST...");
             using var trainer = await GetVectorTrainer();
-            Console.WriteLine("done");
             return await trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
@@ -46,9 +44,9 @@ namespace ExampleCode.DataSet
             uint batchSize = 128
         )
         {
-            Console.Write("Loading MNIST...");
+            var logger = context.UserNotifications;
+            logger?.OnMessage("Loading MNIST...");
             using var trainer = await GetTensorTrainer();
-            Console.WriteLine("done");
             return await trainer.TrainConvolutionalNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 

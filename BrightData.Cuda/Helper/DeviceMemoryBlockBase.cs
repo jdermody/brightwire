@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;

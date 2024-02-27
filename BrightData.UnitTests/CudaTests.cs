@@ -1,12 +1,5 @@
-﻿using BrightData.Cuda;
-using BrightData.LinearAlgebra.Segments;
-using BrightData.Types;
+﻿using BrightData.LinearAlgebra.Segments;
 using BrightData.UnitTests.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 

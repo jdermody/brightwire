@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BrightData.Cuda.CudaToolkit;
@@ -10,7 +9,6 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
-using Operation = BrightData.Cuda.CudaToolkit.Operation;
 
 namespace BrightData.Cuda
 {

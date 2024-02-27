@@ -7,7 +7,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -910,7 +909,7 @@ namespace BrightData
         /// </summary>
         /// <param name="_"></param>
         /// <returns></returns>
-        public static IClusteringStrategy NewHierachicalClustering(this BrightDataContext _) => new Hierarchical();
+        public static IClusteringStrategy NewHierarchicalClustering(this BrightDataContext _) => new Hierarchical();
 
         /// <summary>
         /// Creates a k means clustering strategy
@@ -919,6 +918,17 @@ namespace BrightData
         /// <param name="maxIterations"></param>
         /// <returns></returns>
         public static IClusteringStrategy NewKMeansClustering(this BrightDataContext context, uint maxIterations = 1000) => new KMeans(context, maxIterations);
+
+        /// <summary>
+        /// Creates a new Non-Negative Matrix Factorisation clustering strategy
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="numIterations"></param>
+        /// <param name="errorThreshold"></param>
+        /// <param name="costFunction"></param>
+        /// <returns></returns>
+        public static IClusteringStrategy NewNNMFClustering(this BrightDataContext context, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) =>
+            new NonNegativeMatrixFactorisation(context.LinearAlgebraProvider, numIterations, errorThreshold, costFunction);
 
         /// <summary>
         /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
@@ -946,7 +956,6 @@ namespace BrightData
         {
             var kmeans = new KMeans(context, maxIterations);
             return kmeans.Cluster(data, k, distanceMetric);
-
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using BrightData.Cuda.CudaToolkit;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -91,7 +90,7 @@ namespace BrightData.Cuda
                     if (sourceOffset != 0 || targetOffset != 0)
                         throw new Exception("Not supported");
                     var other = (CudaTensorSegment)wrapper.UnderlyingSegment;
-                    provider.MemCpy(other.DeviceMemory, DeviceMemory, wrapper.Size, null, wrapper.Offset, 0, wrapper.Stride, 1);
+                    provider.MemCpy(other.DeviceMemory, DeviceMemory, wrapper.Size, null, wrapper.Offset, 0, wrapper.Stride, incrementB:1);
                 }
             }
             else {

@@ -12,7 +12,6 @@ using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 using System.Runtime.CompilerServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightData
 {
@@ -383,7 +382,6 @@ namespace BrightData
         /// <summary>
         /// Passes the readonly spans from the supplied segments into a callback function
         /// </summary>
-        /// <typeparam name="RT"></typeparam>
         /// <typeparam name="T"></typeparam>
         /// <param name="segment1"></param>
         /// <param name="segment2"></param>
@@ -579,6 +577,14 @@ namespace BrightData
             segment.ApplySpan(true, x => x.MutateInPlace(mapper));
         }
 
+        /// <summary>
+        /// Calculate the matrix transpose
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="columnCount"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static (IReadOnlyNumericSegment<T> Segment, uint RowCount, uint ColumnCount) Transpose<T>(this IReadOnlyNumericSegment<T> segment, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
         {
             var (buffer, newRowCount, newColumnCount) = segment.ApplyReadOnlySpan(x => x.Transpose(rowCount, columnCount));

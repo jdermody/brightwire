@@ -9,7 +9,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Hierarchical()
         {
-            var clusterer = _context.NewHierachicalClustering();
+            var clusterer = _context.NewHierarchicalClustering();
             var vectors = new IReadOnlyVector[] {
                 _context.CreateReadOnlyVector(0f, 0f, 0f),
                 _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f),

@@ -164,14 +164,7 @@ namespace BrightData.DataTable
         protected async Task<ReadOnlyMemory<ReadOnlyVector>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var data = await GetTensorData();
-            try {
-                return Copy(block, (in DataRangeColumnType item) => new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size)));
-            }
-            catch (Exception ex) {
-                Console.WriteLine();
-                Console.WriteLine($"{data.Length}:{block.Span.ToArray().Max(x => x.StartIndex)}");
-                throw;
-            }
+            return Copy(block, (in DataRangeColumnType item) => new ReadOnlyVector(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
         protected async Task<ReadOnlyMemory<ReadOnlyMatrix>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)

@@ -3176,7 +3176,7 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.NewHierachicalClustering(BrightData.BrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.NewHierarchicalClustering(BrightData.BrightDataContext)">
             <summary>
             Creates a hierarchical clustering strategy
             </summary>
@@ -3189,6 +3189,16 @@
             </summary>
             <param name="context"></param>
             <param name="maxIterations"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.NewNNMFClustering(BrightData.BrightDataContext,System.UInt32,System.Single,BrightData.ICostFunction{System.Single})">
+            <summary>
+            Creates a new Non-Negative Matrix Factorisation clustering strategy
+            </summary>
+            <param name="context"></param>
+            <param name="numIterations"></param>
+            <param name="errorThreshold"></param>
+            <param name="costFunction"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.HierarchicalCluster(BrightData.IReadOnlyVector[],System.UInt32,BrightData.DistanceMetric)">
@@ -5570,7 +5580,6 @@
             <summary>
             Passes the readonly spans from the supplied segments into a callback function
             </summary>
-            <typeparam name="RT"></typeparam>
             <typeparam name="T"></typeparam>
             <param name="segment1"></param>
             <param name="segment2"></param>
@@ -5650,6 +5659,16 @@
             </summary>
             <param name="segment"></param>
             <param name="mapper">Mapping function that receives the index and each value from the segment</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Transpose``1(BrightData.IReadOnlyNumericSegment{``0},System.UInt32,System.UInt32)">
+            <summary>
+            Calculate the matrix transpose
+            </summary>
+            <param name="segment"></param>
+            <param name="rowCount"></param>
+            <param name="columnCount"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
             <summary>

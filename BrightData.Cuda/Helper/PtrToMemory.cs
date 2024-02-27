@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using BrightData.Cuda.CudaToolkit.Types;
 
 namespace BrightData.Cuda.Helper

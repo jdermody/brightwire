@@ -55,7 +55,7 @@ namespace BrightData.UnitTests
 		[Fact]
         public void EncodeInt()
         {
-            Encode((int)123);
+            Encode(123);
         }
 
         [Fact]

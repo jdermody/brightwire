@@ -1,17 +1,7 @@
 ﻿using Parquet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.Types;
 using Parquet.Data;
-using Parquet.Meta;
 using Parquet.Schema;
-using Type = Parquet.Meta.Type;
-using System.IO;
 
 namespace BrightData.Parquet
 {
