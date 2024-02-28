@@ -924,7 +924,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor"></param>
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
-        public virtual void ConstrainInPlace(INumericSegment<float> tensor, float? minValue, float? maxValue) => tensor.ApplySpan(true, x => x.ConstrainInPlace(minValue, maxValue));
+        public virtual void ConstrainInPlace(INumericSegment<float> tensor, float? minValue, float? maxValue) => tensor.ApplySpan(true, x => x.ConstrainInPlace(minValue ?? float.MinValue, maxValue ?? float.MaxValue));
 
         /// <summary>
         /// Finds the average of the values in the tensor

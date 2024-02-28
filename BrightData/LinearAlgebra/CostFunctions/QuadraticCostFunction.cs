@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightData.Helper;
+using System;
 using System.Numerics;
 
 namespace BrightData.LinearAlgebra.CostFunctions
@@ -10,7 +11,7 @@ namespace BrightData.LinearAlgebra.CostFunctions
             using var difference = lap.Subtract(expected, predicted);
             using var squaredDifference = lap.Squared(difference);
             using var result = lap.Multiply(squaredDifference, 0.5f);
-            return lap.Sum(result);
+            return FloatMath.Constrain(lap.Sum(result));
         }
 
         public IReadOnlyNumericSegment<float> Gradient(IReadOnlyNumericSegment<float> predicted, IReadOnlyNumericSegment<float> expected)

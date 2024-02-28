@@ -778,5 +778,45 @@ namespace BrightData.UnitTests
             data[6].Should().Be(0f);
             data[7].Should().Be(0f);
         }
+
+        [Fact]
+        public void TestConstrain()
+        {
+            using var cpu = _cpu.CreateVector(0f, 1f, -1f, float.NaN, float.NegativeInfinity, float.PositiveInfinity);
+            using var gpu = _cuda.CreateVector(cpu);
+            using var mkl = _mkl.CreateVector(cpu);
+
+            cpu.ConstrainInPlace(null, null);
+            gpu.ConstrainInPlace(null, null);
+            mkl.ConstrainInPlace(null, null);
+            AssertSame(cpu, gpu, mkl);
+
+            cpu[0].Should().Be(0f);
+            cpu[1].Should().Be(1f);
+            cpu[2].Should().Be(-1f);
+            cpu[3].Should().Be(0f);
+            cpu[4].Should().Be(float.MinValue);
+            cpu[5].Should().Be(float.MaxValue);
+        }
+
+        [Fact]
+        public void TestConstrain2()
+        {
+            using var cpu = _cpu.CreateVector(0f, 2f, -2f, float.NaN, float.NegativeInfinity, float.PositiveInfinity);
+            using var gpu = _cuda.CreateVector(cpu);
+            using var mkl = _mkl.CreateVector(cpu);
+
+            cpu.ConstrainInPlace(-1f, 1f);
+            gpu.ConstrainInPlace(-1f, 1f);
+            mkl.ConstrainInPlace(-1f, 1f);
+            AssertSame(cpu, gpu, mkl);
+
+            cpu[0].Should().Be(0f);
+            cpu[1].Should().Be(1f);
+            cpu[2].Should().Be(-1f);
+            cpu[3].Should().Be(0f);
+            cpu[4].Should().Be(-1f);
+            cpu[5].Should().Be(1f);
+        }
     }
 }

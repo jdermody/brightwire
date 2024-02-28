@@ -4,7 +4,6 @@ using BrightWire.Helper;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.TreeBased.Training;
-using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -72,7 +71,7 @@ namespace BrightWire
         /// <returns>A list of k clusters</returns>
         public static uint[][] Nnmf(this IReadOnlyVector[] data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
-            var clusterer = new NonNegativeMatrixFactorisation(lap, maxIterations);
+            var clusterer = lap.Context.NewNNMFClustering(maxIterations);
             return clusterer.Cluster(data, k, DistanceMetric.Euclidean);
         }
 

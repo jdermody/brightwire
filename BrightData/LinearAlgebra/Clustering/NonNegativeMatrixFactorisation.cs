@@ -3,6 +3,10 @@ using System.Linq;
 
 namespace BrightData.LinearAlgebra.Clustering
 {
+    /// <summary>
+    /// Non-negative matrix factorisation based clustering
+    /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
+    /// </summary>
     internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) : IClusteringStrategy
     {
         readonly ICostFunction<float> _costFunction = costFunction ?? new QuadraticCostFunction(lap);
@@ -19,31 +23,33 @@ namespace BrightData.LinearAlgebra.Clustering
 
             try {
                 // iterate
-                //float lastCost = 0;
+                var lastCost = float.MaxValue;
                 for (var i = 0; i < numIterations; i++) {
                     using var wh = weights.Multiply(features);
                     var cost = DifferenceCost(v, wh);
-                    //if (i % (numIterations / 10) == 0)
-                    //    Console.WriteLine("NNMF cost: " + cost);
-                    if (cost <= errorThreshold)
+                    if (cost <= errorThreshold || cost > lastCost || (lastCost - cost) < errorThreshold)
                         break;
-                    //lastCost = cost;
+                    lastCost = cost;
 
                     using var wT = weights.Transpose();
-                    using var hn = wT.Multiply(v);
+                    using var wTv = wT.Multiply(v);
+
                     using var wTw = wT.Multiply(weights);
-                    using var hd = wTw.Multiply(features);
-                    using var fhn = features.PointwiseMultiply(hn);
+                    using var wTwf = wTw.Multiply(features);
+                    using var fwTv = features.PointwiseMultiply(wTv);
                     features.Dispose();
-                    features = fhn.PointwiseDivide(hd);
+                    features = fwTv.PointwiseDivide(wTwf);
+                    features.ConstrainInPlace(null, null);
 
                     using var fT = features.Transpose();
-                    using var wn = v.Multiply(fT);
+                    using var vfT = v.Multiply(fT);
+
                     using var wf = weights.Multiply(features);
-                    using var wd = wf.Multiply(fT);
-                    using var wwn = weights.PointwiseMultiply(wn);
+                    using var wffT = wf.Multiply(fT);
+                    using var wwn = weights.PointwiseMultiply(vfT);
                     weights.Dispose();
-                    weights = wwn.PointwiseDivide(wd);
+                    weights = wwn.PointwiseDivide(wffT);
+                    weights.ConstrainInPlace(null, null);
                 }
 
                 // weights gives cluster membership
@@ -52,10 +58,10 @@ namespace BrightData.LinearAlgebra.Clustering
                     .ToList();
                 
                 return documentClusters
-                        .GroupBy(d => d.MaxIndex)
-                        .Select(g => g.Select(d => (uint)d.Index).ToArray())
-                        .ToArray()
-                    ;
+                    .GroupBy(d => d.MaxIndex)
+                    .Select(g => g.Select(d => (uint)d.Index).ToArray())
+                    .ToArray()
+                ;
             }
             finally {
                 weights.Dispose();
@@ -64,5 +70,9 @@ namespace BrightData.LinearAlgebra.Clustering
         }
 
         float DifferenceCost(IReadOnlyMatrix m1, IReadOnlyMatrix m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
+        //float DifferenceCost(IMatrix m1, IMatrix m2) => m1.AllRowsAsReadOnly(false)
+        //    .Zip(m2.AllRowsAsReadOnly(false), (r1, r2) => _costFunction.Cost(r1.ReadOnlySegment, r2.ReadOnlySegment))
+        //    .Average()
+        //;
     }
 }

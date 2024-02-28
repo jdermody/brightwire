@@ -9133,6 +9133,18 @@
             <param name="context"></param>
             <param name="maxIterations"></param>
         </member>
+        <member name="T:BrightData.LinearAlgebra.Clustering.NonNegativeMatrixFactorisation">
+            <summary>
+            Non-negative matrix factorisation based clustering
+            https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Clustering.NonNegativeMatrixFactorisation.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.Single,BrightData.ICostFunction{System.Single})">
+            <summary>
+            Non-negative matrix factorisation based clustering
+            https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
+            </summary>
+        </member>
         <member name="T:BrightData.LinearAlgebra.LinearAlgebraProvider">
             <summary>
             Linear algebra provider

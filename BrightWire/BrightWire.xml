@@ -5332,17 +5332,5 @@
             https://en.wikipedia.org/wiki/Random_forest
             </summary>
         </member>
-        <member name="T:BrightWire.Unsupervised.NonNegativeMatrixFactorisation">
-            <summary>
-            Non-negative matrix factorisation based clustering
-            https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
-            </summary>
-        </member>
-        <member name="M:BrightWire.Unsupervised.NonNegativeMatrixFactorisation.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.Single,BrightWire.IErrorMetric)">
-            <summary>
-            Non-negative matrix factorisation based clustering
-            https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
-            </summary>
-        </member>
     </members>
 </doc>

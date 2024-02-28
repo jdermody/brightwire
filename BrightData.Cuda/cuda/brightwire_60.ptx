@@ -1651,23 +1651,23 @@ $L__BB25_11:
 	.param .u32 Constrain_param_4
 )
 {
-	.reg .pred 	%p<7>;
-	.reg .f32 	%f<5>;
+	.reg .pred 	%p<13>;
+	.reg .f32 	%f<7>;
 	.reg .b32 	%r<13>;
 	.reg .b64 	%rd<5>;
 
 
 	ld.param.u64 	%rd3, [Constrain_param_0];
 	ld.param.u32 	%r6, [Constrain_param_1];
-	ld.param.f32 	%f1, [Constrain_param_2];
-	ld.param.f32 	%f2, [Constrain_param_3];
+	ld.param.f32 	%f2, [Constrain_param_2];
+	ld.param.f32 	%f3, [Constrain_param_3];
 	ld.param.u32 	%r7, [Constrain_param_4];
 	mov.u32 	%r8, %ctaid.x;
 	mov.u32 	%r1, %ntid.x;
 	mov.u32 	%r9, %tid.x;
 	mad.lo.s32 	%r12, %r1, %r8, %r9;
-	setp.ge.u32 	%p2, %r12, %r6;
-	@%p2 bra 	$L__BB26_5;
+	setp.ge.u32 	%p1, %r12, %r6;
+	@%p1 bra 	$L__BB26_5;
 
 	mov.u32 	%r10, %nctaid.x;
 	mul.lo.s32 	%r3, %r1, %r10;
@@ -1677,20 +1677,28 @@ $L__BB26_2:
 	mul.lo.s32 	%r11, %r12, %r7;
 	mul.wide.u32 	%rd4, %r11, 4;
 	add.s64 	%rd2, %rd1, %rd4;
-	ld.global.f32 	%f3, [%rd2];
-	setp.geu.ftz.f32 	%p3, %f3, %f1;
-	setp.gt.ftz.f32 	%p1, %f3, %f2;
-	setp.leu.ftz.f32 	%p4, %f3, %f2;
-	and.pred  	%p5, %p3, %p4;
-	@%p5 bra 	$L__BB26_4;
+	ld.global.f32 	%f4, [%rd2];
+	setp.lt.ftz.f32 	%p2, %f4, %f2;
+	setp.eq.ftz.f32 	%p3, %f4, 0fFF800000;
+	setp.gt.ftz.f32 	%p4, %f4, %f3;
+	setp.eq.ftz.f32 	%p5, %f4, 0f7F800000;
+	abs.ftz.f32 	%f5, %f4;
+	setp.gtu.ftz.f32 	%p6, %f5, 0f7F800000;
+	selp.f32 	%f6, 0f00000000, %f3, %p6;
+	or.pred  	%p7, %p4, %p5;
+	or.pred  	%p8, %p7, %p6;
+	selp.f32 	%f1, %f6, %f2, %p8;
+	or.pred  	%p9, %p2, %p3;
+	or.pred  	%p10, %p9, %p8;
+	not.pred 	%p11, %p10;
+	@%p11 bra 	$L__BB26_4;
 
-	selp.f32 	%f4, %f2, %f1, %p1;
-	st.global.f32 	[%rd2], %f4;
+	st.global.f32 	[%rd2], %f1;
 
 $L__BB26_4:
 	add.s32 	%r12, %r12, %r3;
-	setp.lt.u32 	%p6, %r12, %r6;
-	@%p6 bra 	$L__BB26_2;
+	setp.lt.u32 	%p12, %r12, %r6;
+	@%p12 bra 	$L__BB26_2;
 
 $L__BB26_5:
 	ret;

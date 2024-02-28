@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
             /// </summary>
             public string[] Group { get; } = group;
 
-            public (string Classification, WeightedIndexList Data) AsClassification(StringTableBuilder stringTable)
+            public WeightedIndexListWithLabel<string> AsClassification(StringTableBuilder stringTable)
             {
                 var weightedIndex = new List<WeightedIndexList.Item>();
                 foreach (var item in Keyword)
@@ -56,7 +56,7 @@ namespace ExampleCode.DataTableTrainers
                     .GroupBy(d => d.Index)
                     .Select(g => (g.Key, g.Sum(d => d.Weight)))
                 );
-                return (Title, weights);
+                return new(Title, weights);
             }
 
             public override string ToString() => $"{Title} - {Abstract}";
@@ -70,8 +70,9 @@ namespace ExampleCode.DataTableTrainers
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
-            (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(_stringTable)).ToArray();
-            _vectors = data.Select(d => d.Data.AsDense(_stringTable.Size + 1).Create(lap)).ToArray();
+            var data = documents.Select(d => d.AsClassification(_stringTable)).ToArray();
+            var data2 = data.Bm25Plus();
+            _vectors = data2.Select(d => d.Data.AsDense(_stringTable.Size + 1).Create(lap)).ToArray();
             _documents = documents;
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
             _groupCount = (uint) allGroups.Count;

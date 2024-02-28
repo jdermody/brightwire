@@ -846,10 +846,13 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             MutateInPlace(span, value => {
-                if (minValue.HasValue && value.CompareTo(minValue.Value) < 0)
+                if (T.IsNaN(value))
+                    return T.Zero;
+                if (minValue.HasValue && (value.CompareTo(minValue.Value) < 0 || T.IsNegativeInfinity(value)))
                     return minValue.Value;
-                if (maxValue.HasValue && value.CompareTo(maxValue.Value) > 0)
+                if (maxValue.HasValue && (value.CompareTo(maxValue.Value) > 0 || T.IsPositiveInfinity(value)))
                     return maxValue.Value;
+                
                 return value;
             });
         }
