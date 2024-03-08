@@ -9,28 +9,28 @@ namespace BrightData
     /// <summary>
     /// Gives access to a linear algebra provider
     /// </summary>
-    public interface IHaveLinearAlgebraProvider
+    public interface IHaveLinearAlgebraProvider<T> where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { get; }
+        LinearAlgebraProvider<T> LinearAlgebraProvider { get; }
     }
 
     /// <summary>
     /// Indicates that the type can set a linear algebra provider
     /// </summary>
-    public interface ISetLinearAlgebraProvider
+    public interface ISetLinearAlgebraProvider<T> where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Property to set the linear algebra provider
         /// </summary>
-        LinearAlgebraProvider LinearAlgebraProvider { set; }
+        LinearAlgebraProvider<T> LinearAlgebraProvider { set; }
 
         /// <summary>
         /// Linear algebra provider factory
         /// </summary>
-        Func<LinearAlgebraProvider> LinearAlgebraProviderFactory { set; }
+        Func<LinearAlgebraProvider<T>> LinearAlgebraProviderFactory { set; }
     }
 
     /// <summary>
@@ -237,12 +237,12 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type has a contiguous read only float span
+    /// Indicates that the type has a contiguous read only span
     /// </summary>
     public interface IHaveReadOnlyContiguousSpan<T>
     {
         /// <summary>
-        /// A read only span of floats
+        /// A read only span
         /// </summary>
         ReadOnlySpan<T> ReadOnlySpan { get; }
     }
@@ -250,39 +250,280 @@ namespace BrightData
     /// <summary>
     /// Generic read only tensor
     /// </summary>
-    public interface IReadOnlyTensor : IHaveSpanOf<float>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<float>;
+    public interface IReadOnlyTensor<T> : IHaveSpanOf<T>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<T> 
+        where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
+        /// <summary>
+        /// Returns all values in an array
+        /// </summary>
+        /// <returns></returns>
+        T[] ToArray();
+
+        /// <summary>
+        /// Returns the min and max values and their indices
+        /// </summary>
+        /// <returns></returns>
+        (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues();
+
+        /// <summary>
+        /// Sums all values of this tensor
+        /// </summary>
+        /// <returns></returns>
+        T Sum();
+
+        /// <summary>
+        /// Finds the average value of this tensor
+        /// </summary>
+        /// <returns></returns>
+        T Average();
+
+        /// <summary>
+        /// Returns the L1 norm of this tensor (manhattan distance)
+        /// </summary>
+        /// <returns></returns>
+        T L1Norm();
+
+        /// <summary>
+        /// Returns the L2 norm of this tensor (euclidean norm)
+        /// </summary>
+        /// <returns></returns>
+        T L2Norm();
+
+        /// <summary>
+        /// Checks if the tensor is entirely finite (does not contain NAN or Infinity)
+        /// </summary>
+        /// <returns></returns>
+        bool IsEntirelyFinite();
+
+        /// <summary>
+        /// Calculates the standard deviation of this tensor
+        /// </summary>
+        /// <param name="mean">Existing mean of tensor if available (otherwise it will be calculated)</param>
+        /// <returns></returns>
+        T StdDev(T? mean);
+
+        /// <summary>
+        /// Finds cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite) between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        T CosineDistance(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Finds the euclidean distance between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        T EuclideanDistance(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Finds the manhattan distance between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        T ManhattanDistance(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Finds the mean squared distance between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        T MeanSquaredDistance(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Finds the squared euclidean distance between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        T SquaredEuclideanDistance(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Finds the distance between this and another tensor
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        T FindDistance(IReadOnlyTensor<T> other, DistanceMetric distance);
+
+        /// <summary>
+        /// Computes the dot product of this tensor with another tensor (of same length)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
+        T DotProduct(ITensor<T> tensor);
+
+        /// <summary>
+        /// Enumerates the values in the tensor
+        /// </summary>
+        IEnumerable<T> Values { get; }
+    }
+
+    /// <summary>
+    /// Read only tensor type (vector, matrix etc.)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TT"></typeparam>
+    public interface IReadOnlyTensorType<T, out TT> : IReadOnlyTensor<T>
+        where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where TT : IReadOnlyTensor<T>
+    {
+        TT Add(IReadOnlyTensor<T> other);
+        TT Add(IReadOnlyTensor<T> other, T coefficient1, T coefficient2);
+        TT Add(T scalar);
+        TT Multiply(T scalar);
+        TT Subtract(IReadOnlyTensor<T> other);
+        TT Subtract(IReadOnlyTensor<T> other, T coefficient1, T coefficient2);
+        TT PointwiseMultiply(IReadOnlyTensor<T> other);
+        TT PointwiseDivide(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Returns the square root of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Sqrt(T? adjustment = null);
+
+        /// <summary>
+        /// Reverses the order of the elements in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Reverse();
+
+        /// <summary>
+        /// Computes the absolute value of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Abs();
+
+        /// <summary>
+        /// Computes the natural logarithm of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Log();
+
+        /// <summary>
+        /// Computes the exponent of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Exp();
+
+        /// <summary>
+        /// Raises each element in this tensor by power
+        /// </summary>
+        /// <param name="power"></param>
+        /// <returns></returns>
+        TT Pow(T power);
+
+        /// <summary>
+        /// Computes the square of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Squared();
+
+        /// <summary>
+        /// Computes the sigmoid function of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Sigmoid();
+
+        /// <summary>
+        /// Computes the sigmoid derivative for each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT SigmoidDerivative();
+
+        /// <summary>
+        /// Computes the hyperbolic tangent of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Tanh();
+
+        /// <summary>
+        /// Computes the derivative of the hyperbolic tangent for each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT TanhDerivative();
+
+        /// <summary>
+        /// Computes the RELU activation for each value in this tensor
+        /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        /// </summary>
+        /// <returns></returns>
+        TT Relu();
+
+        /// <summary>
+        /// Computes the RELU derivative of each value in this tensor
+        /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        /// </summary>
+        /// <returns></returns>
+        TT ReluDerivative();
+
+        /// <summary>
+        /// Computes the Leaky RELU action for each value in this tensor
+        /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        /// </summary>
+        /// <returns></returns>
+        TT LeakyRelu();
+
+        /// <summary>
+        /// Computes the Leaky RELU derivative for each value in this tensor
+        /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+        /// </summary>
+        /// <returns></returns>
+        TT LeakyReluDerivative();
+
+        /// <summary>
+        /// Computes the softmax of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT Softmax();
+
+        /// <summary>
+        /// Computes the softmax derivative of each value in this tensor
+        /// </summary>
+        /// <returns></returns>
+        TT SoftmaxDerivative(int rowCount);
+
+        /// <summary>
+        /// Returns a new tensor with the values specified in indices
+        /// </summary>
+        /// <param name="indices">Indices to return in new tensor</param>
+        /// <returns></returns>
+        TT CherryPick(params uint[] indices);
+
+        /// <summary>
+        /// Applies a mapping function to this tensor
+        /// </summary>
+        /// <param name="mutator">Mapping function</param>
+        /// <returns></returns>
+        TT Map(Func<T, T> mutator);
+    }
 
     /// <summary>
     /// Vector that cannot be modified
     /// </summary>
-    public interface IReadOnlyVector : IReadOnlyTensor
+    public interface IReadOnlyVector<T> : IReadOnlyTensorType<T, IReadOnlyVector<T>>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[int index] { get; }
+        T this[int index] { get; }
 
         /// <summary>
         /// Returns a value at the index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[uint index] { get; }
+        T this[uint index] { get; }
 
         /// <summary>
         /// Creates a new mutable vector that is a copy of this vector
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        IVector Create(LinearAlgebraProvider lap);
-
-        /// <summary>
-        /// Returns all values in an array
-        /// </summary>
-        /// <returns></returns>
-        float[] ToArray();
+        IVector<T> Create(LinearAlgebraProvider<T> lap);
     }
 
     /// <summary>
@@ -304,7 +545,8 @@ namespace BrightData
     /// <summary>
     /// Matrix that cannot be modified
     /// </summary>
-    public interface IReadOnlyMatrix : IReadOnlyTensor, IHaveMatrixDimensions
+    public interface IReadOnlyMatrix<T> : IReadOnlyTensorType<T, IReadOnlyMatrix<T>>, IHaveMatrixDimensions 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from the matrix
@@ -312,7 +554,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int rowY, int columnX] { get; }
+        T this[int rowY, int columnX] { get; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -320,34 +562,34 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint rowY, uint columnX] { get; }
+        T this[uint rowY, uint columnX] { get; }
 
         /// <summary>
         /// Returns a row from the matrix
         /// </summary>
         /// <param name="rowIndex"></param>
         /// <returns></returns>
-        IReadOnlyNumericSegment<float> GetReadOnlyRow(uint rowIndex);
+        IReadOnlyNumericSegment<T> GetReadOnlyRow(uint rowIndex);
 
         /// <summary>
         /// Returns a column from the matrix
         /// </summary>
         /// <param name="columnIndex"></param>
         /// <returns></returns>
-        IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint columnIndex);
+        IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint columnIndex);
 
         /// <summary>
         /// Creates a new mutable matrix that is a copy of this matrix
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        IMatrix Create(LinearAlgebraProvider lap);
+        IMatrix<T> Create(LinearAlgebraProvider<T> lap);
 
         /// <summary>
         /// Returns the transpose of this matrix
         /// </summary>
         /// <returns></returns>
-        IReadOnlyMatrix Transpose();
+        IReadOnlyMatrix<T> Transpose();
     }
 
     /// <summary>
@@ -369,7 +611,8 @@ namespace BrightData
     /// <summary>
     /// 3D tensor that cannot be modified
     /// </summary>
-    public interface IReadOnlyTensor3D : IReadOnlyTensor, IHaveTensor3DDimensions
+    public interface IReadOnlyTensor3D<T> : IReadOnlyTensorType<T, IReadOnlyTensor3D<T>>, IHaveTensor3DDimensions 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from the 3D tensor
@@ -378,7 +621,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int depth, int rowY, int columnX] { get; }
+        T this[int depth, int rowY, int columnX] { get; }
 
         /// <summary>
         /// Returns a value from the 3D tensor
@@ -387,21 +630,21 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint depth, uint rowY, uint columnX] { get; }
+        T this[uint depth, uint rowY, uint columnX] { get; }
 
         /// <summary>
         /// Returns a matrix from the 3D tensor
         /// </summary>
         /// <param name="index">Matrix index</param>
         /// <returns></returns>
-        IReadOnlyMatrix GetMatrix(uint index);
+        IReadOnlyMatrix<T> GetMatrix(uint index);
 
         /// <summary>
         /// Creates a new mutable tensor that is a copy of this tensor
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        ITensor3D Create(LinearAlgebraProvider lap);
+        ITensor3D<T> Create(LinearAlgebraProvider<T> lap);
     }
 
     /// <summary>
@@ -423,7 +666,8 @@ namespace BrightData
     /// <summary>
     /// 4D tensor that cannot be modified
     /// </summary>
-    public interface IReadOnlyTensor4D : IReadOnlyTensor, IHaveTensor4DDimensions
+    public interface IReadOnlyTensor4D<T> : IReadOnlyTensorType<T, IReadOnlyTensor4D<T>>, IHaveTensor4DDimensions 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from the 4D tensor
@@ -433,7 +677,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[int count, int depth, int rowY, int columnX] { get; }
+        T this[int count, int depth, int rowY, int columnX] { get; }
 
         /// <summary>
         /// Returns a value from the 4D tensor
@@ -443,27 +687,28 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[uint count, uint depth, uint rowY, uint columnX] { get; }
+        T this[uint count, uint depth, uint rowY, uint columnX] { get; }
 
         /// <summary>
         /// Returns a 3D tensor from the 4D tensor
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        IReadOnlyTensor3D GetTensor(uint index);
+        IReadOnlyTensor3D<T> GetTensor(uint index);
 
         /// <summary>
         /// Creates a new mutable tensor that is a copy of this tensor
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        ITensor4D Create(LinearAlgebraProvider lap);
+        ITensor4D<T> Create(LinearAlgebraProvider<T> lap);
     }
 
     /// <summary>
     /// Untyped tensor interface - vector, matrix, 3D tensor etc
     /// </summary>
-    public interface ITensor : IReadOnlyTensor, IDisposable, IHaveLinearAlgebraProvider, IHaveTensorSegment<float>
+    public interface ITensor<T> : IReadOnlyTensor<T>, IDisposable, IHaveLinearAlgebraProvider<T>, IHaveTensorSegment<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Underlying bright data context
@@ -474,7 +719,7 @@ namespace BrightData
         /// Reshapes to a vector
         /// </summary>
         /// <returns></returns>
-        IVector Reshape();
+        IVector<T> Reshape();
 
         /// <summary>
         /// Reshapes to a matrix
@@ -482,7 +727,7 @@ namespace BrightData
         /// <param name="rows">Row count of each matrix (one parameter is optional null)</param>
         /// <param name="columns">Column count of each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        IMatrix Reshape(uint? rows, uint? columns);
+        IMatrix<T> Reshape(uint? rows, uint? columns);
 
         /// <summary>
         /// Reshapes to a 3D tensor
@@ -491,7 +736,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix (one parameter is optional null)</param>
         /// <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        ITensor3D Reshape(uint? depth, uint? rows, uint? columns);
+        ITensor3D<T> Reshape(uint? depth, uint? rows, uint? columns);
 
         /// <summary>
         /// Reshapes to a 4D tensor
@@ -501,7 +746,7 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix (one parameter is optional null)</param>
         /// <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        ITensor4D Reshape(uint? count, uint? depth, uint? rows, uint? columns);
+        ITensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns);
 
         /// <summary>
         /// Sets all values to zero
@@ -512,7 +757,7 @@ namespace BrightData
         /// Creates a copy of this tensor
         /// </summary>
         /// <returns></returns>
-        ITensor Clone();
+        ITensor<T> Clone();
 
         /// <summary>
         /// Total count of all values
@@ -528,7 +773,7 @@ namespace BrightData
         /// Adds a tensor to this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="tensor">Other tensor</param>
-        void AddInPlace(ITensor tensor);
+        void AddInPlace(ITensor<T> tensor);
 
         /// <summary>
         /// Adds a tensor to this tensor (the result will be stored in this tensor)
@@ -536,25 +781,25 @@ namespace BrightData
         /// <param name="tensor">Other tensor</param>
         /// <param name="coefficient1">Value to multiply each element of this tensor</param>
         /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
-        void AddInPlace(ITensor tensor, float coefficient1, float coefficient2);
+        void AddInPlace(ITensor<T> tensor, T coefficient1, T coefficient2);
 
         /// <summary>
         /// Adds a value to this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="scalar">Value to add</param>
-        void AddInPlace(float scalar);
+        void AddInPlace(T scalar);
 
         /// <summary>
         /// Multiplies a value to this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="scalar">Value to multiply</param>
-        void MultiplyInPlace(float scalar);
+        void MultiplyInPlace(T scalar);
 
         /// <summary>
         /// Subtracts a tensor from this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="tensor">Other tensor</param>
-        void SubtractInPlace(ITensor tensor);
+        void SubtractInPlace(ITensor<T> tensor);
 
         /// <summary>
         /// Subtracts a tensor from this tensor (the result will be stored in this tensor)
@@ -562,145 +807,70 @@ namespace BrightData
         /// <param name="tensor">Other tensor</param>
         /// <param name="coefficient1">Value to multiply each element of this tensor</param>
         /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
-        void SubtractInPlace(ITensor tensor, float coefficient1, float coefficient2);
+        void SubtractInPlace(ITensor<T> tensor, T coefficient1, T coefficient2);
 
         /// <summary>
         /// Multiplies each value in this tensor with the corresponding value in the other tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="tensor">Other tensor</param>
-        void PointwiseMultiplyInPlace(ITensor tensor);
+        void PointwiseMultiplyInPlace(ITensor<T> tensor);
 
         /// <summary>
         /// Divides each value in this tensor with the corresponding value in the other tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="tensor">Other tensor</param>
-        void PointwiseDivideInPlace(ITensor tensor);
-
-        /// <summary>
-        /// Computes the dot product of this tensor with another tensor (of same length)
-        /// </summary>
-        /// <param name="tensor">Other tensor</param>
-        /// <returns></returns>
-        float DotProduct(ITensor tensor);
+        void PointwiseDivideInPlace(ITensor<T> tensor);
 
         /// <summary>
         /// Modifies this tensor so that no value is less than or greater than supplied parameters
         /// </summary>
         /// <param name="minValue">Minimum value to allow (optional)</param>
         /// <param name="maxValue">Maximum value to allow (optional)</param>
-        void ConstrainInPlace(float? minValue, float? maxValue);
-
-        /// <summary>
-        /// Finds the average value of this tensor
-        /// </summary>
-        /// <returns></returns>
-        float Average();
-
-        /// <summary>
-        /// Returns the L1 norm of this tensor (manhattan distance)
-        /// </summary>
-        /// <returns></returns>
-        float L1Norm();
-
-        /// <summary>
-        /// Returns the L2 norm of this tensor (euclidean norm)
-        /// </summary>
-        /// <returns></returns>
-        float L2Norm();
-
-        /// <summary>
-        /// Checks if the tensor is entirely finite (does not contain NAN or Infinity)
-        /// </summary>
-        /// <returns></returns>
-        bool IsEntirelyFinite();
-
-        /// <summary>
-        /// Calculates the cosine distance between this and another tensor
-        /// </summary>
-        /// <param name="other">Other tensor</param>
-        /// <returns></returns>
-        float CosineDistance(ITensor other);
-
-        /// <summary>
-        /// Calculates the euclidean distance between this and another tensor
-        /// </summary>
-        /// <param name="other">Other tensor</param>
-        /// <returns></returns>
-        float EuclideanDistance(ITensor other);
-
-        /// <summary>
-        /// Calculates the mean squared distance between this and another tensor
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        float MeanSquaredDistance(ITensor other);
-
-        /// <summary>
-        /// Calculates the squared euclidean distance between this and another tensor
-        /// </summary>
-        /// <param name="other">Other tensor</param>
-        /// <returns></returns>
-        float SquaredEuclideanDistance(ITensor other);
-
-        /// <summary>
-        /// Calculates the manhattan distance between this and another tensor
-        /// </summary>
-        /// <param name="other">Other tensor</param>
-        /// <returns></returns>
-        float ManhattanDistance(ITensor other);
-
-        /// <summary>
-        /// Calculates the standard deviation of this tensor
-        /// </summary>
-        /// <param name="mean">Existing mean of tensor if available (otherwise it will be calculated)</param>
-        /// <returns></returns>
-        float StdDev(float? mean);
+        void ConstrainInPlace(T? minValue, T? maxValue);
 
         /// <summary>
         /// Rounds each value in this tensor to either the lower or upper parameter (the result will be stored in this tensor)
         /// </summary>
         /// <param name="lower"></param>
         /// <param name="upper"></param>
-        void RoundInPlace(float lower, float upper);
+        void RoundInPlace(T lower, T upper);
 
         /// <summary>
         /// Applies a mapping function to each value of this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="mutator"></param>
-        void MapInPlace(Func<float, float> mutator);
+        void MapInPlace(Func<T, T> mutator);
 
         /// <summary>
         /// Applies L1 regularization to this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="coefficient"></param>
-        void L1RegularisationInPlace(float coefficient);
-
-        /// <summary>
-        /// Sums all values of this tensor
-        /// </summary>
-        /// <returns></returns>
-        float Sum();
+        void L1RegularisationInPlace(T coefficient);
     }
 
     /// <summary>
     /// Typed tensor interface - vector, matrix, 3D tensor etc
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ITensor<out T> : ITensor
-        where T: ITensor
+    /// <typeparam name="TT"></typeparam>
+    /// <typeparam name="RTT"></typeparam>
+    public interface ITensorType<T, out RTT, out TT> : ITensor<T>, IReadOnlyTensorType<T, RTT>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where RTT: IReadOnlyTensor<T>
+        where TT: ITensor<T>
     {
         /// <summary>
         /// Creates a clone of this tensor
         /// </summary>
         /// <returns></returns>
-        new T Clone();
+        new TT Clone();
 
         /// <summary>
         /// Adds a tensor to this tensor
         /// </summary>
         /// <param name="tensor">Other tensor</param>
         /// <returns></returns>
-        T Add(ITensor tensor);
+        TT Add(ITensor<T> tensor);
 
         /// <summary>
         /// Adds a tensor to this tensor
@@ -709,28 +879,28 @@ namespace BrightData
         /// <param name="coefficient1">Coefficient to multiply each value in this tensor</param>
         /// <param name="coefficient2">Coefficient to multiply each value in the other tensor</param>
         /// <returns></returns>
-        T Add(ITensor tensor, float coefficient1, float coefficient2);
+        TT Add(ITensor<T> tensor, T coefficient1, T coefficient2);
 
         /// <summary>
         /// Adds a value to each element in this tensor
         /// </summary>
         /// <param name="scalar">Value to add</param>
         /// <returns></returns>
-        T Add(float scalar);
+        new TT Add(T scalar);
 
         /// <summary>
         /// Multiplies a value to each element in this tensor
         /// </summary>
         /// <param name="scalar">Value to multiply</param>
         /// <returns></returns>
-        T Multiply(float scalar);
+        new TT Multiply(T scalar);
 
         /// <summary>
         /// Subtracts another tensor from this tensor
         /// </summary>
         /// <param name="tensor">Other tensor</param>
         /// <returns></returns>
-        T Subtract(ITensor tensor);
+        TT Subtract(ITensor<T> tensor);
 
         /// <summary>
         /// Subtracts another tensor from this tensor
@@ -739,208 +909,210 @@ namespace BrightData
         /// <param name="coefficient1">Coefficient to multiply each value in this tensor</param>
         /// <param name="coefficient2">Coefficient to multiply each value in the other tensor</param>
         /// <returns></returns>
-        T Subtract(ITensor tensor, float coefficient1, float coefficient2);
+        TT Subtract(ITensor<T> tensor, T coefficient1, T coefficient2);
 
         /// <summary>
         /// Multiplies each value in this tensor with the corresponding value in another tensor
         /// </summary>
         /// <param name="tensor">Other tensor</param>
         /// <returns></returns>
-        T PointwiseMultiply(ITensor tensor);
+        TT PointwiseMultiply(ITensor<T> tensor);
 
         /// <summary>
         /// Divides each value in this tensor with the corresponding value in another tensor
         /// </summary>
         /// <param name="tensor">Other tensor</param>
         /// <returns></returns>
-        T PointwiseDivide(ITensor tensor);
+        TT PointwiseDivide(ITensor<T> tensor);
 
         /// <summary>
         /// Returns the square root of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Sqrt();
+        TT Sqrt();
 
         /// <summary>
         /// Reverses the order of the elements in this tensor
         /// </summary>
         /// <returns></returns>
-        T Reverse();
+        new TT Reverse();
 
         /// <summary>
         /// Splits this tensor into multiple contiguous tensors
         /// </summary>
         /// <param name="blockCount">Number of blocks</param>
         /// <returns></returns>
-        IEnumerable<T> Split(uint blockCount);
+        IEnumerable<TT> Split(uint blockCount);
 
         /// <summary>
         /// Computes the absolute value of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Abs();
+        new TT Abs();
 
         /// <summary>
         /// Computes the natural logarithm of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Log();
+        new TT Log();
 
         /// <summary>
         /// Computes the exponent of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Exp();
+        new TT Exp();
 
         /// <summary>
         /// Computes the square of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Squared();
+        new TT Squared();
 
         /// <summary>
         /// Computes the sigmoid function of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Sigmoid();
+        new TT Sigmoid();
 
         /// <summary>
         /// Computes the sigmoid derivative for each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T SigmoidDerivative();
+        new TT SigmoidDerivative();
 
         /// <summary>
         /// Computes the hyperbolic tangent of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Tanh();
+        new TT Tanh();
 
         /// <summary>
         /// Computes the derivative of the hyperbolic tangent for each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T TanhDerivative();
+        new TT TanhDerivative();
 
         /// <summary>
         /// Computes the RELU activation for each value in this tensor
         /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
         /// </summary>
         /// <returns></returns>
-        T Relu();
+        new TT Relu();
 
         /// <summary>
         /// Computes the RELU derivative of each value in this tensor
         /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
         /// </summary>
         /// <returns></returns>
-        T ReluDerivative();
+        new TT ReluDerivative();
 
         /// <summary>
         /// Computes the Leaky RELU action for each value in this tensor
         /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
         /// </summary>
         /// <returns></returns>
-        T LeakyRelu();
+        new TT LeakyRelu();
 
         /// <summary>
         /// Computes the Leaky RELU derivative for each value in this tensor
         /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
         /// </summary>
         /// <returns></returns>
-        T LeakyReluDerivative();
+        new TT LeakyReluDerivative();
 
         /// <summary>
         /// Computes the softmax of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        T Softmax();
+        new TT Softmax();
 
         /// <summary>
         /// Computes the softmax derivative of each value in this tensor
         /// </summary>
         /// <returns></returns>
-        IMatrix SoftmaxDerivative();
+        IMatrix<T> SoftmaxDerivative();
 
         /// <summary>
         /// Raises each element in this tensor by power
         /// </summary>
         /// <param name="power"></param>
         /// <returns></returns>
-        T Pow(float power);
+        new TT Pow(T power);
 
         /// <summary>
         /// Returns a new tensor with the values specified in indices
         /// </summary>
         /// <param name="indices">Indices to return in new tensor</param>
         /// <returns></returns>
-        T CherryPick(uint[] indices);
+        new TT CherryPick(params uint[] indices);
 
         /// <summary>
         /// Applies a mapping function to this tensor
         /// </summary>
         /// <param name="mutator">Mapping function</param>
         /// <returns></returns>
-        T Map(Func<float, float> mutator);
+        new TT Map(Func<T, T> mutator);
     }
 
     /// <summary>
     /// Vector interface
     /// </summary>
-    public interface IVector : ITensor<IVector>, IReadOnlyVector
+    public interface IVector<T> : ITensorType<T, IReadOnlyVector<T>, IVector<T>>, IReadOnlyVector<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[int index] { get; set; }
+        new T this[int index] { get; set; }
 
         /// <summary>
         /// Returns a value at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        new float this[uint index] { get; set; }
+        new T this[uint index] { get; set; }
 
         /// <summary>
         /// Returns a value at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[long index] { get; set; }
+        T this[long index] { get; set; }
 
         /// <summary>
         /// Returns a value at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        float this[ulong index] { get; set; }
+        T this[ulong index] { get; set; }
 
         /// <summary>
         /// Applies a mapping function that also accepts the vector index
         /// </summary>
         /// <param name="mutator"></param>
         /// <returns></returns>
-        IVector MapIndexed(Func<uint, float, float> mutator);
+        IVector<T> MapIndexed(Func<uint, T, T> mutator);
 
         /// <summary>
         /// Applies a mapping function that also accepts the vector index (vector will be modified in place)
         /// </summary>
         /// <param name="mutator"></param>
-        void MapIndexedInPlace(Func<uint, float, float> mutator);
+        void MapIndexedInPlace(Func<uint, T, T> mutator);
 
         /// <summary>
         /// Clones the vector
         /// </summary>
         /// <returns></returns>
-        new IVector Clone();
+        new IVector<T> Clone();
     }
 
     /// <summary>
     /// Matrix interface
     /// </summary>
-    public interface IMatrix : ITensor<IMatrix>, IReadOnlyMatrix
+    public interface IMatrix<T> : ITensorType<T, IReadOnlyMatrix<T>, IMatrix<T>>, IReadOnlyMatrix<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from the matrix
@@ -948,7 +1120,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int rowY, int columnX] { get; set; }
+        new T this[int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -956,7 +1128,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint rowY, uint columnX] { get; set; }
+        new T this[uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -964,7 +1136,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[long rowY, long columnX] { get; set; }
+        T this[long rowY, long columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from the matrix
@@ -972,21 +1144,21 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[ulong rowY, ulong columnX] { get; set; }
+        T this[ulong rowY, ulong columnX] { get; set; }
 
         /// <summary>
         /// Returns a row from the matrix
         /// </summary>
         /// <param name="index">Row index</param>
         /// <returns></returns>
-        INumericSegment<float> GetRow(uint index);
+        INumericSegment<T> GetRow(uint index);
 
         /// <summary>
         /// Returns a column from the matrix
         /// </summary>
         /// <param name="index">Column index</param>
         /// <returns></returns>
-        INumericSegment<float> GetColumn(uint index);
+        INumericSegment<T> GetColumn(uint index);
 
         /// <summary>
         /// Returns a row as a span
@@ -994,191 +1166,192 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="temp">Temporary buffer in which to write the contiguous row values</param>
         /// <returns></returns>
-        ReadOnlySpan<float> GetRowSpan(uint rowY, ref SpanOwner<float> temp);
+        ReadOnlySpan<T> GetRowSpan(uint rowY, ref SpanOwner<T> temp);
 
         /// <summary>
         /// Returns a column as a span
         /// </summary>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        ReadOnlySpan<float> GetColumnSpan(uint columnX);
+        ReadOnlySpan<T> GetColumnSpan(uint columnX);
 
         /// <summary>
         /// Returns a row as a vector
         /// </summary>
         /// <param name="rowY">Row index</param>
         /// <returns></returns>
-        IVector GetRowVector(uint rowY);
+        IVector<T> GetRowVector(uint rowY);
 
         /// <summary>
         /// Returns a column as a vector
         /// </summary>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        IVector GetColumnVector(uint columnX);
+        IVector<T> GetColumnVector(uint columnX);
 
         /// <summary>
         /// Returns the transpose of this matrix
         /// </summary>
         /// <returns></returns>
-        new IMatrix Transpose();
+        new IMatrix<T> Transpose();
 
         /// <summary>
         /// Multiply this matrix with another matrix (matrix multiplication)
         /// </summary>
         /// <param name="other">Other matrix</param>
         /// <returns></returns>
-        IMatrix Multiply(IMatrix other);
+        IMatrix<T> Multiply(IMatrix<T> other);
 
         /// <summary>
         /// Transpose the other matrix and then multiply with this matrix
         /// </summary>
         /// <param name="other">Other matrix</param>
         /// <returns></returns>
-        IMatrix TransposeAndMultiply(IMatrix other);
+        IMatrix<T> TransposeAndMultiply(IMatrix<T> other);
 
         /// <summary>
         /// Transpose this matrix and then multiply with another matrix
         /// </summary>
         /// <param name="other">Other matrix</param>
         /// <returns></returns>
-        IMatrix TransposeThisAndMultiply(IMatrix other);
+        IMatrix<T> TransposeThisAndMultiply(IMatrix<T> other);
 
         /// <summary>
         /// Returns the diagonal of this matrix 
         /// </summary>
         /// <returns></returns>
-        IVector GetDiagonal();
+        IVector<T> GetDiagonal();
 
         /// <summary>
         /// Returns the sum of all rows in this matrix
         /// </summary>
         /// <returns></returns>
-        IVector RowSums();
+        IVector<T> RowSums();
 
         /// <summary>
         /// Returns the sum of all columns in this matrix
         /// </summary>
         /// <returns></returns>
-        IVector ColumnSums();
+        IVector<T> ColumnSums();
 
         /// <summary>
         /// Multiplies this matrix with a vector
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        IVector Multiply(IVector vector);
+        IVector<T> Multiply(IVector<T> vector);
 
         /// <summary>
         /// Splits this matrix into two matrices from a column index
         /// </summary>
         /// <param name="columnIndex">Column index at which to split</param>
         /// <returns></returns>
-        (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
+        (IMatrix<T> Left, IMatrix<T> Right) SplitAtColumn(uint columnIndex);
 
         /// <summary>
         /// Splits this matrix into two matrices from a row index
         /// </summary>
         /// <param name="rowIndex">Row index at which to split</param>
         /// <returns></returns>
-        (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
+        (IMatrix<T> Top, IMatrix<T> Bottom) SplitAtRow(uint rowIndex);
 
         /// <summary>
         /// Concatenates this matrix with another matrix (column counts must agree)
         /// </summary>
         /// <param name="bottom"></param>
         /// <returns></returns>
-        IMatrix ConcatBelow(IMatrix bottom);
+        IMatrix<T> ConcatBelow(IMatrix<T> bottom);
 
         /// <summary>
         /// Concatenates this matrix with another matrix (row counts must agree)
         /// </summary>
         /// <param name="right"></param>
         /// <returns></returns>
-        IMatrix ConcatRight(IMatrix right);
+        IMatrix<T> ConcatRight(IMatrix<T> right);
         
         /// <summary>
         /// Applies an indexed mapping function to this matrix
         /// </summary>
         /// <param name="mutator"></param>
         /// <returns></returns>
-        IMatrix MapIndexed(Func<uint, uint, float, float> mutator);
+        IMatrix<T> MapIndexed(Func<uint, uint, T, T> mutator);
 
         /// <summary>
         /// Applies an indexed mapping function to this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="mutator"></param>
-        void MapIndexedInPlace(Func<uint, uint, float, float> mutator);
+        void MapIndexedInPlace(Func<uint, uint, T, T> mutator);
 
         /// <summary>
         /// Computes the singular value decomposition of this matrix
         /// https://en.wikipedia.org/wiki/Singular_value_decomposition
         /// </summary>
         /// <returns></returns>
-        (IMatrix U, IVector S, IMatrix VT) Svd();
+        (IMatrix<T> U, IVector<T> S, IMatrix<T> VT) Svd();
 
         /// <summary>
         /// Creates a new matrix from the specified rows of this matrix
         /// </summary>
         /// <param name="rowIndices">Row indices</param>
         /// <returns></returns>
-        IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
+        IMatrix<T> GetNewMatrixFromRows(IEnumerable<uint> rowIndices);
 
         /// <summary>
         /// Creates a new matrix from the specified columns of this matrix
         /// </summary>
         /// <param name="columnIndices">Column indices</param>
         /// <returns></returns>
-        IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
+        IMatrix<T> GetNewMatrixFromColumns(IEnumerable<uint> columnIndices);
 
         /// <summary>
         /// Adds a tensor segment to each row of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachRow(IReadOnlyNumericSegment<float> segment);
+        void AddToEachRow(IReadOnlyNumericSegment<T> segment);
 
         /// <summary>
         /// Adds a tensor segment to each column of this matrix (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void AddToEachColumn(IReadOnlyNumericSegment<float> segment);
+        void AddToEachColumn(IReadOnlyNumericSegment<T> segment);
 
         /// <summary>
         /// Multiplies each row of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachRowWith(IReadOnlyNumericSegment<float> segment);
+        void MultiplyEachRowWith(IReadOnlyNumericSegment<T> segment);
 
         /// <summary>
         /// Multiplies each column of this matrix with a tensor segment (matrix will be modified in place)
         /// </summary>
         /// <param name="segment"></param>
-        void MultiplyEachColumnWith(IReadOnlyNumericSegment<float> segment);
+        void MultiplyEachColumnWith(IReadOnlyNumericSegment<T> segment);
 
         /// <summary>
         /// Computes the per row software of this matrix
         /// </summary>
         /// <returns></returns>
-        INumericSegment<float>[] SoftmaxPerRow();
+        INumericSegment<T>[] SoftmaxPerRow();
 
         /// <summary>
         /// Computes the per row softmax derivative of this matrix
         /// </summary>
         /// <param name="rows"></param>
         /// <returns></returns>
-        INumericSegment<float>[] SoftmaxDerivativePerRow(IReadOnlyNumericSegment<float>[] rows);
+        INumericSegment<T>[] SoftmaxDerivativePerRow(IReadOnlyNumericSegment<T>[] rows);
 
         /// <summary>
         /// Clones the matrix
         /// </summary>
         /// <returns></returns>
-        new IMatrix Clone();
+        new IMatrix<T> Clone();
     }
 
     /// <summary>
     /// 3D tensor - a block of matrices
     /// </summary>
-    public interface ITensor3D : ITensor<ITensor3D>, IReadOnlyTensor3D
+    public interface ITensor3D<T> : ITensorType<T, IReadOnlyTensor3D<T>, ITensor3D<T>>, IReadOnlyTensor3D<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1187,7 +1360,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int depth, int rowY, int columnX] { get; set; }
+        new T this[int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1196,7 +1369,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint depth, uint rowY, uint columnX] { get; set; }
+        new T this[uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1205,7 +1378,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[long depth, long rowY, long columnX] { get; set; }
+        T this[long depth, long rowY, long columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 3D tensor
@@ -1214,28 +1387,28 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[ulong depth, ulong rowY, ulong columnX] { get; set; }
+        T this[ulong depth, ulong rowY, ulong columnX] { get; set; }
 
         /// <summary>
         /// Returns a matrix from the tensor
         /// </summary>
         /// <param name="index">Matrix index</param>
         /// <returns></returns>
-        new IMatrix GetMatrix(uint index);
+        new IMatrix<T> GetMatrix(uint index);
 
         /// <summary>
         /// Creates a new 3D tensor with a "padding" of zeroes around the edge of each matrix
         /// </summary>
         /// <param name="padding">Size of padding</param>
         /// <returns></returns>
-        ITensor3D AddPadding(uint padding);
+        ITensor3D<T> AddPadding(uint padding);
 
         /// <summary>
         /// Removes previously added "padding" from the edge of each matrix
         /// </summary>
         /// <param name="padding">Size of padding</param>
         /// <returns></returns>
-        ITensor3D RemovePadding(uint padding);
+        ITensor3D<T> RemovePadding(uint padding);
 
         /// <summary>
         /// Image to column (convolution operator)
@@ -1245,7 +1418,7 @@ namespace BrightData
         /// <param name="xStride">Horizontal stride</param>
         /// <param name="yStride">Vertical stride</param>
         /// <returns></returns>
-        IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        IMatrix<T> Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Reverses a previous image to column operation (convolution)
@@ -1259,7 +1432,7 @@ namespace BrightData
         /// <param name="xStride"></param>
         /// <param name="yStride"></param>
         /// <returns></returns>
-        ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D<T> ReverseIm2Col(IMatrix <T>filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Computes a max pooling operation
@@ -1270,7 +1443,7 @@ namespace BrightData
         /// <param name="yStride"></param>
         /// <param name="saveIndices"></param>
         /// <returns></returns>
-        (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        (ITensor3D<T> Result, ITensor3D<T>? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
         /// <summary>
         /// Reverses a max pooling operation
@@ -1283,72 +1456,73 @@ namespace BrightData
         /// <param name="xStride"></param>
         /// <param name="yStride"></param>
         /// <returns></returns>
-        ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D<T> ReverseMaxPool(ITensor3D<T> indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Adds all matrices into one new matrix
         /// </summary>
         /// <returns></returns>
-        IMatrix AddAllMatrices();
+        IMatrix<T> AddAllMatrices();
 
         /// <summary>
         /// Multiply each matrix individually by another matrix
         /// </summary>
         /// <param name="matrix">Other matrix</param>
         /// <returns></returns>
-        ITensor3D MultiplyEachMatrixBy(IMatrix matrix);
+        ITensor3D<T> MultiplyEachMatrixBy(IMatrix<T> matrix);
         
         /// <summary>
         /// Transpose another matrix and multiply each matrix individually by the result
         /// </summary>
         /// <param name="matrix">Other matrix</param>
         /// <returns></returns>
-        ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix matrix);
+        ITensor3D<T> TransposeAndMultiplyEachMatrixBy(IMatrix<T> matrix);
         
         /// <summary>
         /// Adds a vector to each row of each matrix (tensor will be modified in place)
         /// </summary>
         /// <param name="vector"></param>
-        void AddToEachRow(IVector vector);
+        void AddToEachRow(IVector<T> vector);
 
         /// <summary>
         /// Adds a vector to each column of each matrix (tensor will be modified in place)
         /// </summary>
         /// <param name="vector"></param>
-        void AddToEachColumn(IVector vector);
+        void AddToEachColumn(IVector<T> vector);
 
         /// <summary>
         /// Multiplies this matrix with a 4D tensor
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        ITensor3D Multiply(ITensor4D other);
+        ITensor3D<T> Multiply(ITensor4D<T> other);
 
         /// <summary>
         /// Transposes the 4D matrix and multiplies this tensor with the result
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        ITensor3D TransposeAndMultiply(ITensor4D other);
+        ITensor3D<T> TransposeAndMultiply(ITensor4D<T> other);
 
         /// <summary>
         /// Transposes this tensor and multiply the result with another 4D tensor
         /// </summary>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        ITensor3D TransposeThisAndMultiply(ITensor4D other);
+        ITensor3D<T> TransposeThisAndMultiply(ITensor4D<T> other);
 
         /// <summary>
         /// Clones the tensor
         /// </summary>
         /// <returns></returns>
-        new ITensor3D Clone();
+        new ITensor3D<T> Clone();
     }
 
     /// <summary>
     /// 4D tensor - a block of 3D tensors
     /// </summary>
-    public interface ITensor4D : ITensor<ITensor4D>, IReadOnlyTensor4D
+    public interface ITensor4D<T> : ITensorType<T, IReadOnlyTensor4D<T>, ITensor4D<T>>, IReadOnlyTensor4D<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1358,7 +1532,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[int count, int depth, int rowY, int columnX] { get; set; }
+        new T this[int count, int depth, int rowY, int columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1368,7 +1542,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        new float this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
+        new T this[uint count, uint depth, uint rowY, uint columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1378,7 +1552,7 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[long count, long depth, long rowY, long columnX] { get; set; }
+        T this[long count, long depth, long rowY, long columnX] { get; set; }
 
         /// <summary>
         /// Returns a value from this 4D tensor
@@ -1388,28 +1562,28 @@ namespace BrightData
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
         /// <returns></returns>
-        float this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
+        T this[ulong count, ulong depth, ulong rowY, ulong columnX] { get; set; }
 
         /// <summary>
         /// Returns a 3D tensor
         /// </summary>
         /// <param name="index">3D tensor index</param>
         /// <returns></returns>
-        new ITensor3D GetTensor(uint index);
+        new ITensor3D<T> GetTensor(uint index);
 
         /// <summary>
         /// Adds padding to each 3D tensor
         /// </summary>
         /// <param name="padding">Size of padding</param>
         /// <returns></returns>
-        ITensor4D AddPadding(uint padding);
+        ITensor4D<T> AddPadding(uint padding);
 
         /// <summary>
         /// Removes padding from each 3D tensor
         /// </summary>
         /// <param name="padding">Size of padding</param>
         /// <returns></returns>
-        ITensor4D RemovePadding(uint padding);
+        ITensor4D<T> RemovePadding(uint padding);
 
         /// <summary>
         /// Max pooling operation
@@ -1420,7 +1594,7 @@ namespace BrightData
         /// <param name="yStride"></param>
         /// <param name="saveIndices"></param>
         /// <returns></returns>
-        (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        (ITensor4D<T> Result, ITensor4D<T>? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
         /// <summary>
         /// Reverse max pooling operation
@@ -1433,7 +1607,7 @@ namespace BrightData
         /// <param name="xStride"></param>
         /// <param name="yStride"></param>
         /// <returns></returns>
-        ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor4D<T> ReverseMaxPool(ITensor4D<T> indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Image to column (convolution operator)
@@ -1443,7 +1617,7 @@ namespace BrightData
         /// <param name="xStride"></param>
         /// <param name="yStride"></param>
         /// <returns></returns>
-        ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor3D<T> Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Reverse of image to column (convolution operator)
@@ -1457,19 +1631,19 @@ namespace BrightData
         /// <param name="xStride"></param>
         /// <param name="yStride"></param>
         /// <returns></returns>
-        ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
+        ITensor4D<T> ReverseIm2Col(IMatrix<T> filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
         /// <summary>
         /// Computes the sum of all columns
         /// </summary>
         /// <returns></returns>
-        IVector ColumnSums();
+        IVector<T> ColumnSums();
 
         /// <summary>
         /// Clones the tensor
         /// </summary>
         /// <returns></returns>
-        new ITensor4D Clone();
+        new ITensor4D<T> Clone();
     }
 
     /// <summary>

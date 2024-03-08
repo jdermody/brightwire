@@ -110,7 +110,7 @@ namespace BrightData.UnitTests
             var v1 = new[] { 1f, 2f, 3f, 4f };
             var v2 = new[] { 1f, 2f, 3f, 4f };
             var result = v1.CosineDistance(v2);
-            FloatMath.AreApproximatelyEqual(result, 0f, 30).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(result, 0f, 30).Should().BeTrue();
         }
 
         [Fact]

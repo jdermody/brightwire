@@ -34,7 +34,7 @@ namespace BrightData.Analysis
         /// Creates a dimension analyzer (to analyze the shape of tensors)
         /// </summary>
         /// <returns></returns>
-        public static IDataAnalyser<IReadOnlyTensor> CreateDimensionAnalyser() => new DimensionAnalyser();
+        public static IDataAnalyser<IReadOnlyTensor<float>> CreateDimensionAnalyser() => new DimensionAnalyser();
 
         /// <summary>
         /// Creates an analyzer that tracks observed frequency of items

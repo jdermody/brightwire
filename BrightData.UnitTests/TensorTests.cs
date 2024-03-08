@@ -11,21 +11,21 @@ namespace BrightData.UnitTests
 {
     public class TensorTests : CudaBase
     {
-        static ITensor3D Apply(LinearAlgebraProvider lap, ITensor3D a, Func<ITensor3D, ITensor3D> func)
+        static ITensor3D<float> Apply(LinearAlgebraProvider<float> lap, ITensor3D<float> a, Func<ITensor3D<float>, ITensor3D<float>> func)
         {
             using var otherA = lap.CreateTensor3D(a);
             var otherB = func(otherA);
             return otherB;
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, ITensor3D a, Func<ITensor3D, IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, ITensor3D<float> a, Func<ITensor3D<float>, IMatrix<float>> func)
         {
             using var otherA = lap.CreateTensor3D(a);
             var otherB = func(otherA);
             return otherB;
         }
 
-        static ITensor4D Apply(LinearAlgebraProvider lap, ITensor4D a, Func<ITensor4D, ITensor4D> func)
+        static ITensor4D<float> Apply(LinearAlgebraProvider<float> lap, ITensor4D<float> a, Func<ITensor4D<float>, ITensor4D<float>> func)
         {
             using var otherA = lap.CreateTensor4D(a);
             var otherB = func(otherA);
@@ -184,14 +184,14 @@ namespace BrightData.UnitTests
             CheckTensorIm2Col(12, 8, 1, 4, 1, 1, 1, true);
         }
 
-        static void AssertValuesAreInSamePlace(ITensor3D maxPool, ITensor3D source)
+        static void AssertValuesAreInSamePlace(ITensor3D<float> maxPool, ITensor3D<float> source)
         {
             for (uint z = 0; z < maxPool.Depth; z++) {
                 var slice = maxPool.GetMatrix(z);
                 for (uint i = 0; i < slice.RowCount; i++) {
                     for (uint j = 0; j < slice.ColumnCount; j++) {
                         var val = slice[i, j];
-                        if (FloatMath.IsNotZero(val)) {
+                        if (Math<float>.IsNotZero(val)) {
                             val.Should().Be(source[z, i, j]);
                         }
                     }
@@ -293,14 +293,14 @@ namespace BrightData.UnitTests
 
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
-            FloatMath.AreApproximatelyEqual(gpuMaxPool, cpuMaxPool);
-            FloatMath.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
+            Math<float>.AreApproximatelyEqual(gpuMaxPool, cpuMaxPool);
+            Math<float>.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
             using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
 
             using var mklTensor = _mkl.CreateTensor3D(cpuTensor);
             var (mklMaxPool, mklIndices) = mklTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
-            FloatMath.AreApproximatelyEqual(mklMaxPool, cpuMaxPool);
-            FloatMath.AreApproximatelyEqual(mklIndices!, cpuIndices!);
+            Math<float>.AreApproximatelyEqual(mklMaxPool, cpuMaxPool);
+            Math<float>.AreApproximatelyEqual(mklIndices!, cpuIndices!);
             using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
 
             try {
@@ -331,17 +331,17 @@ namespace BrightData.UnitTests
             using var gpuTensor = _cuda.CreateTensor3D(cpuTensor);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
             if (calculateIndices) {
-                FloatMath.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
+                Math<float>.AreApproximatelyEqual(gpuIndices!, cpuIndices!);
                 using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
-                FloatMath.AreApproximatelyEqual(gpuReverseMaxPool, cpuReverseMaxPool);
+                Math<float>.AreApproximatelyEqual(gpuReverseMaxPool, cpuReverseMaxPool);
             }
 
             using var mklTensor = _mkl.CreateTensor3D(cpuTensor);
             var (mklMaxPool, mklIndices) = mklTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
             if (calculateIndices) {
-                FloatMath.AreApproximatelyEqual(mklIndices!, cpuIndices!);
+                Math<float>.AreApproximatelyEqual(mklIndices!, cpuIndices!);
                 using var mklReverseMaxPool = mklMaxPool.ReverseMaxPool(mklIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride);
-                FloatMath.AreApproximatelyEqual(mklReverseMaxPool, cpuReverseMaxPool);
+                Math<float>.AreApproximatelyEqual(mklReverseMaxPool, cpuReverseMaxPool);
             }
 
             try {
@@ -365,7 +365,7 @@ namespace BrightData.UnitTests
             using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => normalDistribution.Sample());
             using var output = im2Col.Multiply(cpuFilter);
 
-            var matrixList = new IMatrix[output.ColumnCount];
+            var matrixList = new IMatrix<float>[output.ColumnCount];
             var newWidth = ((inputWidth - filterWidth) / xStride) + 1;
             var newHeight = ((inputHeight - filterHeight) / yStride) + 1;
             for (uint i = 0; i < output.ColumnCount; i++)
@@ -373,19 +373,19 @@ namespace BrightData.UnitTests
             var outputTensor = _cpu.CreateTensor3DAndThenDisposeInput(matrixList);
 
             using var gpuTensor = _cuda.CreateTensor3D(outputTensor);
-            FloatMath.AreApproximatelyEqual(gpuTensor, outputTensor);
+            Math<float>.AreApproximatelyEqual(gpuTensor, outputTensor);
             using var gpuFilter = _cuda.CreateMatrix(cpuFilter);
 
             using var mklTensor = _mkl.CreateTensor3D(outputTensor);
-            FloatMath.AreApproximatelyEqual(mklTensor, outputTensor);
+            Math<float>.AreApproximatelyEqual(mklTensor, outputTensor);
             using var mklFilter = _mkl.CreateMatrix(cpuFilter);
 
             using var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, xStride, yStride);
             using var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, xStride, yStride);
-            FloatMath.AreApproximatelyEqual(gpuReverseIm2Col, cpuReverseIm2Col);
+            Math<float>.AreApproximatelyEqual(gpuReverseIm2Col, cpuReverseIm2Col);
 
             using var mklReverseIm2Col = mklTensor.ReverseIm2Col(mklFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, xStride, yStride);
-            FloatMath.AreApproximatelyEqual(mklReverseIm2Col, cpuReverseIm2Col);
+            Math<float>.AreApproximatelyEqual(mklReverseIm2Col, cpuReverseIm2Col);
         }
 
         [Fact]
@@ -430,12 +430,12 @@ namespace BrightData.UnitTests
             CheckTensorReverseIm2Col(10, 3, 1, 1, 1, 2, 10, 12);
         }
 
-        IReadOnlyMatrix CheckCreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float>? valueProvider)
+        IReadOnlyMatrix<float> CheckCreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float>? valueProvider)
         {
             return _context.CreateReadOnlyMatrixFromRows(rows.AsRange().Select(i => _context.CreateReadOnlyVector(columns, j => valueProvider?.Invoke(i, j, depth) ?? 0f)).ToArray());
         }
 
-        IReadOnlyTensor3D CheckCreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float>? valueProvider)
+        IReadOnlyTensor3D<float> CheckCreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float>? valueProvider)
         {
             return _context.CreateReadOnlyTensor3D(depth.AsRange().Select(k => CheckCreateMatrix(k, rows, columns, valueProvider)).ToArray());
         }
@@ -447,10 +447,10 @@ namespace BrightData.UnitTests
             var data = count.AsRange().Select(_ => CheckCreateTensor(rows, columns, depth, (i, j, d) => (j + 1) * (i + 1))).ToArray();
             using var cpuTensor = _cpu.CreateTensor4D(data);
             using var gpuTensor = _cuda.CreateTensor4D(data);
-            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, gpuTensor);
 
             using var mklTensor = _mkl.CreateTensor4D(data);
-            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, mklTensor);
         }
 
         [Fact]
@@ -463,10 +463,10 @@ namespace BrightData.UnitTests
             using var cpuResult = cpuTensor.AddPadding(1);
 
             using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddPadding(1));
-            FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(gpuResult, cpuResult);
 
             var mklResult = Apply(_mkl, cpuTensor, a => a.AddPadding(1));
-            FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
         [Fact]
@@ -479,10 +479,10 @@ namespace BrightData.UnitTests
             using var cpuResult = cpuTensor.RemovePadding(1);
 
             using var gpuResult = Apply(_cuda, cpuTensor, a => a.RemovePadding(1));
-            FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(gpuResult, cpuResult);
 
             using var mklResult = Apply(_mkl, cpuTensor, a => a.RemovePadding(1));
-            FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
         [Fact]
@@ -493,10 +493,10 @@ namespace BrightData.UnitTests
             using var cpuResult = cpuTensor.AddAllMatrices();
 
             using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddAllMatrices());
-            FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(gpuResult, cpuResult);
 
             using var mklResult = Apply(_mkl, cpuTensor, a => a.AddAllMatrices());
-            FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
         [Fact]
@@ -507,10 +507,10 @@ namespace BrightData.UnitTests
             using var cpuResult = cpuTensor.AddAllMatrices();
 
             using var gpuResult = Apply(_cuda, cpuTensor, a => a.AddAllMatrices());
-            FloatMath.AreApproximatelyEqual(gpuResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(gpuResult, cpuResult);
 
             using var mklResult = Apply(_mkl, cpuTensor, a => a.AddAllMatrices());
-            FloatMath.AreApproximatelyEqual(mklResult, cpuResult);
+            Math<float>.AreApproximatelyEqual(mklResult, cpuResult);
         }
 
         [Fact]
@@ -525,12 +525,12 @@ namespace BrightData.UnitTests
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuTensor2 = _cuda.CreateTensor3D(tensor2);
             gpuTensor.AddInPlace(gpuTensor2);
-            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, gpuTensor);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklTensor2 = _mkl.CreateTensor3D(tensor2);
             mklTensor.AddInPlace(mklTensor2);
-            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, mklTensor);
         }
 
         [Fact]
@@ -544,11 +544,11 @@ namespace BrightData.UnitTests
 
             using var gpuTensor = _cuda.CreateTensor4D(data);
             using var gpuPooled = gpuTensor.MaxPool(2, 2, 2, 2, false).Result;
-            FloatMath.AreApproximatelyEqual(cpuPooled, gpuPooled);
+            Math<float>.AreApproximatelyEqual(cpuPooled, gpuPooled);
 
             using var mklTensor = _mkl.CreateTensor4D(data);
             using var mklPooled = mklTensor.MaxPool(2, 2, 2, 2, false).Result;
-            FloatMath.AreApproximatelyEqual(cpuPooled, mklPooled);
+            Math<float>.AreApproximatelyEqual(cpuPooled, mklPooled);
         }
 
         [Fact]
@@ -642,17 +642,17 @@ namespace BrightData.UnitTests
             using var tensor = _cpu.CreateTensor3D(data);
             using var vector = _cpu.CreateVector(data.ReadOnlySegment);
             using var tensor2 = vector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(tensor, tensor2);
+            Math<float>.AreApproximatelyEqual(tensor, tensor2);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuVector = _cuda.CreateVector(data.ReadOnlySegment);
             using var gpuTensor2 = gpuVector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(gpuTensor, gpuTensor2);
+            Math<float>.AreApproximatelyEqual(gpuTensor, gpuTensor2);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklVector = _mkl.CreateVector(data.ReadOnlySegment);
             using var mklTensor2 = mklVector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(mklTensor, mklTensor2);
+            Math<float>.AreApproximatelyEqual(mklTensor, mklTensor2);
         }
 
         [Fact]
@@ -662,19 +662,19 @@ namespace BrightData.UnitTests
             using var tensor = _cpu.CreateTensor3D(data);
             using var vector = tensor.Reshape();
             using var tensor2 = vector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(tensor, tensor2);
+            Math<float>.AreApproximatelyEqual(tensor, tensor2);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuVector = gpuTensor.Reshape();
             using var gpuTensor2 = gpuVector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(gpuTensor, gpuTensor2);
-            FloatMath.AreApproximatelyEqual(vector, gpuVector);
+            Math<float>.AreApproximatelyEqual(gpuTensor, gpuTensor2);
+            Math<float>.AreApproximatelyEqual(vector, gpuVector);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklVector = mklTensor.Reshape();
             using var mklTensor2 = mklVector.Reshape(4, 3, 2);
-            FloatMath.AreApproximatelyEqual(mklTensor, mklTensor2);
-            FloatMath.AreApproximatelyEqual(vector, mklVector);
+            Math<float>.AreApproximatelyEqual(mklTensor, mklTensor2);
+            Math<float>.AreApproximatelyEqual(vector, mklVector);
         }
 
         [Fact]
@@ -684,19 +684,19 @@ namespace BrightData.UnitTests
             using var tensor = _cpu.CreateTensor3D(data);
             using var matrix = tensor.ReshapeAsMatrix();
             using var tensor2 = matrix.Reshape(null, 4, 3);
-            FloatMath.AreApproximatelyEqual(tensor, tensor2);
+            Math<float>.AreApproximatelyEqual(tensor, tensor2);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuMatrix = gpuTensor.ReshapeAsMatrix();
             using var gpuTensor2 = gpuMatrix.Reshape(null, 4, 3);
-            FloatMath.AreApproximatelyEqual(gpuTensor, gpuTensor2);
-            FloatMath.AreApproximatelyEqual(matrix, gpuMatrix);
+            Math<float>.AreApproximatelyEqual(gpuTensor, gpuTensor2);
+            Math<float>.AreApproximatelyEqual(matrix, gpuMatrix);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklMatrix = mklTensor.ReshapeAsMatrix();
             using var mklTensor2 = mklMatrix.Reshape(null, 4, 3);
-            FloatMath.AreApproximatelyEqual(mklTensor, mklTensor2);
-            FloatMath.AreApproximatelyEqual(matrix, mklMatrix);
+            Math<float>.AreApproximatelyEqual(mklTensor, mklTensor2);
+            Math<float>.AreApproximatelyEqual(matrix, mklMatrix);
         }
 
         [Fact]
@@ -708,11 +708,11 @@ namespace BrightData.UnitTests
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuTensor2 = gpuTensor.Reshape(3, 4, 3, 2);
-            FloatMath.AreApproximatelyEqual(tensor2, gpuTensor2);
+            Math<float>.AreApproximatelyEqual(tensor2, gpuTensor2);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklTensor2 = mklTensor.Reshape(3, 4, 3, 2);
-            FloatMath.AreApproximatelyEqual(tensor2, mklTensor2);
+            Math<float>.AreApproximatelyEqual(tensor2, mklTensor2);
         }
 
         [Fact]
@@ -723,19 +723,19 @@ namespace BrightData.UnitTests
             using var cpuTensor = _cpu.CreateTensor4D(data);
             using var cpuMatrix = cpuTensor.ReshapeAsMatrix();
             using var cpuTensor2 = cpuMatrix.Reshape(null, 3, 4, 2);
-            FloatMath.AreApproximatelyEqual(cpuTensor, cpuTensor2);
+            Math<float>.AreApproximatelyEqual(cpuTensor, cpuTensor2);
 
             using var gpuTensor = _cuda.CreateTensor4D(data);
             using var gpuMatrix = gpuTensor.ReshapeAsMatrix();
             using var gpuTensor2 = gpuMatrix.Reshape(null, 3, 4, 2);
-            FloatMath.AreApproximatelyEqual(gpuTensor, gpuTensor2);
-            FloatMath.AreApproximatelyEqual(cpuMatrix, gpuMatrix);
+            Math<float>.AreApproximatelyEqual(gpuTensor, gpuTensor2);
+            Math<float>.AreApproximatelyEqual(cpuMatrix, gpuMatrix);
 
             using var mklTensor = _mkl.CreateTensor4D(data);
             using var mklMatrix = mklTensor.ReshapeAsMatrix();
             using var mklTensor2 = mklMatrix.Reshape(null, 3, 4, 2);
-            FloatMath.AreApproximatelyEqual(mklTensor, mklTensor2);
-            FloatMath.AreApproximatelyEqual(cpuMatrix, mklMatrix);
+            Math<float>.AreApproximatelyEqual(mklTensor, mklTensor2);
+            Math<float>.AreApproximatelyEqual(cpuMatrix, mklMatrix);
         }
 
         [Fact]
@@ -749,12 +749,12 @@ namespace BrightData.UnitTests
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuVector = _cuda.CreateVector(4, 1f);
             gpuTensor.AddToEachRow(gpuVector);
-            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, gpuTensor);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklVector = _mkl.CreateVector(4, 1f);
             mklTensor.AddToEachRow(mklVector);
-            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, mklTensor);
         }
 
         [Fact]
@@ -768,12 +768,12 @@ namespace BrightData.UnitTests
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
             using var gpuVector = _cuda.CreateVector(4, 1f);
             gpuTensor.AddToEachColumn(gpuVector);
-            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, gpuTensor);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
             using var mklVector = _mkl.CreateVector(4, 1f);
             mklTensor.AddToEachColumn(mklVector);
-            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, mklTensor);
         }
 
         [Fact]
@@ -781,13 +781,13 @@ namespace BrightData.UnitTests
         {
             var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             using var cpuTensor = _cpu.CreateTensor3D(tensor);
-            FloatMath.AreApproximatelyEqual(cpuTensor.Segment, tensor.ReadOnlySegment);
+            Math<float>.AreApproximatelyEqual(cpuTensor.Segment, tensor.ReadOnlySegment);
 
             using var gpuTensor = _cuda.CreateTensor3D(tensor);
-            FloatMath.AreApproximatelyEqual(cpuTensor, gpuTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, gpuTensor);
 
             using var mklTensor = _mkl.CreateTensor3D(tensor);
-            FloatMath.AreApproximatelyEqual(cpuTensor, mklTensor);
+            Math<float>.AreApproximatelyEqual(cpuTensor, mklTensor);
         }
 
         [Fact]

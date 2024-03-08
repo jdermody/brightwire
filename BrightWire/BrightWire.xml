@@ -375,7 +375,7 @@
             Executes (without training) graphs
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.ExecutionEngine.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.Models.ExecutionGraphModel,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Engine.ExecutionEngine.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightWire.Models.ExecutionGraphModel,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes (without training) graphs
             </summary>
@@ -482,7 +482,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.SetMemory(System.String,BrightData.IMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext.SetMemory(System.String,BrightData.IMatrix{System.Single})">
             <summary>
             Sets a named memory slot
             </summary>
@@ -499,7 +499,7 @@
             Helper class when executing a single sequence
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SequentialRowDataSource.#ctor(System.Single[][],BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SequentialRowDataSource.#ctor(System.Single[][],BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single})">
             <summary>
             Helper class when executing a single sequence
             </summary>
@@ -509,7 +509,7 @@
             Helper class when executing a single row instead of the normal batch mode
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource.#ctor(System.Single[],BrightData.LinearAlgebra.LinearAlgebraProvider,System.Boolean,BrightWire.MiniBatchSequenceType,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource.#ctor(System.Single[],BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.Boolean,BrightWire.MiniBatchSequenceType,System.UInt32)">
             <summary>
             Helper class when executing a single row instead of the normal batch mode
             </summary>
@@ -542,7 +542,7 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GradientDescent.AdaGrad.#ctor(BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.AdaGrad.#ctor(BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation)">
             <summary>
             AdaGrad gradient descent
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
@@ -554,7 +554,7 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Adam.#ctor(System.Single,System.Single,BrightData.IMatrix,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Adam.#ctor(System.Single,System.Single,BrightData.IMatrix{System.Single},BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation)">
             <summary>
             Adam gradient descent
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
@@ -586,7 +586,7 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Momentum.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.Momentum.#ctor(System.Single,BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation)">
             <summary>
             Gradient descent with momentum
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
@@ -597,7 +597,7 @@
             Gradient descent with nesterov momentum
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GradientDescent.NesterovMomentum.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.NesterovMomentum.#ctor(System.Single,BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation)">
             <summary>
             Gradient descent with nesterov momentum
             </summary>
@@ -608,7 +608,7 @@
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GradientDescent.RmsProp.#ctor(System.Single,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation)">
+        <member name="M:BrightWire.ExecutionGraph.GradientDescent.RmsProp.#ctor(System.Single,BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation)">
             <summary>
             Rms prop gradient descent
             https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
@@ -625,7 +625,7 @@
             Creates graph nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.IPropertySet)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightWire.IPropertySet)">
             <summary>
             Constructor
             </summary>
@@ -656,7 +656,7 @@
             Pops the last property set from the stack
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWeightUpdater(BrightData.IMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWeightUpdater(BrightData.IMatrix{System.Single})">
             <summary>
             Creates a gradient descent optimiser for the given matrix
             </summary>
@@ -679,7 +679,7 @@
             <param name="batchSize">Mini batch size</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel,BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single})">
             <summary>
             Creates a graph execution engine
             </summary>
@@ -687,20 +687,20 @@
             <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IVector[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IVector{System.Single}[])">
             <summary>
             Creates a data source from a list of vectors
             </summary>
             <param name="vectorList">The list of vectors that will be the rows in the data source</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IMatrix[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IMatrix{System.Single}[])">
             <summary>
             Creates a data source from a list of matrices (sequential vectors)
             </summary>
             <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.ITensor3D[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.ITensor3D{System.Single}[])">
             <summary>
             Creates a data source from a list of tensors
             </summary>
@@ -1348,7 +1348,7 @@
             Graph data adaptor for matrices
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MatrixGraphData.#ctor(BrightData.IMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MatrixGraphData.#ctor(BrightData.IMatrix{System.Single})">
             <summary>
             Graph data adaptor for matrices
             </summary>
@@ -1358,7 +1358,7 @@
             Graph data adaptor for 3D tensors
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor3DGraphData.#ctor(BrightData.IMatrix,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor3DGraphData.#ctor(BrightData.IMatrix{System.Single},System.UInt32,System.UInt32)">
             <summary>
             Graph data adaptor for 3D tensors
             </summary>
@@ -1368,7 +1368,7 @@
             Graph data adapter for 4D tensors
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor4DGraphData.#ctor(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.Tensor4DGraphData.#ctor(BrightData.IMatrix{System.Single},System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Graph data adapter for 4D tensors
             </summary>
@@ -1378,14 +1378,14 @@
             Graph extension methods
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor3D)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor3D{System.Single})">
             <summary>
             Reshapes the 3D tensor as a matrix
             </summary>
             <param name="tensor"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor4D)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.GraphHelperMethods.ReshapeAsMatrix(BrightData.ITensor4D{System.Single})">
             <summary>
             Reshapes the 4D tensor as a matrix
             </summary>
@@ -1712,7 +1712,7 @@
             <param name="size">The size of the input signal</param>
             <param name="channel">The channel</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IMatrix,BrightWire.ExecutionGraph.Node.NodeBase)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IMatrix{System.Single},BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Sets data
             </summary>
@@ -1820,7 +1820,7 @@
             Executes a row based classifier
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Helper.RowClassifier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightWire.IRowClassifier,BrightData.IDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Helper.RowClassifier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightWire.IRowClassifier,BrightData.IDataTable,System.String)">
             <summary>
             Executes a row based classifier
             </summary>
@@ -1905,7 +1905,7 @@
             https://en.wikipedia.org/wiki/Feedforward_neural_network
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Layer.FeedForward.#ctor(System.UInt32,System.UInt32,BrightData.IVector,BrightData.IMatrix,BrightWire.IGradientDescentOptimisation,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.FeedForward.#ctor(System.UInt32,System.UInt32,BrightData.IVector{System.Single},BrightData.IMatrix{System.Single},BrightWire.IGradientDescentOptimisation,System.String)">
             <summary>
             Feed forward neural network
             https://en.wikipedia.org/wiki/Feedforward_neural_network
@@ -1954,7 +1954,7 @@
             Implementation of self attention from: https://arxiv.org/abs/1409.0473
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Layer.SelfAttention.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.String,System.String,BrightWire.ExecutionGraph.Node.Layer.FeedForward,System.String,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Layer.SelfAttention.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.String,System.String,BrightWire.ExecutionGraph.Node.Layer.FeedForward,System.String,System.String)">
             <summary>
             Implementation of self attention from: https://arxiv.org/abs/1409.0473
             </summary>
@@ -2171,7 +2171,7 @@
             </summary>
             <param name="directDescendant"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ApplyError(BrightWire.NodeErrorType,BrightData.ITensor,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ApplyError(BrightWire.NodeErrorType,BrightData.ITensor{System.Single},BrightWire.ILearningContext)">
             <summary>
             Applies an error to this node
             </summary>
@@ -2225,7 +2225,7 @@
             Derivative of sqrt(x) is 0.5/sqrt(x)
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput.Backpropagation.#ctor(BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput,BrightData.IMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput.Backpropagation.#ctor(BrightWire.ExecutionGraph.Node.Operation.SquareRootOfInput,BrightData.IMatrix{System.Single})">
             <summary>
             Derivative of sqrt(x) is 0.5/sqrt(x)
             </summary>
@@ -2258,7 +2258,7 @@
             Initializes all weights to a constant
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Constant.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single,System.Single)">
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Constant.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.Single,System.Single)">
             <summary>
             Initializes all weights to a constant
             </summary>
@@ -2273,7 +2273,7 @@
             Identity matrix: https://arxiv.org/abs/1504.00941
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Identity.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single)">
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Identity.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.Single)">
             <summary>
             Identity matrix: https://arxiv.org/abs/1504.00941
             </summary>
@@ -2284,7 +2284,7 @@
             http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Xavier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.Single)">
+        <member name="M:BrightWire.ExecutionGraph.WeightInitialisation.Xavier.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.Single)">
             <summary>
             Xavier weight initialisation
             http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
@@ -2676,7 +2676,7 @@
             <param name="dataSource"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext,BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.BrightDataContext,BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single})">
             <summary>
             Creates a graph factory
             </summary>
@@ -2684,7 +2684,7 @@
             <param name="lap">Linear algebra provider (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateGraphFactory(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single})">
             <summary>
             Creates a graph factory
             </summary>
@@ -2770,19 +2770,19 @@
             </summary>
             <param name="results">Output from sequential graph execution</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.IMatrix)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.IMatrix{System.Single})">
             <summary>
             Converts the matrix to a generic IGraphData
             </summary>
             <param name="matrix">Matrix to convert</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor3D)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor3D{System.Single})">
             <summary>
             Converts the 3D tensor to a generic IGraphData
             </summary>
             <param name="tensor">Tensor to convert</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor4D)">
+        <member name="M:BrightWire.ExtensionMethods.AsGraphData(BrightData.ITensor4D{System.Single})">
             <summary>
             Converts the 4D tensor to a generic IGraphData
             </summary>
@@ -2802,7 +2802,7 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.UInt32,System.UInt32,System.Int32)">
             <summary>
             Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
             </summary>
@@ -2832,7 +2832,7 @@
             <param name="item3">The third observation</param>
             <returns>The list of state transitions or null if nothing was found</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Nnmf(BrightData.IReadOnlyVector[],BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.Nnmf(BrightData.IReadOnlyVector{System.Single}[],BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.UInt32,System.UInt32)">
             <summary>
             Non-negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
             </summary>
@@ -2930,7 +2930,7 @@
             Property set implementation
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.PropertySet.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider)">
+        <member name="M:BrightWire.Helper.PropertySet.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single})">
             <summary>
             Property set implementation
             </summary>
@@ -2953,7 +2953,7 @@
             Calculate vector based statistics
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorBasedStatistics.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,System.Single[],System.Single[],System.UInt32)">
+        <member name="M:BrightWire.Helper.VectorBasedStatistics.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.UInt32,System.Single[],System.Single[],System.UInt32)">
             <summary>
             Calculate vector based statistics
             </summary>
@@ -2963,7 +2963,7 @@
             Calculates the distance between a list of vectors and a list of vectors to compare against
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IVector[],BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IVector{System.Single}[],BrightData.DistanceMetric)">
             <summary>
             Constructor
             </summary>
@@ -2980,21 +2980,21 @@
             Distance metric
             </summary>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IVector{System.Single})">
             <summary>
             Adds a comparison vector (will be owned and disposed by the helper class)
             </summary>
             <param name="comparison">Vector to compare against</param>
             <returns>Index of the comparison vector</returns>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IVector)">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IVector{System.Single})">
             <summary>
             Updates the comparison vector at this index (disposes the old vector)
             </summary>
             <param name="index">Index to update</param>
             <param name="newVector">Vector to replace with</param>
         </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IVector})">
+        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IVector{System.Single}})">
             <summary>
             Updates the entire list of comparison vectors
             </summary>
@@ -3064,7 +3064,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphData.ReplaceWith(BrightData.IMatrix)">
+        <member name="M:BrightWire.IGraphData.ReplaceWith(BrightData.IMatrix{System.Single})">
             <summary>
             Replaces the data with the specified matrix (but preserves any tensor metadata)
             </summary>
@@ -3524,14 +3524,14 @@
             Weight matrix
             </summary>
         </member>
-        <member name="M:BrightWire.IFeedForward.UpdateWeights(BrightData.IMatrix,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.IFeedForward.UpdateWeights(BrightData.IMatrix{System.Single},BrightWire.ILearningContext)">
             <summary>
             Updates the weights
             </summary>
             <param name="delta">Weight delta matrix</param>
             <param name="context">Graph learning context</param>
         </member>
-        <member name="M:BrightWire.IFeedForward.UpdateBias(BrightData.IMatrix,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.IFeedForward.UpdateBias(BrightData.IMatrix{System.Single},BrightWire.ILearningContext)">
             <summary>
             Updates the bias
             </summary>
@@ -3598,7 +3598,7 @@
             True if the result should be formatted as a percentage
             </summary>
         </member>
-        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IReadOnlyVector,BrightData.IReadOnlyVector)">
+        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.IReadOnlyVector{System.Single},BrightData.IReadOnlyVector{System.Single})">
             <summary>
             Computes the error between the output vector and target vector
             </summary>
@@ -3614,7 +3614,7 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightData.IMatrix,BrightData.IMatrix)">
+        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightData.IMatrix{System.Single},BrightData.IMatrix{System.Single})">
             <summary>
             Calculates the gradient of the error function
             </summary>
@@ -3637,14 +3637,14 @@
             The transformation matrix
             </summary>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IVector)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IVector{System.Single})">
             <summary>
             Reduces a vector
             </summary>
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IMatrix)">
+        <member name="M:BrightWire.IRandomProjection.Compute(BrightData.IMatrix{System.Single})">
             <summary>
             Reduces a matrix
             </summary>
@@ -3720,7 +3720,7 @@
             The total number of rows per epoch
             </summary>
         </member>
-        <member name="M:BrightWire.ILearningContext.AddError(BrightWire.NodeErrorType,BrightWire.ExecutionGraph.Node.NodeBase,BrightData.ITensor)">
+        <member name="M:BrightWire.ILearningContext.AddError(BrightWire.NodeErrorType,BrightWire.ExecutionGraph.Node.NodeBase,BrightData.ITensor{System.Single})">
             <summary>
             Adds an error to the node
             </summary>
@@ -3807,7 +3807,7 @@
             Gradient descent optimisation
             </summary>
         </member>
-        <member name="M:BrightWire.IGradientDescentOptimisation.Update(BrightData.IMatrix,BrightData.IMatrix,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.IGradientDescentOptimisation.Update(BrightData.IMatrix{System.Single},BrightData.IMatrix{System.Single},BrightWire.ILearningContext)">
             <summary>
             Updates the matrix with the delta
             </summary>
@@ -3831,7 +3831,7 @@
             Creates gradient descent optimisations based on a matrix
             </summary>
         </member>
-        <member name="M:BrightWire.ICreateTemplateBasedGradientDescent.Create(BrightWire.IGradientDescentOptimisation,BrightData.IMatrix,BrightWire.IPropertySet)">
+        <member name="M:BrightWire.ICreateTemplateBasedGradientDescent.Create(BrightWire.IGradientDescentOptimisation,BrightData.IMatrix{System.Single},BrightWire.IPropertySet)">
             <summary>
             Creates the gradient descent optimisation for a particular target matrix
             </summary>
@@ -3985,7 +3985,7 @@
             Logistic regression classifier
             </summary>
         </member>
-        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.IMatrix)">
+        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.IMatrix{System.Single})">
             <summary>
             Outputs a list of values from 0 to 1 for each input data
             </summary>
@@ -4730,7 +4730,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,BrightData.IMatrix,System.Boolean)">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,BrightData.IMatrix{System.Single},System.Boolean)">
             <summary>
             Constructor
             </summary>
@@ -4826,7 +4826,7 @@
             The vector indexes to use to encode the other column(s) as a classification target
             </summary>
         </member>
-        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.LinearAlgebra.LinearAlgebraProvider,System.UInt32,BrightData.DistanceMetric)">
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.CreateClassifier(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},System.UInt32,BrightData.DistanceMetric)">
             <summary>
             Creates a classifier from this model
             </summary>

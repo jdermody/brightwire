@@ -75,13 +75,13 @@ namespace BrightData.DataTable
                 else if (dataType == BrightDataType.String)
                     await WriteStringData((IReadOnlyBuffer<string>)columnSegment, stringWriter.Value, output);
                 else if (dataType == BrightDataType.Vector)
-                    await WriteVectors((IReadOnlyBuffer<ReadOnlyVector>)columnSegment, floatWriter.Value, output);
+                    await WriteVectors((IReadOnlyBuffer<ReadOnlyVector<float>>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Matrix)
-                    await WriteMatrices((IReadOnlyBuffer<ReadOnlyMatrix>)columnSegment, floatWriter.Value, output);
+                    await WriteMatrices((IReadOnlyBuffer<ReadOnlyMatrix<float>>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Tensor3D)
-                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor3D>)columnSegment, floatWriter.Value, output);
+                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)columnSegment, floatWriter.Value, output);
                 else if (dataType == BrightDataType.Tensor4D)
-                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D>)columnSegment, floatWriter.Value, output);
+                    await WriteTensors((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)columnSegment, floatWriter.Value, output);
                 else
                     await WriteStructs(columnSegment, output);
             }
@@ -313,11 +313,11 @@ namespace BrightData.DataTable
         static Task WriteIndexLists(IReadOnlyBuffer<IndexList> buffer, ICompositeBuffer<uint> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
         static Task WriteWeightedIndexLists(IReadOnlyBuffer<WeightedIndexList> buffer, ICompositeBuffer<WeightedIndexList.Item> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
         static Task WriteBinaryData(IReadOnlyBuffer<BinaryData> buffer, ICompositeBuffer<byte> indices, Stream stream) => WriteContiguousDataRange(buffer, indices, stream);
-        static Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
+        static Task WriteVectors(IReadOnlyBuffer<ReadOnlyVector<float>> buffer, ICompositeBuffer<float> floats, Stream stream) => WriteDataRange(buffer, floats, stream);
 
-        static Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteMatrices(IReadOnlyBuffer<ReadOnlyMatrix<float>> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
-            return Convert(buffer, stream, (in ReadOnlyMatrix matrix, ref MatrixColumnType data) => {
+            return Convert(buffer, stream, (in ReadOnlyMatrix<float> matrix, ref MatrixColumnType data) => {
                 data.StartIndex = floats.Size;
                 data.RowCount = matrix.RowCount;
                 data.ColumnCount = matrix.ColumnCount;
@@ -325,9 +325,9 @@ namespace BrightData.DataTable
             });
         }
 
-        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor3D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor3D<float>> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
-            return Convert(buffer, stream, (in ReadOnlyTensor3D tensor, ref Tensor3DColumnType data) => {
+            return Convert(buffer, stream, (in ReadOnlyTensor3D<float> tensor, ref Tensor3DColumnType data) => {
                 data.StartIndex = floats.Size;
                 data.RowCount = tensor.RowCount;
                 data.ColumnCount = tensor.ColumnCount;
@@ -336,9 +336,9 @@ namespace BrightData.DataTable
             });
         }
 
-        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor4D> buffer, ICompositeBuffer<float> floats, Stream stream)
+        static Task WriteTensors(IReadOnlyBuffer<ReadOnlyTensor4D<float>> buffer, ICompositeBuffer<float> floats, Stream stream)
         {
-            return Convert(buffer, stream, (in ReadOnlyTensor4D tensor, ref Tensor4DColumnType data) => {
+            return Convert(buffer, stream, (in ReadOnlyTensor4D<float> tensor, ref Tensor4DColumnType data) => {
                 data.StartIndex = floats.Size;
                 data.RowCount = tensor.RowCount;
                 data.ColumnCount = tensor.ColumnCount;

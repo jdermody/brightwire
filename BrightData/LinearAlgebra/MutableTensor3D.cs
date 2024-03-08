@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -12,8 +13,10 @@ namespace BrightData.LinearAlgebra
     /// Row major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
-    public class MutableTensor3D<LAP> : MutableTensorBase<ITensor3D, LAP>, ITensor3D
-        where LAP: LinearAlgebraProvider
+    /// <typeparam name="T"></typeparam>
+    public class MutableTensor3D<T, LAP> : MutableTensorBase<T, IReadOnlyTensor3D<T>, ITensor3D<T>, LAP>, ITensor3D<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where LAP: LinearAlgebraProvider<T>
     {
         /// <summary>
         /// Constructor
@@ -24,7 +27,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="columns">Columns in each matrix</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <exception cref="ArgumentException"></exception>
-        public MutableTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
+        public MutableTensor3D(INumericSegment<T> data, uint depth, uint rows, uint columns, LAP lap) : base(data, lap)
         {
             Depth = depth;
             RowCount = rows;
@@ -38,16 +41,16 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override ITensor3D Create(INumericSegment<float> segment) => new MutableTensor3D<LAP>(segment, Depth, RowCount, ColumnCount, Lap);
+        public override ITensor3D<T> Create(INumericSegment<T> segment) => new MutableTensor3D<T, LAP>(segment, Depth, RowCount, ColumnCount, Lap);
 
         /// <summary>
         /// Returns a read only matrix
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public IReadOnlyMatrix GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrix(Matrix(index), RowCount, ColumnCount);
+        public IReadOnlyMatrix<T> GetMatrixAsReadOnly(uint index) => new ReadOnlyMatrix<T>(Matrix(index), RowCount, ColumnCount);
 
-        MutableTensorSegmentWrapper<float> Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
+        MutableTensorSegmentWrapper<T> Matrix(uint index) => new(Segment, index * MatrixSize, 1, MatrixSize);
 
         /// <inheritdoc />
         public uint Depth { get; private set; }
@@ -84,7 +87,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="depth">Matrix index</param>
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
-        public float this[int depth, int rowY, int columnX]
+        public T this[int depth, int rowY, int columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
@@ -96,13 +99,13 @@ namespace BrightData.LinearAlgebra
         /// <param name="depth">Matrix index</param>
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
-        public float this[uint depth, uint rowY, uint columnX]
+        public T this[uint depth, uint rowY, uint columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
-        IReadOnlyMatrix IReadOnlyTensor3D.GetMatrix(uint index) => GetMatrixAsReadOnly(index);
+        IReadOnlyMatrix<T> IReadOnlyTensor3D<T>.GetMatrix(uint index) => GetMatrixAsReadOnly(index);
 
         /// <summary>
         /// Returns a value from the tensor
@@ -110,7 +113,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="depth">Matrix index</param>
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
-        public float this[long depth, long rowY, long columnX]
+        public T this[long depth, long rowY, long columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
@@ -122,21 +125,21 @@ namespace BrightData.LinearAlgebra
         /// <param name="depth">Matrix index</param>
         /// <param name="rowY">Row index</param>
         /// <param name="columnX">Column index</param>
-        public float this[ulong depth, ulong rowY, ulong columnX]
+        public T this[ulong depth, ulong rowY, ulong columnX]
         {
             get => Segment[depth * MatrixSize + columnX * RowCount + rowY];
             set => Segment[depth * MatrixSize + columnX * RowCount + rowY] = value;
         }
 
         /// <inheritdoc />
-        public virtual IMatrix GetMatrix(uint index)
+        public virtual IMatrix<T> GetMatrix(uint index)
         {
-            var segment = new MutableTensorSegmentWrapper<float>(Segment, index * MatrixSize, 1, MatrixSize);
+            var segment = new MutableTensorSegmentWrapper<T>(Segment, index * MatrixSize, 1, MatrixSize);
             return Lap.CreateMatrix(RowCount, ColumnCount, segment);
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D AddPadding(uint padding)
+        public virtual ITensor3D<T> AddPadding(uint padding)
         {
             var newRows = RowCount + padding * 2;
             var newColumns = ColumnCount + padding * 2;
@@ -157,7 +160,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D RemovePadding(uint padding)
+        public virtual ITensor3D<T> RemovePadding(uint padding)
         {
             var newRows = RowCount - padding * 2;
             var newColumns = ColumnCount - padding * 2;
@@ -174,11 +177,11 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public virtual IMatrix<T> Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
             var filterSize = filterWidth * filterHeight;
-            var ret = Lap.CreateMatrix((uint)convolutions.Count, filterSize * Depth, (_, _) => 0f);
+            var ret = Lap.CreateMatrix((uint)convolutions.Count, filterSize * Depth, (_, _) => T.Zero);
 
             for (var i = 0; i < convolutions.Count; i++) {
                 var (offsetX, offsetY) = convolutions[i];
@@ -198,10 +201,10 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public virtual ITensor3D<T> ReverseIm2Col(IMatrix<T> filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-            using var temp = SpanOwner<IMatrix>.Allocate((int)outputDepth, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)outputDepth, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (var i = 0; i < outputDepth; i++)
@@ -230,13 +233,13 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        public virtual (ITensor3D<T> Result, ITensor3D<T>? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var newColumns = (ColumnCount - filterWidth) / xStride + 1;
             var newRows = (RowCount - filterHeight) / yStride + 1;
-            using var temp = SpanOwner<IMatrix>.Allocate((int)Depth, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)Depth, AllocationMode.Default);
             var ptr = temp.Span;
-            var indexList = saveIndices ? new IMatrix[Depth] : null;
+            var indexList = saveIndices ? new IMatrix<T>[Depth] : null;
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (uint k = 0; k < Depth; k++) {
@@ -246,7 +249,7 @@ namespace BrightData.LinearAlgebra
                 foreach (var (cx, cy) in convolutions) {
                     var targetX = cx / xStride;
                     var targetY = cy / yStride;
-                    var maxVal = float.MinValue;
+                    var maxVal = T.MinValue;
                     var bestOffset = -1;
                     var offset = 0;
 
@@ -263,7 +266,7 @@ namespace BrightData.LinearAlgebra
                     }
 
                     if (indices != null)
-                        indices[targetY, targetX] = bestOffset;
+                        indices[targetY, targetX] = T.CreateChecked(bestOffset);
                     layer[targetY, targetX] = maxVal;
                 }
 
@@ -279,9 +282,9 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public virtual ITensor3D<T> ReverseMaxPool(ITensor3D<T> indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            using var temp = SpanOwner<IMatrix>.Allocate((int)Depth, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)Depth, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint k = 0; k < Depth; k++) {
@@ -294,9 +297,9 @@ namespace BrightData.LinearAlgebra
                 for (uint j = 0; j < sourceColumns; j++) {
                     for (uint i = 0; i < sourceRows; i++) {
                         var value = source[i, j];
-                        var offset = index[i, j];
-                        var offsetRow = (uint)offset % filterHeight;
-                        var offsetColumn = (uint)offset / filterHeight;
+                        var offset = uint.CreateChecked(index[i, j]);
+                        var offsetRow = offset % filterHeight;
+                        var offsetColumn = offset / filterHeight;
                         target[(int)(i * yStride + offsetRow), (int)(j * xStride + offsetColumn)] = value;
                     }
                 }
@@ -306,7 +309,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix AddAllMatrices()
+        public virtual IMatrix<T> AddAllMatrices()
         {
             var ret = Lap.CreateMatrix(RowCount, ColumnCount, true);
 
@@ -319,9 +322,9 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D MultiplyEachMatrixBy(IMatrix other)
+        public virtual ITensor3D<T> MultiplyEachMatrixBy(IMatrix<T> other)
         {
-            using var temp = SpanOwner<IMatrix>.Allocate((int)Depth, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)Depth, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint i = 0; i < Depth; i++) {
@@ -332,9 +335,9 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D TransposeAndMultiplyEachMatrixBy(IMatrix other)
+        public virtual ITensor3D<T> TransposeAndMultiplyEachMatrixBy(IMatrix<T> other)
         {
-            using var temp = SpanOwner<IMatrix>.Allocate((int)Depth, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)Depth, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint i = 0; i < Depth; i++) {
@@ -345,7 +348,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual void AddToEachRow(IVector vector)
+        public virtual void AddToEachRow(IVector<T> vector)
         {
             for (uint k = 0; k < Depth; k++) {
                 for (uint j = 0; j < ColumnCount; j++) {
@@ -356,7 +359,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual void AddToEachColumn(IVector vector)
+        public virtual void AddToEachColumn(IVector<T> vector)
         {
             for (uint k = 0; k < Depth; k++) {
                 for (uint j = 0; j < ColumnCount; j++) {
@@ -367,10 +370,10 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D Multiply(ITensor4D other)
+        public virtual ITensor3D<T> Multiply(ITensor4D<T> other)
         {
             Debug.Assert(other.Count == Depth);
-            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)other.Count, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint i = 0; i < other.Count; i++) {
@@ -385,10 +388,10 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D TransposeAndMultiply(ITensor4D other)
+        public virtual ITensor3D<T> TransposeAndMultiply(ITensor4D<T> other)
         {
             Debug.Assert(other.Count == Depth);
-            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)other.Count, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint i = 0; i < other.Count; i++) {
@@ -403,10 +406,10 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual ITensor3D TransposeThisAndMultiply(ITensor4D other)
+        public virtual ITensor3D<T> TransposeThisAndMultiply(ITensor4D<T> other)
         {
             Debug.Assert(other.Count == Depth);
-            using var temp = SpanOwner<IMatrix>.Allocate((int)other.Count, AllocationMode.Default);
+            using var temp = SpanOwner<IMatrix<T>>.Allocate((int)other.Count, AllocationMode.Default);
             var ptr = temp.Span;
 
             for (uint i = 0; i < other.Count; i++) {
@@ -424,24 +427,12 @@ namespace BrightData.LinearAlgebra
         public override string ToString() => $"Tensor3D (Depth: {Depth}, Rows: {RowCount}, Columns: {ColumnCount})";
 
         /// <inheritdoc />
-        public ITensor3D Create(LinearAlgebraProvider lap) => lap.CreateTensor3D(Depth, RowCount, ColumnCount, (IReadOnlyNumericSegment<float>)Segment);
-    }
+        public ITensor3D<T> Create(LinearAlgebraProvider<T> lap) => lap.CreateTensor3D(Depth, RowCount, ColumnCount, (IReadOnlyNumericSegment<T>)Segment);
 
-    /// <summary>
-    /// 3D tensor 
-    /// </summary>
-    public class BrightTensor3D : MutableTensor3D<LinearAlgebraProvider>
-    {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Tensor segment</param>
-        /// <param name="depth">Number of matrices</param>
-        /// <param name="rows">Rows in each matrix</param>
-        /// <param name="columns">Columns in each matrix</param>
-        /// <param name="lap">Linear algebra provider</param>
-        public BrightTensor3D(INumericSegment<float> data, uint depth, uint rows, uint columns, LinearAlgebraProvider lap) : base(data, depth, rows, columns, lap)
-        {
-        }
+        /// <inheritdoc />
+        public override ReadOnlySpan<byte> DataAsBytes => ReadOnlyTensor3D<T>.GetDataAsBytes(Segment, Depth, RowCount, ColumnCount);
+
+        /// <inheritdoc />
+        protected override ITensor3D<T> Create(MemoryOwner<T> memory) => new MutableTensor3D<T, LAP>(new ArrayPoolTensorSegment<T>(memory), Depth, RowCount, ColumnCount, Lap);
     }
 }

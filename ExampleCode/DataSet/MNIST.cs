@@ -100,7 +100,7 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (IReadOnlyVector Data, IReadOnlyVector Label) AsFloatArray(BrightDataContext context)
+            public (IReadOnlyVector<float> Data, IReadOnlyVector<float> Label) AsFloatArray(BrightDataContext context)
             {
                 return (
                     context.CreateReadOnlyVector(Data.Length, i => Data[i] / 255f),
@@ -111,11 +111,11 @@ namespace ExampleCode.DataSet
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (IReadOnlyTensor3D Tensor, IReadOnlyVector Label) AsFloatTensor(BrightDataContext context)
+            public (IReadOnlyTensor3D<float> Tensor, IReadOnlyVector<float> Label) AsFloatTensor(BrightDataContext context)
             {
                 const int imageSize = 28;
                 var (vector, label) = AsFloatArray(context);
-                var rows = new IReadOnlyVector[imageSize];
+                var rows = new IReadOnlyVector<float>[imageSize];
 
                 for (var y = 0; y < imageSize; y++) {
                     var row = new float[imageSize];

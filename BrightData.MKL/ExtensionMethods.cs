@@ -13,7 +13,7 @@
         public static MklLinearAlgebraProvider UseMkl(this BrightDataContext context)
         {
             var ret = new MklLinearAlgebraProvider(context);
-            var setLinearAlgebraProvider = (ISetLinearAlgebraProvider)context;
+            var setLinearAlgebraProvider = (ISetLinearAlgebraProvider<float>)context;
             setLinearAlgebraProvider.LinearAlgebraProvider = ret;
             setLinearAlgebraProvider.LinearAlgebraProviderFactory = () => new MklLinearAlgebraProvider(context);
             return ret;

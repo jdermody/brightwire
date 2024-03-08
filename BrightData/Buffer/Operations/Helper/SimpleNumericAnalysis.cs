@@ -41,7 +41,7 @@ namespace BrightData.Buffer.Operations.Helper
                         MinValue = val;
                     if (val > MaxValue)
                         MaxValue = val;
-                    if (IsInteger && Math.Abs(val % 1) > FloatMath.AlmostZero)
+                    if (IsInteger && Math.Abs(val % 1) > Math<double>.AlmostZero)
                         IsInteger = false;
                 }
             }

@@ -9,17 +9,17 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// Xavier weight initialisation
     /// http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
     /// </summary>
-    internal class Xavier(LinearAlgebraProvider lap, float parameter = 6) : IWeightInitialisation
+    internal class Xavier(LinearAlgebraProvider<float> lap, float parameter = 6) : IWeightInitialisation
     {
         readonly float _parameter = MathF.Sqrt(parameter);
         readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new();
 
-        public IVector CreateBias(uint size)
+        public IVector<float> CreateBias(uint size)
         {
             return lap.CreateVector(size, true);
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix<float> CreateWeight(uint rows, uint columns)
         {
             return lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }

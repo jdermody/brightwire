@@ -10,15 +10,17 @@ namespace BrightData.Cuda
     /// <inheritdoc />
     /// <inheritdoc />
     public unsafe class CudaMatrix(INumericSegment<float> data, uint rows, uint columns, CudaLinearAlgebraProvider lap) 
-        : MutableMatrix<CudaLinearAlgebraProvider>(data, rows, columns, lap)
+        : MutableMatrix<float, CudaLinearAlgebraProvider>(data, rows, columns, lap)
     {
+        new CudaLinearAlgebraProvider Lap { get; } = lap;
+
         /// <summary>
         /// Associated CUDA provider
         /// </summary>
         public CudaProvider Provider = lap.Provider;
 
         /// <inheritdoc />
-        public override IVector GetColumnVector(uint index)
+        public override IVector<float> GetColumnVector(uint index)
         {
             var segment = (CudaTensorSegment)Segment;
             var ptr = segment.DeviceMemory.Offset(index * RowCount, RowCount);
@@ -26,7 +28,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IVector GetRowVector(uint index)
+        public override IVector<float> GetRowVector(uint index)
         {
             //return _lap.CreateVector(Row(index));
             var segment = Lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
@@ -34,7 +36,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix Transpose()
+        public override IMatrix<float> Transpose()
         {
             var ret = Provider.Allocate(RowCount * ColumnCount);
             float alpha = 1.0f, beta = 0.0f;
@@ -56,7 +58,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IVector Multiply(IVector vector)
+        public override IVector<float> Multiply(IVector<float> vector)
         {
             var (ptr, stride) = vector.Segment.GetDeviceMemory();
             var matrixPtr = Segment.GetDeviceMemoryPtr();
@@ -140,7 +142,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices)
+        public override IMatrix<float> GetNewMatrixFromColumns(IEnumerable<uint> columnIndices)
         {
             uint offset = 0;
             var indices = columnIndices.ToList();
@@ -153,7 +155,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices)
+        public override IMatrix<float> GetNewMatrixFromRows(IEnumerable<uint> rowIndices)
         {
             int offset = 0;
             var indices = rowIndices.ToList();
@@ -172,7 +174,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix Multiply(IMatrix other)
+        public override IMatrix<float> Multiply(IMatrix<float> other)
         {
             var ret = Provider.Allocate(RowCount * other.ColumnCount);
             int rowsA = (int)RowCount, columnsARowsB = (int)ColumnCount, columnsB = (int)other.ColumnCount;
@@ -197,7 +199,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix TransposeAndMultiply(IMatrix other)
+        public override IMatrix<float> TransposeAndMultiply(IMatrix<float> other)
         {
             var ret = Provider.Allocate(RowCount * other.RowCount);
             int rowsA = (int)RowCount, columnsARowsB = (int)ColumnCount, rowsB = (int)other.RowCount;
@@ -222,7 +224,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix TransposeThisAndMultiply(IMatrix other)
+        public override IMatrix<float> TransposeThisAndMultiply(IMatrix<float> other)
         {
             var ret = Provider.Allocate(ColumnCount * other.ColumnCount);
             int rowsA = (int)RowCount, columnsA = (int)ColumnCount, columnsB = (int)other.ColumnCount, rowsB = (int)other.RowCount;
@@ -247,28 +249,28 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IVector GetDiagonal()
+        public override IVector<float> GetDiagonal()
         {
             var ret = Provider.Diagonal(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount);
             return Lap.CreateVector(Lap.CreateCudaTensorSegment(ret));
         }
 
         /// <inheritdoc />
-        public override IVector RowSums()
+        public override IVector<float> RowSums()
         {
             var ret = Provider.SumRows(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, null);
             return Lap.CreateVector(Lap.CreateCudaTensorSegment(ret));
         }
 
         /// <inheritdoc />
-        public override IVector ColumnSums()
+        public override IVector<float> ColumnSums()
         {
             var ret = Provider.SumColumns(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, null);
             return Lap.CreateVector(Lap.CreateCudaTensorSegment(ret));
         }
 
         /// <inheritdoc />
-        public override (IMatrix U, IVector S, IMatrix VT) Svd()
+        public override (IMatrix<float> U, IVector<float> S, IMatrix<float> VT) Svd()
         {
             var solver = Provider.Solver;
             var rows = RowCount;
@@ -330,7 +332,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex)
+        public override (IMatrix<float> Left, IMatrix<float> Right) SplitAtColumn(uint columnIndex)
         {
             var size = ColumnCount - columnIndex;
             var ret1 = Provider.Allocate(RowCount * columnIndex);
@@ -340,7 +342,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex)
+        public override (IMatrix<float> Top, IMatrix<float> Bottom) SplitAtRow(uint rowIndex)
         {
             var size = RowCount - rowIndex;
             var ret1 = Provider.Allocate(rowIndex * ColumnCount);
@@ -350,7 +352,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix ConcatBelow(IMatrix bottom)
+        public override IMatrix<float> ConcatBelow(IMatrix<float> bottom)
         {
             Debug.Assert(ColumnCount == bottom.ColumnCount);
             var size = RowCount + bottom.RowCount;
@@ -360,7 +362,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix ConcatRight(IMatrix right)
+        public override IMatrix<float> ConcatRight(IMatrix<float> right)
         {
             Debug.Assert(RowCount == right.RowCount);
             var size = ColumnCount + right.ColumnCount;

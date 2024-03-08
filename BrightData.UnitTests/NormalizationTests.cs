@@ -30,7 +30,7 @@ namespace BrightData.UnitTests
                     var normalizedValue = normalizedRow.Get<double>(i);
                     normalizedValue.Should().BeInRange(-1.5, 1.5);
                     var reverseNormalized = normalization[i].ReverseNormalize(normalizedValue);
-                    DoubleMath.AreApproximatelyEqual(reverseNormalized, originalValue, 0.1).Should().BeTrue();
+                    Math<double>.AreApproximatelyEqual(reverseNormalized, originalValue, 0.1).Should().BeTrue();
                 }
             }
         }

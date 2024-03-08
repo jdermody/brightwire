@@ -562,7 +562,7 @@ namespace BrightData
         /// <param name="numClusters"></param>
         /// <param name="metric"></param>
         /// <returns></returns>
-        uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric);
+        uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric);
     }
 
     internal interface ICompositeBufferBlock<T>

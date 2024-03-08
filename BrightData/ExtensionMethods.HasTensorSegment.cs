@@ -8,9 +8,9 @@ namespace BrightData
         /// Reshapes to a vector
         /// </summary>
         /// <returns></returns>
-        public static IReadOnlyVector Reshape(this IHaveReadOnlyTensorSegment<float> vector)
+        public static IReadOnlyVector<float> Reshape(this IHaveReadOnlyTensorSegment<float> vector)
         {
-            return new ReadOnlyVector(vector.ReadOnlySegment);
+            return new ReadOnlyVector<float>(vector.ReadOnlySegment);
         }
 
         /// <summary>
@@ -20,10 +20,10 @@ namespace BrightData
         /// <param name="rows">Row count of each matrix (one parameter is optional null)</param>
         /// <param name="columns">Column count of each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        public static IReadOnlyMatrix Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? rows, uint? columns)
+        public static IReadOnlyMatrix<float> Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(rows, columns);
-            return new ReadOnlyMatrix(vector.ReadOnlySegment, shape[0], shape[1]);
+            return new ReadOnlyMatrix<float>(vector.ReadOnlySegment, shape[0], shape[1]);
         }
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix (one parameter is optional null)</param>
         /// <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        public static IReadOnlyTensor3D Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? depth, uint? rows, uint? columns)
+        public static IReadOnlyTensor3D<float> Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? depth, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(depth, rows, columns);
-            return new ReadOnlyTensor3D(vector.ReadOnlySegment, shape[0], shape[1], shape[2]);
+            return new ReadOnlyTensor3D<float>(vector.ReadOnlySegment, shape[0], shape[1], shape[2]);
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix (one parameter is optional null)</param>
         /// <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
         /// <returns></returns>
-        public static IReadOnlyTensor4D Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? count, uint? depth, uint? rows, uint? columns)
+        public static IReadOnlyTensor4D<float> Reshape(this IHaveReadOnlyTensorSegment<float> vector, uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = vector.ReadOnlySegment.Size.ResolveShape(count, depth, rows, columns);
-            return new ReadOnlyTensor4D(vector.ReadOnlySegment, shape[0], shape[1], shape[2], shape[3]);
+            return new ReadOnlyTensor4D<float>(vector.ReadOnlySegment, shape[0], shape[1], shape[2], shape[3]);
         }
     }
 }

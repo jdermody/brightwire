@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 {
     internal class InputSquared(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(InputSquared source, IMatrix input) : SingleBackpropagationBase<InputSquared>(source)
+        class Backpropagation(InputSquared source, IMatrix<float> input) : SingleBackpropagationBase<InputSquared>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

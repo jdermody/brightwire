@@ -42,25 +42,25 @@ namespace BrightWire
         /// Gets the signal as a matrix
         /// </summary>
         /// <returns></returns>
-        IMatrix GetMatrix();
+        IMatrix<float> GetMatrix();
 
         /// <summary>
         /// Gets the signal as a 3D tensor
         /// </summary>
         /// <returns></returns>
-        ITensor3D? Get3DTensor();
+        ITensor3D<float>? Get3DTensor();
 
         /// <summary>
         /// Gets the signal as a 4D tensor
         /// </summary>
         /// <returns></returns>
-        ITensor4D? Get4DTensor();
+        ITensor4D<float>? Get4DTensor();
 
         /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor metadata)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>
-        IGraphData ReplaceWith(IMatrix matrix);
+        IGraphData ReplaceWith(IMatrix<float> matrix);
 
         /// <summary>
         /// Returns the value at the specified index
@@ -355,7 +355,7 @@ namespace BrightWire
     /// <summary>
     /// Graph engines drive execution within a graph
     /// </summary>
-    public interface IGraphEngine : ICreateGraphContext, IHaveLinearAlgebraProvider
+    public interface IGraphEngine : ICreateGraphContext, IHaveLinearAlgebraProvider<float>
     {
         /// <summary>
         /// Serialised version of the current graph and its parameters
@@ -530,26 +530,26 @@ namespace BrightWire
         /// <summary>
         /// Bias vector
         /// </summary>
-        IVector Bias { get; }
+        IVector<float> Bias { get; }
 
         /// <summary>
         /// Weight matrix
         /// </summary>
-        IMatrix Weight { get; }
+        IMatrix<float> Weight { get; }
 
         /// <summary>
         /// Updates the weights
         /// </summary>
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
-        void UpdateWeights(IMatrix delta, ILearningContext context);
+        void UpdateWeights(IMatrix<float> delta, ILearningContext context);
 
         /// <summary>
         /// Updates the bias
         /// </summary>
         /// <param name="delta"></param>
         /// <param name="context"></param>
-        void UpdateBias(IMatrix delta, ILearningContext context);
+        void UpdateBias(IMatrix<float> delta, ILearningContext context);
 
         /// <summary>
         /// Executes the feed forward node

@@ -14,7 +14,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
         where T : unmanaged, INumber<T>
     {
         readonly T _divide = T.CreateSaturating(normalization.Divide), _subtract = T.CreateSaturating(normalization.Subtract);
-        readonly bool _divideByZero = Math.Abs(normalization.Divide) <= FloatMath.AlmostZero;
+        readonly bool _divideByZero = Math.Abs(normalization.Divide) <= Math<double>.AlmostZero;
 
         public NormalizationType Type { get; } = normalization.NormalizationType;
 

@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// </summary>
     internal class Tanh(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(Tanh source, IMatrix matrix) : SingleBackpropagationBase<Tanh>(source)
+        class Backpropagation(Tanh source, IMatrix<float> matrix) : SingleBackpropagationBase<Tanh>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

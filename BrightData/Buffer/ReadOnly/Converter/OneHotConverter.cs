@@ -8,13 +8,13 @@ namespace BrightData.Buffer.ReadOnly.Converter
     /// <typeparam name="T"></typeparam>
     /// <param name="from"></param>
     /// <param name="indexer"></param>
-    internal class OneHotConverter<T>(IReadOnlyBuffer<T> from, ICanIndex<T> indexer) : ReadOnlyConverterBase<T, ReadOnlyVector>(from)
+    internal class OneHotConverter<T>(IReadOnlyBuffer<T> from, ICanIndex<T> indexer) : ReadOnlyConverterBase<T, ReadOnlyVector<float>>(from)
         where T : notnull
     {
-        protected override ReadOnlyVector Convert(in T from)
+        protected override ReadOnlyVector<float> Convert(in T from)
         {
             var index = indexer.GetIndex(from);
-            return new ReadOnlyVector(indexer.Size, x => x == index ? 1f : 0f);
+            return new ReadOnlyVector<float>(indexer.Size, x => x == index ? 1f : 0f);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	/// </summary>
     internal class Convolutional : NodeBase
 	{
-		class Backpropagation(Convolutional source, ITensor3D im2Col, uint inputWidth, uint inputHeight, uint depth, uint newWidth, uint newHeight)
+		class Backpropagation(Convolutional source, ITensor3D<float> im2Col, uint inputWidth, uint inputHeight, uint depth, uint newWidth, uint newHeight)
             : SingleBackpropagationBase<Convolutional>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
@@ -58,14 +58,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
 		IGradientDescentOptimisation? _updater;
 		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
-		IMatrix _filter;
-		IVector _bias;
+		IMatrix<float> _filter;
+		IVector<float> _bias;
 		bool _shouldBackpropagate;
 
 		public Convolutional(
 			bool shouldBackpropagate,
 			IWeightInitialisation weightInitialisation,
-			Func<IMatrix, IGradientDescentOptimisation> updater,
+			Func<IMatrix<float>, IGradientDescentOptimisation> updater,
 			uint inputDepth,
 			uint filterCount,
 			uint padding,
@@ -96,12 +96,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             if(type == NodeErrorType.Bias)
                 _bias.AddInPlace(delta, 1f, context.LearningRate);
 			else if (type == NodeErrorType.Weight)
-                _updater!.Update(_filter, (IMatrix)delta, context);
+                _updater!.Update(_filter, (IMatrix<float>)delta, context);
             else
                 throw new NotImplementedException();
         }

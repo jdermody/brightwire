@@ -141,9 +141,9 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static async Task<IReadOnlyVector[][]> OrderSequentialOutput(this IAsyncEnumerable<ExecutionResult> results)
+	    public static async Task<IReadOnlyVector<float>[][]> OrderSequentialOutput(this IAsyncEnumerable<ExecutionResult> results)
 	    {
-		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
+		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector<float>>();
 		    await foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
@@ -165,9 +165,9 @@ namespace BrightWire
         /// Aligns the output of sequential graph execution into an ordered list of results
         /// </summary>
         /// <param name="results">Output from sequential graph execution</param>
-        public static IReadOnlyVector[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+        public static IReadOnlyVector<float>[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
         {
-            var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
+            var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector<float>>();
             foreach (var result in results) {
                 var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
                 var rows = result.MiniBatchSequence.MiniBatch.Rows;
@@ -189,7 +189,7 @@ namespace BrightWire
         /// Converts the matrix to a generic IGraphData
         /// </summary>
         /// <param name="matrix">Matrix to convert</param>
-        public static IGraphData AsGraphData(this IMatrix matrix)
+        public static IGraphData AsGraphData(this IMatrix<float> matrix)
         {
             return new MatrixGraphData(matrix);
         }
@@ -198,7 +198,7 @@ namespace BrightWire
         /// Converts the 3D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this ITensor3D tensor)
+        public static IGraphData AsGraphData(this ITensor3D<float> tensor)
         {
             return new Tensor3DGraphData(tensor);
         }
@@ -207,7 +207,7 @@ namespace BrightWire
         /// Converts the 4D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this ITensor4D tensor)
+        public static IGraphData AsGraphData(this ITensor4D<float> tensor)
         {
             return new Tensor4DGraphData(tensor);
         }
@@ -231,6 +231,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
+        public static LinearAlgebraProvider<float> GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

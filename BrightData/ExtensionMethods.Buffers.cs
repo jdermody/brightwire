@@ -346,10 +346,10 @@ namespace BrightData
                 BrightDataType.String            => CreateCompositeBuffer(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.IndexList         => CreateCompositeBuffer<IndexList>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.WeightedIndexList => CreateCompositeBuffer<WeightedIndexList>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.Vector            => CreateCompositeBuffer<ReadOnlyVector>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.Matrix            => CreateCompositeBuffer<ReadOnlyMatrix>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.Tensor3D          => CreateCompositeBuffer<ReadOnlyTensor3D>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
-                BrightDataType.Tensor4D          => CreateCompositeBuffer<ReadOnlyTensor4D>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.Vector            => CreateCompositeBuffer<ReadOnlyVector<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.Matrix            => CreateCompositeBuffer<ReadOnlyMatrix<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.Tensor3D          => CreateCompositeBuffer<ReadOnlyTensor3D<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
+                BrightDataType.Tensor4D          => CreateCompositeBuffer<ReadOnlyTensor4D<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems),
                 BrightDataType.TimeOnly          => CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems),
                 _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Not able to create a composite buffer for type: {dataType}")
             };
@@ -487,14 +487,16 @@ namespace BrightData
             return buffer.DataType.GetBrightDataType() switch {
                 BrightDataType.IndexList         => CastBuffer<IndexList, IHaveIndices>(buffer, output, action),
                 BrightDataType.WeightedIndexList => CastBuffer<WeightedIndexList, IHaveIndices>(buffer, output, action),
-                BrightDataType.Vector            => CastBuffer<ReadOnlyVector, IReadOnlyTensor>(buffer, output, action),
-                BrightDataType.Matrix            => CastBuffer<ReadOnlyMatrix, IReadOnlyTensor>(buffer, output, action),
-                BrightDataType.Tensor3D          => CastBuffer<ReadOnlyTensor3D, IReadOnlyTensor>(buffer, output, action),
-                BrightDataType.Tensor4D          => CastBuffer<ReadOnlyTensor4D, IReadOnlyTensor>(buffer, output, action),
+                BrightDataType.Vector            => CastBuffer<ReadOnlyVector<float>, IReadOnlyTensor<float>>(buffer, output, action),
+                BrightDataType.Matrix            => CastBuffer<ReadOnlyMatrix<float>, IReadOnlyTensor<float>>(buffer, output, action),
+                BrightDataType.Tensor3D          => CastBuffer<ReadOnlyTensor3D<float>, IReadOnlyTensor<float>>(buffer, output, action),
+                BrightDataType.Tensor4D          => CastBuffer<ReadOnlyTensor4D<float>, IReadOnlyTensor<float>>(buffer, output, action),
                 _                                => GenericTypeMapping.BufferCopyOperation(buffer, output, action)
             };
 
-            static BufferCopyOperation<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) where T2 : notnull where CT2 : notnull
+            static BufferCopyOperation<CT2> CastBuffer<T2, CT2>(IReadOnlyBuffer buffer, IAppendBlocks analyser, Action? action = null) 
+                where T2 : notnull 
+                where CT2 : notnull
             {
                 var buffer2 = (IReadOnlyBuffer<T2>)buffer;
                 var buffer3 = buffer2.Cast<T2, CT2>();
@@ -793,14 +795,14 @@ namespace BrightData
                 conversion = new NopConversion<IndexList>((IReadOnlyBuffer<IndexList>)buffer, output);
             else if (buffer.DataType == typeof(WeightedIndexList))
                 conversion = new CustomConversion<WeightedIndexList, IndexList>(WeightedIndexListToIndexList, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
-            else if (buffer.DataType == typeof(ReadOnlyVector))
-                conversion = new CustomConversion<ReadOnlyVector, IndexList>(VectorToIndexList, (IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            else if (buffer.DataType == typeof(ReadOnlyVector<float>))
+                conversion = new CustomConversion<ReadOnlyVector<float>, IndexList>(VectorToIndexList, (IReadOnlyBuffer<ReadOnlyVector<float>>)buffer, output);
             else
                 throw new NotSupportedException("Only weighted index lists and vectors can be converted to index lists");
             await conversion.Execute();
             return output;
 
-            static IndexList VectorToIndexList(ReadOnlyVector vector) => vector.ReadOnlySegment.ToSparse().AsIndexList();
+            static IndexList VectorToIndexList(ReadOnlyVector<float> vector) => vector.ReadOnlySegment.ToSparse().AsIndexList();
             static IndexList WeightedIndexListToIndexList(WeightedIndexList weightedIndexList) => weightedIndexList.AsIndexList();
         }
 
@@ -813,20 +815,20 @@ namespace BrightData
         /// <param name="maxInMemoryBlocks"></param>
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
-        public static async Task<ICompositeBuffer<ReadOnlyVector>> ToVector(this IReadOnlyBuffer buffer,
+        public static async Task<ICompositeBuffer<ReadOnlyVector<float>>> ToVector(this IReadOnlyBuffer buffer,
             IProvideDataBlocks? tempStreams = null, 
             int blockSize = Consts.DefaultBlockSize, 
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) {
-            var output = CreateCompositeBuffer<ReadOnlyVector>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var output = CreateCompositeBuffer<ReadOnlyVector<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems);
             IOperation conversion;
-            if (buffer.DataType == typeof(ReadOnlyVector))
-                conversion = new NopConversion<ReadOnlyVector>((IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            if (buffer.DataType == typeof(ReadOnlyVector<float>))
+                conversion = new NopConversion<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer, output);
             else if (buffer.DataType == typeof(WeightedIndexList))
-                conversion = new CustomConversion<WeightedIndexList, ReadOnlyVector>(WeightedIndexListToVector, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
+                conversion = new CustomConversion<WeightedIndexList, ReadOnlyVector<float>>(WeightedIndexListToVector, (IReadOnlyBuffer<WeightedIndexList>)buffer, output);
             else if (buffer.DataType == typeof(IndexList))
-                conversion = new CustomConversion<IndexList, ReadOnlyVector>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
+                conversion = new CustomConversion<IndexList, ReadOnlyVector<float>>(IndexListToVector, (IReadOnlyBuffer<IndexList>)buffer, output);
             else {
                 var index = GenericTypeMapping.TypedIndexer(buffer);
                 await index.Execute();
@@ -843,8 +845,8 @@ namespace BrightData
             await conversion.Execute();
             return output;
 
-            static ReadOnlyVector WeightedIndexListToVector(WeightedIndexList weightedIndexList) => weightedIndexList.AsDense();
-            static ReadOnlyVector IndexListToVector(IndexList indexList) => indexList.AsDense();
+            static ReadOnlyVector<float> WeightedIndexListToVector(WeightedIndexList weightedIndexList) => weightedIndexList.AsDense();
+            static ReadOnlyVector<float> IndexListToVector(IndexList indexList) => indexList.AsDense();
         }
 
         /// <summary>
@@ -867,8 +869,8 @@ namespace BrightData
             IOperation conversion;
             if (buffer.DataType == typeof(WeightedIndexList))
                 conversion = new NopConversion<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, output);
-            else if (buffer.DataType == typeof(ReadOnlyVector))
-                conversion = new CustomConversion<ReadOnlyVector, WeightedIndexList>(VectorToWeightedIndexList, (IReadOnlyBuffer<ReadOnlyVector>)buffer, output);
+            else if (buffer.DataType == typeof(ReadOnlyVector<float>))
+                conversion = new CustomConversion<ReadOnlyVector<float>, WeightedIndexList>(VectorToWeightedIndexList, (IReadOnlyBuffer<ReadOnlyVector<float>>)buffer, output);
             else if (buffer.DataType == typeof(IndexList))
                 conversion = new CustomConversion<IndexList, WeightedIndexList>(IndexListToWeightedIndexList, (IReadOnlyBuffer<IndexList>)buffer, output);
             else
@@ -877,7 +879,7 @@ namespace BrightData
             return output;
 
             static WeightedIndexList IndexListToWeightedIndexList(IndexList indexList) => indexList.AsWeightedIndexList();
-            static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector vector) => vector.ToSparse();
+            static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector<float> vector) => vector.ToSparse();
         }
 
         /// <summary>
@@ -917,15 +919,15 @@ namespace BrightData
         /// <param name="maxInMemoryBlocks"></param>
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
-        public static async Task<ICompositeBuffer<ReadOnlyVector>> Vectorise(this IReadOnlyBuffer[] buffers,
+        public static async Task<ICompositeBuffer<ReadOnlyVector<float>>> Vectorise(this IReadOnlyBuffer[] buffers,
             IProvideDataBlocks? tempStreams = null,
             int blockSize = Consts.DefaultBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         ) {
-            var output = CreateCompositeBuffer<ReadOnlyVector>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems);
+            var output = CreateCompositeBuffer<ReadOnlyVector<float>>(tempStreams, x => new(x), blockSize, maxInMemoryBlocks, maxDistinctItems);
             var floatBuffers = buffers.Select(x => x.ConvertTo<float>());
-            var conversion = new ManyToOneMutation<float, ReadOnlyVector>(floatBuffers, output, x => new(x));
+            var conversion = new ManyToOneMutation<float, ReadOnlyVector<float>>(floatBuffers, output, x => new(x));
             await conversion.Execute();
             return output;
         }

@@ -9,6 +9,7 @@ namespace BrightData.Helper
     /// </summary>
     public class ConsoleProgressNotification : INotifyOperationProgress
     {
+        const char PROGRESS_CHAR = '\u2588';
         int _progress = 0;
         readonly Stopwatch _stopWatch = new();
 
@@ -56,7 +57,7 @@ namespace BrightData.Helper
                 var sb = new StringBuilder();
                 sb.Append('\r');
                 for (var i = 0; i < max; i++)
-                    sb.Append(i < newProgress ? '█' : '_');
+                    sb.Append(i < newProgress ? PROGRESS_CHAR : '_');
                 sb.Append($" ({oldProgress = newProgress}%)");
                 Console.Write(sb.ToString());
                 return true;
@@ -80,14 +81,14 @@ namespace BrightData.Helper
                 sb.Append('\r');
                 var i = 0;
                 for (; i < curr; i++)
-                    sb.Append('▓');
+                    sb.Append(PROGRESS_CHAR);
                 var fore = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write(sb.ToString());
 
                 sb.Clear();
                 for (; i < 100; i++)
-                    sb.Append('▓');
+                    sb.Append(PROGRESS_CHAR);
                 Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.Write(sb.ToString());
                 Console.ForegroundColor = ConsoleColor.Blue;

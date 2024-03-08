@@ -11,7 +11,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 namespace BrightWire.ExecutionGraph.Node.Attention
 {
     internal class GetAttentionInput(
-        LinearAlgebraProvider lap,
+        LinearAlgebraProvider<float> lap,
         uint inputSize,
         uint encoderSize,
         uint decoderSize,
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             var batchSize = context.BatchSequence.MiniBatch.BatchSize;
 
             // get the previous decoder state
-            IMatrix? decoderHiddenState = null;
+            IMatrix<float>? decoderHiddenState = null;
             if (decoderSize > 0 && decoderName is not null) {
                 if (currentIndex == 0) {
                     if ((FindByName(decoderName) as IHaveMemoryNode)?.Memory is MemoryFeeder decoderMemory)
@@ -57,13 +57,13 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             // find each encoder hidden state and sequence input
             var previousBatch = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
             Debug.Assert(batchSize == previousBatch.BatchSize);
-            IMatrix[]? encoderStates = null;
-            var inputs = new IMatrix[previousBatch.SequenceCount];
+            IMatrix<float>[]? encoderStates = null;
+            var inputs = new IMatrix<float>[previousBatch.SequenceCount];
             for (uint i = 0, len = previousBatch.SequenceCount; i < len; i++) {
                 var sequence = previousBatch.GetSequenceAtIndex(i);
                 if (encoderSize > 0 && encoderName is not null) {
                     if (i == 0)
-                        encoderStates = new IMatrix[len];
+                        encoderStates = new IMatrix<float>[len];
                     var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == encoderName).Data.GetMatrix()
                         ?? throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != encoderSize)

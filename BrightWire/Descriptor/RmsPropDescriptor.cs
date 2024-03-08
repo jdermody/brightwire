@@ -8,7 +8,7 @@ namespace BrightWire.Descriptor
     /// </summary>
     internal class RmsPropDescriptor(float decay = 0.9f) : ICreateTemplateBasedGradientDescent
     {
-        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix<float> template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new RmsProp(decay, cache, prev);

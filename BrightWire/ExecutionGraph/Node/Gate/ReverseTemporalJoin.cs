@@ -34,8 +34,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
-        Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
+        Dictionary<uint, (IMatrix<float> Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
+        Dictionary<uint, (IMatrix<float> Data, NodeBase ReverseParent)> _reverseInput = new();
 
         Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
         Dictionary<uint, IGraphContext> _contextTable = new();
@@ -47,8 +47,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)>();
+            _input = new Dictionary<uint, (IMatrix<float> Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IMatrix<float> Data, NodeBase ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
             _contextTable = new Dictionary<uint, IGraphContext>();
@@ -70,7 +70,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 wire.SendTo.Forward(next, context, wire.Channel, this);
         }
 
-        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override (IMatrix<float>? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

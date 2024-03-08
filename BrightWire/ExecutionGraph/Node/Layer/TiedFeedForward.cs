@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null)
         : NodeBase(name)
     {
-        class Backpropagation(TiedFeedForward source, IMatrix input) : SingleBackpropagationBase<TiedFeedForward>(source)
+        class Backpropagation(TiedFeedForward source, IMatrix<float> input) : SingleBackpropagationBase<TiedFeedForward>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
@@ -32,21 +32,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
         IFeedForward _layer = layer;
-        IVector _bias = weightInit.CreateBias(layer.InputSize);
+        IVector<float> _bias = weightInit.CreateBias(layer.InputSize);
         string _layerId = layer.Id;
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             if (type == NodeErrorType.Bias)
-                UpdateBias((IMatrix)delta, context);
+                UpdateBias((IMatrix<float>)delta, context);
             else if (type == NodeErrorType.Weight)
-                _layer.UpdateWeights((IMatrix)delta, context);
+                _layer.UpdateWeights((IMatrix<float>)delta, context);
             else {
                 throw new NotImplementedException();
             }
         }
 
-        public void UpdateBias(IMatrix delta, ILearningContext context)
+        public void UpdateBias(IMatrix<float> delta, ILearningContext context)
         {
             using var columnSums = delta.ColumnSums();
             columnSums.MultiplyInPlace(1f / columnSums.Size);

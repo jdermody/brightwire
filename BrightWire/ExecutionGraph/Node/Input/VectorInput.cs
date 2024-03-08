@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public float[] Data => data;
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext learningContext)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext learningContext)
         {
             var temp = SpanOwner<float>.Empty;
             var array = delta.Segment.GetSpan(ref temp, out var wasTempUsed);

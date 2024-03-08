@@ -171,7 +171,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new IReadOnlyVector[sequenceData.Count];
+                var rows = new IReadOnlyVector<float>[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -202,7 +202,7 @@ namespace ExampleCode.DataSet
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new IReadOnlyVector[sequence.Length];
+                var rows = new IReadOnlyVector<float>[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {

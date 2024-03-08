@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        protected override (IMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override (IMatrix<float> Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             data.Reverse();
             var curr = data.First().Data;

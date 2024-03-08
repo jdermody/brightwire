@@ -11,7 +11,7 @@ namespace BrightData.UnitTests
 {
     public class VectorTests : CudaBase
     {
-        static IVector Apply(LinearAlgebraProvider lap, IVector a, IVector b, Func<IVector, IVector, IVector> func)
+        static IVector<float> Apply(LinearAlgebraProvider<float> lap, IVector<float> a, IVector<float> b, Func<IVector<float>, IVector<float>, IVector<float>> func)
         {
             using var otherA = lap.CreateVector(a);
             using var otherB = lap.CreateVector(b);
@@ -19,7 +19,7 @@ namespace BrightData.UnitTests
             return otherC;
         }
 
-        static IVector Apply(LinearAlgebraProvider lap, IVector a, IVector b, Action<IVector, IVector> func)
+        static IVector<float> Apply(LinearAlgebraProvider<float> lap, IVector<float> a, IVector<float> b, Action<IVector<float>, IVector<float>> func)
         {
             var otherA = lap.CreateVector(a);
             using var otherB = lap.CreateVector(b);
@@ -27,34 +27,34 @@ namespace BrightData.UnitTests
             return otherA;
         }
 
-        static IVector Apply(LinearAlgebraProvider lap, IVector a, Action<IVector> func)
+        static IVector<float> Apply(LinearAlgebraProvider<float> lap, IVector<float> a, Action<IVector<float>> func)
         {
             var otherA = lap.CreateVector(a);
             func(otherA);
             return otherA;
         }
 
-        static IVector Apply(LinearAlgebraProvider lap, IVector a, Func<IVector, IVector> func)
+        static IVector<float> Apply(LinearAlgebraProvider<float> lap, IVector<float> a, Func<IVector<float>, IVector<float>> func)
         {
             using var otherA = lap.CreateVector(a);
             var otherB = func(otherA);
             return otherB;
         }
 
-        static T Apply<T>(LinearAlgebraProvider lap, IVector a, Func<IVector, T> func)
+        static T Apply<T>(LinearAlgebraProvider<float> lap, IVector<float> a, Func<IVector<float>, T> func)
         {
             using var otherA = lap.CreateVector(a);
             return func(otherA);
         }
 
-        static float Apply(LinearAlgebraProvider lap, IVector a, IVector b, Func<IVector, IVector, float> func)
+        static float Apply(LinearAlgebraProvider<float> lap, IVector<float> a, IVector<float> b, Func<IVector<float>, IVector<float>, float> func)
         {
             using var otherA = lap.CreateVector(a);
             using var otherB = lap.CreateVector(b);
             return func(otherA, otherB);
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IVector a, Func<IVector, IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IVector<float> a, Func<IVector<float>, IMatrix<float>> func)
         {
             using var otherA = lap.CreateVector(a);
             var otherB = func(otherA);
@@ -267,7 +267,7 @@ namespace BrightData.UnitTests
         {
             using var a = _cpu.CreateVector(5, i => i);
             var cpu = a.Clone();
-            FloatMath.AreApproximatelyEqual(a, cpu);
+            Math<float>.AreApproximatelyEqual(a, cpu);
 
             var gpu = Apply(_cuda, a, a => a.Clone());
             var mkl = Apply(_mkl, a, a => a.Clone());
@@ -487,7 +487,7 @@ namespace BrightData.UnitTests
         //    TestNormalise(NormalizationType.Euclidean);
         //}
 
-        static IVector TestMultiDistance(LinearAlgebraProvider lap, IVector a, IVector b, IVector c, DistanceMetric distanceMetric)
+        static IVector<float> TestMultiDistance(LinearAlgebraProvider<float> lap, IVector<float> a, IVector<float> b, IVector<float> c, DistanceMetric distanceMetric)
         {
             using var otherA = lap.CreateVector(a);
             using var otherB = lap.CreateVector(b);
@@ -612,12 +612,12 @@ namespace BrightData.UnitTests
             foreach (var item in cpu)
                 item.Size.Should().Be(4);
 
-            var gpu = new List<IVector>();
+            var gpu = new List<IVector<float>>();
             using (var gpuA = _cuda.CreateVector(a)) {
                 gpu.AddRange(gpuA.Split(blockCount));
             }
             
-            var mkl = new List<IVector>();
+            var mkl = new List<IVector<float>>();
             using (var mklA = _mkl.CreateVector(a)) {
                 mkl.AddRange(mklA.Split(blockCount));
             }

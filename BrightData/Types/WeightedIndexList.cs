@@ -58,7 +58,7 @@ namespace BrightData.Types
             uint index = 0;
             foreach (var item in data)
             {
-                if (FloatMath.IsNotZero(item))
+                if (Math<float>.IsNotZero(item))
                     list.Add(new(index, item));
                 ++index;
             }
@@ -117,7 +117,7 @@ namespace BrightData.Types
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
 
             /// <inheritdoc />
-            public bool Equals(Item other) => Index == other.Index && Math.Abs(Weight - other.Weight) < FloatMath.AlmostZero;
+            public bool Equals(Item other) => Index == other.Index && Math.Abs(Weight - other.Weight) < Math<float>.AlmostZero;
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace BrightData.Types
         /// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
         /// </summary>
         /// <returns></returns>
-        public IndexList AsIndexList() => IndexList.Create(Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray());
+        public IndexList AsIndexList() => IndexList.Create(Indices.Where(ind => Math<float>.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray());
 
         IEnumerable<uint> IHaveIndices.Indices => Indices.Select(ind => ind.Index);
 
@@ -331,7 +331,7 @@ namespace BrightData.Types
         /// Magnitude of weights
         /// </summary>
         public float Magnitude => Size > 0
-            ? FloatMath.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
+            ? Math<float>.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
             : 0f
         ;
 
@@ -394,7 +394,7 @@ namespace BrightData.Types
                 union += value;
             }
 
-            if (FloatMath.IsNotZero(union))
+            if (Math<float>.IsNotZero(union))
                 return intersection / union;
 
             return 0f;
@@ -405,7 +405,7 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
-        public ReadOnlyVector AsDense(uint? maxIndex = null)
+        public ReadOnlyVector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
@@ -420,8 +420,8 @@ namespace BrightData.Types
                 indices.Add(item.Index, item.Weight);
             }
             return indices.Any()
-                ? new ReadOnlyVector(maxIndex ?? max + 1, i => indices.GetValueOrDefault(i, 0f))
-                : new ReadOnlyVector(maxIndex ?? 0, _ => 0f);
+                ? new ReadOnlyVector<float>(maxIndex ?? max + 1, i => indices.GetValueOrDefault(i, 0f))
+                : new ReadOnlyVector<float>(maxIndex ?? 0, _ => 0f);
         }
 
         /// <inheritdoc />

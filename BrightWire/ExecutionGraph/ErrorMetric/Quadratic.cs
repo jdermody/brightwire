@@ -11,21 +11,21 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class Quadratic : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+        public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)
         {
-            var diff = output.ReadOnlySegment.Values.Zip(targetOutput.ReadOnlySegment.Values, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
-            return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));
+            var diff = output.ReadOnlySegment.Values.Zip(targetOutput.ReadOnlySegment.Values, (x1, x2) => MathF.Pow(x1 - x2, 2)).Sum();
+            return Math<float>.Constrain(0.5f * diff);
         }
 
         public float Compute(float[] output, float[] targetOutput)
         {
-            var diff = output.Zip(targetOutput, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
-            return FloatMath.Constrain(Convert.ToSingle(0.5 * diff));
+            var diff = output.Zip(targetOutput, (x1, x2) => MathF.Pow(x1 - x2, 2)).Sum();
+            return Math<float>.Constrain(0.5f * diff);
         }
 
         public bool DisplayAsPercentage => false;

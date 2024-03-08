@@ -101,6 +101,6 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this float[] segment) => new ReadOnlyVector(segment);
+        public static IReadOnlyVector<float> ToReadOnlyVector(this float[] segment) => new ReadOnlyVector<float>(segment);
     }
 }

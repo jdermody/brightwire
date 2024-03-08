@@ -22,7 +22,7 @@ namespace BrightData
         /// </summary>
         /// <param name="memoryOwner"></param>
         /// <returns></returns>
-        public static INumericSegment<float> ToSegment(this MemoryOwner<float> memoryOwner) => new ArrayPoolTensorSegment<float>(memoryOwner);
+        public static INumericSegment<T> ToSegment<T>(this MemoryOwner<T> memoryOwner) where T: unmanaged, INumber<T> => new ArrayPoolTensorSegment<T>(memoryOwner);
 
         /// <summary>
         /// Converts the tensor segment to a sparse format (only non-zero entries are preserved)
@@ -33,7 +33,7 @@ namespace BrightData
         {
             return WeightedIndexList.Create(segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
-                .Where(d => FloatMath.IsNotZero(d.Weight))
+                .Where(d => Math<float>.IsNotZero(d.Weight))
             );
         }
 
@@ -121,10 +121,10 @@ namespace BrightData
         /// <param name="segment">This tensor</param>
         /// <param name="blockCount">Number of blocks</param>
         /// <returns></returns>
-        public static IEnumerable<IReadOnlyNumericSegment<float>> Split(this IReadOnlyNumericSegment<float> segment, uint blockCount)
+        public static IEnumerable<IReadOnlyNumericSegment<T>> Split<T>(this IReadOnlyNumericSegment<T> segment, uint blockCount) where T: unmanaged, INumber<T>
         {
             for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
-                yield return new ReadOnlyTensorSegmentWrapper<float>(segment, i, 1, blockSize);
+                yield return new ReadOnlyTensorSegmentWrapper<T>(segment, i, 1, blockSize);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this IReadOnlyNumericSegment<float> segment) => new ReadOnlyVector(segment);
+        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this IReadOnlyNumericSegment<T> segment) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(segment);
 
         /// <summary>
         /// Creates a vector from a tensor segment
@@ -190,7 +190,8 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        public static IVector ToVector(this IReadOnlyNumericSegment<float> segment, LinearAlgebraProvider lap) => lap.CreateVector(segment);
+        public static IVector<T> ToVector<T>(this IReadOnlyNumericSegment<T> segment, LinearAlgebraProvider<T> lap) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => 
+            lap.CreateVector(segment);
 
         /// <summary>
         /// Creates a matrix from a tensor segment
@@ -200,7 +201,8 @@ namespace BrightData
         /// <param name="rows">Number of rows in matrix</param>
         /// <param name="columns">Number of columns in matrix</param>
         /// <returns></returns>
-        public static IMatrix ToMatrix(this IReadOnlyNumericSegment<float> segment, LinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, segment);
+        public static IMatrix<T> ToMatrix<T>(this IReadOnlyNumericSegment<T> segment, LinearAlgebraProvider<T> lap, uint rows, uint columns) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => 
+            lap.CreateMatrix(rows, columns, segment);
 
         /// <summary>
         /// Creates a 3D tensor from a tensor segment
@@ -211,7 +213,8 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor3D ToTensor3D(this IReadOnlyNumericSegment<float> segment, LinearAlgebraProvider lap, uint depth, uint rows, uint columns) => lap.CreateTensor3D(depth, rows, columns, segment);
+        public static ITensor3D<T> ToTensor3D<T>(this IReadOnlyNumericSegment<T> segment, LinearAlgebraProvider<T> lap, uint depth, uint rows, uint columns) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => 
+            lap.CreateTensor3D(depth, rows, columns, segment);
 
         /// <summary>
         /// Creates a 4D tensor from a tensor segment
@@ -223,7 +226,8 @@ namespace BrightData
         /// <param name="rows">Number of rows in each matrix</param>
         /// <param name="columns">Number of columns in each matrix</param>
         /// <returns></returns>
-        public static ITensor4D ToTensor4D(this IReadOnlyNumericSegment<float> segment, LinearAlgebraProvider lap, uint count, uint depth, uint rows, uint columns) => lap.CreateTensor4D(count, depth, rows, columns, segment);
+        public static ITensor4D<T> ToTensor4D<T>(this IReadOnlyNumericSegment<T> segment, LinearAlgebraProvider<T> lap, uint count, uint depth, uint rows, uint columns) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => 
+            lap.CreateTensor4D(count, depth, rows, columns, segment);
 
         /// <summary>
         /// Callback that takes a span
@@ -445,12 +449,13 @@ namespace BrightData
         /// <param name="segment2"></param>
         /// <param name="callback"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static unsafe void ApplySpans(this INumericSegment<float> segment1, bool updateSegment, IReadOnlyNumericSegment<float> segment2, OnSpans<float> callback)
+        public static unsafe void ApplySpans<T>(this INumericSegment<T> segment1, bool updateSegment, IReadOnlyNumericSegment<T> segment2, OnSpans<T> callback)
+            where T: unmanaged, INumber<T>
         {
             var (array1, offset1, stride1) = segment1.GetUnderlyingArray();
             if (array1 is not null && stride1 == 1) {
-                var editableSpan = new Span<float>(array1, (int)offset1, (int)segment1.Size);
-                var temp = SpanOwner<float>.Empty;
+                var editableSpan = new Span<T>(array1, (int)offset1, (int)segment1.Size);
+                var temp = SpanOwner<T>.Empty;
                 var wasTempUsed = false;
                 try {
                     var readOnlySpan = segment2.GetSpan(ref temp, out wasTempUsed);
@@ -462,13 +467,13 @@ namespace BrightData
                 }
             }
             else {
-                SpanOwner<float> temp1 = SpanOwner<float>.Empty, temp2 = SpanOwner<float>.Empty;
+                SpanOwner<T> temp1 = SpanOwner<T>.Empty, temp2 = SpanOwner<T>.Empty;
                 bool wasTemp1Used = false, wasTemp2Used = false;
                 try {
                     var s1 = segment1.GetSpan(ref temp1, out wasTemp1Used);
                     var s2 = segment2.GetSpan(ref temp2, out wasTemp2Used);
-                    fixed (float* ptr = s1) {
-                        var editableSpan = new Span<float>(ptr, s1.Length);
+                    fixed (T* ptr = s1) {
+                        var editableSpan = new Span<T>(ptr, s1.Length);
                         callback(editableSpan, s2);
                         if(updateSegment && wasTemp1Used)
                             segment1.CopyFrom(editableSpan);

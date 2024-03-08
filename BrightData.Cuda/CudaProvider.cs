@@ -404,7 +404,7 @@ namespace BrightData.Cuda
 				Invoke(_isFinite, stream, size, a.DevicePointer, temp.DevicePointer, size, ai);
                 float sum = 0;
                 CudaBlasNativeMethods.cublasSasum_v2(_blas.Value, temp.DeviceVariable.Size, temp.DeviceVariable.DevicePointer, 1, ref sum);
-                return FloatMath.IsZero(sum);
+                return Math<float>.IsZero(sum);
 			}
 			finally {
 				temp.Release();

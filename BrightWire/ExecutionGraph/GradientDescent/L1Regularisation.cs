@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// </summary>
     internal class L1Regularisation(float lambda) : StochasticGradientDescent
     {
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             var l1 = context.LearningRate * lambda;
             source.L1RegularisationInPlace(l1);

@@ -76,7 +76,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
-            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
             var labels = new string?[dataTable.RowCount];
             foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
                 vectors[rowIndex] = vector.ToReadOnlyVector();
@@ -96,7 +96,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
             var labels = new string?[dataTable.RowCount];
             foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
                 vectors[rowIndex] = vector.ToReadOnlyVector();
@@ -117,7 +117,7 @@ namespace BrightWire
         public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
-            var vectors = new IReadOnlyVector[dataTable.RowCount];
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
             var labels = new string?[dataTable.RowCount];
             foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
                 vectors[rowIndex] = vector.ToReadOnlyVector();
@@ -140,7 +140,7 @@ namespace BrightWire
         /// <param name="context"></param>
         /// <param name="lap">Linear algebra provider (optional)</param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this BrightDataContext context, LinearAlgebraProvider? lap = null) => new(lap ?? context.LinearAlgebraProvider);
+        public static GraphFactory CreateGraphFactory(this BrightDataContext context, LinearAlgebraProvider<float>? lap = null) => new(lap ?? context.LinearAlgebraProvider);
 
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="lap"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this LinearAlgebraProvider lap) => new(lap);
+        public static GraphFactory CreateGraphFactory(this LinearAlgebraProvider<float> lap) => new(lap);
 
         /// <summary>
         /// Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows

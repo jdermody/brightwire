@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes a row based classifier
     /// </summary>
-    internal class RowClassifier(LinearAlgebraProvider lap, IRowClassifier classifier, IDataTable dataTable, string? name = null)
+    internal class RowClassifier(LinearAlgebraProvider<float> lap, IRowClassifier classifier, IDataTable dataTable, string? name = null)
         : NodeBase(name)
     {
         class Backpropagation(RowClassifier source) : SingleBackpropagationBase<RowClassifier>(source)

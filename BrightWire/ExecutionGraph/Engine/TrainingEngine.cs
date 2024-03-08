@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine
         }
 
         public BrightDataContext Context => _factory.Context;
-        public LinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider<float> LinearAlgebraProvider { get; }
         public ExecutionGraphModel Graph => Start.GetGraph();
         public IDataSource DataSource { get; }
         public async IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, [EnumeratorCancellation] CancellationToken ct = default)

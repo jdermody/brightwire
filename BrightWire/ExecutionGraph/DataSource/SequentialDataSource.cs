@@ -16,10 +16,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     internal class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly IMatrix[] _data;
-        readonly LinearAlgebraProvider _lap;
+	    readonly IMatrix<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public SequentialDataSource(LinearAlgebraProvider lap, IMatrix[] matrixList)
+        public SequentialDataSource(LinearAlgebraProvider<float> lap, IMatrix<float>[] matrixList)
         {
             _lap = lap;
             _data = matrixList;

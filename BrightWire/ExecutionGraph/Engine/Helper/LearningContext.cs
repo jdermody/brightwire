@@ -12,11 +12,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class LearningContext : ILearningContext
     {
-        class NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
+        class NodeError(NodeBase node, NodeErrorType errorType, ITensor<float> error)
         {
             public NodeBase Node { get; } = node;
             public NodeErrorType ErrorType { get; } = errorType;
-            public ITensor Error { get; } = error;
+            public ITensor<float> Error { get; } = error;
         }
 
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor<float> error)
         {
             if (!_updatesDisabled.Contains(fromNode))
                 _nodeError.Add(new NodeError(fromNode, errorType, error));

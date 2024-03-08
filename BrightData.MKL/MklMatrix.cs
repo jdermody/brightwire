@@ -6,14 +6,14 @@ namespace BrightData.MKL
     /// <inheritdoc />
     /// <inheritdoc />
     public unsafe class MklMatrix(INumericSegment<float> data, uint rows, uint columns, MklLinearAlgebraProvider lap) 
-        : MutableMatrix<MklLinearAlgebraProvider>(data, rows, columns, lap)
+        : MutableMatrix<float, MklLinearAlgebraProvider>(data, rows, columns, lap)
     {
 
         /// <inheritdoc />
-        public override IMatrix Create(INumericSegment<float> segment) => new MklMatrix(segment, RowCount, ColumnCount, Lap);
+        public override IMatrix<float> Create(INumericSegment<float> segment) => new MklMatrix(segment, RowCount, ColumnCount, Lap);
 
         /// <inheritdoc />
-        public override IMatrix Transpose()
+        public override IMatrix<float> Transpose()
         {
             var rows = (UIntPtr)RowCount;
             var cols = (UIntPtr)ColumnCount;
@@ -37,7 +37,7 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override IMatrix Multiply(IMatrix other)
+        public override IMatrix<float> Multiply(IMatrix<float> other)
         {
             int rowsA = (int)RowCount, 
                 columnsARowsB = (int)ColumnCount, 
@@ -65,7 +65,7 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override IMatrix TransposeThisAndMultiply(IMatrix other)
+        public override IMatrix<float> TransposeThisAndMultiply(IMatrix<float> other)
         {
             int rowsA = (int)RowCount, 
                 columnsA = (int)ColumnCount, 
@@ -94,7 +94,7 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override IMatrix TransposeAndMultiply(IMatrix other)
+        public override IMatrix<float> TransposeAndMultiply(IMatrix<float> other)
         {
             int rowsA = (int)RowCount, 
                 columnsARowsB = (int)ColumnCount, 
@@ -122,7 +122,7 @@ namespace BrightData.MKL
         }
 
         /// <inheritdoc />
-        public override (IMatrix U, IVector S, IMatrix VT) Svd()
+        public override (IMatrix<float> U, IVector<float> S, IMatrix<float> VT) Svd()
         {
             var rows = (int)RowCount;
             var cols = (int)ColumnCount;

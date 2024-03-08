@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
@@ -12,17 +13,17 @@ namespace BrightData.LinearAlgebra.ReadOnly
     /// <summary>
     /// Read only vector
     /// </summary>
-    public class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>, IHaveDataAsReadOnlyByteSpan
+    public class ReadOnlyVector<T> : ReadOnlyTensorBase<T, IReadOnlyVector<T>>, IReadOnlyVector<T>, IEquatable<ReadOnlyVector<T>> 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly ReadOnlyValueSemantics<ReadOnlyVector, float> _valueSemantics;
+        readonly ReadOnlyValueSemantics<ReadOnlyVector<T>, T> _valueSemantics;
 
         /// <summary>
-        /// Creates a vector from float memory
+        /// Creates a vector from memory
         /// </summary>
         /// <param name="data"></param>
-        public ReadOnlyVector(ReadOnlyMemory<float> data)
+        public ReadOnlyVector(ReadOnlyMemory<T> data) : base(new ReadOnlyTensorSegment<T>(data))
         {
-            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
             _valueSemantics = new(this);
         }
 
@@ -30,7 +31,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// Creates a vector from bytes
         /// </summary>
         /// <param name="data"></param>
-        public ReadOnlyVector(ReadOnlySpan<byte> data) : this(data.Cast<byte, float>().ToArray())
+        public ReadOnlyVector(ReadOnlySpan<byte> data) : this(data.Cast<byte, T>().ToArray())
         {
         }
 
@@ -38,7 +39,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// Creates an empty vector
         /// </summary>
         /// <param name="size"></param>
-        public ReadOnlyVector(uint size) : this(new float[size])
+        public ReadOnlyVector(uint size) : this(new T[size])
         {
         }
 
@@ -47,7 +48,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// </summary>
         /// <param name="size"></param>
         /// <param name="initializer"></param>
-        public ReadOnlyVector(uint size, Func<uint, float> initializer) : this(size.AsRange().Select(initializer).ToArray())
+        public ReadOnlyVector(uint size, Func<uint, T> initializer) : this(size.AsRange().Select(initializer).ToArray())
         {
         }
 
@@ -55,14 +56,13 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// Creates a vector from a segment
         /// </summary>
         /// <param name="segment"></param>
-        public ReadOnlyVector(IReadOnlyNumericSegment<float> segment)
+        public ReadOnlyVector(IReadOnlyNumericSegment<T> segment) : base(segment)
         {
-            ReadOnlySegment = segment;
             _valueSemantics = new(this);
         }
 
         /// <inheritdoc />
-        public void WriteTo(BinaryWriter writer)
+        public override void WriteTo(BinaryWriter writer)
         {
             writer.Write(1);
             writer.Write(Size);
@@ -70,42 +70,30 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         /// <inheritdoc />
-        public void Initialize(BrightDataContext context, BinaryReader reader)
+        public override void Initialize(BrightDataContext context, BinaryReader reader)
         {
             if (reader.ReadInt32() != 1)
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
-            var data = reader.BaseStream.ReadArray<float>(size);
-            ReadOnlySegment = new ReadOnlyTensorSegment<float>(data);
+            var data = reader.BaseStream.ReadArray<T>(size);
+            ReadOnlySegment = new ReadOnlyTensorSegment<T>(data);
             Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed) => ReadOnlySegment.GetSpan(ref temp, out wasTempUsed);
+        public T this[int index] => ReadOnlySegment[index];
 
         /// <inheritdoc />
-        public uint Size => ReadOnlySegment.Size;
+        public T this[uint index] => ReadOnlySegment[index];
 
         /// <inheritdoc />
-        public float this[int index] => ReadOnlySegment[index];
+        public IVector<T> Create(LinearAlgebraProvider<T> lap) => lap.CreateVector(ReadOnlySegment);
 
         /// <inheritdoc />
-        public float this[uint index] => ReadOnlySegment[index];
+        public bool Equals(ReadOnlyVector<T>? other) => _valueSemantics.Equals(other);
 
         /// <inheritdoc />
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(ReadOnlySegment);
-
-        /// <inheritdoc />
-        public float[] ToArray() => ReadOnlySegment.ToArray();
-
-        /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> ReadOnlySegment { get; private set; }
-
-        /// <inheritdoc />
-        public bool Equals(ReadOnlyVector? other) => _valueSemantics.Equals(other);
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVector);
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVector<T>);
 
         /// <inheritdoc />
         public override int GetHashCode() => _valueSemantics.GetHashCode();
@@ -120,6 +108,17 @@ namespace BrightData.LinearAlgebra.ReadOnly
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => ReadOnlySegment.AsBytes();
+        public override ReadOnlySpan<byte> DataAsBytes => ReadOnlySegment.AsBytes();
+
+        /// <inheritdoc />
+        protected override ReadOnlyVector<T> Create(MemoryOwner<T> memory)
+        {
+            try {
+                return new ReadOnlyVector<T>(memory.Span.ToArray());
+            }
+            finally {
+                memory.Dispose();
+            }
+        }
     }
 }

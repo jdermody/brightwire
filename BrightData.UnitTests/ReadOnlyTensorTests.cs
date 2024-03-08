@@ -7,10 +7,10 @@ namespace BrightData.UnitTests
 {
     public class ReadOnlyTensorTests : UnitTestBase
     {
-        IReadOnlyVector CreateVector() => _context.CreateReadOnlyVector(4, i => i + 1);
-        IReadOnlyMatrix CreateMatrix() => _context.CreateReadOnlyMatrixFromRows(CreateVector(), CreateVector(), CreateVector(), CreateVector());
-        IReadOnlyTensor3D CreateTensor3D() => _context.CreateReadOnlyTensor3D(CreateMatrix(), CreateMatrix(), CreateMatrix());
-        IReadOnlyTensor4D CreateTensor4D() => _context.CreateReadOnlyTensor4D(CreateTensor3D(), CreateTensor3D());
+        IReadOnlyVector<float> CreateVector() => _context.CreateReadOnlyVector(4, i => i + 1);
+        IReadOnlyMatrix<float> CreateMatrix() => _context.CreateReadOnlyMatrixFromRows(CreateVector(), CreateVector(), CreateVector(), CreateVector());
+        IReadOnlyTensor3D<float> CreateTensor3D() => _context.CreateReadOnlyTensor3D(CreateMatrix(), CreateMatrix(), CreateMatrix());
+        IReadOnlyTensor4D<float> CreateTensor4D() => _context.CreateReadOnlyTensor4D(CreateTensor3D(), CreateTensor3D());
 
         [Fact]
         public void TestVectorValueSemantics()
@@ -19,7 +19,7 @@ namespace BrightData.UnitTests
             var v2 = CreateVector();
 
             v1.Should().Be(v2);
-            var set = new HashSet<IReadOnlyVector> {
+            var set = new HashSet<IReadOnlyVector<float>> {
                 v1, v2
             };
             set.Count.Should().Be(1);
@@ -32,7 +32,7 @@ namespace BrightData.UnitTests
             var m2 = CreateMatrix();
 
             m1.Should().Be(m2);
-            var set = new HashSet<IReadOnlyMatrix> {
+            var set = new HashSet<IReadOnlyMatrix<float>> {
                 m1, m2
             };
             set.Count.Should().Be(1);
@@ -45,7 +45,7 @@ namespace BrightData.UnitTests
             var t2 = CreateTensor3D();
 
             t1.Should().Be(t2);
-            var set = new HashSet<IReadOnlyTensor3D> {
+            var set = new HashSet<IReadOnlyTensor3D<float>> {
                 t1, t2
             };
             set.Count.Should().Be(1);
@@ -58,7 +58,7 @@ namespace BrightData.UnitTests
             var t2 = CreateTensor4D();
 
             t1.Should().Be(t2);
-            var set = new HashSet<IReadOnlyTensor4D> {
+            var set = new HashSet<IReadOnlyTensor4D<float>> {
                 t1, t2
             };
             set.Count.Should().Be(1);

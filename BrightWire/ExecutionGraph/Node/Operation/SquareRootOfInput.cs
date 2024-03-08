@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         /// <summary>
         /// Derivative of sqrt(x) is 0.5/sqrt(x)
         /// </summary>
-        class Backpropagation(SquareRootOfInput source, IMatrix output) : SingleBackpropagationBase<SquareRootOfInput>(source)
+        class Backpropagation(SquareRootOfInput source, IMatrix<float> output) : SingleBackpropagationBase<SquareRootOfInput>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

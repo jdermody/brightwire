@@ -6,7 +6,7 @@ namespace BrightData.Cuda
     /// <inheritdoc />
     /// <inheritdoc />
     public unsafe class CudaTensor3D(INumericSegment<float> data, uint depth, uint rowCount, uint columnCount, CudaLinearAlgebraProvider lap)
-        : MutableTensor3D<CudaLinearAlgebraProvider>(data, depth, rowCount, columnCount, lap)
+        : MutableTensor3D<float, CudaLinearAlgebraProvider>(data, depth, rowCount, columnCount, lap)
     {
         /// <summary>
         /// Associated CUDA provider
@@ -14,42 +14,42 @@ namespace BrightData.Cuda
         public CudaProvider Provider = lap.Provider;
 
         /// <inheritdoc />
-        public override IMatrix GetMatrix(uint index)
+        public override IMatrix<float> GetMatrix(uint index)
         {
             var ptr = CudaProvider.OffsetByBlock(Segment.GetDeviceMemoryPtr(), index, MatrixSize);
             return Lap.CreateMatrix(RowCount, ColumnCount, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override ITensor3D AddPadding(uint padding)
+        public override ITensor3D<float> AddPadding(uint padding)
         {
             var (ret, rows, cols) = Provider.TensorAddPadding(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, padding);
             return Lap.CreateTensor3D(Depth, rows, cols, Lap.CreateCudaTensorSegment(ret));
         }
 
         /// <inheritdoc />
-        public override ITensor3D RemovePadding(uint padding)
+        public override ITensor3D<float> RemovePadding(uint padding)
         {
             var (ptr, rows, cols) = Provider.TensorRemovePadding(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, padding);
             return Lap.CreateTensor3D(Depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override IMatrix<float> Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, columns, _) = Provider.TensorIm2Col(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateMatrix(rows, columns, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override ITensor3D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override ITensor3D<float> ReverseIm2Col(IMatrix<float> filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, cols, depth, _) = Provider.TensorReverseIm2Col(Segment.GetDeviceMemoryPtr(), filter.Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateTensor3D(depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override (ITensor3D Result, ITensor3D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        public override (ITensor3D<float> Result, ITensor3D<float>? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var (ptr, indices, rows, cols) = Provider.TensorMaxPool(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, filterWidth, filterHeight, xStride, yStride, saveIndices);
             var ret = Lap.CreateTensor3D(Depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
@@ -58,14 +58,14 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensor3D ReverseMaxPool(ITensor3D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override ITensor3D<float> ReverseMaxPool(ITensor3D<float> indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ptr = Provider.TensorReverseMaxPool(Segment.GetDeviceMemoryPtr(), indices.Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, 1, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateTensor3D(Depth, outputRows, outputColumns, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override IMatrix AddAllMatrices()
+        public override IMatrix<float> AddAllMatrices()
         {
             var matrixSize = MatrixSize;
             var tensorMemory = Segment.GetDeviceMemoryPtr();
@@ -79,7 +79,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensor3D MultiplyEachMatrixBy(IMatrix matrix)
+        public override ITensor3D<float> MultiplyEachMatrixBy(IMatrix<float> matrix)
         {
             var ptr = Segment.GetDeviceMemoryPtr();
             uint rowsA = RowCount, columnsARowsB = ColumnCount, columnsB = matrix.ColumnCount;
@@ -112,7 +112,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override void AddToEachRow(IVector vector)
+        public override void AddToEachRow(IVector<float> vector)
         {
             for (uint i = 0, len = Depth; i < len; i++) {
                 using var matrix = GetMatrix(i);
@@ -121,7 +121,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override void AddToEachColumn(IVector vector)
+        public override void AddToEachColumn(IVector<float> vector)
         {
             for (uint i = 0, len = Depth; i < len; i++) {
                 using var matrix = GetMatrix(i);
@@ -130,7 +130,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensor3D TransposeThisAndMultiply(ITensor4D other)
+        public override ITensor3D<float> TransposeThisAndMultiply(ITensor4D<float> other)
         {
             var ptr = Segment.GetDeviceMemoryPtr();
             var ptr2 = other.Segment.GetDeviceMemoryPtr();

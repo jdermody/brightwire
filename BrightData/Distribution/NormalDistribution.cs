@@ -30,7 +30,7 @@ namespace BrightData.Distribution
             var v1 = (2.0f * a) - 1.0f;
             var v2 = (2.0f * b) - 1.0f;
             var r = (v1 * v1) + (v2 * v2);
-            if (r >= 1.0 || MathF.Abs(r) < FloatMath.AlmostZero) {
+            if (r >= 1.0 || MathF.Abs(r) < Math<float>.AlmostZero) {
                 x = 0;
                 y = 0;
                 return false;

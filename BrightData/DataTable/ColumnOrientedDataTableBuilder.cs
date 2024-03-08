@@ -125,28 +125,28 @@ namespace BrightData.DataTable
             );
         }
 
-        public ICompositeBuffer<ReadOnlyVector> CreateFixedSizeVectorColumn(uint size, string? name)
+        public ICompositeBuffer<ReadOnlyVector<float>> CreateFixedSizeVectorColumn(uint size, string? name)
         {
-            var ret = CreateColumn<ReadOnlyVector>(name);
-            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyVector>((in ReadOnlyVector tensor) => tensor.Size == size);
+            var ret = CreateColumn<ReadOnlyVector<float>>(name);
+            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyVector<float>>((in ReadOnlyVector<float> tensor) => tensor.Size == size);
             return ret;
         }
 
         
-        public ICompositeBuffer<ReadOnlyMatrix> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyMatrix<float>> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name)
         {
-            var ret = CreateColumn<ReadOnlyMatrix>(name);
-            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyMatrix>((in ReadOnlyMatrix tensor) => 
+            var ret = CreateColumn<ReadOnlyMatrix<float>>(name);
+            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyMatrix<float>>((in ReadOnlyMatrix<float> tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 
             );
             return ret;
         }
 
-        public ICompositeBuffer<ReadOnlyTensor3D> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyTensor3D<float>> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name)
         {
-            var ret = CreateColumn<ReadOnlyTensor3D>(name);
-            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor3D>((in ReadOnlyTensor3D tensor) => 
+            var ret = CreateColumn<ReadOnlyTensor3D<float>>(name);
+            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor3D<float>>((in ReadOnlyTensor3D<float> tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 
                 && tensor.Depth == depth
@@ -154,10 +154,10 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public ICompositeBuffer<ReadOnlyTensor4D> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
+        public ICompositeBuffer<ReadOnlyTensor4D<float>> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name)
         {
-            var ret = CreateColumn<ReadOnlyTensor4D>(name);
-            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor4D>((in ReadOnlyTensor4D tensor) => 
+            var ret = CreateColumn<ReadOnlyTensor4D<float>>(name);
+            ret.ConstraintValidator = new ThrowOnInvalidConstraint<ReadOnlyTensor4D<float>>((in ReadOnlyTensor4D<float> tensor) => 
                 tensor.RowCount == rows 
                 && tensor.ColumnCount == columns 
                 && tensor.Depth == depth 

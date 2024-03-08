@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that generate sequences from a single vector
     /// </summary>
-    internal class OneToManyDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector, ReadOnlyMatrix>
+    internal class OneToManyDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector<float>, ReadOnlyMatrix<float>>
     {
         readonly uint[] _rowDepth;
 
@@ -24,8 +24,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
-            ReadOnlyVector? inputVector = null;
-            ReadOnlyMatrix? outputMatrix = null;
+            ReadOnlyVector<float>? inputVector = null;
+            ReadOnlyMatrix<float>? outputMatrix = null;
             foreach(var row in _buffer.EnumerateAllTyped().ToBlockingEnumerable()) {
                 inputVector = row.C1;
                 outputMatrix = row.C2;
@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            var inputData = new ReadOnlyVector[rows.Length];
+            var inputData = new ReadOnlyVector<float>[rows.Length];
             var index = 0;
             var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             await foreach (var item in GetRows(rows)) {

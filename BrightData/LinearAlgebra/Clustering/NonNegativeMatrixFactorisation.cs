@@ -7,11 +7,11 @@ namespace BrightData.LinearAlgebra.Clustering
     /// Non-negative matrix factorisation based clustering
     /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
     /// </summary>
-    internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider lap, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) : IClusteringStrategy
+    internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider<float> lap, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) : IClusteringStrategy
     {
-        readonly ICostFunction<float> _costFunction = costFunction ?? new QuadraticCostFunction(lap);
+        readonly ICostFunction<float> _costFunction = costFunction ?? new QuadraticCostFunction<float>(lap);
 
-        public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
+        public uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric)
         {
             // create the main matrix
             using var v = lap.CreateMatrixFromRows(vectors);
@@ -54,7 +54,7 @@ namespace BrightData.LinearAlgebra.Clustering
 
                 // weights gives cluster membership
                 var documentClusters = weights.AllRowsAsReadOnly(false)
-                    .Select((r, i) => (Index: i, MaxIndex: r.GetMaximumIndex()))
+                    .Select((r, i) => (Index: i, r.GetMinAndMaxValues().MaxIndex))
                     .ToList();
                 
                 return documentClusters
@@ -69,7 +69,7 @@ namespace BrightData.LinearAlgebra.Clustering
             }
         }
 
-        float DifferenceCost(IReadOnlyMatrix m1, IReadOnlyMatrix m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
+        float DifferenceCost(IReadOnlyMatrix<float> m1, IReadOnlyMatrix<float> m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
         //float DifferenceCost(IMatrix m1, IMatrix m2) => m1.AllRowsAsReadOnly(false)
         //    .Zip(m2.AllRowsAsReadOnly(false), (r1, r2) => _costFunction.Cost(r1.ReadOnlySegment, r2.ReadOnlySegment))
         //    .Average()

@@ -13,10 +13,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     internal class VectorDataSource : IDataSource
     {
-	    readonly IVector[] _data;
-        readonly LinearAlgebraProvider _lap;
+	    readonly IVector<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public VectorDataSource(LinearAlgebraProvider lap, IVector[] data)
+        public VectorDataSource(LinearAlgebraProvider<float> lap, IVector<float>[] data)
         {
             _lap = lap;
             _data = data;

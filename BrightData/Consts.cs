@@ -87,6 +87,7 @@
         public const string XDimension                       = "XDimension";
         public const string YDimension                       = "YDimension";
         public const string ZDimension                       = "ZDimension";
+        public const string CDimension                       = "CDimension";
         public const string Size                             = "Size";
         public const string L1Norm                           = "L1Norm";
         public const string L2Norm                           = "L2Norm";

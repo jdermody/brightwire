@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BrightData.Helper;
@@ -21,9 +22,9 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, uint size, Func<uint, float>? initializer) => initializer is not null
-            ? new ReadOnlyVector(size, initializer)
-            : new ReadOnlyVector(size)
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext _, uint size, Func<uint, float>? initializer) => initializer is not null
+            ? new ReadOnlyVector<float>(size, initializer)
+            : new ReadOnlyVector<float>(size)
         ;
 
 
@@ -34,7 +35,7 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateReadOnlyVector(context, (uint)size, initializer);
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext context, int size, Func<uint, float>? initializer) => CreateReadOnlyVector(context, (uint)size, initializer);
 
         /// <summary>
         /// Creates a read only vector
@@ -43,9 +44,9 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, uint size, float initialValue = 0f) => initialValue == 0f
-            ? new ReadOnlyVector(size)
-            : new ReadOnlyVector(size, _ => initialValue)
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext _, uint size, float initialValue = 0f) => initialValue == 0f
+            ? new ReadOnlyVector<float>(size)
+            : new ReadOnlyVector<float>(size, _ => initialValue)
         ;
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace BrightData
         /// <param name="size">Size of vector</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, int size, float initialValue = 0f) => CreateReadOnlyVector(context, (uint)size, initialValue);
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext context, int size, float initialValue = 0f) => CreateReadOnlyVector(context, (uint)size, initialValue);
 
         /// <summary>
         /// Creates a read only vector
@@ -63,7 +64,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="initialData">Initial data</param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new(initialData);
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext _, params float[] initialData) => new(initialData);
 
         /// <summary>
         /// Creates a read only vector
@@ -71,7 +72,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, Span<float> data) => new(data.ToArray());
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext _, Span<float> data) => new(data.ToArray());
 
         /// <summary>
         /// Creates a read only vector
@@ -79,7 +80,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext _, ReadOnlySpan<float> data) => new(data.ToArray());
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext _, ReadOnlySpan<float> data) => new(data.ToArray());
 
         /// <summary>
         /// Creates a vector from a binary reader
@@ -87,11 +88,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyVector CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyVector));
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyVector<float>));
             ret.Initialize(context, reader);
-            return (ReadOnlyVector)ret;
+            return (ReadOnlyVector<float>)ret;
         }
 
 
@@ -103,9 +104,9 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initializer">Callback to initialize each value (optional)</param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
-            ? new ReadOnlyMatrix(rows, columns, initializer)
-            : new ReadOnlyMatrix(rows, columns)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, Func<uint, uint, float>? initializer = null) => initializer is not null
+            ? new ReadOnlyMatrix<float>(rows, columns, initializer)
+            : new ReadOnlyMatrix<float>(rows, columns)
         ;
 
         /// <summary>
@@ -116,9 +117,9 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="initialValue">Initial value of each element</param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
-            ? new ReadOnlyMatrix(rows, columns)
-            : new ReadOnlyMatrix(rows, columns, (_, _) => initialValue)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrix(this BrightDataContext _, uint rows, uint columns, float initialValue = 0f) => initialValue == 0f
+            ? new ReadOnlyMatrix<float>(rows, columns)
+            : new ReadOnlyMatrix<float>(rows, columns, (_, _) => initialValue)
         ;
 
         /// <summary>
@@ -127,11 +128,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrix(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrix(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyMatrix));
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyMatrix<float>));
             ret.Initialize(context, reader);
-            return (ReadOnlyMatrix)ret;
+            return (ReadOnlyMatrix<float>)ret;
         }
 
         /// <summary>
@@ -140,10 +141,10 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector[] rows)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrixFromRows(this BrightDataContext _, params IReadOnlyVector<float>[] rows)
         {
             var columns = rows[0].Size;
-            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
+            return new ReadOnlyMatrix<float>((uint)rows.Length, columns, (i, j) => rows[i][j]);
         }
 
         /// <summary>
@@ -152,10 +153,10 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params ReadOnlyVector[] rows)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrixFromRows(this BrightDataContext _, params ReadOnlyVector<float>[] rows)
         {
             var columns = rows[0].Size;
-            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
+            return new ReadOnlyMatrix<float>((uint)rows.Length, columns, (i, j) => rows[i][j]);
         }
 
         /// <summary>
@@ -164,10 +165,10 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="rows"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrixFromRows(this BrightDataContext _, params float[][] rows)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrixFromRows(this BrightDataContext _, params float[][] rows)
         {
             var columns = (uint)rows[0].Length;
-            return new ReadOnlyMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
+            return new ReadOnlyMatrix<float>((uint)rows.Length, columns, (i, j) => rows[i][j]);
         }
 
         /// <summary>
@@ -176,10 +177,10 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params IReadOnlyVector[] columns)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params IReadOnlyVector<float>[] columns)
         {
             var rows = columns[0].Size;
-            return new ReadOnlyMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
+            return new ReadOnlyMatrix<float>(rows, (uint)columns.Length, (i, j) => columns[j][i]);
         }
 
         /// <summary>
@@ -188,10 +189,10 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params float[][] columns)
+        public static ReadOnlyMatrix<float> CreateReadOnlyMatrixFromColumns(this BrightDataContext _, params float[][] columns)
         {
             var rows = (uint)columns[0].Length;
-            return new ReadOnlyMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
+            return new ReadOnlyMatrix<float>(rows, (uint)columns.Length, (i, j) => columns[j][i]);
         }
 
         /// <summary>
@@ -200,7 +201,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="matrices"></param>
         /// <returns></returns>
-        public static ReadOnlyTensor3D CreateReadOnlyTensor3D(this BrightDataContext _, params IReadOnlyMatrix[] matrices) => new(matrices);
+        public static ReadOnlyTensor3D<float> CreateReadOnlyTensor3D(this BrightDataContext _, params IReadOnlyMatrix<float>[] matrices) => new(matrices);
 
         /// <summary>
         /// Create a 3D tensor from a binary reader
@@ -208,11 +209,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyTensor3D CreateReadOnlyTensor3D(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyTensor3D<float> CreateReadOnlyTensor3D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor3D));
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor3D<float>));
             ret.Initialize(context, reader);
-            return (ReadOnlyTensor3D)ret;
+            return (ReadOnlyTensor3D<float>)ret;
         }
 
         /// <summary>
@@ -221,7 +222,7 @@ namespace BrightData
         /// <param name="_"></param>
         /// <param name="tensors"></param>
         /// <returns></returns>
-        public static ReadOnlyTensor4D CreateReadOnlyTensor4D(this BrightDataContext _, params IReadOnlyTensor3D[] tensors) => new(tensors);
+        public static ReadOnlyTensor4D<float> CreateReadOnlyTensor4D(this BrightDataContext _, params IReadOnlyTensor3D<float>[] tensors) => new(tensors);
 
         /// <summary>
         /// Creates a 4D tensor from a binary reader
@@ -229,11 +230,11 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyTensor4D CreateReadOnlyTensor4D(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyTensor4D<float> CreateReadOnlyTensor4D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor4D));
+            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor4D<float>));
             ret.Initialize(context, reader);
-            return (ReadOnlyTensor4D)ret;
+            return (ReadOnlyTensor4D<float>)ret;
         }
 
         /// <summary>
@@ -242,7 +243,7 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="size">Width and height of the new matrix</param>
         /// <returns></returns>
-        public static IMatrix CreateIdentityMatrix(this LinearAlgebraProvider lap, uint size)
+        public static IMatrix<float> CreateIdentityMatrix(this LinearAlgebraProvider<float> lap, uint size)
         {
             return lap.CreateMatrix(size, size, (x, y) => x == y ? 1f : 0f);
         }
@@ -253,7 +254,7 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="values">Diagonal values</param>
         /// <returns></returns>
-        public static IMatrix CreateDiagonalMatrix(this LinearAlgebraProvider lap, params float[] values)
+        public static IMatrix<float> CreateDiagonalMatrix(this LinearAlgebraProvider<float> lap, params float[] values)
         {
             return lap.CreateMatrix((uint)values.Length, (uint)values.Length, (x, y) => x == y ? values[x] : 0f);
         }
@@ -262,7 +263,7 @@ namespace BrightData
         /// Randomly initialize a tensor
         /// </summary>
         /// <param name="tensor"></param>
-        public static void InitializeRandomly(this ITensor tensor)
+        public static void InitializeRandomly(this ITensor<float> tensor)
         {
             var segment = tensor.Segment;
             var context = tensor.Context;
@@ -275,7 +276,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensor"></param>
         /// <param name="value">Value to initialize each element of the tensor</param>
-        public static void Initialize(this ITensor tensor, float value)
+        public static void Initialize(this ITensor<float> tensor, float value)
         {
             var segment = tensor.Segment;
             for (uint i = 0, len = segment.Size; i < len; i++)
@@ -287,7 +288,7 @@ namespace BrightData
         /// </summary>
         /// <param name="tensor"></param>
         /// <param name="initializer">Callback for each element</param>
-        public static void Initialize(this ITensor tensor, Func<uint, float> initializer)
+        public static void Initialize(this ITensor<float> tensor, Func<uint, float> initializer)
         {
             var segment = tensor.Segment;
             for (uint i = 0, len = segment.Size; i < len; i++)
@@ -300,7 +301,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyVector LoadReadOnlyVectorFrom(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyVector<float> LoadReadOnlyVectorFrom(this BrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
@@ -340,12 +341,12 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static ReadOnlyMatrix ReadMatrixFrom(this BrightDataContext context, BinaryReader reader)
+        public static ReadOnlyMatrix<float> ReadMatrixFrom(this BrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
             {
                 var len = reader.ReadInt32();
-                var ret = new IReadOnlyVector[len];
+                var ret = new IReadOnlyVector<float>[len];
                 for (var i = 0; i < len; i++)
                     ret[i] = context.LoadReadOnlyVectorFrom(reader);
                 return context.CreateReadOnlyMatrixFromRows(ret);
@@ -359,7 +360,7 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="dimensions">Number of dimensions to reduce to</param>
         /// <returns></returns>
-        public static IMatrix ReduceDimensionsWithSvd(this IMatrix matrix, uint dimensions)
+        public static IMatrix<float> ReduceDimensionsWithSvd(this IMatrix<float> matrix, uint dimensions)
         {
             using var matrixT = matrix.Transpose();
             var (u, vector, vt) = matrixT.Svd();
@@ -384,14 +385,14 @@ namespace BrightData
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         public static T Average<T>(this IEnumerable<T> tensors, bool dispose)
-            where T: ITensor
+            where T: ITensor<float>
         {
             if(tensors == null)
                 throw new ArgumentException("Null enumerable", nameof(tensors));
             INumericSegment<float>? ret = null;
             try {
                 var count = 0;
-                LinearAlgebraProvider? lap = null;
+                LinearAlgebraProvider<float>? lap = null;
                 uint[]? shape = null;
                 foreach (var item in tensors) {
                     if (ret is null) {
@@ -426,7 +427,7 @@ namespace BrightData
         /// <param name="distance">Distance metric</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static float FindDistance(this IVector vector, IVector other, DistanceMetric distance) => distance switch {
+        public static T FindDistance<T>(this IVector<T> vector, IVector<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => distance switch {
             DistanceMetric.Cosine => vector.CosineDistance(other),
             DistanceMetric.Euclidean => vector.EuclideanDistance(other),
             DistanceMetric.Manhattan => vector.ManhattanDistance(other),
@@ -442,7 +443,7 @@ namespace BrightData
         /// <param name="vectors">List of other vectors</param>
         /// <param name="distanceMetric">Distance metric</param>
         /// <returns>A vector in which each value is the distance between this and the corresponding other vector</returns>
-        public static IVector FindDistances(this IVector compareTo, IReadOnlyList<IVector> vectors, DistanceMetric distanceMetric)
+        public static IVector<T> FindDistances<T>(this IVector<T> compareTo, IReadOnlyList<IVector<T>> vectors, DistanceMetric distanceMetric) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
             var size = (uint)vectors.Count;
             var lap = compareTo.LinearAlgebraProvider;
@@ -466,11 +467,11 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        public static WeightedIndexList ToSparse(this IVector vector)
+        public static WeightedIndexList ToSparse(this IVector<float> vector)
         {
             return WeightedIndexList.Create(vector.Segment.Values
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
-                .Where(d => FloatMath.IsNotZero(d.Weight))
+                .Where(d => Math<float>.IsNotZero(d.Weight))
             );
         }
 
@@ -480,17 +481,18 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyTo(this ITensor tensor, ITensor other) => tensor.Segment.CopyTo(other.Segment);
+        public static void CopyTo<T>(this ITensor<T> tensor, ITensor<T> other) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => 
+            tensor.Segment.CopyTo(other.Segment);
 
         /// <summary>
         /// Sets the context to use the default linear algebra provider
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static LinearAlgebraProvider UseDefaultLinearAlgebraProvider(this BrightDataContext context)
+        public static LinearAlgebraProvider<float> UseDefaultLinearAlgebraProvider(this BrightDataContext context)
         {
-            var ret = new LinearAlgebraProvider(context);
-            ((ISetLinearAlgebraProvider)context).LinearAlgebraProvider = ret;
+            var ret = new LinearAlgebraProvider<float>(context);
+            ((ISetLinearAlgebraProvider<float>)context).LinearAlgebraProvider = ret;
             return ret;
         }
 
@@ -522,13 +524,13 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="makeCopy">True to make a copy of each row</param>
         /// <returns></returns>
-        public static IReadOnlyVector[] AllRowsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)
+        public static IReadOnlyVector<T>[] AllRowsAsReadOnly<T>(this IReadOnlyMatrix<T> matrix, bool makeCopy) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
-            var ret = new IReadOnlyVector[matrix.RowCount];
+            var ret = new IReadOnlyVector<T>[matrix.RowCount];
             if (makeCopy) {
-                var segment = new ReadOnlyTensorSegment<float>(matrix.ToArray());
+                var segment = new ReadOnlyTensorSegment<T>(matrix.ToArray());
                 for (uint i = 0; i < matrix.RowCount; i++)
-                    ret[i] = new ReadOnlyTensorSegmentWrapper<float>(segment, i, matrix.RowCount, matrix.ColumnCount).ToReadOnlyVector();
+                    ret[i] = new ReadOnlyTensorSegmentWrapper<T>(segment, i, matrix.RowCount, matrix.ColumnCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < matrix.RowCount; i++)
@@ -543,13 +545,13 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="makeCopy">True to make a copy of each column</param>
         /// <returns></returns>
-        public static IReadOnlyVector[] AllColumnsAsReadOnly(this IReadOnlyMatrix matrix, bool makeCopy)
+        public static IReadOnlyVector<T>[] AllColumnsAsReadOnly<T>(this IReadOnlyMatrix<T> matrix, bool makeCopy) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
-            var ret = new IReadOnlyVector[matrix.ColumnCount];
+            var ret = new IReadOnlyVector<T>[matrix.ColumnCount];
             if (makeCopy) {
-                var segment = new MutableTensorSegment<float>(matrix.ToArray());
+                var segment = new MutableTensorSegment<T>(matrix.ToArray());
                 for (uint i = 0; i < matrix.ColumnCount; i++)
-                    ret[i] = new MutableTensorSegmentWrapper<float>(segment, i * matrix.RowCount, 1, matrix.RowCount).ToReadOnlyVector();
+                    ret[i] = new MutableTensorSegmentWrapper<T>(segment, i * matrix.RowCount, 1, matrix.RowCount).ToReadOnlyVector();
             }
             else {
                 for (uint i = 0; i < matrix.ColumnCount; i++)

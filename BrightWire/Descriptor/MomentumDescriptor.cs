@@ -10,7 +10,7 @@ namespace BrightWire.Descriptor
     {
         protected readonly float _momentum = momentum;
 
-        public virtual IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public virtual IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix<float> template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new Momentum(_momentum, cache, prev);

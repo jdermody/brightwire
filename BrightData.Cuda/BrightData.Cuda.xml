@@ -199,7 +199,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Pow(BrightData.IReadOnlyNumericSegment{System.Single},System.Single)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sqrt(BrightData.IReadOnlyNumericSegment{System.Single},System.Single)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.Sqrt(BrightData.IReadOnlyNumericSegment{System.Single},System.Nullable{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.PointwiseDivideInPlace(BrightData.INumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
@@ -247,7 +247,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(BrightData.IVector[],System.Collections.Generic.IReadOnlyList{BrightData.IVector},BrightData.DistanceMetric)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(BrightData.IVector{System.Single}[],System.Collections.Generic.IReadOnlyList{BrightData.IVector{System.Single}},BrightData.DistanceMetric)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.BindThread">
@@ -284,7 +284,7 @@
         <member name="M:BrightData.Cuda.CudaMatrix.Transpose">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.Multiply(BrightData.IVector)">
+        <member name="M:BrightData.Cuda.CudaMatrix.Multiply(BrightData.IVector{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.SoftmaxDerivativePerRow(BrightData.IReadOnlyNumericSegment{System.Single}[])">
@@ -308,13 +308,13 @@
         <member name="M:BrightData.Cuda.CudaMatrix.GetNewMatrixFromRows(System.Collections.Generic.IEnumerable{System.UInt32})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.Multiply(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaMatrix.Multiply(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.TransposeAndMultiply(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaMatrix.TransposeAndMultiply(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.TransposeThisAndMultiply(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaMatrix.TransposeThisAndMultiply(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.GetDiagonal">
@@ -335,10 +335,10 @@
         <member name="M:BrightData.Cuda.CudaMatrix.SplitAtRow(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.ConcatBelow(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaMatrix.ConcatBelow(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.ConcatRight(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaMatrix.ConcatRight(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.CudaProvider">
@@ -433,28 +433,28 @@
         <member name="M:BrightData.Cuda.CudaTensor3D.Im2Col(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.ReverseIm2Col(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.ReverseIm2Col(BrightData.IMatrix{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor3D.MaxPool(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.ReverseMaxPool(BrightData.ITensor3D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.ReverseMaxPool(BrightData.ITensor3D{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor3D.AddAllMatrices">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.MultiplyEachMatrixBy(BrightData.IMatrix)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.MultiplyEachMatrixBy(BrightData.IMatrix{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.AddToEachRow(BrightData.IVector)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.AddToEachRow(BrightData.IVector{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.AddToEachColumn(BrightData.IVector)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.AddToEachColumn(BrightData.IVector{System.Single})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor3D.TransposeThisAndMultiply(BrightData.ITensor4D)">
+        <member name="M:BrightData.Cuda.CudaTensor3D.TransposeThisAndMultiply(BrightData.ITensor4D{System.Single})">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Cuda.CudaTensor4D">
@@ -473,13 +473,13 @@
         <member name="M:BrightData.Cuda.CudaTensor4D.GetTensor(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor4D.ReverseIm2Col(BrightData.IMatrix,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaTensor4D.ReverseIm2Col(BrightData.IMatrix{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor4D.Im2Col(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaTensor4D.ReverseMaxPool(BrightData.ITensor4D,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaTensor4D.ReverseMaxPool(BrightData.ITensor4D{System.Single},System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaTensor4D.MaxPool(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Boolean)">
@@ -514,7 +514,7 @@
             <param name="cudaKernelPath">Path to CUDA kernel (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Cuda.ExtensionMethods.IsCuda(BrightData.LinearAlgebra.LinearAlgebraProvider,BrightData.Cuda.CudaLinearAlgebraProvider@)">
+        <member name="M:BrightData.Cuda.ExtensionMethods.IsCuda(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightData.Cuda.CudaLinearAlgebraProvider@)">
             <summary>
             Returns the CUDA linear algebra provider used by the bright data context (if any)
             </summary>

@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Numerics;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
-    internal class ReadOnlyMatrixValueSemantics<T>
-        where T : IReadOnlyMatrix, IHaveReadOnlyContiguousSpan<float>
+    internal class ReadOnlyMatrixValueSemantics<T, TT>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where TT : IReadOnlyMatrix<T>, IHaveReadOnlyContiguousSpan<T>
     {
-        readonly T _obj;
+        readonly TT _obj;
         readonly Lazy<int> _hashCode;
 
-        public ReadOnlyMatrixValueSemantics(T obj)
+        public ReadOnlyMatrixValueSemantics(TT obj)
         {
             _obj = obj;
             _hashCode = new(() => {
@@ -20,7 +22,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
             });
         }
 
-        public bool Equals(T? other)
+        public bool Equals(TT? other)
         {
             return (other is not null 
                 && other.RowCount == _obj.RowCount 

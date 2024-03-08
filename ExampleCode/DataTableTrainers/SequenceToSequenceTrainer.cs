@@ -47,8 +47,8 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Get<ReadOnlyVector>(0, i).Result),
-                    Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
+                    Input: GetStringIndices(Test.Get<ReadOnlyVector<float>>(0, i).Result),
+                    Output: orderedOutput[i].Select(v => v.GetMinAndMaxValues().MaxIndex).ToArray()
                 ))
             ;
 
@@ -58,7 +58,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        static uint[] GetStringIndices(IReadOnlyVector vector)
+        static uint[] GetStringIndices(IReadOnlyVector<float> vector)
         {
             return GetStringIndices(vector.ReadOnlySegment.ToNewArray());
         }
@@ -106,7 +106,7 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
+                    var matrix = Test.Get<ReadOnlyMatrix<float>>(0, i).Result;
                     return (
                         Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
@@ -180,10 +180,10 @@ namespace ExampleCode.DataTableTrainers
             // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<ReadOnlyMatrix>(0, i).Result;
+                    var matrix = Test.Get<ReadOnlyMatrix<float>>(0, i).Result;
                     return (
                         Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
-                        Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
+                        Output: orderedOutput[i].Select(v => v.GetMinAndMaxValues().MaxIndex).ToArray()
                     );
                 })
                 .ToList()

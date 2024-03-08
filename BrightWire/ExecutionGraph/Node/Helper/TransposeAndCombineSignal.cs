@@ -9,14 +9,14 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     internal class TransposeAndCombineSignal(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(TransposeAndCombineSignal source, ITensor4D tensor) : SingleBackpropagationBase<TransposeAndCombineSignal>(source)
+        class Backpropagation(TransposeAndCombineSignal source, ITensor4D<float> tensor) : SingleBackpropagationBase<TransposeAndCombineSignal>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var matrix = errorSignal.GetMatrix();
                 var lap = context.GetLinearAlgebraProvider();
 
-                var rowList = new IVector[matrix.RowCount];
+                var rowList = new IVector<float>[matrix.RowCount];
                 for(uint i = 0; i < matrix.RowCount; i++) {
                     using var rowMatrix = matrix.GetReadOnlyRow(i).ToMatrix(lap, tensor.RowCount, tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, (int)tensor.Depth).ToArray();
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
-            var rowList = new IVector[tensor.Count];
+            var rowList = new IVector<float>[tensor.Count];
 
             for(uint i = 0; i < tensor.Count; i++) {
                 using var matrix = tensor.GetTensor(i).AddAllMatrices();

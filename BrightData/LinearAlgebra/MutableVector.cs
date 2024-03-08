@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
+using BrightData.LinearAlgebra.Segments;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// Vector
+    /// Mutable vector
     /// </summary>
-    /// <typeparam name="LAP"></typeparam>
+    /// <typeparam name="LAP">Linear algebra provider</typeparam>
+    /// <typeparam name="T">Data type</typeparam>
     /// <param name="data">Tensor segment</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class MutableVector<LAP>(INumericSegment<float> data, LAP lap) : MutableTensorBase<IVector, LAP>(data, lap), IVector
-        where LAP: LinearAlgebraProvider
+    public class MutableVector<T, LAP>(INumericSegment<T> data, LAP lap) : MutableTensorBase<T, IReadOnlyVector<T>, IVector<T>, LAP>(data, lap), IVector<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where LAP: LinearAlgebraProvider<T>
     {
-
-        /// <inheritdoc />
-        public uint Size => Segment.Size;
-
         /// <inheritdoc />
         public sealed override uint TotalSize
         {
@@ -34,36 +35,39 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        /// <inheritdoc cref="IVector" />
-        public float this[int index]
+        /// <inheritdoc cref="IVector{T}" />
+        public T this[int index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
-        /// <inheritdoc cref="IVector" />
-        public float this[uint index]
-        {
-            get => Segment[index];
-            set => Segment[index] = value;
-        }
-
-        /// <inheritdoc />
-        public float this[long index]
+        /// <inheritdoc cref="IVector{T}" />
+        public T this[uint index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
         /// <inheritdoc />
-        public float this[ulong index]
+        public T this[long index]
         {
             get => Segment[index];
             set => Segment[index] = value;
         }
 
         /// <inheritdoc />
-        public float[] ToArray() => Segment.ToNewArray();
+        public T this[ulong index]
+        {
+            get => Segment[index];
+            set => Segment[index] = value;
+        }
+
+        /// <inheritdoc />
+        public override ReadOnlySpan<byte> DataAsBytes => Segment.AsBytes();
+
+        /// <inheritdoc />
+        protected override IReadOnlyVector<T> Create(MemoryOwner<T> memory) => new MutableVector<T, LAP>(new ArrayPoolTensorSegment<T>(memory), Lap);
 
         /// <inheritdoc />
         public override string ToString()
@@ -75,37 +79,22 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public override IVector Create(INumericSegment<float> segment) => Lap.CreateVector(segment);
+        public override IVector<T> Create(INumericSegment<T> segment) => Lap.CreateVector(segment);
 
         /// <inheritdoc />
-        public IVector MapIndexed(Func<uint, float, float> mutator)
+        public IVector<T> MapIndexed(Func<uint, T, T> mutator)
         {
             var ret = Segment.MapParallel(mutator);
             return Create(ret);
         }
 
         /// <inheritdoc />
-        public void MapIndexedInPlace(Func<uint, float, float> mutator)
+        public void MapIndexedInPlace(Func<uint, T, T> mutator)
         {
             Segment.MapParallelInPlace(mutator);
         }
 
         /// <inheritdoc />
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector((IReadOnlyVector)this);
-    }
-
-    /// <summary>
-    /// Vector
-    /// </summary>
-    public class BrightVector : MutableVector<LinearAlgebraProvider>
-    {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="data">Tensor segment</param>
-        /// <param name="lap">Linear algebra provider</param>
-        public BrightVector(INumericSegment<float> data, LinearAlgebraProvider lap) : base(data, lap)
-        {
-        }
+        public IVector<T> Create(LinearAlgebraProvider<T> lap) => lap.CreateVector((IReadOnlyVector<T>)this);
     }
 }

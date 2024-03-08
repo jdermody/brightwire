@@ -40,7 +40,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static IReadOnlyMatrix Encode(BrightDataContext context, string sequence)
+        public static IReadOnlyMatrix<float> Encode(BrightDataContext context, string sequence)
         {
             return context.CreateReadOnlyMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
@@ -79,8 +79,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
-                var inputList = new IReadOnlyVector[str.Length];
-                var outputList = new IReadOnlyVector[str.Length];
+                var inputList = new IReadOnlyVector<float>[str.Length];
+                var outputList = new IReadOnlyVector<float>[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {

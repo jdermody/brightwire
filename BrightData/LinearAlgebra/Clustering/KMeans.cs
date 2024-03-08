@@ -11,11 +11,11 @@ namespace BrightData.LinearAlgebra.Clustering
     /// <param name="maxIterations"></param>
     internal class KMeans(BrightDataContext context, uint maxIterations = 1000) : IClusteringStrategy
     {
-        public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
+        public uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric)
         {
             var nextCentroidIndex = 0;
             var centroids = new uint[numClusters][];
-            var centroidVectors = new IReadOnlyVector[numClusters];
+            var centroidVectors = new IReadOnlyVector<float>[numClusters];
 
             // use kmeans++ to find best initial positions
             // https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/
@@ -59,7 +59,7 @@ namespace BrightData.LinearAlgebra.Clustering
             }
 
             // add the vectors
-            var vectorSet = new VectorSet(vectors.First().Size);
+            var vectorSet = new VectorSet<float>(vectors.First().Size);
             vectorSet.Add(vectors);
 
             for (uint i = 0; i < maxIterations; i++) {
@@ -70,7 +70,7 @@ namespace BrightData.LinearAlgebra.Clustering
             return centroids;
         }
 
-        static bool Cluster(VectorSet vectors, ref uint[][] centroids, IReadOnlyVector[] centroidVectors, DistanceMetric metric)
+        static bool Cluster(VectorSet<float> vectors, ref uint[][] centroids, IReadOnlyVector<float>[] centroidVectors, DistanceMetric metric)
         {
             // cluster the data
             var closest = vectors.Closest(centroidVectors, metric);

@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// </summary>
     internal class Relu(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(Relu source, IMatrix matrix) : SingleBackpropagationBase<Relu>(source)
+        class Backpropagation(Relu source, IMatrix<float> matrix) : SingleBackpropagationBase<Relu>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

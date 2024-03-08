@@ -20,7 +20,7 @@ namespace BrightWire.UnitTests
             _factory = new GraphFactory(_cpu);
         }
 
-		void TestNode(NodeBase node, IMatrix forwardInput, IMatrix expectedForwardOutput, IMatrix backwardInput, IMatrix expectedBackwardOutput)
+		void TestNode(NodeBase node, IMatrix<float> forwardInput, IMatrix<float> expectedForwardOutput, IMatrix<float> backwardInput, IMatrix<float> expectedBackwardOutput)
 		{
 			var context = new TestingContext(_cpu);
 			var matrix = forwardInput;
@@ -28,11 +28,11 @@ namespace BrightWire.UnitTests
 
 			var output = context.Forward.First();
 			var outputMatrix = output.Item1.Data.GetMatrix();
-			FloatMath.AreApproximatelyEqual(outputMatrix, expectedForwardOutput).Should().BeTrue();
+			Math<float>.AreApproximatelyEqual(outputMatrix, expectedForwardOutput).Should().BeTrue();
 
 			var backward = output.Item2.Backward(backwardInput.Clone().AsGraphData(), context, [node]).ToList();
 			var bpOutput = backward.First().Signal.GetMatrix();
-            FloatMath.AreApproximatelyEqual(bpOutput, expectedBackwardOutput).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(bpOutput, expectedBackwardOutput).Should().BeTrue();
 		}
 
 		const uint Size = 2;

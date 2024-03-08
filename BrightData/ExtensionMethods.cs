@@ -844,17 +844,17 @@ namespace BrightData
         /// </summary>
         /// <param name="vectorData"></param>
         /// <returns></returns>
-        public static async Task<IReadOnlyBufferWithMetaData<ReadOnlyVector>> ToVectors(this IAsyncEnumerable<float[,]> vectorData)
+        public static async Task<IReadOnlyBufferWithMetaData<ReadOnlyVector<float>>> ToVectors(this IAsyncEnumerable<float[,]> vectorData)
         {
-            var ret = (ICompositeBuffer<ReadOnlyVector>)BrightDataType.Vector.CreateCompositeBuffer();
+            var ret = (ICompositeBuffer<ReadOnlyVector<float>>)BrightDataType.Vector.CreateCompositeBuffer();
             await foreach (var vector in vectorData)
                 AddRows(vector, ret);
             return ret;
 
-            static void AddRows(Span2D<float> data, ICompositeBuffer<ReadOnlyVector> output)
+            static void AddRows(Span2D<float> data, ICompositeBuffer<ReadOnlyVector<float>> output)
             {
                 for(var i = 0; i < data.Height; i++)
-                    output.Append(new ReadOnlyVector(data.GetRowSpan(i).ToArray()));
+                    output.Append(new ReadOnlyVector<float>(data.GetRowSpan(i).ToArray()));
             }
         }
 
@@ -937,7 +937,7 @@ namespace BrightData
         /// <param name="k">The number of clusters to find</param>
         /// <param name="metric"></param>
         /// <returns>A list of k clusters</returns>
-        public static uint[][] HierarchicalCluster(this IReadOnlyVector[] data, uint k, DistanceMetric metric = DistanceMetric.Euclidean)
+        public static uint[][] HierarchicalCluster(this IReadOnlyVector<float>[] data, uint k, DistanceMetric metric = DistanceMetric.Euclidean)
         {
             var clusterer = new Hierarchical();
             return clusterer.Cluster(data, k, metric);
@@ -952,7 +952,7 @@ namespace BrightData
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static uint[][] KMeansCluster(this IReadOnlyVector[] data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static uint[][] KMeansCluster(this IReadOnlyVector<float>[] data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             var kmeans = new KMeans(context, maxIterations);
             return kmeans.Cluster(data, k, distanceMetric);

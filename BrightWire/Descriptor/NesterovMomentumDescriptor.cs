@@ -8,7 +8,7 @@ namespace BrightWire.Descriptor
     /// </summary>
     internal class NesterovMomentumDescriptor(float momentum = 0.9f) : MomentumDescriptor(momentum)
     {
-        public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix<float> template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new NesterovMomentum(_momentum, cache, prev);

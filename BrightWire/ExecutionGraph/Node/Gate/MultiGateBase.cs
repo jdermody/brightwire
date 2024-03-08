@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The signal
             /// </summary>
-            public IMatrix? Data { get; private set; }
+            public IMatrix<float>? Data { get; private set; }
 
             /// <summary>
             /// The node the signal came from
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IMatrix? data, NodeBase? source)
+            public void SetData(IMatrix<float>? data, NodeBase? source)
             {
                 Data = data;
                 Source = source;
@@ -115,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data);
+        protected abstract (IMatrix<float>? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data);
 
         /// <inheritdoc />
 	    protected override (string Description, byte[] Data) GetInfo()

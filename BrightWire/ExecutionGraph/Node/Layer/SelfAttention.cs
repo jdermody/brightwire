@@ -13,10 +13,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// Implementation of self attention from: https://arxiv.org/abs/1409.0473
     /// </summary>
-    class SelfAttention(LinearAlgebraProvider lap, string encoderName, string decoderName, FeedForward layer, string? name, string? id = null)
+    class SelfAttention(LinearAlgebraProvider<float> lap, string encoderName, string decoderName, FeedForward layer, string? name, string? id = null)
         : NodeBase(name, id), IHaveFeedForward
     {
-        class Backpropagation(SelfAttention source, uint position, List<(IMatrix EncoderState, IMatrix CombinedState)> weights)
+        class Backpropagation(SelfAttention source, uint position, List<(IMatrix<float> EncoderState, IMatrix<float> CombinedState)> weights)
             : SingleBackpropagationBase<SelfAttention>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
@@ -45,14 +45,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context) => layer.ApplyError(type, delta, context);
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context) => layer.ApplyError(type, delta, context);
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var currentIndex = context.BatchSequence.SequenceIndex;
 
             // get the previous decoder state
-            IMatrix? decoderHiddenState = null;
+            IMatrix<float>? decoderHiddenState = null;
             if (currentIndex == 0) {
                 if (FindByName(decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
                     decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
@@ -67,9 +67,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             // attend to each encoder hidden state
             var previous = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
 
-            IMatrix? weights = null;
-            var encoderStates = new List<IMatrix>();
-            var inputs = new List<IMatrix>();
+            IMatrix<float>? weights = null;
+            var encoderStates = new List<IMatrix<float>>();
+            var inputs = new List<IMatrix<float>>();
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
                 var sequence = previous.GetSequenceAtIndex(i);
                 var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == encoderName).Data.GetMatrix();
@@ -90,7 +90,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             // form the new attention as a product of the weights
             using var softMax = weights!.Softmax();
             using var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
-            var backward = new List<(IMatrix EncoderState, IMatrix CombinedState)>();
+            var backward = new List<(IMatrix<float> EncoderState, IMatrix<float> CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softMax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
                 // save the average weight across the batch for diagnostics

@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public bool IsTraining => false;
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext => null;
-        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider<float> LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         
         public IGraphData Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) { /* nop */ }

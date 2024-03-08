@@ -15,6 +15,7 @@ namespace BrightData.LinearAlgebra
     /// Row major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
+    /// <typeparam name="T"></typeparam>
     /// <remarks>
     /// Constructor
     /// </remarks>
@@ -22,8 +23,9 @@ namespace BrightData.LinearAlgebra
     /// <param name="rows">Number of rows</param>
     /// <param name="columns">Number of columns</param>
     /// <param name="lap">Linear algebra provider</param>
-    public class MutableMatrix<LAP>(INumericSegment<float> data, uint rows, uint columns, LAP lap) : MutableTensorBase<IMatrix, LAP>(data, lap), IMatrix
-        where LAP: LinearAlgebraProvider
+    public class MutableMatrix<T, LAP>(INumericSegment<T> data, uint rows, uint columns, LAP lap) : MutableTensorBase<T, IReadOnlyMatrix<T>, IMatrix<T>, LAP>(data, lap), IMatrix<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where LAP: LinearAlgebraProvider<T>
     {
         /// <inheritdoc />
         public uint RowCount { get; private set; } = rows;
@@ -46,108 +48,108 @@ namespace BrightData.LinearAlgebra
             }
         }
 
-        /// <inheritdoc cref="IMatrix" />
-        public float this[int rowY, int columnX]
+        /// <inheritdoc cref="IMatrix{T}" />
+        public T this[int rowY, int columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
-        /// <inheritdoc cref="IMatrix" />
-        public float this[uint rowY, uint columnX]
-        {
-            get => Segment[columnX * RowCount + rowY];
-            set => Segment[columnX * RowCount + rowY] = value;
-        }
-
-        /// <inheritdoc />
-        public float this[long rowY, long columnX]
+        /// <inheritdoc cref="IMatrix{T}" />
+        public T this[uint rowY, uint columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
         /// <inheritdoc />
-        public float this[ulong rowY, ulong columnX]
+        public T this[long rowY, long columnX]
         {
             get => Segment[columnX * RowCount + rowY];
             set => Segment[columnX * RowCount + rowY] = value;
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> GetRow(uint index)
+        public T this[ulong rowY, ulong columnX]
+        {
+            get => Segment[columnX * RowCount + rowY];
+            set => Segment[columnX * RowCount + rowY] = value;
+        }
+
+        /// <inheritdoc />
+        public INumericSegment<T> GetRow(uint index)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new MutableTensorSegmentWrapper<float>(Segment, index, RowCount, ColumnCount);
+            return new MutableTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> GetReadOnlyRow(uint index)
+        public IReadOnlyNumericSegment<T> GetReadOnlyRow(uint index)
         {
             if(index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new ReadOnlyTensorSegmentWrapper<float>(Segment, index, RowCount, ColumnCount);
+            return new ReadOnlyTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
 
         /// <inheritdoc />
-        public INumericSegment<float> GetColumn(uint index)
+        public INumericSegment<T> GetColumn(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new MutableTensorSegmentWrapper<float>(Segment, index * RowCount, 1, RowCount);
+            return new MutableTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint index)
+        public IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
-            return new ReadOnlyTensorSegmentWrapper<float>(Segment, index * RowCount, 1, RowCount);
+            return new ReadOnlyTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
 
         /// <inheritdoc />
-        public unsafe ReadOnlySpan<float> GetRowSpan(uint rowIndex, ref SpanOwner<float> temp)
+        public unsafe ReadOnlySpan<T> GetRowSpan(uint rowIndex, ref SpanOwner<T> temp)
         {
-            temp = SpanOwner<float>.Allocate((int)TotalSize);
+            temp = SpanOwner<T>.Allocate((int)TotalSize);
             var span = temp.Span;
-            fixed (float* ptr = span) {
+            fixed (T* ptr = span) {
                 Segment.CopyTo(ptr, (int)rowIndex * (int)RowCount, (int)RowCount, (int)ColumnCount);
             }
             return span;
         }
 
         /// <inheritdoc />
-        public ReadOnlySpan<float> GetColumnSpan(uint columnIndex)
+        public ReadOnlySpan<T> GetColumnSpan(uint columnIndex)
         {
             var ret = Segment.Contiguous!.ReadOnlySpan;
             return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
         }
 
         /// <inheritdoc />
-        public override IMatrix Create(INumericSegment<float> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
+        public override IMatrix<T> Create(INumericSegment<T> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
 
         /// <inheritdoc />
-        public virtual IVector GetRowVector(uint index) => Lap.CreateVector(GetRow(index));
+        public virtual IVector<T> GetRowVector(uint index) => Lap.CreateVector(GetRow(index));
 
         /// <inheritdoc />
-        public virtual IVector GetColumnVector(uint index) => Lap.CreateVector(GetColumn(index));
+        public virtual IVector<T> GetColumnVector(uint index) => Lap.CreateVector(GetColumn(index));
 
         /// <inheritdoc />
-        public virtual IMatrix Transpose()
+        public virtual IMatrix<T> Transpose()
         {
             var (buffer, rowCount, columnCount) = ReadOnlySegment.ApplyReadOnlySpan(x => x.Transpose(RowCount, ColumnCount));
-            return new BrightMatrix(new ArrayPoolTensorSegment<float>(buffer), rowCount, columnCount, LinearAlgebraProvider);
+            return new MutableMatrix<T, LAP>(new ArrayPoolTensorSegment<T>(buffer), rowCount, columnCount, Lap);
         }
 
-        IReadOnlyMatrix IReadOnlyMatrix.Transpose()
+        IReadOnlyMatrix<T> IReadOnlyMatrix<T>.Transpose()
         {
             var (segment, rowCount, columnCount) = ReadOnlySegment.Transpose(RowCount, ColumnCount);
-            return new ReadOnlyMatrix(segment, rowCount, columnCount);
+            return new ReadOnlyMatrix<T>(segment, rowCount, columnCount);
         }
 
         /// <inheritdoc />
-        public virtual IVector GetDiagonal()
+        public virtual IVector<T> GetDiagonal()
         {
             if (RowCount != ColumnCount)
                 throw new Exception("Diagonal can only be found from square matrices");
@@ -155,21 +157,21 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IVector RowSums()
+        public virtual IVector<T> RowSums()
         {
             var rows = this.AllRowsAsReadOnly(false);
             return Lap.CreateVector(RowCount, i => rows[i].Sum());
         }
 
         /// <inheritdoc />
-        public virtual IVector ColumnSums()
+        public virtual IVector<T> ColumnSums()
         {
             var columns = this.AllColumnsAsReadOnly(false);
             return Lap.CreateVector(ColumnCount, i => columns[i].Sum());
         }
 
         /// <inheritdoc />
-        public virtual IVector Multiply(IVector vector)
+        public virtual IVector<T> Multiply(IVector<T> vector)
         {
             using var temp = vector.Reshape(null, 1);
             using var temp2 = Multiply(temp);
@@ -177,7 +179,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix Multiply(IMatrix other)
+        public virtual IMatrix<T> Multiply(IMatrix<T> other)
         {
             if (ColumnCount != other.RowCount)
                 throw new Exception("Matrix sizes do not agree");
@@ -188,7 +190,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix TransposeAndMultiply(IMatrix other)
+        public virtual IMatrix<T> TransposeAndMultiply(IMatrix<T> other)
         {
             if (ColumnCount != other.ColumnCount)
                 throw new Exception("Matrix sizes do not agree");
@@ -197,7 +199,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix TransposeThisAndMultiply(IMatrix other)
+        public virtual IMatrix<T> TransposeThisAndMultiply(IMatrix<T> other)
         {
             if (RowCount != other.RowCount)
                 throw new Exception("Matrix sizes do not agree");
@@ -205,7 +207,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IMatrix MapIndexed(Func<uint, uint, float, float> mutator)
+        public IMatrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
         {
             var ret = Segment.MapParallel((ind, val) => {
                 var i = ind % RowCount;
@@ -216,7 +218,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public void MapIndexedInPlace(Func<uint, uint, float, float> mutator)
+        public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
         {
             var ret = Segment.MapParallel((ind, val) => {
                 var i = ind % RowCount;
@@ -232,7 +234,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex)
+        public virtual (IMatrix<T> Left, IMatrix<T> Right) SplitAtColumn(uint columnIndex)
         {
             var ret1 = Lap.CreateMatrix(RowCount, columnIndex, (x, y) => this[x, y]);
             var ret2 = Lap.CreateMatrix(RowCount, ColumnCount - columnIndex, (x, y) => this[x, columnIndex + y]);
@@ -240,7 +242,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex)
+        public virtual (IMatrix<T> Top, IMatrix<T> Bottom) SplitAtRow(uint rowIndex)
         {
             var ret1 = Lap.CreateMatrix(rowIndex, ColumnCount, (x, y) => this[x, y]);
             var ret2 = Lap.CreateMatrix(RowCount - rowIndex, ColumnCount, (x, y) => this[rowIndex + x, y]);
@@ -248,7 +250,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix ConcatBelow(IMatrix bottom)
+        public virtual IMatrix<T> ConcatBelow(IMatrix<T> bottom)
         {
             Debug.Assert(ColumnCount == bottom.ColumnCount);
             return Lap.CreateMatrix(RowCount + bottom.RowCount, ColumnCount, (x, y) => {
@@ -258,7 +260,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual IMatrix ConcatRight(IMatrix right)
+        public virtual IMatrix<T> ConcatRight(IMatrix<T> right)
         {
             Debug.Assert(RowCount == right.RowCount);
             return Lap.CreateMatrix(RowCount, ColumnCount + right.ColumnCount, (x, y) => {
@@ -268,30 +270,30 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual (IMatrix U, IVector S, IMatrix VT) Svd() => throw new NotImplementedException();
+        public virtual (IMatrix<T> U, IVector<T> S, IMatrix<T> VT) Svd() => throw new NotImplementedException();
 
         /// <inheritdoc />
-        public virtual IMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => Lap.CreateMatrixFromRows(rowIndices.Select(GetReadOnlyRow).ToArray());
+        public virtual IMatrix<T> GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => Lap.CreateMatrixFromRows(rowIndices.Select(GetReadOnlyRow).ToArray());
 
         /// <inheritdoc />
-        public virtual IMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => Lap.CreateMatrixFromColumns(columnIndices.Select(GetReadOnlyColumn).ToArray());
+        public virtual IMatrix<T> GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => Lap.CreateMatrixFromColumns(columnIndices.Select(GetReadOnlyColumn).ToArray());
 
         /// <inheritdoc />
-        public virtual void AddToEachRow(IReadOnlyNumericSegment<float> segment) => MapIndexedInPlace((_, k, v) => v + segment[k]);
+        public virtual void AddToEachRow(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((_, k, v) => v + segment[k]);
 
         /// <inheritdoc />
-        public virtual void AddToEachColumn(IReadOnlyNumericSegment<float> segment) => MapIndexedInPlace((j, _, v) => v + segment[j]);
+        public virtual void AddToEachColumn(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((j, _, v) => v + segment[j]);
 
         /// <inheritdoc />
-        public virtual void MultiplyEachRowWith(IReadOnlyNumericSegment<float> segment) => MapIndexedInPlace((_, k, v) => v * segment[k]);
+        public virtual void MultiplyEachRowWith(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((_, k, v) => v * segment[k]);
 
         /// <inheritdoc />
-        public virtual void MultiplyEachColumnWith(IReadOnlyNumericSegment<float> segment) => MapIndexedInPlace((j, _, v) => v * segment[j]);
+        public virtual void MultiplyEachColumnWith(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((j, _, v) => v * segment[j]);
 
         /// <inheritdoc />
-        public virtual INumericSegment<float>[] SoftmaxPerRow()
+        public virtual INumericSegment<T>[] SoftmaxPerRow()
         {
-            using var segments = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate((int)RowCount);
+            using var segments = SpanOwner<IReadOnlyNumericSegment<T>>.Allocate((int)RowCount);
             var ptr = segments.Span;
             for (var i = 0; i < RowCount; i++)
                 ptr[i] = GetRow((uint)i);
@@ -299,12 +301,12 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual INumericSegment<float>[] SoftmaxDerivativePerRow(IReadOnlyNumericSegment<float>[] rows)
+        public virtual INumericSegment<T>[] SoftmaxDerivativePerRow(IReadOnlyNumericSegment<T>[] rows)
         {
             var derivatives = Lap.MultiSoftmaxDerivative(rows);
             using var transposed = Transpose();
 
-            var ret = new INumericSegment<float>[RowCount];
+            var ret = new INumericSegment<T>[RowCount];
             for (uint i = 0; i < RowCount; i++) {
                 using var derivative = derivatives[i];
                 using var row = transposed.GetColumnVector(i);
@@ -317,7 +319,7 @@ namespace BrightData.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static unsafe IMatrix MultiplyWithThisTransposed(LinearAlgebraProvider lap, IMatrix transposedThis, IMatrix other)
+        static unsafe IMatrix<T> MultiplyWithThisTransposed(LinearAlgebraProvider<T> lap, IMatrix<T> transposedThis, IMatrix<T> other)
         {
             var lda = (int)transposedThis.RowCount;
             var ldb = (int)other.RowCount;
@@ -328,14 +330,14 @@ namespace BrightData.LinearAlgebra
             var columnCount = other.ColumnCount;
             var ret = lap.CreateMatrix(rowCount, columnCount, false);
 
-            SpanOwner<float> matrixTemp = SpanOwner<float>.Empty, otherTemp = SpanOwner<float>.Empty;
+            SpanOwner<T> matrixTemp = SpanOwner<T>.Empty, otherTemp = SpanOwner<T>.Empty;
             var matrixSpan = transposedThis.Segment.GetSpan(ref matrixTemp, out var wasMatrixTempUsed);
             var otherSpan = other.Segment.GetSpan(ref otherTemp, out var wasOtherTempUsed);
             try {
                 var retSpan = ret.Segment.Contiguous!.ReadOnlySpan;
-                fixed (float* matrixPtr = matrixSpan)
-                fixed (float* otherPtr = otherSpan)
-                fixed (float* retPtr = retSpan) {
+                fixed (T* matrixPtr = matrixSpan)
+                fixed (T* otherPtr = otherSpan)
+                fixed (T* retPtr = retSpan) {
                     MatrixMultiplyChunked(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                 }
             }
@@ -350,10 +352,10 @@ namespace BrightData.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static unsafe void MatrixMultiplyChunked(float* a, float* b, int size, uint rows, uint cols, float* ret)
+        static unsafe void MatrixMultiplyChunked(T* a, T* b, int size, uint rows, uint cols, T* ret)
         {
             const int ChunkSize = 128;
-            var vectorSize = Vector<float>.Count;
+            var vectorSize = Vector<T>.Count;
             var numVectors = size / vectorSize;
             var ceiling = numVectors * vectorSize;
             var totalSize = rows * cols;
@@ -375,14 +377,14 @@ namespace BrightData.LinearAlgebra
 
                     var xPtr = &a[i * size];
                     var yPtr = &b[j * size];
-                    var xVectors = (Vector<float>*)xPtr;
-                    var yVectors = (Vector<float>*)yPtr;
+                    var xVectors = (Vector<T>*)xPtr;
+                    var yVectors = (Vector<T>*)yPtr;
 
-                    var vSum = Vector<float>.Zero;
+                    var vSum = Vector<T>.Zero;
                     for (var z = 0; z < numVectors; z++)
                         vSum += xVectors[z] * yVectors[z];
 
-                    var sum = Vector.Dot(vSum, Vector<float>.One);
+                    var sum = Vector.Dot(vSum, Vector<T>.One);
                     for (var z = ceiling; z < size; z++)
                         sum += xPtr[z] * yPtr[z];
                     ret[j * rows + i] = sum;
@@ -400,18 +402,12 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IMatrix Create(LinearAlgebraProvider lap2) => lap2.CreateMatrix((IReadOnlyMatrix)this);
-    }
+        public IMatrix<T> Create(LinearAlgebraProvider<T> lap2) => lap2.CreateMatrix((IReadOnlyMatrix<T>)this);
 
-    /// <summary>
-    /// Matrix type
-    /// </summary>
-    /// <remarks>
-    /// Constructor
-    /// </remarks>
-    /// <param name="data">Tensor segment</param>
-    /// <param name="rows">Number of rows</param>
-    /// <param name="columns">Number of columns</param>
-    /// <param name="lap">Linear algebra provider</param>
-    public class BrightMatrix(INumericSegment<float> data, uint rows, uint columns, LinearAlgebraProvider lap) : MutableMatrix<LinearAlgebraProvider>(data, rows, columns, lap);
+        /// <inheritdoc />
+        public override ReadOnlySpan<byte> DataAsBytes => ReadOnlyMatrix<T>.GetDataAsBytes(Segment, RowCount, ColumnCount);
+
+        /// <inheritdoc />
+        protected override IMatrix<T> Create(MemoryOwner<T> memory) => new MutableMatrix<T, LAP>(new ArrayPoolTensorSegment<T>(memory), RowCount, ColumnCount, Lap);
+    }
 }

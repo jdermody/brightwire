@@ -27,7 +27,7 @@ namespace BrightWire
         /// <param name="fixedSize">The vector size to reduce from</param>
         /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider<float> lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
@@ -69,7 +69,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static uint[][] Nnmf(this IReadOnlyVector[] data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static uint[][] Nnmf(this IReadOnlyVector<float>[] data, LinearAlgebraProvider<float> lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = lap.Context.NewNNMFClustering(maxIterations);
             return clusterer.Cluster(data, k, DistanceMetric.Euclidean);

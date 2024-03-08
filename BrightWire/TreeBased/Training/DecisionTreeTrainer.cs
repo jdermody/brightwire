@@ -37,7 +37,7 @@ namespace BrightWire.TreeBased.Training
             public override bool Equals(object? obj)
             {
                 if (obj is Attribute other)
-                    return other._columnIndex == _columnIndex && other._category == _category && DoubleMath.AreApproximatelyEqual(_split, other._split);
+                    return other._columnIndex == _columnIndex && other._category == _category && Math<double>.AreApproximatelyEqual(_split, other._split);
                 return false;
             }
             public override int GetHashCode()

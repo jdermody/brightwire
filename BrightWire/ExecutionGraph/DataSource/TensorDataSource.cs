@@ -11,10 +11,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     internal class TensorDataSource : IDataSource
     {
         readonly uint _rows, _columns, _depth, _matrixSize;
-        readonly ITensor3D[] _data;
-        readonly LinearAlgebraProvider _lap;
+        readonly ITensor3D<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public TensorDataSource(LinearAlgebraProvider lap, ITensor3D[] data)
+        public TensorDataSource(LinearAlgebraProvider<float> lap, ITensor3D<float>[] data)
         {
             _lap = lap;
             _data = data;

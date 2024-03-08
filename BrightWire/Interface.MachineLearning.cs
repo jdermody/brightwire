@@ -25,7 +25,7 @@ namespace BrightWire
 		/// <param name="output">The vector that was the output of the model</param>
 		/// <param name="targetOutput">The vector that the model was expected to output</param>
 		/// <returns></returns>
-		float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput);
+		float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput);
 
         /// <summary>
         /// Computes the error between the output vector and target vector
@@ -41,7 +41,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
+		IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput);
 	}
 
 	/// <summary>
@@ -57,21 +57,21 @@ namespace BrightWire
 		/// <summary>
 		/// The transformation matrix
 		/// </summary>
-		IMatrix Matrix { get; }
+		IMatrix<float> Matrix { get; }
 
 		/// <summary>
 		/// Reduces a vector
 		/// </summary>
 		/// <param name="vector"></param>
 		/// <returns></returns>
-		IVector Compute(IVector vector);
+		IVector<float> Compute(IVector<float> vector);
 
 		/// <summary>
 		/// Reduces a matrix
 		/// </summary>
 		/// <param name="matrix"></param>
 		/// <returns></returns>
-		IMatrix Compute(IMatrix matrix);
+		IMatrix<float> Compute(IMatrix<float> matrix);
 	}
 
 	/// <summary>
@@ -152,7 +152,7 @@ namespace BrightWire
 		/// <param name="errorType">Error type</param>
 		/// <param name="fromNode">The node that created the error</param>
 		/// <param name="error">Error</param>
-        void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error);
+        void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor<float> error);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -240,7 +240,7 @@ namespace BrightWire
 		/// <param name="source">The matrix to update</param>
 		/// <param name="delta">The delta matrix</param>
 		/// <param name="context">The graph learning context</param>
-		void Update(IMatrix source, IMatrix delta, ILearningContext context);
+		void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context);
 	}
 
 	/// <summary>
@@ -267,13 +267,13 @@ namespace BrightWire
 		/// <param name="template">The instance of the matrix that will be updated</param>
 		/// <param name="propertySet">The property set that contains initialisation parameters</param>
 		/// <returns></returns>
-		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
+		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix<float> template, IPropertySet propertySet);
 	}
 
 	/// <summary>
 	/// The current set of graph initialisation parameters
 	/// </summary>
-	public interface IPropertySet : IHaveLinearAlgebraProvider
+	public interface IPropertySet : IHaveLinearAlgebraProvider<float>
 	{
         /// <summary>
 		/// The weight initialiser to use
@@ -404,14 +404,14 @@ namespace BrightWire
 		/// Creates the bias vector
 		/// </summary>
 		/// <param name="size">The size of the vector</param>
-		IVector CreateBias(uint size);
+		IVector<float> CreateBias(uint size);
 
 		/// <summary>
 		/// Creates the weight matrix
 		/// </summary>
 		/// <param name="rows">Row count</param>
 		/// <param name="columns">Column count</param>
-		IMatrix CreateWeight(uint rows, uint columns);
+		IMatrix<float> CreateWeight(uint rows, uint columns);
 	}
 
 	/// <summary>
@@ -423,7 +423,7 @@ namespace BrightWire
 		/// Outputs a list of values from 0 to 1 for each input data
 		/// </summary>
 		/// <param name="input">Input data</param>
-		IVector Predict(IMatrix input);
+		IVector<float> Predict(IMatrix<float> input);
 	}
 
 	/// <summary>

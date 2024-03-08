@@ -10,7 +10,7 @@ namespace BrightData.UnitTests
         public void Hierarchical()
         {
             var clusterer = _context.NewHierarchicalClustering();
-            var vectors = new IReadOnlyVector[] {
+            var vectors = new IReadOnlyVector<float>[] {
                 _context.CreateReadOnlyVector(0f, 0f, 0f),
                 _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f),
                 _context.CreateReadOnlyVector(0.8f, 0.8f, 0.8f),
@@ -25,7 +25,7 @@ namespace BrightData.UnitTests
         public void KMeans()
         {
             var clusterer = _context.NewKMeansClustering();
-            var vectors = new IReadOnlyVector[] {
+            var vectors = new IReadOnlyVector<float>[] {
                 _context.CreateReadOnlyVector(0f, 0f, 0f),
                 _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f),
                 _context.CreateReadOnlyVector(0.8f, 0.8f, 0.8f),

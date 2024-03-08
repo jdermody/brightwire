@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Helper class when executing a single row instead of the normal batch mode
     /// </summary>
-    internal class SingleRowDataSource(float[] data, LinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+    internal class SingleRowDataSource(float[] data, LinearAlgebraProvider<float> lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
         : IDataSource
     {
         public bool IsSequential { get; } = isSequential;

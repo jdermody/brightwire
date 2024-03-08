@@ -20,7 +20,7 @@ namespace BrightData.Cuda
     /// </remarks>
     /// <param name="context">Bright data context</param>
     /// <param name="cuda">CUDA provider</param>
-    public unsafe class CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : LinearAlgebraProvider(context)
+    public unsafe class CudaLinearAlgebraProvider(BrightDataContext context, CudaProvider? cuda = null) : LinearAlgebraProvider<float>(context)
     {
         /// <inheritdoc />
         public override void Dispose()
@@ -31,7 +31,7 @@ namespace BrightData.Cuda
             var trackedBlocks = new HashSet<IDeviceMemoryPtr>();
             foreach (var block in Scope) {
                 foreach (var item in block.Keys)
-                    trackedBlocks.Add(((CudaTensorSegment)((ITensor)item).Segment).DeviceMemory);
+                    trackedBlocks.Add(((CudaTensorSegment)((ITensor<float>)item).Segment).DeviceMemory);
             }
             DeviceMemoryBlockBase.FindLeakedBlocks(trackedBlocks);
 #endif
@@ -94,21 +94,21 @@ namespace BrightData.Cuda
                 return CreateCudaTensorSegment(deviceMemory);
             }
         }
+                                                                                                                                                                
+        /// <inheritdoc />
+        public override IVector<float> CreateVector(INumericSegment<float> data) => new CudaVector(OptionallyCopyToDevice(data), this);                                                                                                                 
 
         /// <inheritdoc />
-        public override IVector CreateVector(INumericSegment<float> data) => new CudaVector(OptionallyCopyToDevice(data), this);
+        public override IMatrix<float> CreateMatrix(uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaMatrix(OptionallyCopyToDevice(data), rowCount, columnCount, this);
+        public override ITensor3D<float> CreateTensor3D(uint depth, uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaTensor3D(data, depth, rowCount, columnCount, this);
 
         /// <inheritdoc />
-        public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaTensor3D(data, depth, rowCount, columnCount, this);
+        public override ITensor4D<float> CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaTensor4D(data, count, depth, rowCount, columnCount, this);
 
         /// <inheritdoc />
-        public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float> data) => new CudaTensor4D(data, count, depth, rowCount, columnCount, this);
-
-        /// <inheritdoc />
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
+        public override IMatrix<float> CreateMatrix(uint rowCount, uint columnCount, Func<uint, uint, float> initializer)
         {
             var size = rowCount * columnCount;
             using var buffer = SpanOwner<float>.Allocate((int)size);
@@ -419,14 +419,14 @@ namespace BrightData.Cuda
             var max = Provider.FindMinAndMax(ptr, ptr.Size, stride, stream).Max;
             var softmax = Provider.SoftmaxVector(ptr, ptr.Size, max, stride, stream);
             var softmaxSum = Provider.SumValues(softmax, ptr.Size, 1, stream);
-            if (FloatMath.IsNotZero(softmaxSum))
+            if (Math<float>.IsNotZero(softmaxSum))
                 Provider.ScaleInPlace(softmax, softmax.Size, 1f / softmaxSum, 1, stream);
             return CreateCudaTensorSegment(softmax);
         }
 
         /// <inheritdoc />
-        public override IMatrix SoftmaxDerivative(IReadOnlyNumericSegment<float> tensor) => SoftmaxDerivative(tensor.GetDeviceMemoryPtr(), 1);
-        IMatrix SoftmaxDerivative(IDeviceMemoryPtr ptr, uint stride)
+        public override IMatrix<float> SoftmaxDerivative(IReadOnlyNumericSegment<float> tensor) => SoftmaxDerivative(tensor.GetDeviceMemoryPtr(), 1);
+        IMatrix<float> SoftmaxDerivative(IDeviceMemoryPtr ptr, uint stride)
         {
             var ret = Provider.VectorSoftmaxDerivative(ptr, ptr.Size, stride);
             return CreateMatrix(ptr.Size, ptr.Size, CreateCudaTensorSegment(ret));
@@ -436,7 +436,7 @@ namespace BrightData.Cuda
         public override INumericSegment<float> Pow(IReadOnlyNumericSegment<float> tensor, float power) => CreateCudaTensorSegment(Provider.Pow(tensor.GetDeviceMemoryPtr(), tensor.Size, power));
 
         /// <inheritdoc />
-        public override INumericSegment<float> Sqrt(IReadOnlyNumericSegment<float> tensor, float adjustment = FloatMath.AlmostZero) => CreateCudaTensorSegment(Provider.Sqrt(tensor.GetDeviceMemoryPtr(), tensor.Size, adjustment));
+        public override INumericSegment<float> Sqrt(IReadOnlyNumericSegment<float> tensor, float? adjustment = null) => CreateCudaTensorSegment(Provider.Sqrt(tensor.GetDeviceMemoryPtr(), tensor.Size, adjustment ?? Math<float>.AlmostZero));
 
         /// <inheritdoc />
         public override void PointwiseDivideInPlace(INumericSegment<float> target, IReadOnlyNumericSegment<float> other)
@@ -507,7 +507,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromColumns(IReadOnlyNumericSegment<float>[] vectorColumns)
+        public override IMatrix<float> CreateMatrixFromColumns(IReadOnlyNumericSegment<float>[] vectorColumns)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -546,7 +546,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<IReadOnlyNumericSegment<float>> vectorColumns)
+        public override IMatrix<float> CreateMatrixFromColumns(ReadOnlySpan<IReadOnlyNumericSegment<float>> vectorColumns)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -585,7 +585,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromColumns(ReadOnlySpan<float[]> columnSpan)
+        public override IMatrix<float> CreateMatrixFromColumns(ReadOnlySpan<float[]> columnSpan)
         {
             var columns = (uint)columnSpan.Length;
             var rows = (uint)columnSpan[0].Length;
@@ -603,7 +603,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromRows(IReadOnlyNumericSegment<float>[] vectorRows)
+        public override IMatrix<float> CreateMatrixFromRows(IReadOnlyNumericSegment<float>[] vectorRows)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -643,7 +643,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<IReadOnlyNumericSegment<float>> vectorRows)
+        public override IMatrix<float> CreateMatrixFromRows(ReadOnlySpan<IReadOnlyNumericSegment<float>> vectorRows)
         {
             var allAreCuda = true;
             var cudaSegmentList = new List<CudaTensorSegment>();
@@ -683,7 +683,7 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrixFromRows(ReadOnlySpan<float[]> rowSpan)
+        public override IMatrix<float> CreateMatrixFromRows(ReadOnlySpan<float[]> rowSpan)
         {
             var rows = (uint)rowSpan.Length;
             var columns = (uint)rowSpan[0].Length;
@@ -707,13 +707,13 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrix(uint rows, uint columns, bool initialiseToZero)
+        public override IMatrix<float> CreateMatrix(uint rows, uint columns, bool initialiseToZero)
         {
             return new CudaMatrix(CreateSegment(rows * columns, initialiseToZero), rows, columns, this);
         }
 
         /// <inheritdoc />
-        public override IMatrix FindDistances(IVector[] vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+        public override IMatrix<float> FindDistances(IVector<float>[] vectors, IReadOnlyList<IVector<float>> compareTo, DistanceMetric distanceMetric)
         {
             if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))
                 throw new NotImplementedException();
@@ -754,7 +754,7 @@ namespace BrightData.Cuda
                 );
             }
 
-            IMatrix matrix = new CudaMatrix(CreateCudaTensorSegment(ret), rows, columns, this);
+            IMatrix<float> matrix = new CudaMatrix(CreateCudaTensorSegment(ret), rows, columns, this);
             if (distanceMetric == DistanceMetric.Euclidean) {
                 var sqrt = matrix.Sqrt();
                 matrix.Dispose();
@@ -805,10 +805,10 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix[] MultiSoftmaxDerivative(IReadOnlyNumericSegment<float>[] segments)
+        public override IMatrix<float>[] MultiSoftmaxDerivative(IReadOnlyNumericSegment<float>[] segments)
         {
             var index = 0;
-            var ret = new IMatrix[segments.Length];
+            var ret = new IMatrix<float>[segments.Length];
             foreach (var segment in segments) {
                 var (ptr, stride) = segment.GetDeviceMemory();
                 ret[index++] = SoftmaxDerivative(ptr, stride);

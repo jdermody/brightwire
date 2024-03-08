@@ -6,7 +6,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Property set implementation
     /// </summary>
-    internal class PropertySet(LinearAlgebraProvider lap) : IPropertySet
+    internal class PropertySet(LinearAlgebraProvider<float> lap) : IPropertySet
     {
         public const string WeightInitialisationLabel              = "bw:weight-initialisation";
         public const string GradientDescentLabel                   = "bw:gradient-descent";
@@ -24,7 +24,7 @@ namespace BrightWire.Helper
         }
 
         /// <inheritdoc />
-		public LinearAlgebraProvider LinearAlgebraProvider { get; } = lap;
+		public LinearAlgebraProvider<float> LinearAlgebraProvider { get; } = lap;
 
         public IWeightInitialisation? WeightInitialisation
         {

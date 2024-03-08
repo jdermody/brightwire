@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Adam gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
     /// </summary>
-    internal class Adam(float decay, float decay2, IMatrix cache, IMatrix cache2, IGradientDescentOptimisation updater)
+    internal class Adam(float decay, float decay2, IMatrix<float> cache, IMatrix<float> cache2, IGradientDescentOptimisation updater)
         : RmsProp(decay, cache, updater)
     {
         public override void Dispose()
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             base.Dispose();
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             var t = context.CurrentEpoch;
 

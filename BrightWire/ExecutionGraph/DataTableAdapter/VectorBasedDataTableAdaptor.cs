@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Segment table adapter for tables with vector data
     /// </summary>
-    internal class VectorBasedDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector, ReadOnlyVector>
+    internal class VectorBasedDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector<float>, ReadOnlyVector<float>>
     {
         /// <summary>
         /// Segment table adapter for tables with vector data
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public static async Task<VectorBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
         {
-            var buffer = dataTable.GetRowsBuffer<ReadOnlyVector, ReadOnlyVector>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
+            var buffer = dataTable.GetRowsBuffer<ReadOnlyVector<float>, ReadOnlyVector<float>>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
             var firstRow = await buffer.GetItem(0);
             return new(dataTable, featureColumns, firstRow.C1.Size, firstRow.C2.Size);
         }

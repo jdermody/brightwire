@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            IMatrix memory;
+            IMatrix<float> memory;
             if (!LoadNextFromMemory && context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                 memory = context.GetLinearAlgebraProvider().CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)Data.Length, (_, y) => Data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);

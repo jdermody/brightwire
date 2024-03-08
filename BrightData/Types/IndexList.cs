@@ -94,7 +94,7 @@ namespace BrightData.Types
             uint index = 0;
             foreach (var item in data)
             {
-                if (FloatMath.IsNotZero(item))
+                if (Math<float>.IsNotZero(item))
                     list.Add(index);
                 ++index;
             }
@@ -309,7 +309,7 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public ReadOnlyVector AsDense(uint? maxIndex = null)
+        public ReadOnlyVector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             var max = maxIndex ?? uint.MinValue;
@@ -322,8 +322,8 @@ namespace BrightData.Types
             }
 
             return indices.Any()
-                ? new ReadOnlyVector(max + 1, i => indices.Contains(i) ? 1f : 0f)
-                : new ReadOnlyVector(maxIndex ?? 0);
+                ? new ReadOnlyVector<float>(max + 1, i => indices.Contains(i) ? 1f : 0f)
+                : new ReadOnlyVector<float>(maxIndex ?? 0);
         }
 
         /// <summary>

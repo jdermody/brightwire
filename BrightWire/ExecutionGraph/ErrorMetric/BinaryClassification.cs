@@ -9,17 +9,17 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class BinaryClassification : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+        public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)
         {
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {
                 var val = (output.ReadOnlySegment[i] >= 0.5) ? 1.0f : 0.0f;
-                ret += (Math.Abs(val - targetOutput.ReadOnlySegment[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
+                ret += (MathF.Abs(val - targetOutput.ReadOnlySegment[i]) < Math<float>.AlmostZero) ? 1.0f : 0.0f;
             }
             return ret / output.Size;
         }
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             float ret = 0;
             for (var i = 0; i < output.Length; i++) {
                 var val = (output[i] >= 0.5) ? 1.0f : 0.0f;
-                ret += (Math.Abs(val - targetOutput[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
+                ret += (MathF.Abs(val - targetOutput[i]) < Math<float>.AlmostZero) ? 1.0f : 0.0f;
             }
             return ret / output.Length;
         }

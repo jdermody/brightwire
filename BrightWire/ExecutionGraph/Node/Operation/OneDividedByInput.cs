@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     internal class OneDividedByInput(string? name = null) : NodeBase(name)
     {
         // Derivative of 1/x is -1/(x squared)
-        class Backpropagation(OneDividedByInput source, IMatrix input) : SingleBackpropagationBase<OneDividedByInput>(source)
+        class Backpropagation(OneDividedByInput source, IMatrix<float> input) : SingleBackpropagationBase<OneDividedByInput>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

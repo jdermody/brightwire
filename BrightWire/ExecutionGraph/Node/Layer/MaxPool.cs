@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
         : NodeBase(name)
     {
-        class Backpropagation(MaxPool source, ITensor4D indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        class Backpropagation(MaxPool source, ITensor4D<float> indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
             : SingleBackpropagationBase<MaxPool>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)

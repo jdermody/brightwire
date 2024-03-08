@@ -7,7 +7,7 @@ namespace BrightData.LinearAlgebra.Segments
 {
     internal class ReadOnlyTensorSegment<T>(ReadOnlyMemory<T> data, uint offset = 0, uint? size = null)
         : IReadOnlyNumericSegment<T>, IHaveReadOnlyContiguousSpan<T>
-    where T: unmanaged, INumber<T>
+        where T: unmanaged, INumber<T>
     {
         public int AddRef() => 1;
         public int Release() => 1;

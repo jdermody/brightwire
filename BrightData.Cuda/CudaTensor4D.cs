@@ -5,7 +5,7 @@ namespace BrightData.Cuda
     /// <inheritdoc />
     /// <inheritdoc />
     public unsafe class CudaTensor4D(INumericSegment<float> data, uint count, uint depth, uint rows, uint columns, CudaLinearAlgebraProvider lap)
-        : MutableTensor4D<CudaLinearAlgebraProvider>(data, count, depth, rows, columns, lap)
+        : MutableTensor4D<float, CudaLinearAlgebraProvider>(data, count, depth, rows, columns, lap)
     {
         /// <summary>
         /// Associated CUDA provider
@@ -13,35 +13,35 @@ namespace BrightData.Cuda
         public CudaProvider Provider = lap.Provider;
 
         /// <inheritdoc />
-        public override ITensor3D GetTensor(uint index)
+        public override ITensor3D<float> GetTensor(uint index)
         {
             var ptr = CudaProvider.OffsetByBlock(Segment.GetDeviceMemoryPtr(), index, TensorSize);
             return new CudaTensor3D(Lap.CreateCudaTensorSegment(ptr), Depth, RowCount, ColumnCount, Lap);
         }
 
         /// <inheritdoc />
-        public override ITensor4D ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override ITensor4D<float> ReverseIm2Col(IMatrix<float> filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, cols, depth, count) = Provider.TensorReverseIm2Col(Segment.GetDeviceMemoryPtr(), filter.Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateTensor4D(count, depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override ITensor3D Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override ITensor3D<float> Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var (ptr, rows, columns, depth) = Provider.TensorIm2Col(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateTensor3D(depth, rows, columns, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override ITensor4D ReverseMaxPool(ITensor4D indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+        public override ITensor4D<float> ReverseMaxPool(ITensor4D<float> indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ptr = Provider.TensorReverseMaxPool(Segment.GetDeviceMemoryPtr(), indices.Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
             return Lap.CreateTensor4D(Count, Depth, outputRows, outputColumns, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override (ITensor4D Result, ITensor4D? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        public override (ITensor4D<float> Result, ITensor4D<float>? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             var (ptr, indices, rows, cols) = Provider.TensorMaxPool(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, filterWidth, filterHeight, xStride, yStride, saveIndices);
             var ret = Lap.CreateTensor4D(Count, Depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
@@ -52,21 +52,21 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override ITensor4D RemovePadding(uint padding)
+        public override ITensor4D<float> RemovePadding(uint padding)
         {
             var (ptr, rows, cols) = Provider.TensorRemovePadding(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, padding);
             return Lap.CreateTensor4D(Count, Depth, rows, cols, Lap.CreateCudaTensorSegment(ptr));
         }
 
         /// <inheritdoc />
-        public override ITensor4D AddPadding(uint padding)
+        public override ITensor4D<float> AddPadding(uint padding)
         {
             var (ret, rows, cols) = Provider.TensorAddPadding(Segment.GetDeviceMemoryPtr(), RowCount, ColumnCount, Depth, Count, padding);
             return Lap.CreateTensor4D(Count, Depth, rows, cols, Lap.CreateCudaTensorSegment(ret));
         }
 
         /// <inheritdoc />
-        public override IVector ColumnSums()
+        public override IVector<float> ColumnSums()
         {
             uint matrixSize = MatrixSize, tensorSize = TensorSize, depth = Depth, count = Count;
             var ret = (CudaTensorSegment)Lap.CreateSegment(depth, true);

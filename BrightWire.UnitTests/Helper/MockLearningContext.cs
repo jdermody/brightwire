@@ -14,7 +14,7 @@ namespace BrightWire.UnitTests.Helper
         public float BatchLearningRate { get; set; }
         public uint BatchSize { get; set; }
         public uint RowCount { get; set; }
-        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor<float> error)
         {
         }
 

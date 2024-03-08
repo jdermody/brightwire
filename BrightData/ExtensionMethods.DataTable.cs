@@ -47,10 +47,10 @@ namespace BrightData
                 BrightDataType.String            => typeof(string),
                 BrightDataType.IndexList         => typeof(IndexList),
                 BrightDataType.WeightedIndexList => typeof(WeightedIndexList),
-                BrightDataType.Vector            => typeof(ReadOnlyVector),
-                BrightDataType.Matrix            => typeof(ReadOnlyMatrix),
-                BrightDataType.Tensor3D          => typeof(ReadOnlyTensor3D),
-                BrightDataType.Tensor4D          => typeof(ReadOnlyTensor4D),
+                BrightDataType.Vector            => typeof(ReadOnlyVector<float>),
+                BrightDataType.Matrix            => typeof(ReadOnlyMatrix<float>),
+                BrightDataType.Tensor3D          => typeof(ReadOnlyTensor3D<float>),
+                BrightDataType.Tensor4D          => typeof(ReadOnlyTensor4D<float>),
                 BrightDataType.BinaryData        => typeof(BinaryData),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
@@ -106,16 +106,16 @@ namespace BrightData
             if (dataType == typeof(WeightedIndexList))
                 return BrightDataType.WeightedIndexList;
 
-            if (dataType == typeof(ReadOnlyVector))
+            if (dataType == typeof(ReadOnlyVector<float>))
                 return BrightDataType.Vector;
 
-            if (dataType == typeof(ReadOnlyMatrix))
+            if (dataType == typeof(ReadOnlyMatrix<float>))
                 return BrightDataType.Matrix;
 
-            if (dataType == typeof(ReadOnlyTensor3D))
+            if (dataType == typeof(ReadOnlyTensor3D<float>))
                 return BrightDataType.Tensor3D;
 
-            if (dataType == typeof(ReadOnlyTensor4D))
+            if (dataType == typeof(ReadOnlyTensor4D<float>))
                 return BrightDataType.Tensor4D;
 
             if (dataType == typeof(BinaryData))
@@ -492,7 +492,7 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static async Task<(ReadOnlyMatrix Features, ReadOnlyMatrix Target)> AsMatrices(this IDataTable dataTable)
+        public static async Task<(ReadOnlyMatrix<float> Features, ReadOnlyMatrix<float> Target)> AsMatrices(this IDataTable dataTable)
         {
             var targetColumn = dataTable.GetTargetColumnOrThrow();
             var featureColumns = dataTable.ColumnIndices().Where(i => i != targetColumn).ToArray();
@@ -505,7 +505,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="columnIndices">Column indices to include in the matrix</param>
         /// <returns></returns>
-        public static async Task<ReadOnlyMatrix> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
+        public static async Task<ReadOnlyMatrix<float>> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
         {
             // consider the simple case
             if (columnIndices.Length == 1) {
@@ -513,21 +513,21 @@ namespace BrightData
                 var columnType = dataTable.ColumnTypes[columnIndex];
                 if (columnType.IsTensor()) {
                     var index = 0;
-                    var rows = new IReadOnlyVector[dataTable.RowCount];
+                    var rows = new IReadOnlyVector<float>[dataTable.RowCount];
                     if (columnType == BrightDataType.Vector) {
-                        var column = dataTable.GetColumn<ReadOnlyVector>(columnIndex);
+                        var column = dataTable.GetColumn<ReadOnlyVector<float>>(columnIndex);
                         await foreach (var row in column)
                             rows[index++] = row;
                     }else if (columnType == BrightDataType.Matrix) {
-                        var column = dataTable.GetColumn<ReadOnlyMatrix>(columnIndex);
+                        var column = dataTable.GetColumn<ReadOnlyMatrix<float>>(columnIndex);
                         await foreach (var row in column)
                             rows[index++] = row.Reshape();
                     }else if (columnType == BrightDataType.Tensor3D) {
-                        var column = dataTable.GetColumn<ReadOnlyTensor3D>(columnIndex);
+                        var column = dataTable.GetColumn<ReadOnlyTensor3D<float>>(columnIndex);
                         await foreach (var row in column)
                             rows[index++] = row.Reshape();
                     }else if (columnType == BrightDataType.Tensor4D) {
-                        var column = dataTable.GetColumn<ReadOnlyTensor4D>(columnIndex);
+                        var column = dataTable.GetColumn<ReadOnlyTensor4D<float>>(columnIndex);
                         await foreach (var row in column)
                             rows[index++] = row.Reshape();
                     }
@@ -679,7 +679,7 @@ namespace BrightData
         /// <param name="preserveVectors">True to create a data table with a vector column type, false to convert to columns of floats</param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static Task<IDataTable> ConvertToTable(this Span<(string Label, IVector Data)> data, bool preserveVectors, BrightDataContext context)
+        public static Task<IDataTable> ConvertToTable(this Span<(string Label, IVector<float> Data)> data, bool preserveVectors, BrightDataContext context)
         {
             var builder = new ColumnOrientedDataTableBuilder(context);
             if (preserveVectors) {
@@ -714,17 +714,17 @@ namespace BrightData
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
-        public static (string Classification, IReadOnlyVector Data, uint Index)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
+        public static (string Classification, IReadOnlyVector<float> Data, uint Index)[] Vectorise(this Span<WeightedIndexListWithLabel<string>> data, BrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
             uint index = 0;
-            var ret = new (string Classification, IReadOnlyVector Data, uint Index)[data.Length];
+            var ret = new (string Classification, IReadOnlyVector<float> Data, uint Index)[data.Length];
 
             foreach (ref var item in data)
                 ret[index] = (item.Label, Create(item.Data), index++);
             return ret;
 
-            IReadOnlyVector Create(WeightedIndexList weightedIndexList)
+            IReadOnlyVector<float> Create(WeightedIndexList weightedIndexList)
             {
                 var localRet = new float[size];
                 foreach (ref readonly var item in weightedIndexList.ReadOnlySpan)
@@ -1560,14 +1560,14 @@ namespace BrightData
 
         static ICanVectorise CreateTensorVectoriser(Type type, uint outputSize)
         {
-            if (type == typeof(ReadOnlyVector))
-                return new TensorVectoriser<ReadOnlyVector>(outputSize);
-            if (type == typeof(ReadOnlyMatrix))
-                return new TensorVectoriser<ReadOnlyMatrix>(outputSize);
-            if (type == typeof(ReadOnlyTensor3D))
-                return new TensorVectoriser<ReadOnlyTensor3D>(outputSize);
-            if (type == typeof(ReadOnlyTensor4D))
-                return new TensorVectoriser<ReadOnlyTensor4D>(outputSize);
+            if (type == typeof(ReadOnlyVector<float>))
+                return new TensorVectoriser<ReadOnlyVector<float>>(outputSize);
+            if (type == typeof(ReadOnlyMatrix<float>))
+                return new TensorVectoriser<ReadOnlyMatrix<float>>(outputSize);
+            if (type == typeof(ReadOnlyTensor3D<float>))
+                return new TensorVectoriser<ReadOnlyTensor3D<float>>(outputSize);
+            if (type == typeof(ReadOnlyTensor4D<float>))
+                return new TensorVectoriser<ReadOnlyTensor4D<float>>(outputSize);
             throw new NotImplementedException($"Could not convert to tensor: {type}");
         }
 

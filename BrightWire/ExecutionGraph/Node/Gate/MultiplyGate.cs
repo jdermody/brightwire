@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     internal class MultiplyGate(string? name = null) : BinaryGateBase(name)
     {
-        class Backpropagation(MultiplyGate source, IMatrix primary, IMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
+        class Backpropagation(MultiplyGate source, IMatrix<float> primary, IMatrix<float> secondary, NodeBase primarySource, NodeBase secondarySource)
             : BackpropagationBase<MultiplyGate>(source)
         {
             protected override void DisposeMemory(bool isDisposing)

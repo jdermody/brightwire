@@ -9,9 +9,9 @@ namespace BrightData
     /// <summary>
     /// Bright data context
     /// </summary>
-    public class BrightDataContext : ISetLinearAlgebraProvider, IDisposable
+    public class BrightDataContext : ISetLinearAlgebraProvider<float>, IDisposable
     {
-        Lazy<LinearAlgebraProvider>                   _lap;
+        Lazy<LinearAlgebraProvider<float>>            _lap;
         readonly ConcurrentDictionary<string, object> _attachedProperties = new();
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace BrightData
         /// </summary>
         /// <param name="lap">Linear algebra provider to use (optional)</param>
         /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
-        public BrightDataContext(LinearAlgebraProvider? lap = null, int? randomSeed = null)
+        public BrightDataContext(LinearAlgebraProvider<float>? lap = null, int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
             Random = randomSeed.HasValue 
@@ -51,7 +51,7 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        public LinearAlgebraProvider LinearAlgebraProvider
+        public LinearAlgebraProvider<float> LinearAlgebraProvider
         {
             get => _lap.Value;
             set
@@ -65,7 +65,7 @@ namespace BrightData
         /// <summary>
         /// Linear algebra provider factory
         /// </summary>
-        public Func<LinearAlgebraProvider> LinearAlgebraProviderFactory { get; set; }
+        public Func<LinearAlgebraProvider<float>> LinearAlgebraProviderFactory { get; set; }
 
         /// <summary>
         /// Creates a new temp stream provider

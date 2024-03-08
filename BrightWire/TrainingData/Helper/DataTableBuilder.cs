@@ -60,32 +60,32 @@ namespace BrightWire.TrainingData.Helper
             return ret;
         }
 
-        static ICompositeBuffer<ReadOnlyVector> AddVector(this IBuildDataTables builder, uint? size, string name)
+        static ICompositeBuffer<ReadOnlyVector<float>> AddVector(this IBuildDataTables builder, uint? size, string name)
         {
             return size != null 
                 ? builder.CreateFixedSizeVectorColumn(size.Value, name) 
-                : (ICompositeBuffer<ReadOnlyVector>)builder.CreateColumn(BrightDataType.Vector, name);
+                : (ICompositeBuffer<ReadOnlyVector<float>>)builder.CreateColumn(BrightDataType.Vector, name);
         }
 
-        static ICompositeBuffer<ReadOnlyMatrix> AddMatrix(this IBuildDataTables builder, uint? rows, uint? columns, string name)
+        static ICompositeBuffer<ReadOnlyMatrix<float>> AddMatrix(this IBuildDataTables builder, uint? rows, uint? columns, string name)
         {
             return rows != null && columns != null 
                 ? builder.CreateFixedSizeMatrixColumn(rows.Value, columns.Value, name) 
-                : (ICompositeBuffer<ReadOnlyMatrix>)builder.CreateColumn(BrightDataType.Matrix, name);
+                : (ICompositeBuffer<ReadOnlyMatrix<float>>)builder.CreateColumn(BrightDataType.Matrix, name);
         }
 
-        static ICompositeBuffer<ReadOnlyTensor3D> Add3DTensor(this IBuildDataTables builder, uint? depth, uint? rows, uint? columns, string name)
+        static ICompositeBuffer<ReadOnlyTensor3D<float>> Add3DTensor(this IBuildDataTables builder, uint? depth, uint? rows, uint? columns, string name)
         {
             return depth != null && rows != null && columns != null 
                 ? builder.CreateFixedSize3DTensorColumn(depth.Value, rows.Value, columns.Value, name) 
-                : (ICompositeBuffer<ReadOnlyTensor3D>)builder.CreateColumn(BrightDataType.Tensor3D, name);
+                : (ICompositeBuffer<ReadOnlyTensor3D<float>>)builder.CreateColumn(BrightDataType.Tensor3D, name);
         }
 
-        static ICompositeBuffer<ReadOnlyTensor4D> Add4DTensor(this IBuildDataTables builder, uint? count, uint? depth, uint? rows, uint? columns, string name)
+        static ICompositeBuffer<ReadOnlyTensor4D<float>> Add4DTensor(this IBuildDataTables builder, uint? count, uint? depth, uint? rows, uint? columns, string name)
         {
             return count != null && depth != null && rows != null && columns != null 
                 ? builder.CreateFixedSize4DTensorColumn(count.Value, depth.Value, rows.Value, columns.Value, name) 
-                : (ICompositeBuffer<ReadOnlyTensor4D>)builder.CreateColumn(BrightDataType.Tensor4D, name);
+                : (ICompositeBuffer<ReadOnlyTensor4D<float>>)builder.CreateColumn(BrightDataType.Tensor4D, name);
         }
     }
 }

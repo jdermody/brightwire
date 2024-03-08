@@ -38,7 +38,7 @@ namespace BrightWire.Models.InstanceBased
         /// <param name="lap">The linear algebra provider</param>
         /// <param name="k">The number of instances to consider</param>
         /// <param name="distanceMetric">The distance metric to compare each row with each instance</param>
-        public IRowClassifier CreateClassifier(LinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public IRowClassifier CreateClassifier(LinearAlgebraProvider<float> lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             return new KnnClassifier(lap, this, k, distanceMetric);
         }

@@ -164,7 +164,7 @@ namespace BrightData.UnitTests
                 var val = row.Get<double>(0);
                 var prevVal = existing[index];
                 var expected = (prevVal - mean) / stdDev;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -223,7 +223,7 @@ namespace BrightData.UnitTests
                 var val = row.Get<double>(0);
                 var prevVal = existing[index];
                 var expected = (prevVal - analysis.Mean) / analysis.PopulationStdDev!;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -239,7 +239,7 @@ namespace BrightData.UnitTests
                 var val = row.Get<double>(0);
                 var prevVal = existing[index];
                 var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -257,7 +257,7 @@ namespace BrightData.UnitTests
                 var val = row.Get<double>(0);
                 var prevVal = existing[index];
                 var expected = prevVal / analysis.L2Norm;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -275,7 +275,7 @@ namespace BrightData.UnitTests
                 var val = row.Get<double>(0);
                 var prevVal = existing[index];
                 var expected = prevVal / analysis.L1Norm;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 

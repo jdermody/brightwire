@@ -19,14 +19,14 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+            public IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IReadOnlyVector output, IReadOnlyVector targetOutput)
+            public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)
             {
-                return output.GetMaximumIndex() == targetOutput.GetMaximumIndex() ? 1 : 0;
+                return output.GetMinAndMaxValues().MaxIndex == targetOutput.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;
@@ -61,7 +61,7 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data).ToBlockingEnumerable().FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(IReadOnlyVector value) => value[0] > 0.5f;
+            static bool Handle(IReadOnlyVector<float> value) => value[0] > 0.5f;
             var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }

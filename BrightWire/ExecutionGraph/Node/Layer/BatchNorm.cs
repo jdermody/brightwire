@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
-		IMatrix? _gammaCached, _betaCached, _meanCached, _stdDevCached;
+		IMatrix<float>? _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
 #pragma warning disable 8618
         public BatchNorm(GraphFactory graph, uint inputSize, string? name = null) : base(name)
@@ -77,8 +77,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            IMatrix input;
-            IReadOnlyVector[]? samples;
+            IMatrix<float> input;
+            IReadOnlyVector<float>[]? samples;
             var lap = context.GetLinearAlgebraProvider();
             var shouldDispose = false;
             (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);

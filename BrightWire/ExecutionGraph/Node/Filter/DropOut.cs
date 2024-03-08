@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     /// </summary>
     internal class DropOut : NodeBase
     {
-        class Backpropagation(DropOut source, IMatrix filter) : SingleBackpropagationBase<DropOut>(source)
+        class Backpropagation(DropOut source, IMatrix<float> filter) : SingleBackpropagationBase<DropOut>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 // drop out random neurons during training
                 var lap = context.GetLinearAlgebraProvider();
                 var matrix = signal.GetMatrix();
-                Func<uint, uint, float> sample = FloatMath.IsZero(_dropOutPercentage)
+                Func<uint, uint, float> sample = Math<float>.IsZero(_dropOutPercentage)
                     ? (_, _) => 1f
                     : (_, _) => _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage
                 ;

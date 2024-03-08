@@ -11,7 +11,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Average()
         {
-            var set = new VectorSet(4);
+            var set = new VectorSet<float>(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var average = set.GetAverage(new[] { 0U, 1U });
@@ -21,7 +21,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank1()
         {
-            var set = new VectorSet(4);
+            var set = new VectorSet<float>(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.8f, 0.8f, 0.8f, 0.8f));
@@ -31,7 +31,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank2()
         {
-            var set = new VectorSet(4);
+            var set = new VectorSet<float>(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.45f, 0.45f, 0.45f, 0.45f));

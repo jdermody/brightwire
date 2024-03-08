@@ -49,7 +49,7 @@ namespace BrightData.Cuda
         {
             var provider = CreateCudaProvider(context, cudaKernelPath);
             var ret = new CudaLinearAlgebraProvider(context, provider);
-            var setLinearAlgebraProvider = (ISetLinearAlgebraProvider)context;
+            var setLinearAlgebraProvider = (ISetLinearAlgebraProvider<float>)context;
             setLinearAlgebraProvider.LinearAlgebraProvider = ret;
             setLinearAlgebraProvider.LinearAlgebraProviderFactory = () => new CudaLinearAlgebraProvider(context, provider);
             return ret;
@@ -61,7 +61,7 @@ namespace BrightData.Cuda
         /// <param name="lap"></param>
         /// <param name="cuda"></param>
         /// <returns></returns>
-        public static bool IsCuda(this LinearAlgebraProvider lap, [NotNullWhen(true)]out CudaLinearAlgebraProvider? cuda)
+        public static bool IsCuda(this LinearAlgebraProvider<float> lap, [NotNullWhen(true)]out CudaLinearAlgebraProvider? cuda)
         {
             if (lap.ProviderName == CudaLinearAlgebraProvider.Name) {
                 cuda = (CudaLinearAlgebraProvider)lap;

@@ -75,7 +75,7 @@ namespace BrightData
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size);
-        
+
         /// <summary>
         /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
         /// </summary>
@@ -1572,7 +1572,7 @@ namespace BrightData
         {
             var results = new List<uint>();
             var spinLock = new SpinLock();
-            tolerance ??= T.CreateSaturating(FloatMath.AlmostZero);
+            tolerance ??= Math<T>.AlmostZero;
             Analyse(segment, (v, index) => {
                 if (T.Abs(value - v) < tolerance) {
                     using var l = spinLock.Enter();
@@ -1641,13 +1641,13 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this ReadOnlySpan<float> span) => new ReadOnlyVector(span.ToArray());
+        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this ReadOnlySpan<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
 
         /// <summary>
         /// Creates a read only vector from the span
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static IReadOnlyVector ToReadOnlyVector(this Span<float> span) => new ReadOnlyVector(span.ToArray());
+        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this Span<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
     }
 }

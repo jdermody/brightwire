@@ -13,19 +13,19 @@ namespace BrightWire.InstanceBased
     internal class KnnClassifier : IRowClassifier
     {
         readonly KNearestNeighbours _model;
-        readonly LinearAlgebraProvider _lap;
-        readonly IVector[] _instance;
+        readonly LinearAlgebraProvider<float> _lap;
+        readonly IVector<float>[] _instance;
         readonly DistanceMetric _distanceMetric;
         readonly uint _k;
 
-        public KnnClassifier(LinearAlgebraProvider lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public KnnClassifier(LinearAlgebraProvider<float> lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _lap = lap;
             _model = model;
             _distanceMetric = distanceMetric;
 
-            _instance = new IVector[model.Instance.Length];
+            _instance = new IVector<float>[model.Instance.Length];
             for (int i = 0, len = model.Instance.Length; i < len; i++)
                 _instance[i] = lap.CreateVector(model.Instance[i]);
         }

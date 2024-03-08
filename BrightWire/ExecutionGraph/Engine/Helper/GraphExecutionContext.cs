@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </remarks>
     /// <param name="graphEngine">Graph engine</param>
     /// <param name="wantInputInExecutionResults">True to save the graph input in the execution results</param>
-    public class GraphExecutionContext(IGraphEngine graphEngine, bool wantInputInExecutionResults = false) : IHaveLinearAlgebraProvider, IDisposable
+    public class GraphExecutionContext(IGraphEngine graphEngine, bool wantInputInExecutionResults = false) : IHaveLinearAlgebraProvider<float>, IDisposable
     {
         class AdditionalBatch(MiniBatch batch, IGraphData data, Action<IGraphContext, IGraphData> start, Action<IGraphContext[]> end)
         {
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
         readonly ICreateGraphContext _createGraphContext = graphEngine;
         readonly ConcurrentQueue<IGraphOperation> _operationList = new();
-        readonly ConcurrentDictionary<string, IMatrix> _memory = new();
+        readonly ConcurrentDictionary<string, IMatrix<float>> _memory = new();
         readonly ConcurrentDictionary<MiniBatch.Sequence, Action<IGraphContext>> _continuationTable = new();
         readonly ConcurrentStack<AdditionalBatch> _additionalBatches = new();
 
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         /// <inheritdoc />
-        public LinearAlgebraProvider LinearAlgebraProvider { get; } = graphEngine.LinearAlgebraProvider;
+        public LinearAlgebraProvider<float> LinearAlgebraProvider { get; } = graphEngine.LinearAlgebraProvider;
 
         /// <summary>
         /// Adds graph operations to the queue
@@ -137,7 +137,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         /// <param name="index"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public IMatrix GetMemory(string index)
+        public IMatrix<float> GetMemory(string index)
         {
             if (_memory.TryGetValue(index, out var output))
                 return output;
@@ -160,7 +160,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         /// </summary>
         /// <param name="index"></param>
         /// <param name="memory"></param>
-        public void SetMemory(string index, IMatrix? memory)
+        public void SetMemory(string index, IMatrix<float>? memory)
         {
             if (memory == null) {
                 if (_memory.TryRemove(index, out var temp))

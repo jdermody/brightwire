@@ -12,11 +12,11 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         readonly IContinuousDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;
         readonly GaussianVarianceCount _varianceCount;
-        readonly LinearAlgebraProvider _lap;
+        readonly LinearAlgebraProvider<float> _lap;
         readonly bool _zeroBias;
 
         public Gaussian(
-            LinearAlgebraProvider lap, 
+            LinearAlgebraProvider<float> lap, 
             bool zeroInitialBias = true, 
             float stdDev = 0.1f, 
             GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
@@ -53,12 +53,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return sample;
         }
 
-        public IVector CreateBias(uint size)
+        public IVector<float> CreateBias(uint size)
         {
             return _lap.CreateVector(size, _ => GetBias());
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IMatrix<float> CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (_, _) => GetWeight(rows, columns));
         }

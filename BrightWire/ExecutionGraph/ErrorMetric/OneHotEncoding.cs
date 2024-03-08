@@ -7,15 +7,15 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class OneHotEncoding : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
         {
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IReadOnlyVector output, IReadOnlyVector expectedOutput)
+        public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> expectedOutput)
         {
-            var outputIndex = output.GetMaximumIndex();
-            var expectedIndex = expectedOutput.GetMaximumIndex();
+            var outputIndex = output.GetMinAndMaxValues().MaxIndex;
+            var expectedIndex = expectedOutput.GetMinAndMaxValues().MaxIndex;
             return outputIndex == expectedIndex ? 1f : 0f;
         }
 

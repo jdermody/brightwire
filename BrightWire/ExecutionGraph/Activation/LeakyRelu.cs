@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// </summary>
     internal class LeakyRelu(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(LeakyRelu source, IMatrix matrix) : SingleBackpropagationBase<LeakyRelu>(source)
+        class Backpropagation(LeakyRelu source, IMatrix<float> matrix) : SingleBackpropagationBase<LeakyRelu>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

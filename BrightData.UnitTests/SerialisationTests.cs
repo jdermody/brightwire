@@ -134,8 +134,8 @@ namespace BrightData.UnitTests
             writer.Flush();
             buffer.Seek(0, SeekOrigin.Begin);
 
-            _context.Create<IVector>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
-            _context.Create<IMatrix>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
+            _context.Create<IVector<float>>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix<float>>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
         }
 
         [Fact]
@@ -152,8 +152,8 @@ namespace BrightData.UnitTests
             writer.Flush();
             buffer.Seek(0, SeekOrigin.Begin);
 
-            _context.Create<IVector>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
-            _context.Create<IMatrix>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
+            _context.Create<IVector<float>>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix<float>>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
         }
 
         [Fact]

@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Helper class when executing a single sequence
     /// </summary>
-    internal class SequentialRowDataSource(float[][] data, LinearAlgebraProvider lap) : IDataSource
+    internal class SequentialRowDataSource(float[][] data, LinearAlgebraProvider<float> lap) : IDataSource
     {
         public uint InputSize { get; } = (uint)data.First().Length;
         public uint? OutputSize { get; } = null;

@@ -11,13 +11,13 @@ namespace BrightWire.ExecutionGraph.Node.Attention
 {
     internal class SimpleAttention : NodeBase
     {
-        LinearAlgebraProvider _lap;
+        LinearAlgebraProvider<float> _lap;
         string _encoderName, _decoderName;
         uint _inputSize, _encoderSize, _decoderSize, _blockSize;
         IGradientDescentOptimisation _updater;
-        IMatrix _attention;
+        IMatrix<float> _attention;
 
-        class Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, INumericSegment<float>[] softmax)
+        class Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix<float> inputMatrix, INumericSegment<float>[] softmax)
             : SingleBackpropagationBase<SimpleAttention>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
@@ -55,14 +55,14 @@ namespace BrightWire.ExecutionGraph.Node.Attention
         }
 
         public SimpleAttention(
-            LinearAlgebraProvider lap, 
+            LinearAlgebraProvider<float> lap, 
             string encoderName, 
             string decoderName,
             uint inputSize, 
             uint encoderSize, 
             uint decoderSize,
             IWeightInitialisation weightInit,
-            Func<IMatrix, IGradientDescentOptimisation> updater,
+            Func<IMatrix<float>, IGradientDescentOptimisation> updater,
             string? name, 
             string? id = null
         ) : base(name, id)
@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             var batchSize = context.BatchSequence.MiniBatch.BatchSize;
 
             // get the previous decoder state
-            IMatrix? decoderHiddenState = null;
+            IMatrix<float>? decoderHiddenState = null;
             if (_decoderSize > 0) {
                 if (currentIndex == 0) {
                     if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
@@ -103,13 +103,13 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             // find each encoder hidden state and sequence input
             var previousBatch = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
             Debug.Assert(batchSize == previousBatch.BatchSize);
-            IMatrix[]? encoderStates = null;
-            var inputs = new IMatrix[previousBatch.SequenceCount];
+            IMatrix<float>[]? encoderStates = null;
+            var inputs = new IMatrix<float>[previousBatch.SequenceCount];
             for (uint i = 0, len = previousBatch.SequenceCount; i < len; i++) {
                 var sequence = previousBatch.GetSequenceAtIndex(i);
                 if (_encoderSize > 0) {
                     if (i == 0)
-                        encoderStates = new IMatrix[len];
+                        encoderStates = new IMatrix<float>[len];
                     var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix()
                         ?? throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != _encoderSize)
@@ -156,9 +156,9 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, sequenceSize, inputMatrix, softmax));
         }
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
-            _updater.Update(_attention, (IMatrix)delta, context);
+            _updater.Update(_attention, (IMatrix<float>)delta, context);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

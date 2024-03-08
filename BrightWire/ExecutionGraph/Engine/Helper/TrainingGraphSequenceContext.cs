@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
-        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider<float> LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {

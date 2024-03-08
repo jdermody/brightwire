@@ -62,7 +62,7 @@ namespace ExampleCode.DataTableTrainers
             public override string ToString() => $"{Title} - {Abstract}";
         }
         readonly StringTableBuilder _stringTable = new();
-        readonly IVector[] _vectors;
+        readonly IVector<float>[] _vectors;
         readonly AaaiDocument[] _documents;
         readonly uint _groupCount;
 

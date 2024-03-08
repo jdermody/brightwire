@@ -357,7 +357,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="delta"></param>
         /// <param name="context"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public virtual void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             throw new NotImplementedException();
         }

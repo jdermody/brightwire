@@ -47,7 +47,7 @@ namespace BrightData.Analysis
 
             Divide = divide;
             Subtract = subtract;
-            _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
+            _divideByZero = Math.Abs(Divide) <= Math<double>.AlmostZero;
         }
 
         internal NormalisationModel(MetaData metaData)

@@ -34,10 +34,10 @@ namespace BrightData
             BrightDataType.Date              => new FieldSpecification<DateTime>(name, canRepeat),
             BrightDataType.IndexList         => new FieldSpecification<IndexList>(name, canRepeat),
             BrightDataType.WeightedIndexList => new FieldSpecification<WeightedIndexList>(name, canRepeat),
-            BrightDataType.Vector            => new FieldSpecification<ReadOnlyVector>(name, canRepeat),
-            BrightDataType.Matrix            => new FieldSpecification<ReadOnlyMatrix>(name, canRepeat),
-            BrightDataType.Tensor3D          => new FieldSpecification<ReadOnlyTensor3D>(name, canRepeat),
-            BrightDataType.Tensor4D          => new FieldSpecification<ReadOnlyTensor4D>(name, canRepeat),
+            BrightDataType.Vector            => new FieldSpecification<ReadOnlyVector<float>>(name, canRepeat),
+            BrightDataType.Matrix            => new FieldSpecification<ReadOnlyMatrix<float>>(name, canRepeat),
+            BrightDataType.Tensor3D          => new FieldSpecification<ReadOnlyTensor3D<float>>(name, canRepeat),
+            BrightDataType.Tensor4D          => new FieldSpecification<ReadOnlyTensor4D<float>>(name, canRepeat),
             _                                => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 

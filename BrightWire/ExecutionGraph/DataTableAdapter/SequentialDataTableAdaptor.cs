@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify each step of a sequence
     /// </summary>
-    internal class SequentialDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyMatrix, ReadOnlyMatrix>
+    internal class SequentialDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyMatrix<float>, ReadOnlyMatrix<float>>
     {
         readonly uint[] _rowDepth;
         readonly bool _sequenceLengthsAreVaried = false;

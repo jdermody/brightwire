@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Adapts data tables that classify a sequence into a single classification
     /// </summary>
-    internal class ManyToOneDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyMatrix, ReadOnlyVector>
+    internal class ManyToOneDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyMatrix<float>, ReadOnlyVector<float>>
     {
         readonly uint[] _rowDepth;
 
@@ -24,11 +24,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
-            ReadOnlyMatrix? inputMatrix = null;
-            ReadOnlyVector? outputVector = null;
+            ReadOnlyMatrix<float>? inputMatrix = null;
+            ReadOnlyVector<float>? outputVector = null;
             foreach(var row in dataTable.EnumerateRows().ToBlockingEnumerable()) {
-                inputMatrix = (ReadOnlyMatrix)row[_featureColumnIndices[0]];
-                outputVector = (ReadOnlyVector)row[_targetColumnIndex];
+                inputMatrix = (ReadOnlyMatrix<float>)row[_featureColumnIndices[0]];
+                outputVector = (ReadOnlyVector<float>)row[_targetColumnIndex];
                 _rowDepth[row.RowIndex] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override async Task<MiniBatch> Get(uint[] rows)
         {
             var index = 0;
-            var outputRows = new ReadOnlyVector[rows.Length];
+            var outputRows = new ReadOnlyVector<float>[rows.Length];
             var inputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             await foreach (var row in GetRows(rows)) {
                 var input = row.C1;

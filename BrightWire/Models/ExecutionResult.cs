@@ -17,7 +17,7 @@ namespace BrightWire.Models
         /// <param name="miniBatch">The mini batch sequence</param>
         /// <param name="output">The mini batch output</param>
         /// <param name="wantInputInExecutionResults">True to save graph inputs in the execution results</param>
-        public ExecutionResult(MiniBatch.Sequence miniBatch, IMatrix output, bool wantInputInExecutionResults)
+        public ExecutionResult(MiniBatch.Sequence miniBatch, IMatrix<float> output, bool wantInputInExecutionResults)
         {
             _miniBatch = miniBatch;
 
@@ -30,22 +30,22 @@ namespace BrightWire.Models
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IReadOnlyVector[] Output { get; }
+		public IReadOnlyVector<float>[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IReadOnlyVector[]? Target { get; }
+		public IReadOnlyVector<float>[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IReadOnlyVector[]? Input { get; }
+		public IReadOnlyVector<float>[]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public IReadOnlyVector[]? Error { get; set; } = null;
+        public IReadOnlyVector<float>[]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch

@@ -326,7 +326,7 @@ namespace BrightData
         /// Returns a sequence of vectorised table rows
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IVector> Enumerate();
+        IEnumerable<IVector<float>> Enumerate();
     }
 
     /// <summary>
@@ -357,10 +357,10 @@ namespace BrightData
         /// <param name="tensor3DMapper"></param>
         /// <param name="tensor4DMapper"></param>
         void SetTensorMappers(
-            BlockMapper<DataRangeColumnType, ReadOnlyVector> vectorMapper,
-            BlockMapper<MatrixColumnType, ReadOnlyMatrix> matrixMapper,
-            BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D> tensor3DMapper,
-            BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D> tensor4DMapper
+            BlockMapper<DataRangeColumnType, ReadOnlyVector<float>> vectorMapper,
+            BlockMapper<MatrixColumnType, ReadOnlyMatrix<float>> matrixMapper,
+            BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D<float>> tensor3DMapper,
+            BlockMapper<Tensor4DColumnType, ReadOnlyTensor4D<float>> tensor4DMapper
         );
     }
 
@@ -987,7 +987,7 @@ namespace BrightData
         /// <param name="size">Size of the vector</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyVector> CreateFixedSizeVectorColumn(uint size, string? name);
+        ICompositeBuffer<ReadOnlyVector<float>> CreateFixedSizeVectorColumn(uint size, string? name);
 
         /// <summary>
         /// Adds a fixed size matrix column
@@ -996,7 +996,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyMatrix> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyMatrix<float>> CreateFixedSizeMatrixColumn(uint rows, uint columns, string? name);
 
         /// <summary>
         /// Adds a fixed size 3D tensor column 
@@ -1006,7 +1006,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyTensor3D> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyTensor3D<float>> CreateFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name);
 
         /// <summary>
         /// Adds a fixed size 4D tensor column
@@ -1017,7 +1017,7 @@ namespace BrightData
         /// <param name="columns">Number of columns</param>
         /// <param name="name">New column name</param>
         /// <returns></returns>
-        ICompositeBuffer<ReadOnlyTensor4D> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
+        ICompositeBuffer<ReadOnlyTensor4D<float>> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// </summary>
     internal class Sigmoid(string? name = null) : NodeBase(name)
     {
-        class Backpropagation(Sigmoid source, IMatrix matrix) : SingleBackpropagationBase<Sigmoid>(source)
+        class Backpropagation(Sigmoid source, IMatrix<float> matrix) : SingleBackpropagationBase<Sigmoid>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {

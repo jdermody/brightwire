@@ -12,7 +12,7 @@ namespace BrightData.LinearAlgebra.Clustering
         {
             readonly List<uint> _indices = [];
 
-            public Node(IReadOnlyVector vector, uint index)
+            public Node(IReadOnlyVector<float> vector, uint index)
             {
                 Vector = vector;
                 _indices.Add(index);
@@ -22,16 +22,15 @@ namespace BrightData.LinearAlgebra.Clustering
             {
                 _indices.AddRange(left._indices);
                 _indices.AddRange(right._indices);
-                using var segment = left.Vector.Add(right.Vector);
-                segment.ApplySpan(true, x => x.MultiplyInPlace(0.5f));
-                Vector = segment.ToNewArray().ToReadOnlyVector();
+                var segment = left.Vector.Add(right.Vector);
+                Vector = segment.Multiply(0.5f);
             }
-            public IReadOnlyVector Vector { get; }
+            public IReadOnlyVector<float> Vector { get; }
             public uint[] GetIndices() => _indices.ToArray();
         }
         record NodePair(LinkedListNode<Node> Left, LinkedListNode<Node> Right);
 
-        public uint[][] Cluster(IReadOnlyVector[] vectors, uint numClusters, DistanceMetric metric)
+        public uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric)
         {
             var nodes = new LinkedList<Node>(vectors.Select((x, i) => new Node(x, (uint)i)));
             var cache = new Dictionary<NodePair, float>();

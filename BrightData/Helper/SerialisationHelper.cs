@@ -164,13 +164,13 @@ namespace BrightData.Helper
             where T : ICanInitializeFromBinaryReader
         {
             T ret;
-            if (typeof(T) == typeof(IVector))
+            if (typeof(T) == typeof(IVector<float>))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.VectorType);
-            else if (typeof(T) == typeof(IMatrix))
+            else if (typeof(T) == typeof(IMatrix<float>))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.MatrixType);
-            else if (typeof(T) == typeof(ITensor3D))
+            else if (typeof(T) == typeof(ITensor3D<float>))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor3DType);
-            else if (typeof(T) == typeof(ITensor4D))
+            else if (typeof(T) == typeof(ITensor4D<float>))
                 ret = GenericActivator.CreateUninitialized<T>(context.LinearAlgebraProvider.Tensor4DType);
             else
                 ret = GenericActivator.CreateUninitialized<T>();

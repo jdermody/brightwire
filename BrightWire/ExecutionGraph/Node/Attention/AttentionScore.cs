@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             var query = primary.Get3DTensor()!;
             var keys = secondary.Get3DTensor()!;
             var depth = query.Depth;
-            var attentionScores = new IMatrix[depth];
+            var attentionScores = new IMatrix<float>[depth];
 
             for (uint i = 0; i < depth; i++) {
                 using var q = query.GetMatrix(i);

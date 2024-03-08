@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             {
                 var errorTensor = errorSignal.Get3DTensor();
                 var depth = errorTensor!.Depth;
-                var output = new IMatrix[depth];
+                var output = new IMatrix<float>[depth];
 
                 for (uint i = 0; i < depth; i++) {
                     var backProp = prop[i]!();
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
         {
             var tensor = signal.Get3DTensor();
             var depth = tensor!.Depth;
-            var output = new IMatrix[depth];
+            var output = new IMatrix<float>[depth];
             Func<IBackpropagate>?[]? backProp = null;
 
             for (uint i = 0; i < depth; i++) {

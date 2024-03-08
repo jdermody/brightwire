@@ -34,7 +34,7 @@ namespace BrightData.MKL
     /// <summary>
     /// Linear algebra provider that uses the Intel MKL library
     /// </summary>
-    public unsafe class MklLinearAlgebraProvider : LinearAlgebraProvider
+    public unsafe class MklLinearAlgebraProvider : LinearAlgebraProvider<float>
     {
         /// <inheritdoc />
         public MklLinearAlgebraProvider(BrightDataContext context) : base(context)
@@ -62,16 +62,16 @@ namespace BrightData.MKL
         public override Type Tensor4DType { get; } = typeof(MklTensor4D);
 
         /// <inheritdoc />
-        public override IVector CreateVector(INumericSegment<float> data) => new MklVector(data, this);
+        public override IVector<float> CreateVector(INumericSegment<float> data) => new MklVector(data, this);
 
         /// <inheritdoc />
-        public override IMatrix CreateMatrix(uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklMatrix(data, rowCount, columnCount, this);
+        public override IMatrix<float> CreateMatrix(uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklMatrix(data, rowCount, columnCount, this);
 
         /// <inheritdoc />
-        public override ITensor3D CreateTensor3D(uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor3D(data, depth, rowCount, columnCount, this);
+        public override ITensor3D<float> CreateTensor3D(uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor3D(data, depth, rowCount, columnCount, this);
 
         /// <inheritdoc />
-        public override ITensor4D CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
+        public override ITensor4D<float> CreateTensor4D(uint count, uint depth, uint rowCount, uint columnCount, INumericSegment<float>  data) => new MklTensor4D(data, count, depth, rowCount, columnCount, this);
 
         internal delegate void ApplyNewSizeCallback(float* a, float* b, float* r);
         internal INumericSegment<float> ApplyWithNewSize(INumericSegment<float> tensor, INumericSegment<float> tensor2, uint resultSize, bool initialiseToZero, ApplyNewSizeCallback callback)
@@ -91,7 +91,7 @@ namespace BrightData.MKL
         {
             var result = CreateSegment(tensor.Size, false);
             tensor.CopyTo(result);
-            if (Math.Abs(coefficient - 1) > FloatMath.AlmostZero) {
+            if (Math.Abs(coefficient - 1) > Math<float>.AlmostZero) {
                 fixed (float* ptr = result.Contiguous!.ReadOnlySpan) {
                     Blas.Unsafe.scal((int)tensor.Size, coefficient, ptr, 1);
                 }
