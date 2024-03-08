@@ -545,7 +545,8 @@ namespace BrightData
         /// <param name="matrix"></param>
         /// <param name="makeCopy">True to make a copy of each column</param>
         /// <returns></returns>
-        public static IReadOnlyVector<T>[] AllColumnsAsReadOnly<T>(this IReadOnlyMatrix<T> matrix, bool makeCopy) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        public static IReadOnlyVector<T>[] AllColumnsAsReadOnly<T>(this IReadOnlyMatrix<T> matrix, bool makeCopy) 
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
             var ret = new IReadOnlyVector<T>[matrix.ColumnCount];
             if (makeCopy) {
@@ -559,6 +560,30 @@ namespace BrightData
             }
 
             return ret;
+        }
+
+        /// <summary>
+        /// Returns a row as a vector
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="rowY">Row index</param>
+        /// <returns></returns>
+        public static IVector<T> GetRowVector<T>(this IMatrix<T> matrix, uint rowY)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return matrix.GetRow(rowY).ToVector(matrix.LinearAlgebraProvider);
+        }
+
+        /// <summary>
+        /// Returns a column as a vector
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="columnX">Column index</param>
+        /// <returns></returns>
+        public static IVector<T> GetColumnVector<T>(this IMatrix<T> matrix, uint columnX)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return matrix.GetColumn(columnX).ToVector(matrix.LinearAlgebraProvider);
         }
     }
 }

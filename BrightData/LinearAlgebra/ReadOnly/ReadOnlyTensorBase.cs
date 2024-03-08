@@ -159,6 +159,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public TT Map(Func<T, T> mutator) => Create(ReadOnlySegment.ApplyReadOnlySpan(x => x.MapParallel(mutator)));
 
         /// <inheritdoc />
+        public TT MapIndexed(Func<uint, T, T> mutator) => Create(ReadOnlySegment.ApplyReadOnlySpan(x => x.MapParallel(mutator)));
+
+        /// <inheritdoc />
         public abstract ReadOnlySpan<byte> DataAsBytes { get; }
 
         /// <summary>

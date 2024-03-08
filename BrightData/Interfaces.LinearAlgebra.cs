@@ -367,13 +367,64 @@ namespace BrightData
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         where TT : IReadOnlyTensor<T>
     {
+        /// <summary>
+        /// Adds a tensor to this tensor and returns the result
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         TT Add(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Adds a tensor to this tensor and returns the result with each value multiplied by coefficients
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="coefficient1"></param>
+        /// <param name="coefficient2"></param>
+        /// <returns></returns>
         TT Add(IReadOnlyTensor<T> other, T coefficient1, T coefficient2);
+
+        /// <summary>
+        /// Adds a value to each element of the tensor
+        /// </summary>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
         TT Add(T scalar);
+
+        /// <summary>
+        /// Multiplies a scalar to each element of the tensor
+        /// </summary>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
         TT Multiply(T scalar);
+
+        /// <summary>
+        /// Subtracts another tensor from this tensor and returns the result
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         TT Subtract(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Subtracts another tensor from this tensor and returns the result with each value multiplied by coefficients
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="coefficient1"></param>
+        /// <param name="coefficient2"></param>
+        /// <returns></returns>
         TT Subtract(IReadOnlyTensor<T> other, T coefficient1, T coefficient2);
+
+        /// <summary>
+        /// Multiplies each element of this tensor with the corresponding value in another tensor with the same size
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         TT PointwiseMultiply(IReadOnlyTensor<T> other);
+
+        /// <summary>
+        /// Divides each element of this tensor with the corresponding value in another tensor with the same size
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         TT PointwiseDivide(IReadOnlyTensor<T> other);
 
         /// <summary>
@@ -496,6 +547,13 @@ namespace BrightData
         /// <param name="mutator">Mapping function</param>
         /// <returns></returns>
         TT Map(Func<T, T> mutator);
+
+        /// <summary>
+        /// Applies a mapping function that also accepts the index of the value
+        /// </summary>
+        /// <param name="mutator"></param>
+        /// <returns></returns>
+        TT MapIndexed(Func<uint, T, T> mutator);
     }
 
     /// <summary>
@@ -577,6 +635,21 @@ namespace BrightData
         /// <param name="columnIndex"></param>
         /// <returns></returns>
         IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint columnIndex);
+
+        /// <summary>
+        /// Returns a row as a span
+        /// </summary>
+        /// <param name="rowY">Row index</param>
+        /// <param name="temp">Temporary buffer in which to write the contiguous row values</param>
+        /// <returns></returns>
+        ReadOnlySpan<T> GetRowSpan(uint rowY, ref SpanOwner<T> temp);
+
+        /// <summary>
+        /// Returns a column as a span
+        /// </summary>
+        /// <param name="columnX">Column index</param>
+        /// <returns></returns>
+        ReadOnlySpan<T> GetColumnSpan(uint columnX);
 
         /// <summary>
         /// Creates a new mutable matrix that is a copy of this matrix
@@ -842,6 +915,12 @@ namespace BrightData
         void MapInPlace(Func<T, T> mutator);
 
         /// <summary>
+        /// Applies a mapping function that also accepts the vector index (vector will be modified in place)
+        /// </summary>
+        /// <param name="mutator"></param>
+        void MapIndexedInPlace(Func<uint, T, T> mutator);
+
+        /// <summary>
         /// Applies L1 regularization to this tensor (the result will be stored in this tensor)
         /// </summary>
         /// <param name="coefficient"></param>
@@ -1052,6 +1131,13 @@ namespace BrightData
         /// <param name="mutator">Mapping function</param>
         /// <returns></returns>
         new TT Map(Func<T, T> mutator);
+
+        /// <summary>
+        /// Applies a mapping function that also accepts the index of the value
+        /// </summary>
+        /// <param name="mutator"></param>
+        /// <returns></returns>
+        new TT MapIndexed(Func<uint, T, T> mutator);
     }
 
     /// <summary>
@@ -1087,19 +1173,6 @@ namespace BrightData
         /// <param name="index"></param>
         /// <returns></returns>
         T this[ulong index] { get; set; }
-
-        /// <summary>
-        /// Applies a mapping function that also accepts the vector index
-        /// </summary>
-        /// <param name="mutator"></param>
-        /// <returns></returns>
-        IVector<T> MapIndexed(Func<uint, T, T> mutator);
-
-        /// <summary>
-        /// Applies a mapping function that also accepts the vector index (vector will be modified in place)
-        /// </summary>
-        /// <param name="mutator"></param>
-        void MapIndexedInPlace(Func<uint, T, T> mutator);
 
         /// <summary>
         /// Clones the vector
@@ -1159,35 +1232,6 @@ namespace BrightData
         /// <param name="index">Column index</param>
         /// <returns></returns>
         INumericSegment<T> GetColumn(uint index);
-
-        /// <summary>
-        /// Returns a row as a span
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <param name="temp">Temporary buffer in which to write the contiguous row values</param>
-        /// <returns></returns>
-        ReadOnlySpan<T> GetRowSpan(uint rowY, ref SpanOwner<T> temp);
-
-        /// <summary>
-        /// Returns a column as a span
-        /// </summary>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
-        ReadOnlySpan<T> GetColumnSpan(uint columnX);
-
-        /// <summary>
-        /// Returns a row as a vector
-        /// </summary>
-        /// <param name="rowY">Row index</param>
-        /// <returns></returns>
-        IVector<T> GetRowVector(uint rowY);
-
-        /// <summary>
-        /// Returns a column as a vector
-        /// </summary>
-        /// <param name="columnX">Column index</param>
-        /// <returns></returns>
-        IVector<T> GetColumnVector(uint columnX);
 
         /// <summary>
         /// Returns the transpose of this matrix
@@ -1268,13 +1312,6 @@ namespace BrightData
         /// <param name="right"></param>
         /// <returns></returns>
         IMatrix<T> ConcatRight(IMatrix<T> right);
-        
-        /// <summary>
-        /// Applies an indexed mapping function to this matrix
-        /// </summary>
-        /// <param name="mutator"></param>
-        /// <returns></returns>
-        IMatrix<T> MapIndexed(Func<uint, uint, T, T> mutator);
 
         /// <summary>
         /// Applies an indexed mapping function to this matrix (matrix will be modified in place)

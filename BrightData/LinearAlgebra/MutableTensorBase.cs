@@ -138,7 +138,26 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
+        public new TT MapIndexed(Func<uint, T, T> mutator)
+        {
+            var ret = Segment.MapParallel(mutator);
+            return Create(ret);
+        }
+
+        /// <inheritdoc />
         public void MapInPlace(Func<T, T> mutator)
+        {
+            var ret = Segment.MapParallel(mutator);
+            try {
+                ret.CopyTo(Segment);
+            }
+            finally {
+                ret.Release();
+            }
+        }
+
+        /// <inheritdoc />
+        public void MapIndexedInPlace(Func<uint, T, T> mutator)
         {
             var ret = Segment.MapParallel(mutator);
             try {

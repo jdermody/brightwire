@@ -39,7 +39,7 @@ namespace BrightWire.Helper
         {
             using var m = vector.Reshape(1, null);
             using var m2 = m.Multiply(Matrix);
-            return LinearAlgebraProvider.CreateVector(m2.GetReadOnlyRow(0));
+            return LinearAlgebraProvider.CreateVector(m2.GetRow(0));
         }
 
         public IMatrix<float> Compute(IMatrix<float> matrix)

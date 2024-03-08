@@ -85,15 +85,7 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<T> GetReadOnlyRow(uint index)
-        {
-            if(index > RowCount)
-                throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
-            return new ReadOnlyTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
-        }
-
-        /// <inheritdoc />
-        public INumericSegment<T> GetColumn(uint index)
+        public virtual INumericSegment<T> GetColumn(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
@@ -101,7 +93,15 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index)
+        public virtual IReadOnlyNumericSegment<T> GetReadOnlyRow(uint index)
+        {
+            if(index > RowCount)
+                throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
+            return new ReadOnlyTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
+        }
+
+        /// <inheritdoc />
+        public virtual IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index)
         {
             if(index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
@@ -109,31 +109,21 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public unsafe ReadOnlySpan<T> GetRowSpan(uint rowIndex, ref SpanOwner<T> temp)
-        {
-            temp = SpanOwner<T>.Allocate((int)TotalSize);
-            var span = temp.Span;
-            fixed (T* ptr = span) {
-                Segment.CopyTo(ptr, (int)rowIndex * (int)RowCount, (int)RowCount, (int)ColumnCount);
-            }
-            return span;
-        }
+        public ReadOnlySpan<T> GetRowSpan(uint rowIndex, ref SpanOwner<T> temp) => GetReadOnlyRow(rowIndex).GetSpan(ref temp, out var _);
 
         /// <inheritdoc />
         public ReadOnlySpan<T> GetColumnSpan(uint columnIndex)
         {
-            var ret = Segment.Contiguous!.ReadOnlySpan;
-            return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
+            if (Segment.Contiguous is not null) {
+                var ret = Segment.Contiguous.ReadOnlySpan;
+                return ret.Slice((int)(columnIndex * RowCount), (int)RowCount);
+            }
+            using var column = GetReadOnlyColumn(columnIndex);
+            return column.ToNewArray();
         }
 
         /// <inheritdoc />
         public override IMatrix<T> Create(INumericSegment<T> segment) => Lap.CreateMatrix(RowCount, ColumnCount, segment);
-
-        /// <inheritdoc />
-        public virtual IVector<T> GetRowVector(uint index) => Lap.CreateVector(GetRow(index));
-
-        /// <inheritdoc />
-        public virtual IVector<T> GetColumnVector(uint index) => Lap.CreateVector(GetColumn(index));
 
         /// <inheritdoc />
         public virtual IMatrix<T> Transpose()
@@ -207,17 +197,6 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public IMatrix<T> MapIndexed(Func<uint, uint, T, T> mutator)
-        {
-            var ret = Segment.MapParallel((ind, val) => {
-                var i = ind % RowCount;
-                var j = ind / RowCount;
-                return mutator(i, j, val);
-            });
-            return Lap.CreateMatrix(RowCount, ColumnCount, ret);
-        }
-
-        /// <inheritdoc />
         public void MapIndexedInPlace(Func<uint, uint, T, T> mutator)
         {
             var ret = Segment.MapParallel((ind, val) => {
@@ -273,10 +252,10 @@ namespace BrightData.LinearAlgebra
         public virtual (IMatrix<T> U, IVector<T> S, IMatrix<T> VT) Svd() => throw new NotImplementedException();
 
         /// <inheritdoc />
-        public virtual IMatrix<T> GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => Lap.CreateMatrixFromRows(rowIndices.Select(GetReadOnlyRow).ToArray());
+        public virtual IMatrix<T> GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => Lap.CreateMatrixFromRows(rowIndices.Select(GetRow).ToArray());
 
         /// <inheritdoc />
-        public virtual IMatrix<T> GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => Lap.CreateMatrixFromColumns(columnIndices.Select(GetReadOnlyColumn).ToArray());
+        public virtual IMatrix<T> GetNewMatrixFromColumns(IEnumerable<uint> columnIndices) => Lap.CreateMatrixFromColumns(columnIndices.Select(GetColumn).ToArray());
 
         /// <inheritdoc />
         public virtual void AddToEachRow(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((_, k, v) => v + segment[k]);

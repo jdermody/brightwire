@@ -275,10 +275,13 @@
             Associated CUDA provider
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.GetColumnVector(System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaMatrix.GetColumn(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaMatrix.GetRowVector(System.UInt32)">
+        <member name="M:BrightData.Cuda.CudaMatrix.GetReadOnlyColumn(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Cuda.CudaMatrix.GetReadOnlyRow(System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaMatrix.Transpose">

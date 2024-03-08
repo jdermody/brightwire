@@ -211,7 +211,7 @@ namespace BrightData.LinearAlgebra
                 ptr[i] = Lap.CreateMatrix(outputRows, outputColumns, true);
             for (uint k = 0; k < Depth; k++) {
                 using var slice = GetMatrix(k);
-                var filters = filter.GetReadOnlyColumn(k).Split(outputDepth).ToArray();
+                var filters = filter.GetColumn(k).Split(outputDepth).ToArray();
 
                 foreach (var (cx, cy) in convolutions) {
                     var errorY = cy / xStride;

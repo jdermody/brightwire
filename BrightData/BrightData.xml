@@ -4523,6 +4523,22 @@
             <param name="makeCopy">True to make a copy of each column</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowVector``1(BrightData.IMatrix{``0},System.UInt32)">
+            <summary>
+            Returns a row as a vector
+            </summary>
+            <param name="matrix"></param>
+            <param name="rowY">Row index</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnVector``1(BrightData.IMatrix{``0},System.UInt32)">
+            <summary>
+            Returns a column as a vector
+            </summary>
+            <param name="matrix"></param>
+            <param name="columnX">Column index</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyVector{System.Single})">
             <summary>
             Converts the vector to a sparse format (only non-zero entries are preserved)
@@ -5220,15 +5236,6 @@
             <param name="rowCount"></param>
             <param name="columnCount"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.TransposeInPlace``1(System.Span{``0},System.UInt32,System.UInt32)">
-            <summary>
-            Transpose a matrix in place
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="matrix"></param>
-            <param name="rowCount"></param>
-            <param name="columnCount"></param>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
             <summary>
@@ -7916,6 +7923,66 @@
             <typeparam name="T"></typeparam>
             <typeparam name="TT"></typeparam>
         </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Add(BrightData.IReadOnlyTensor{`0})">
+            <summary>
+            Adds a tensor to this tensor and returns the result
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Add(BrightData.IReadOnlyTensor{`0},`0,`0)">
+            <summary>
+            Adds a tensor to this tensor and returns the result with each value multiplied by coefficients
+            </summary>
+            <param name="other"></param>
+            <param name="coefficient1"></param>
+            <param name="coefficient2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Add(`0)">
+            <summary>
+            Adds a value to each element of the tensor
+            </summary>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Multiply(`0)">
+            <summary>
+            Multiplies a scalar to each element of the tensor
+            </summary>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Subtract(BrightData.IReadOnlyTensor{`0})">
+            <summary>
+            Subtracts another tensor from this tensor and returns the result
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.Subtract(BrightData.IReadOnlyTensor{`0},`0,`0)">
+            <summary>
+            Subtracts another tensor from this tensor and returns the result with each value multiplied by coefficients
+            </summary>
+            <param name="other"></param>
+            <param name="coefficient1"></param>
+            <param name="coefficient2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.PointwiseMultiply(BrightData.IReadOnlyTensor{`0})">
+            <summary>
+            Multiplies each element of this tensor with the corresponding value in another tensor with the same size
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.PointwiseDivide(BrightData.IReadOnlyTensor{`0})">
+            <summary>
+            Divides each element of this tensor with the corresponding value in another tensor with the same size
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.IReadOnlyTensorType`2.Sqrt(System.Nullable{`0})">
             <summary>
             Returns the square root of each value in this tensor
@@ -8037,6 +8104,13 @@
             <param name="mutator">Mapping function</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IReadOnlyTensorType`2.MapIndexed(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Applies a mapping function that also accepts the index of the value
+            </summary>
+            <param name="mutator"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IReadOnlyVector`1">
             <summary>
             Vector that cannot be modified
@@ -8111,6 +8185,21 @@
             Returns a column from the matrix
             </summary>
             <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{`0}@)">
+            <summary>
+            Returns a row as a span
+            </summary>
+            <param name="rowY">Row index</param>
+            <param name="temp">Temporary buffer in which to write the contiguous row values</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyMatrix`1.GetColumnSpan(System.UInt32)">
+            <summary>
+            Returns a column as a span
+            </summary>
+            <param name="columnX">Column index</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IReadOnlyMatrix`1.Create(BrightData.LinearAlgebra.LinearAlgebraProvider{`0})">
@@ -8368,6 +8457,12 @@
             </summary>
             <param name="mutator"></param>
         </member>
+        <member name="M:BrightData.ITensor`1.MapIndexedInPlace(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Applies a mapping function that also accepts the vector index (vector will be modified in place)
+            </summary>
+            <param name="mutator"></param>
+        </member>
         <member name="M:BrightData.ITensor`1.L1RegularisationInPlace(`0)">
             <summary>
             Applies L1 regularization to this tensor (the result will be stored in this tensor)
@@ -8576,6 +8671,13 @@
             <param name="mutator">Mapping function</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ITensorType`3.MapIndexed(System.Func{System.UInt32,`0,`0})">
+            <summary>
+            Applies a mapping function that also accepts the index of the value
+            </summary>
+            <param name="mutator"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IVector`1">
             <summary>
             Vector interface
@@ -8608,19 +8710,6 @@
             </summary>
             <param name="index"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.IVector`1.MapIndexed(System.Func{System.UInt32,`0,`0})">
-            <summary>
-            Applies a mapping function that also accepts the vector index
-            </summary>
-            <param name="mutator"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IVector`1.MapIndexedInPlace(System.Func{System.UInt32,`0,`0})">
-            <summary>
-            Applies a mapping function that also accepts the vector index (vector will be modified in place)
-            </summary>
-            <param name="mutator"></param>
         </member>
         <member name="M:BrightData.IVector`1.Clone">
             <summary>
@@ -8677,35 +8766,6 @@
             Returns a column from the matrix
             </summary>
             <param name="index">Column index</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{`0}@)">
-            <summary>
-            Returns a row as a span
-            </summary>
-            <param name="rowY">Row index</param>
-            <param name="temp">Temporary buffer in which to write the contiguous row values</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMatrix`1.GetColumnSpan(System.UInt32)">
-            <summary>
-            Returns a column as a span
-            </summary>
-            <param name="columnX">Column index</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMatrix`1.GetRowVector(System.UInt32)">
-            <summary>
-            Returns a row as a vector
-            </summary>
-            <param name="rowY">Row index</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMatrix`1.GetColumnVector(System.UInt32)">
-            <summary>
-            Returns a column as a vector
-            </summary>
-            <param name="columnX">Column index</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IMatrix`1.Transpose">
@@ -8786,13 +8846,6 @@
             Concatenates this matrix with another matrix (row counts must agree)
             </summary>
             <param name="right"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IMatrix`1.MapIndexed(System.Func{System.UInt32,System.UInt32,`0,`0})">
-            <summary>
-            Applies an indexed mapping function to this matrix
-            </summary>
-            <param name="mutator"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IMatrix`1.MapIndexedInPlace(System.Func{System.UInt32,System.UInt32,`0,`0})">
@@ -10234,10 +10287,10 @@
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetRow(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetReadOnlyRow(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetColumn(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetColumn(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetReadOnlyRow(System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetReadOnlyColumn(System.UInt32)">
@@ -10250,12 +10303,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.Create(BrightData.INumericSegment{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetRowVector(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetColumnVector(System.UInt32)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.Transpose">
@@ -10280,9 +10327,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.TransposeThisAndMultiply(BrightData.IMatrix{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.MapIndexed(System.Func{System.UInt32,System.UInt32,`0,`0})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.MapIndexedInPlace(System.Func{System.UInt32,System.UInt32,`0,`0})">
@@ -10660,7 +10704,13 @@
         <member name="M:BrightData.LinearAlgebra.MutableTensorBase`4.Map(System.Func{`0,`0})">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.MutableTensorBase`4.MapIndexed(System.Func{System.UInt32,`0,`0})">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.LinearAlgebra.MutableTensorBase`4.MapInPlace(System.Func{`0,`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.MutableTensorBase`4.MapIndexedInPlace(System.Func{System.UInt32,`0,`0})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableTensorBase`4.Clone">
@@ -10950,6 +11000,12 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.GetReadOnlyColumn(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.GetColumnSpan(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.GetRowSpan(System.UInt32,CommunityToolkit.HighPerformance.Buffers.SpanOwner{`0}@)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.Equals(System.Object)">
@@ -11307,6 +11363,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensorBase`2.Map(System.Func{`0,`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensorBase`2.MapIndexed(System.Func{System.UInt32,`0,`0})">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensorBase`2.DataAsBytes">

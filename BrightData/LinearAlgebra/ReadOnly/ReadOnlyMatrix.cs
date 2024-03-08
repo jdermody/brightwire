@@ -157,6 +157,20 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index) => new ReadOnlyTensorSegmentWrapper<T>(ReadOnlySegment, index * RowCount, 1, RowCount);
 
         /// <inheritdoc />
+        public ReadOnlySpan<T> GetColumnSpan(uint columnX)
+        {
+            if (ReadOnlySegment.Contiguous is not null) {
+                var ret = ReadOnlySegment.Contiguous.ReadOnlySpan;
+                return ret.Slice((int)(columnX * RowCount), (int)RowCount);
+            }
+            using var column = GetReadOnlyColumn(columnX);
+            return column.ToNewArray();
+        }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<T> GetRowSpan(uint rowY, ref SpanOwner<T> temp) => GetReadOnlyRow(rowY).GetSpan(ref temp, out var _);
+
+        /// <inheritdoc />
         public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyMatrix<T>);
 
         /// <inheritdoc />

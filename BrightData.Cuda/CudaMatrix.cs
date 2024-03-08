@@ -20,20 +20,23 @@ namespace BrightData.Cuda
         public CudaProvider Provider = lap.Provider;
 
         /// <inheritdoc />
-        public override IVector<float> GetColumnVector(uint index)
+        public override INumericSegment<float> GetColumn(uint index)
         {
             var segment = (CudaTensorSegment)Segment;
             var ptr = segment.DeviceMemory.Offset(index * RowCount, RowCount);
-            return Lap.CreateVector(new CudaTensorSegment(ptr, Provider));
+            return new CudaTensorSegment(ptr, Provider);
         }
 
         /// <inheritdoc />
-        public override IVector<float> GetRowVector(uint index)
+        public override IReadOnlyNumericSegment<float> GetReadOnlyColumn(uint index)
         {
-            //return _lap.CreateVector(Row(index));
-            var segment = Lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
-            return Lap.CreateVector(segment);
+            var segment = (CudaTensorSegment)Segment;
+            var ptr = segment.DeviceMemory.Offset(index * RowCount, RowCount);
+            return new CudaTensorSegment(ptr, Provider);
         }
+
+        /// <inheritdoc />
+        public override IReadOnlyNumericSegment<float> GetReadOnlyRow(uint index) => Lap.GetNonContinuousSegment(Segment, index, RowCount, ColumnCount);
 
         /// <inheritdoc />
         public override IMatrix<float> Transpose()

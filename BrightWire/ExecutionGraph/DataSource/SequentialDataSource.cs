@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 for (uint i = 0, len = item.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = []);
-                    temp.Add(item.GetReadOnlyRow(i));
+                    temp.Add(item.GetRow(i));
                 }
             }
 

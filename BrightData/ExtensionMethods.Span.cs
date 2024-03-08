@@ -73,8 +73,8 @@ namespace BrightData
             public void Invoke(int i) => action(segment[i], (uint)i);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size, clear ? AllocationMode.Clear : AllocationMode.Default);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size, clear ? AllocationMode.Clear : AllocationMode.Default);
 
         /// <summary>
         /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
@@ -93,7 +93,7 @@ namespace BrightData
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
             fixed (T* xfp = span)
             fixed (T* yfp = other)
@@ -131,7 +131,7 @@ namespace BrightData
             if (size != other.Length)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var resultPtr = ret.Span;
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
@@ -161,7 +161,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span)
@@ -191,7 +191,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span)
@@ -223,7 +223,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var resultPtr = ret.Span;
 
             var nextIndex = 0;
@@ -254,7 +254,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             if(size >= Consts.MinimumSizeForParallel)
@@ -278,7 +278,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span) {
@@ -1286,7 +1286,7 @@ namespace BrightData
         public static MemoryOwner<T> SoftmaxDerivative<T>(this ReadOnlySpan<T> segment, int rowCount)
             where T: unmanaged, INumber<T>
         {
-            var ret = Allocate<T>(segment.Length * segment.Length);
+            var ret = Allocate<T>(segment.Length * segment.Length, false);
             var span = ret.Span;
             for (int i = 0, len = ret.Length; i < len; i++) {
                 var x = i % rowCount;
@@ -1591,29 +1591,12 @@ namespace BrightData
         /// <returns></returns>
         public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
         {
-            var ret = Allocate<T>(columnCount * rowCount);
+            var ret = Allocate<T>(columnCount * rowCount, false);
             fixed (T* matrixPtr = matrix)
             fixed (T* retPtr = ret.Span) {
                 CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
             }
             return (ret, columnCount, rowCount);
-        }
-
-        /// <summary>
-        /// Transpose a matrix in place
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="matrix"></param>
-        /// <param name="rowCount"></param>
-        /// <param name="columnCount"></param>
-        public static unsafe void TransposeInPlace<T>(this Span<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
-        {
-            using var ret = Allocate<T>(columnCount * rowCount);
-            fixed (T* matrixPtr = matrix)
-            fixed (T* retPtr = ret.Span) {
-                CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
-            }
-            ret.Span.CopyTo(matrix);
         }
 
         static unsafe void CacheTranspose<T>(T* from, uint rows, uint columns, uint rb, uint re, uint cb, uint ce, T* to) where T : unmanaged
