@@ -373,25 +373,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Notifies about the progress of a multipart operation
-        /// </summary>
-        /// <param name="notify"></param>
-        /// <param name="operationId">Unique operation id</param>
-        /// <param name="index">Index of current part</param>
-        /// <param name="total">Total number of parts</param>
-        /// <param name="progress">Process within the part</param>
-        public static void NotifyProgress(this INotifyOperationProgress? notify, Guid operationId, uint index, uint total, float progress) => notify?.OnOperationProgress(operationId, (float) index / total + progress / total);
-
-        /// <summary>
-        /// Writes a progress bar to the console
-        /// </summary>
-        /// <param name="progress">New progress (between 0 and 1)</param>
-        /// <param name="previousPercentage">Current progress percentage (max 100)</param>
-        /// <param name="sw">Stopwatch since start of operation</param>
-        /// <returns>True if the progress has increased</returns>
-        public static bool WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw) => ConsoleProgressNotification.WriteProgress(progress, ref previousPercentage, sw);
-
-        /// <summary>
         /// Writes the enumerable to a comma separated string
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -704,40 +685,6 @@ namespace BrightData
             if (operations.Length > 1)
                 return new AggregateOperation(operations).Execute(notify, msg, ct);
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Returns the results from a collection of operations that might be run in parallel
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="operations"></param>
-        /// <returns></returns>
-        public static T[] CompleteInParallel<T>(params IOperation<T>[] operations) => CompleteInParallel(Array.AsReadOnly(operations));
-
-        /// <summary>
-        /// Returns the results from a collection of operations that might be run in parallel
-        /// </summary>
-        /// <param name="operations"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T[] CompleteInParallel<T>(this IReadOnlyList<IOperation<T>> operations)
-        {
-            var ret = new T[operations.Count];
-#if DEBUG
-            if (Debugger.IsAttached) {
-                var index = 0;
-                foreach(var op in operations) using (op) {
-                    ret[index++] = op.Complete(null, CancellationToken.None);
-                }
-
-                return ret;
-            }
-#endif
-            Parallel.ForEach(operations, (op, _, i) => {
-                using(op)
-                    ret[i] = op.Complete(null, CancellationToken.None);
-            });
-            return ret;
         }
 
         /// <summary>

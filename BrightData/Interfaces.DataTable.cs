@@ -291,45 +291,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Data table vectoriser
-    /// </summary>
-    public interface IDataTableVectoriser : ICanWriteToBinaryWriter, IDisposable
-    {
-        /// <summary>
-        /// Vectorise a table row
-        /// </summary>
-        /// <param name="row"></param>
-        /// <returns></returns>
-        float[] Vectorise(object[] row);
-
-        /// <summary>
-        /// Vectorise a data table segment
-        /// </summary>
-        /// <param name="segment"></param>
-        /// <returns></returns>
-        float[] Vectorise(ICanRandomlyAccessData segment);
-
-        /// <summary>
-        /// Size of the output vectors
-        /// </summary>
-        uint OutputSize { get; }
-
-        /// <summary>
-        /// Returns the associated label from the one hot encoding dictionary
-        /// </summary>
-        /// <param name="vectorIndex">Index within one hot encoded vector</param>
-        /// <param name="columnIndex">Data table column index</param>
-        /// <returns></returns>
-        string GetOutputLabel(uint vectorIndex, uint columnIndex = 0);
-
-        /// <summary>
-        /// Returns a sequence of vectorised table rows
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<IVector<float>> Enumerate();
-    }
-
-    /// <summary>
     /// Maps blocks from one type to another
     /// </summary>
     /// <typeparam name="FT"></typeparam>
@@ -702,8 +663,6 @@ namespace BrightData
         Task WriteTo(Stream stream);
     }
 
-    
-
     /// <summary>
     /// Checks if an item satisfies a constraint
     /// </summary>
@@ -1018,20 +977,5 @@ namespace BrightData
         /// <param name="name">New column name</param>
         /// <returns></returns>
         ICompositeBuffer<ReadOnlyTensor4D<float>> CreateFixedSize4DTensorColumn(uint count, uint depth, uint rows, uint columns, string? name);
-    }
-
-    /// <summary>
-    /// Writes tables to a stream
-    /// </summary>
-    public interface IWriteDataTables
-    {
-        /// <summary>
-        /// Writes to a stream
-        /// </summary>
-        /// <param name="tableMetaData"></param>
-        /// <param name="buffers"></param>
-        /// <param name="output"></param>
-        /// <returns></returns>
-        Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output);
     }
 }

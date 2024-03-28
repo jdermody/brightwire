@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightData.LinearAlgebra.CostFunctions;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
@@ -584,6 +585,30 @@ namespace BrightData
             where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
             return matrix.GetColumn(columnX).ToVector(matrix.LinearAlgebraProvider);
+        }
+
+        /// <summary>
+        /// Creates MSE cost function
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ICostFunction<T> CreateMeanSquaredErrorCostFunction<T>(this LinearAlgebraProvider<T> lap)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new MeanSquaredErrorCostFunction<T>(lap);
+        }
+
+        /// <summary>
+        /// Creates a cross entropy (logistic loss) cost function
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        public static ICostFunction<T> CreateCrossEntropyCostFunction<T>(this LinearAlgebraProvider<T> lap)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new CrossEntropyCostFunction<T>(lap);
         }
     }
 }

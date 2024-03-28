@@ -248,9 +248,21 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Generic read only tensor
+    /// Read only tensor
     /// </summary>
-    public interface IReadOnlyTensor<T> : IHaveSpanOf<T>, IHaveSize, IAmSerializable, IHaveReadOnlyTensorSegment<T> 
+    public interface IReadOnlyTensor : IHaveSize, IAmSerializable
+    {
+        /// <summary>
+        /// Checks if the tensor is entirely finite (does not contain NAN or Infinity)
+        /// </summary>
+        /// <returns></returns>
+        bool IsEntirelyFinite();
+    }
+
+    /// <summary>
+    /// Typed read only tensor
+    /// </summary>
+    public interface IReadOnlyTensor<T> : IReadOnlyTensor, IHaveSpanOf<T>, IHaveReadOnlyTensorSegment<T> 
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
@@ -288,12 +300,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         T L2Norm();
-
-        /// <summary>
-        /// Checks if the tensor is entirely finite (does not contain NAN or Infinity)
-        /// </summary>
-        /// <returns></returns>
-        bool IsEntirelyFinite();
 
         /// <summary>
         /// Calculates the standard deviation of this tensor
@@ -778,16 +784,32 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Untyped tensor interface - vector, matrix, 3D tensor etc
+    /// Mutable tensor
     /// </summary>
-    public interface ITensor<T> : IReadOnlyTensor<T>, IDisposable, IHaveLinearAlgebraProvider<T>, IHaveTensorSegment<T>
-        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    public interface ITensor : IDisposable, IHaveBrightDataContext
     {
         /// <summary>
-        /// Underlying bright data context
+        /// Sets all values to zero
         /// </summary>
-        BrightDataContext Context { get; }
+        void Clear();
 
+        /// <summary>
+        /// Total count of all values
+        /// </summary>
+        uint TotalSize { get; }
+
+        /// <summary>
+        /// Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
+        /// </summary>
+        uint[] Shape { get; }
+    }
+
+    /// <summary>
+    /// Typed tensor interface - vector, matrix, 3D tensor etc
+    /// </summary>
+    public interface ITensor<T> : ITensor, IReadOnlyTensor<T>, IHaveLinearAlgebraProvider<T>, IHaveTensorSegment<T>
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
         /// <summary>
         /// Reshapes to a vector
         /// </summary>
@@ -822,25 +844,10 @@ namespace BrightData
         ITensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns);
 
         /// <summary>
-        /// Sets all values to zero
-        /// </summary>
-        void Clear();
-
-        /// <summary>
         /// Creates a copy of this tensor
         /// </summary>
         /// <returns></returns>
         ITensor<T> Clone();
-
-        /// <summary>
-        /// Total count of all values
-        /// </summary>
-        uint TotalSize { get; }
-
-        /// <summary>
-        /// Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
-        /// </summary>
-        uint[] Shape { get; }
 
         /// <summary>
         /// Adds a tensor to this tensor (the result will be stored in this tensor)

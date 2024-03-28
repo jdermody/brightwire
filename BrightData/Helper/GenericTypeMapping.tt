@@ -37,12 +37,6 @@ namespace BrightData.Helper
 <#= WriteSingleTypeMapping("ToObjectConverter", x => $"(IReadOnlyBuffer<{x}>)from") #>
         }
 
-        internal static IReadOnlyBuffer CastConverter(Type type2, IReadOnlyBuffer from)
-        {
-            var type1 = from.DataType;
-<#= WriteDoubleTypeMapping("CastConverter", (x, y) => $"(IReadOnlyBuffer<{x}>)from") #>
-        }
-
         internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
         {
             var type1 = from.DataType;
@@ -174,6 +168,7 @@ namespace BrightData.Helper
         get {
             yield return "IndexList";
             yield return "WeightedIndexList";
+            yield return "BinaryData";
             yield return "ReadOnlyVector<float>";
             yield return "ReadOnlyMatrix<float>";
             yield return "ReadOnlyTensor3D<float>";
@@ -194,14 +189,9 @@ namespace BrightData.Helper
             yield return "short";
             yield return "int";
             yield return "long";
-            yield return "IndexList";
-            yield return "WeightedIndexList";
-            yield return "ReadOnlyVector<float>";
-            yield return "ReadOnlyMatrix<float>";
-            yield return "ReadOnlyTensor3D<float>";
-            yield return "ReadOnlyTensor4D<float>";
-            yield return "TimeOnly";
-            yield return "DateOnly";
+
+            foreach(var item in ValidTypes)
+                yield return item;
         }
     }
     IEnumerable<(string TypeCode, string TypeName)> ValidNumericTypeCodesIncludingBoolAndString

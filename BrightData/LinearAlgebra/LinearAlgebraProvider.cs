@@ -141,6 +141,14 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <summary>
+        /// Creates a tensor segment with each value initialized to an initial value
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="initialValue"></param>
+        /// <returns></returns>
+        public INumericSegment<T> CreateSegment(uint size, T initialValue) => CreateSegment(size, _ => initialValue);
+
+        /// <summary>
         /// Creates a clone of the tensor segment
         /// </summary>
         /// <param name="segment">Segment to clone</param>

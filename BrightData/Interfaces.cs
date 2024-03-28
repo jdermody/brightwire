@@ -109,28 +109,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Typed data reader
-    /// </summary>
-    public interface IDataReader
-    {
-        /// <summary>
-        /// Reads a typed value from a binary reader
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        T Read<T>(BinaryReader reader) where T : notnull;
-
-        /// <summary>
-        /// Reads a typed array from a binary reader
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        T[] ReadArray<T>(BinaryReader reader) where T : notnull;
-    }
-
-    /// <summary>
     /// Indicates that the type can write values to metadata
     /// </summary>
     public interface IWriteToMetaData
@@ -155,19 +133,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Typed data can be sequentially added
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IAcceptSequentialTypedData<in T> where T : notnull
-    {
-        /// <summary>
-        /// Adds a typed object
-        /// </summary>
-        /// <param name="obj"></param>
-        void Add(T obj);
-    }
-
-    /// <summary>
     /// Appends blocks of items
     /// </summary>
     public interface IAppendBlocks;
@@ -189,9 +154,16 @@ namespace BrightData
     /// Typed data analyser
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<T> : IAcceptSequentialTypedData<T>, IAppendBlocks<T>, IDataAnalyser where T : notnull;
+    public interface IDataAnalyser<T> : IAppendBlocks<T>, IDataAnalyser where T : notnull
+    {
+        /// <summary>
+        /// Adds a typed object
+        /// </summary>
+        /// <param name="obj"></param>
+        void Add(T obj);
+    }
 
-    /// <summary>
+/// <summary>
     /// Types of data normalization
     /// </summary>
     public enum NormalizationType : byte
@@ -517,21 +489,6 @@ namespace BrightData
         /// <param name="index"></param>
         /// <returns></returns>
         object this[uint index] { get; }
-    }
-
-    /// <summary>
-    /// A generic operation that might require user notification and that can be cancelled
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IOperation<out T> : IDisposable
-    {
-        /// <summary>
-        /// Tries to complete the operation
-        /// </summary>
-        /// <param name="notifyUser">Optional interface to notify the user of progress</param>
-        /// <param name="cancellationToken">Cancellation token to cancel operation</param>
-        /// <returns></returns>
-        T Complete(INotifyOperationProgress? notifyUser, CancellationToken cancellationToken);
     }
 
     /// <summary>

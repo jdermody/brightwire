@@ -42,6 +42,8 @@ namespace BrightData.Helper
 				return new ToStringConverter<IndexList>((IReadOnlyBuffer<IndexList>)buffer);
 			if(type == typeof(WeightedIndexList))
 				return new ToStringConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer);
+			if(type == typeof(BinaryData))
+				return new ToStringConverter<BinaryData>((IReadOnlyBuffer<BinaryData>)buffer);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new ToStringConverter<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -84,6 +86,8 @@ namespace BrightData.Helper
 				return new ConvertToStringFrequencyAnalysis<IndexList>(writeCount);
 			if(type == typeof(WeightedIndexList))
 				return new ConvertToStringFrequencyAnalysis<WeightedIndexList>(writeCount);
+			if(type == typeof(BinaryData))
+				return new ConvertToStringFrequencyAnalysis<BinaryData>(writeCount);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new ConvertToStringFrequencyAnalysis<ReadOnlyVector<float>>(writeCount);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -127,6 +131,8 @@ namespace BrightData.Helper
 				return new ToObjectConverter<IndexList>((IReadOnlyBuffer<IndexList>)from);
 			if(type == typeof(WeightedIndexList))
 				return new ToObjectConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from);
+			if(type == typeof(BinaryData))
+				return new ToObjectConverter<BinaryData>((IReadOnlyBuffer<BinaryData>)from);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new ToObjectConverter<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -140,590 +146,6 @@ namespace BrightData.Helper
 			if(type == typeof(DateOnly))
 				return new ToObjectConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)from);
 			throw new NotImplementedException($"Could not create ToObjectConverter for type {type}");
-        }
-
-        internal static IReadOnlyBuffer CastConverter(Type type2, IReadOnlyBuffer from)
-        {
-            var type1 = from.DataType;
-			if(type1 == typeof(bool) && type2 == typeof(bool))
-				return new CastConverter<bool, bool>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(sbyte))
-				return new CastConverter<bool, sbyte>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(float))
-				return new CastConverter<bool, float>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(double))
-				return new CastConverter<bool, double>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(decimal))
-				return new CastConverter<bool, decimal>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(string))
-				return new CastConverter<bool, string>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(short))
-				return new CastConverter<bool, short>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(int))
-				return new CastConverter<bool, int>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(long))
-				return new CastConverter<bool, long>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(IndexList))
-				return new CastConverter<bool, IndexList>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<bool, WeightedIndexList>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<bool, ReadOnlyVector<float>>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<bool, ReadOnlyMatrix<float>>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<bool, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<bool, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(TimeOnly))
-				return new CastConverter<bool, TimeOnly>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(bool) && type2 == typeof(DateOnly))
-				return new CastConverter<bool, DateOnly>((IReadOnlyBuffer<bool>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(bool))
-				return new CastConverter<sbyte, bool>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(sbyte))
-				return new CastConverter<sbyte, sbyte>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(float))
-				return new CastConverter<sbyte, float>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(double))
-				return new CastConverter<sbyte, double>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(decimal))
-				return new CastConverter<sbyte, decimal>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(string))
-				return new CastConverter<sbyte, string>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(short))
-				return new CastConverter<sbyte, short>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(int))
-				return new CastConverter<sbyte, int>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(long))
-				return new CastConverter<sbyte, long>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(IndexList))
-				return new CastConverter<sbyte, IndexList>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<sbyte, WeightedIndexList>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<sbyte, ReadOnlyVector<float>>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<sbyte, ReadOnlyMatrix<float>>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<sbyte, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<sbyte, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(TimeOnly))
-				return new CastConverter<sbyte, TimeOnly>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(sbyte) && type2 == typeof(DateOnly))
-				return new CastConverter<sbyte, DateOnly>((IReadOnlyBuffer<sbyte>)from);
-			if(type1 == typeof(float) && type2 == typeof(bool))
-				return new CastConverter<float, bool>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(sbyte))
-				return new CastConverter<float, sbyte>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(float))
-				return new CastConverter<float, float>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(double))
-				return new CastConverter<float, double>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(decimal))
-				return new CastConverter<float, decimal>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(string))
-				return new CastConverter<float, string>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(short))
-				return new CastConverter<float, short>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(int))
-				return new CastConverter<float, int>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(long))
-				return new CastConverter<float, long>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(IndexList))
-				return new CastConverter<float, IndexList>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<float, WeightedIndexList>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<float, ReadOnlyVector<float>>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<float, ReadOnlyMatrix<float>>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<float, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<float, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(TimeOnly))
-				return new CastConverter<float, TimeOnly>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(float) && type2 == typeof(DateOnly))
-				return new CastConverter<float, DateOnly>((IReadOnlyBuffer<float>)from);
-			if(type1 == typeof(double) && type2 == typeof(bool))
-				return new CastConverter<double, bool>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(sbyte))
-				return new CastConverter<double, sbyte>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(float))
-				return new CastConverter<double, float>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(double))
-				return new CastConverter<double, double>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(decimal))
-				return new CastConverter<double, decimal>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(string))
-				return new CastConverter<double, string>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(short))
-				return new CastConverter<double, short>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(int))
-				return new CastConverter<double, int>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(long))
-				return new CastConverter<double, long>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(IndexList))
-				return new CastConverter<double, IndexList>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<double, WeightedIndexList>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<double, ReadOnlyVector<float>>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<double, ReadOnlyMatrix<float>>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<double, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<double, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(TimeOnly))
-				return new CastConverter<double, TimeOnly>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(double) && type2 == typeof(DateOnly))
-				return new CastConverter<double, DateOnly>((IReadOnlyBuffer<double>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(bool))
-				return new CastConverter<decimal, bool>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(sbyte))
-				return new CastConverter<decimal, sbyte>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(float))
-				return new CastConverter<decimal, float>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(double))
-				return new CastConverter<decimal, double>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(decimal))
-				return new CastConverter<decimal, decimal>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(string))
-				return new CastConverter<decimal, string>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(short))
-				return new CastConverter<decimal, short>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(int))
-				return new CastConverter<decimal, int>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(long))
-				return new CastConverter<decimal, long>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(IndexList))
-				return new CastConverter<decimal, IndexList>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<decimal, WeightedIndexList>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<decimal, ReadOnlyVector<float>>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<decimal, ReadOnlyMatrix<float>>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<decimal, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<decimal, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(TimeOnly))
-				return new CastConverter<decimal, TimeOnly>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(decimal) && type2 == typeof(DateOnly))
-				return new CastConverter<decimal, DateOnly>((IReadOnlyBuffer<decimal>)from);
-			if(type1 == typeof(string) && type2 == typeof(bool))
-				return new CastConverter<string, bool>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(sbyte))
-				return new CastConverter<string, sbyte>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(float))
-				return new CastConverter<string, float>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(double))
-				return new CastConverter<string, double>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(decimal))
-				return new CastConverter<string, decimal>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(string))
-				return new CastConverter<string, string>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(short))
-				return new CastConverter<string, short>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(int))
-				return new CastConverter<string, int>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(long))
-				return new CastConverter<string, long>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(IndexList))
-				return new CastConverter<string, IndexList>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<string, WeightedIndexList>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<string, ReadOnlyVector<float>>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<string, ReadOnlyMatrix<float>>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<string, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<string, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(TimeOnly))
-				return new CastConverter<string, TimeOnly>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(string) && type2 == typeof(DateOnly))
-				return new CastConverter<string, DateOnly>((IReadOnlyBuffer<string>)from);
-			if(type1 == typeof(short) && type2 == typeof(bool))
-				return new CastConverter<short, bool>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(sbyte))
-				return new CastConverter<short, sbyte>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(float))
-				return new CastConverter<short, float>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(double))
-				return new CastConverter<short, double>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(decimal))
-				return new CastConverter<short, decimal>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(string))
-				return new CastConverter<short, string>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(short))
-				return new CastConverter<short, short>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(int))
-				return new CastConverter<short, int>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(long))
-				return new CastConverter<short, long>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(IndexList))
-				return new CastConverter<short, IndexList>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<short, WeightedIndexList>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<short, ReadOnlyVector<float>>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<short, ReadOnlyMatrix<float>>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<short, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<short, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(TimeOnly))
-				return new CastConverter<short, TimeOnly>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(short) && type2 == typeof(DateOnly))
-				return new CastConverter<short, DateOnly>((IReadOnlyBuffer<short>)from);
-			if(type1 == typeof(int) && type2 == typeof(bool))
-				return new CastConverter<int, bool>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(sbyte))
-				return new CastConverter<int, sbyte>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(float))
-				return new CastConverter<int, float>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(double))
-				return new CastConverter<int, double>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(decimal))
-				return new CastConverter<int, decimal>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(string))
-				return new CastConverter<int, string>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(short))
-				return new CastConverter<int, short>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(int))
-				return new CastConverter<int, int>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(long))
-				return new CastConverter<int, long>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(IndexList))
-				return new CastConverter<int, IndexList>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<int, WeightedIndexList>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<int, ReadOnlyVector<float>>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<int, ReadOnlyMatrix<float>>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<int, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<int, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(TimeOnly))
-				return new CastConverter<int, TimeOnly>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(int) && type2 == typeof(DateOnly))
-				return new CastConverter<int, DateOnly>((IReadOnlyBuffer<int>)from);
-			if(type1 == typeof(long) && type2 == typeof(bool))
-				return new CastConverter<long, bool>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(sbyte))
-				return new CastConverter<long, sbyte>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(float))
-				return new CastConverter<long, float>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(double))
-				return new CastConverter<long, double>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(decimal))
-				return new CastConverter<long, decimal>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(string))
-				return new CastConverter<long, string>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(short))
-				return new CastConverter<long, short>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(int))
-				return new CastConverter<long, int>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(long))
-				return new CastConverter<long, long>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(IndexList))
-				return new CastConverter<long, IndexList>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<long, WeightedIndexList>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<long, ReadOnlyVector<float>>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<long, ReadOnlyMatrix<float>>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<long, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<long, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(TimeOnly))
-				return new CastConverter<long, TimeOnly>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(long) && type2 == typeof(DateOnly))
-				return new CastConverter<long, DateOnly>((IReadOnlyBuffer<long>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(bool))
-				return new CastConverter<IndexList, bool>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(sbyte))
-				return new CastConverter<IndexList, sbyte>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(float))
-				return new CastConverter<IndexList, float>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(double))
-				return new CastConverter<IndexList, double>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(decimal))
-				return new CastConverter<IndexList, decimal>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(string))
-				return new CastConverter<IndexList, string>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(short))
-				return new CastConverter<IndexList, short>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(int))
-				return new CastConverter<IndexList, int>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(long))
-				return new CastConverter<IndexList, long>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(IndexList))
-				return new CastConverter<IndexList, IndexList>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<IndexList, WeightedIndexList>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<IndexList, ReadOnlyVector<float>>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<IndexList, ReadOnlyMatrix<float>>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<IndexList, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<IndexList, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(TimeOnly))
-				return new CastConverter<IndexList, TimeOnly>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(IndexList) && type2 == typeof(DateOnly))
-				return new CastConverter<IndexList, DateOnly>((IReadOnlyBuffer<IndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(bool))
-				return new CastConverter<WeightedIndexList, bool>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(sbyte))
-				return new CastConverter<WeightedIndexList, sbyte>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(float))
-				return new CastConverter<WeightedIndexList, float>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(double))
-				return new CastConverter<WeightedIndexList, double>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(decimal))
-				return new CastConverter<WeightedIndexList, decimal>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(string))
-				return new CastConverter<WeightedIndexList, string>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(short))
-				return new CastConverter<WeightedIndexList, short>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(int))
-				return new CastConverter<WeightedIndexList, int>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(long))
-				return new CastConverter<WeightedIndexList, long>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(IndexList))
-				return new CastConverter<WeightedIndexList, IndexList>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<WeightedIndexList, WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<WeightedIndexList, ReadOnlyVector<float>>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<WeightedIndexList, ReadOnlyMatrix<float>>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<WeightedIndexList, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<WeightedIndexList, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(TimeOnly))
-				return new CastConverter<WeightedIndexList, TimeOnly>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(WeightedIndexList) && type2 == typeof(DateOnly))
-				return new CastConverter<WeightedIndexList, DateOnly>((IReadOnlyBuffer<WeightedIndexList>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(bool))
-				return new CastConverter<ReadOnlyVector<float>, bool>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(sbyte))
-				return new CastConverter<ReadOnlyVector<float>, sbyte>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(float))
-				return new CastConverter<ReadOnlyVector<float>, float>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(double))
-				return new CastConverter<ReadOnlyVector<float>, double>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(decimal))
-				return new CastConverter<ReadOnlyVector<float>, decimal>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(string))
-				return new CastConverter<ReadOnlyVector<float>, string>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(short))
-				return new CastConverter<ReadOnlyVector<float>, short>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(int))
-				return new CastConverter<ReadOnlyVector<float>, int>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(long))
-				return new CastConverter<ReadOnlyVector<float>, long>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(IndexList))
-				return new CastConverter<ReadOnlyVector<float>, IndexList>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<ReadOnlyVector<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<ReadOnlyVector<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<ReadOnlyVector<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<ReadOnlyVector<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<ReadOnlyVector<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(TimeOnly))
-				return new CastConverter<ReadOnlyVector<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(DateOnly))
-				return new CastConverter<ReadOnlyVector<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyVector<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(bool))
-				return new CastConverter<ReadOnlyMatrix<float>, bool>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(sbyte))
-				return new CastConverter<ReadOnlyMatrix<float>, sbyte>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(float))
-				return new CastConverter<ReadOnlyMatrix<float>, float>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(double))
-				return new CastConverter<ReadOnlyMatrix<float>, double>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(decimal))
-				return new CastConverter<ReadOnlyMatrix<float>, decimal>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(string))
-				return new CastConverter<ReadOnlyMatrix<float>, string>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(short))
-				return new CastConverter<ReadOnlyMatrix<float>, short>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(int))
-				return new CastConverter<ReadOnlyMatrix<float>, int>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(long))
-				return new CastConverter<ReadOnlyMatrix<float>, long>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(IndexList))
-				return new CastConverter<ReadOnlyMatrix<float>, IndexList>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<ReadOnlyMatrix<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<ReadOnlyMatrix<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<ReadOnlyMatrix<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<ReadOnlyMatrix<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<ReadOnlyMatrix<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(TimeOnly))
-				return new CastConverter<ReadOnlyMatrix<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(DateOnly))
-				return new CastConverter<ReadOnlyMatrix<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(bool))
-				return new CastConverter<ReadOnlyTensor3D<float>, bool>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(sbyte))
-				return new CastConverter<ReadOnlyTensor3D<float>, sbyte>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(float))
-				return new CastConverter<ReadOnlyTensor3D<float>, float>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(double))
-				return new CastConverter<ReadOnlyTensor3D<float>, double>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(decimal))
-				return new CastConverter<ReadOnlyTensor3D<float>, decimal>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(string))
-				return new CastConverter<ReadOnlyTensor3D<float>, string>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(short))
-				return new CastConverter<ReadOnlyTensor3D<float>, short>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(int))
-				return new CastConverter<ReadOnlyTensor3D<float>, int>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(long))
-				return new CastConverter<ReadOnlyTensor3D<float>, long>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(IndexList))
-				return new CastConverter<ReadOnlyTensor3D<float>, IndexList>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<ReadOnlyTensor3D<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<ReadOnlyTensor3D<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<ReadOnlyTensor3D<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<ReadOnlyTensor3D<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(TimeOnly))
-				return new CastConverter<ReadOnlyTensor3D<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(DateOnly))
-				return new CastConverter<ReadOnlyTensor3D<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(bool))
-				return new CastConverter<ReadOnlyTensor4D<float>, bool>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(sbyte))
-				return new CastConverter<ReadOnlyTensor4D<float>, sbyte>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(float))
-				return new CastConverter<ReadOnlyTensor4D<float>, float>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(double))
-				return new CastConverter<ReadOnlyTensor4D<float>, double>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(decimal))
-				return new CastConverter<ReadOnlyTensor4D<float>, decimal>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(string))
-				return new CastConverter<ReadOnlyTensor4D<float>, string>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(short))
-				return new CastConverter<ReadOnlyTensor4D<float>, short>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(int))
-				return new CastConverter<ReadOnlyTensor4D<float>, int>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(long))
-				return new CastConverter<ReadOnlyTensor4D<float>, long>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(IndexList))
-				return new CastConverter<ReadOnlyTensor4D<float>, IndexList>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<ReadOnlyTensor4D<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<ReadOnlyTensor4D<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<ReadOnlyTensor4D<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<ReadOnlyTensor4D<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<ReadOnlyTensor4D<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(TimeOnly))
-				return new CastConverter<ReadOnlyTensor4D<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(DateOnly))
-				return new CastConverter<ReadOnlyTensor4D<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(bool))
-				return new CastConverter<TimeOnly, bool>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(sbyte))
-				return new CastConverter<TimeOnly, sbyte>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(float))
-				return new CastConverter<TimeOnly, float>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(double))
-				return new CastConverter<TimeOnly, double>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(decimal))
-				return new CastConverter<TimeOnly, decimal>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(string))
-				return new CastConverter<TimeOnly, string>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(short))
-				return new CastConverter<TimeOnly, short>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(int))
-				return new CastConverter<TimeOnly, int>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(long))
-				return new CastConverter<TimeOnly, long>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(IndexList))
-				return new CastConverter<TimeOnly, IndexList>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<TimeOnly, WeightedIndexList>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<TimeOnly, ReadOnlyVector<float>>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<TimeOnly, ReadOnlyMatrix<float>>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<TimeOnly, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<TimeOnly, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(TimeOnly))
-				return new CastConverter<TimeOnly, TimeOnly>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(TimeOnly) && type2 == typeof(DateOnly))
-				return new CastConverter<TimeOnly, DateOnly>((IReadOnlyBuffer<TimeOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(bool))
-				return new CastConverter<DateOnly, bool>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(sbyte))
-				return new CastConverter<DateOnly, sbyte>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(float))
-				return new CastConverter<DateOnly, float>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(double))
-				return new CastConverter<DateOnly, double>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(decimal))
-				return new CastConverter<DateOnly, decimal>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(string))
-				return new CastConverter<DateOnly, string>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(short))
-				return new CastConverter<DateOnly, short>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(int))
-				return new CastConverter<DateOnly, int>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(long))
-				return new CastConverter<DateOnly, long>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(IndexList))
-				return new CastConverter<DateOnly, IndexList>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(WeightedIndexList))
-				return new CastConverter<DateOnly, WeightedIndexList>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyVector<float>))
-				return new CastConverter<DateOnly, ReadOnlyVector<float>>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new CastConverter<DateOnly, ReadOnlyMatrix<float>>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new CastConverter<DateOnly, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new CastConverter<DateOnly, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(TimeOnly))
-				return new CastConverter<DateOnly, TimeOnly>((IReadOnlyBuffer<DateOnly>)from);
-			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
-				return new CastConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from);
-			throw new NotImplementedException($"Could not create CastConverter for types {type1} and {type2}");
         }
 
         internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
@@ -751,6 +173,8 @@ namespace BrightData.Helper
 				return new TypeConverter<bool, IndexList>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, IndexList>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<bool, WeightedIndexList>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, WeightedIndexList>)converter);
+			if(type1 == typeof(bool) && type2 == typeof(BinaryData))
+				return new TypeConverter<bool, BinaryData>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, BinaryData>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<bool, ReadOnlyVector<float>>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -785,6 +209,8 @@ namespace BrightData.Helper
 				return new TypeConverter<sbyte, IndexList>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, IndexList>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<sbyte, WeightedIndexList>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, WeightedIndexList>)converter);
+			if(type1 == typeof(sbyte) && type2 == typeof(BinaryData))
+				return new TypeConverter<sbyte, BinaryData>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, BinaryData>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<sbyte, ReadOnlyVector<float>>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -819,6 +245,8 @@ namespace BrightData.Helper
 				return new TypeConverter<float, IndexList>((IReadOnlyBuffer<float>)from, (ICanConvert<float, IndexList>)converter);
 			if(type1 == typeof(float) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<float, WeightedIndexList>((IReadOnlyBuffer<float>)from, (ICanConvert<float, WeightedIndexList>)converter);
+			if(type1 == typeof(float) && type2 == typeof(BinaryData))
+				return new TypeConverter<float, BinaryData>((IReadOnlyBuffer<float>)from, (ICanConvert<float, BinaryData>)converter);
 			if(type1 == typeof(float) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<float, ReadOnlyVector<float>>((IReadOnlyBuffer<float>)from, (ICanConvert<float, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(float) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -853,6 +281,8 @@ namespace BrightData.Helper
 				return new TypeConverter<double, IndexList>((IReadOnlyBuffer<double>)from, (ICanConvert<double, IndexList>)converter);
 			if(type1 == typeof(double) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<double, WeightedIndexList>((IReadOnlyBuffer<double>)from, (ICanConvert<double, WeightedIndexList>)converter);
+			if(type1 == typeof(double) && type2 == typeof(BinaryData))
+				return new TypeConverter<double, BinaryData>((IReadOnlyBuffer<double>)from, (ICanConvert<double, BinaryData>)converter);
 			if(type1 == typeof(double) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<double, ReadOnlyVector<float>>((IReadOnlyBuffer<double>)from, (ICanConvert<double, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(double) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -887,6 +317,8 @@ namespace BrightData.Helper
 				return new TypeConverter<decimal, IndexList>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, IndexList>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<decimal, WeightedIndexList>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, WeightedIndexList>)converter);
+			if(type1 == typeof(decimal) && type2 == typeof(BinaryData))
+				return new TypeConverter<decimal, BinaryData>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, BinaryData>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<decimal, ReadOnlyVector<float>>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -921,6 +353,8 @@ namespace BrightData.Helper
 				return new TypeConverter<string, IndexList>((IReadOnlyBuffer<string>)from, (ICanConvert<string, IndexList>)converter);
 			if(type1 == typeof(string) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<string, WeightedIndexList>((IReadOnlyBuffer<string>)from, (ICanConvert<string, WeightedIndexList>)converter);
+			if(type1 == typeof(string) && type2 == typeof(BinaryData))
+				return new TypeConverter<string, BinaryData>((IReadOnlyBuffer<string>)from, (ICanConvert<string, BinaryData>)converter);
 			if(type1 == typeof(string) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<string, ReadOnlyVector<float>>((IReadOnlyBuffer<string>)from, (ICanConvert<string, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(string) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -955,6 +389,8 @@ namespace BrightData.Helper
 				return new TypeConverter<short, IndexList>((IReadOnlyBuffer<short>)from, (ICanConvert<short, IndexList>)converter);
 			if(type1 == typeof(short) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<short, WeightedIndexList>((IReadOnlyBuffer<short>)from, (ICanConvert<short, WeightedIndexList>)converter);
+			if(type1 == typeof(short) && type2 == typeof(BinaryData))
+				return new TypeConverter<short, BinaryData>((IReadOnlyBuffer<short>)from, (ICanConvert<short, BinaryData>)converter);
 			if(type1 == typeof(short) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<short, ReadOnlyVector<float>>((IReadOnlyBuffer<short>)from, (ICanConvert<short, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(short) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -989,6 +425,8 @@ namespace BrightData.Helper
 				return new TypeConverter<int, IndexList>((IReadOnlyBuffer<int>)from, (ICanConvert<int, IndexList>)converter);
 			if(type1 == typeof(int) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<int, WeightedIndexList>((IReadOnlyBuffer<int>)from, (ICanConvert<int, WeightedIndexList>)converter);
+			if(type1 == typeof(int) && type2 == typeof(BinaryData))
+				return new TypeConverter<int, BinaryData>((IReadOnlyBuffer<int>)from, (ICanConvert<int, BinaryData>)converter);
 			if(type1 == typeof(int) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<int, ReadOnlyVector<float>>((IReadOnlyBuffer<int>)from, (ICanConvert<int, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(int) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1023,6 +461,8 @@ namespace BrightData.Helper
 				return new TypeConverter<long, IndexList>((IReadOnlyBuffer<long>)from, (ICanConvert<long, IndexList>)converter);
 			if(type1 == typeof(long) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<long, WeightedIndexList>((IReadOnlyBuffer<long>)from, (ICanConvert<long, WeightedIndexList>)converter);
+			if(type1 == typeof(long) && type2 == typeof(BinaryData))
+				return new TypeConverter<long, BinaryData>((IReadOnlyBuffer<long>)from, (ICanConvert<long, BinaryData>)converter);
 			if(type1 == typeof(long) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<long, ReadOnlyVector<float>>((IReadOnlyBuffer<long>)from, (ICanConvert<long, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(long) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1057,6 +497,8 @@ namespace BrightData.Helper
 				return new TypeConverter<IndexList, IndexList>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, IndexList>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<IndexList, WeightedIndexList>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, WeightedIndexList>)converter);
+			if(type1 == typeof(IndexList) && type2 == typeof(BinaryData))
+				return new TypeConverter<IndexList, BinaryData>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, BinaryData>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<IndexList, ReadOnlyVector<float>>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1091,6 +533,8 @@ namespace BrightData.Helper
 				return new TypeConverter<WeightedIndexList, IndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, IndexList>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<WeightedIndexList, WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, WeightedIndexList>)converter);
+			if(type1 == typeof(WeightedIndexList) && type2 == typeof(BinaryData))
+				return new TypeConverter<WeightedIndexList, BinaryData>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, BinaryData>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<WeightedIndexList, ReadOnlyVector<float>>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1103,6 +547,42 @@ namespace BrightData.Helper
 				return new TypeConverter<WeightedIndexList, TimeOnly>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, TimeOnly>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(DateOnly))
 				return new TypeConverter<WeightedIndexList, DateOnly>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, DateOnly>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(bool))
+				return new TypeConverter<BinaryData, bool>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, bool>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(sbyte))
+				return new TypeConverter<BinaryData, sbyte>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, sbyte>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(float))
+				return new TypeConverter<BinaryData, float>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, float>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(double))
+				return new TypeConverter<BinaryData, double>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, double>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(decimal))
+				return new TypeConverter<BinaryData, decimal>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, decimal>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(string))
+				return new TypeConverter<BinaryData, string>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, string>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(short))
+				return new TypeConverter<BinaryData, short>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, short>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(int))
+				return new TypeConverter<BinaryData, int>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, int>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(long))
+				return new TypeConverter<BinaryData, long>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, long>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(IndexList))
+				return new TypeConverter<BinaryData, IndexList>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, IndexList>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(WeightedIndexList))
+				return new TypeConverter<BinaryData, WeightedIndexList>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, WeightedIndexList>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(BinaryData))
+				return new TypeConverter<BinaryData, BinaryData>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, BinaryData>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyVector<float>))
+				return new TypeConverter<BinaryData, ReadOnlyVector<float>>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, ReadOnlyVector<float>>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyMatrix<float>))
+				return new TypeConverter<BinaryData, ReadOnlyMatrix<float>>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, ReadOnlyMatrix<float>>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyTensor3D<float>))
+				return new TypeConverter<BinaryData, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, ReadOnlyTensor3D<float>>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyTensor4D<float>))
+				return new TypeConverter<BinaryData, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, ReadOnlyTensor4D<float>>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(TimeOnly))
+				return new TypeConverter<BinaryData, TimeOnly>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, TimeOnly>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(DateOnly))
+				return new TypeConverter<BinaryData, DateOnly>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, DateOnly>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(bool))
 				return new TypeConverter<ReadOnlyVector<float>, bool>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, bool>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(sbyte))
@@ -1125,6 +605,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyVector<float>, IndexList>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, IndexList>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<ReadOnlyVector<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, WeightedIndexList>)converter);
+			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(BinaryData))
+				return new TypeConverter<ReadOnlyVector<float>, BinaryData>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, BinaryData>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<ReadOnlyVector<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1159,6 +641,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyMatrix<float>, IndexList>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, IndexList>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<ReadOnlyMatrix<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, WeightedIndexList>)converter);
+			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(BinaryData))
+				return new TypeConverter<ReadOnlyMatrix<float>, BinaryData>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, BinaryData>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<ReadOnlyMatrix<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1193,6 +677,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyTensor3D<float>, IndexList>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, IndexList>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<ReadOnlyTensor3D<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, WeightedIndexList>)converter);
+			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(BinaryData))
+				return new TypeConverter<ReadOnlyTensor3D<float>, BinaryData>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, BinaryData>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1227,6 +713,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyTensor4D<float>, IndexList>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, IndexList>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<ReadOnlyTensor4D<float>, WeightedIndexList>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, WeightedIndexList>)converter);
+			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(BinaryData))
+				return new TypeConverter<ReadOnlyTensor4D<float>, BinaryData>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, BinaryData>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<ReadOnlyTensor4D<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1261,6 +749,8 @@ namespace BrightData.Helper
 				return new TypeConverter<TimeOnly, IndexList>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, IndexList>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<TimeOnly, WeightedIndexList>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, WeightedIndexList>)converter);
+			if(type1 == typeof(TimeOnly) && type2 == typeof(BinaryData))
+				return new TypeConverter<TimeOnly, BinaryData>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, BinaryData>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<TimeOnly, ReadOnlyVector<float>>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1295,6 +785,8 @@ namespace BrightData.Helper
 				return new TypeConverter<DateOnly, IndexList>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, IndexList>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<DateOnly, WeightedIndexList>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, WeightedIndexList>)converter);
+			if(type1 == typeof(DateOnly) && type2 == typeof(BinaryData))
+				return new TypeConverter<DateOnly, BinaryData>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, BinaryData>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<DateOnly, ReadOnlyVector<float>>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -1338,6 +830,8 @@ namespace BrightData.Helper
 				return new IndexedCopyOperation<IndexList>((IReadOnlyBuffer<IndexList>)from, (IAppendToBuffer<IndexList>)to, indices);
 			if(type == typeof(WeightedIndexList))
 				return new IndexedCopyOperation<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (IAppendToBuffer<WeightedIndexList>)to, indices);
+			if(type == typeof(BinaryData))
+				return new IndexedCopyOperation<BinaryData>((IReadOnlyBuffer<BinaryData>)from, (IAppendToBuffer<BinaryData>)to, indices);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new IndexedCopyOperation<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (IAppendToBuffer<ReadOnlyVector<float>>)to, indices);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1381,6 +875,8 @@ namespace BrightData.Helper
 				return new BufferCopyOperation<IndexList>((IReadOnlyBuffer<IndexList>)from, (IAppendBlocks<IndexList>)to, onComplete);
 			if(type == typeof(WeightedIndexList))
 				return new BufferCopyOperation<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (IAppendBlocks<WeightedIndexList>)to, onComplete);
+			if(type == typeof(BinaryData))
+				return new BufferCopyOperation<BinaryData>((IReadOnlyBuffer<BinaryData>)from, (IAppendBlocks<BinaryData>)to, onComplete);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new BufferCopyOperation<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (IAppendBlocks<ReadOnlyVector<float>>)to, onComplete);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1424,6 +920,8 @@ namespace BrightData.Helper
 				return new SimpleNumericAnalysis<IndexList>((IReadOnlyBuffer<IndexList>)buffer);
 			if(type == typeof(WeightedIndexList))
 				return new SimpleNumericAnalysis<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer);
+			if(type == typeof(BinaryData))
+				return new SimpleNumericAnalysis<BinaryData>((IReadOnlyBuffer<BinaryData>)buffer);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new SimpleNumericAnalysis<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1634,6 +1132,8 @@ namespace BrightData.Helper
 				return new ColumnFilter<IndexList>(columnIndex, columnType, (IDataTypeSpecification<IndexList>)typeSpecification, nonConformingRowIndices);
 			if(type == typeof(WeightedIndexList))
 				return new ColumnFilter<WeightedIndexList>(columnIndex, columnType, (IDataTypeSpecification<WeightedIndexList>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(BinaryData))
+				return new ColumnFilter<BinaryData>(columnIndex, columnType, (IDataTypeSpecification<BinaryData>)typeSpecification, nonConformingRowIndices);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new ColumnFilter<ReadOnlyVector<float>>(columnIndex, columnType, (IDataTypeSpecification<ReadOnlyVector<float>>)typeSpecification, nonConformingRowIndices);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1677,6 +1177,8 @@ namespace BrightData.Helper
 				return new TypedIndexer<IndexList>((IReadOnlyBuffer<IndexList>)buffer);
 			if(type == typeof(WeightedIndexList))
 				return new TypedIndexer<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer);
+			if(type == typeof(BinaryData))
+				return new TypedIndexer<BinaryData>((IReadOnlyBuffer<BinaryData>)buffer);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new TypedIndexer<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1720,6 +1222,8 @@ namespace BrightData.Helper
 				return new OneHotConverter<IndexList>((IReadOnlyBuffer<IndexList>)buffer, (ICanIndex<IndexList>)indexer);
 			if(type == typeof(WeightedIndexList))
 				return new OneHotConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, (ICanIndex<WeightedIndexList>)indexer);
+			if(type == typeof(BinaryData))
+				return new OneHotConverter<BinaryData>((IReadOnlyBuffer<BinaryData>)buffer, (ICanIndex<BinaryData>)indexer);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new OneHotConverter<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer, (ICanIndex<ReadOnlyVector<float>>)indexer);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1763,6 +1267,8 @@ namespace BrightData.Helper
 				return new CategoricalIndexConverter<IndexList>((IReadOnlyBuffer<IndexList>)buffer, (ICanIndex<IndexList>)indexer);
 			if(type == typeof(WeightedIndexList))
 				return new CategoricalIndexConverter<WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)buffer, (ICanIndex<WeightedIndexList>)indexer);
+			if(type == typeof(BinaryData))
+				return new CategoricalIndexConverter<BinaryData>((IReadOnlyBuffer<BinaryData>)buffer, (ICanIndex<BinaryData>)indexer);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new CategoricalIndexConverter<ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)buffer, (ICanIndex<ReadOnlyVector<float>>)indexer);
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1850,6 +1356,8 @@ namespace BrightData.Helper
 				return new CategoricalIndexVectoriser<IndexList>();
 			if(type == typeof(WeightedIndexList))
 				return new CategoricalIndexVectoriser<WeightedIndexList>();
+			if(type == typeof(BinaryData))
+				return new CategoricalIndexVectoriser<BinaryData>();
 			if(type == typeof(ReadOnlyVector<float>))
 				return new CategoricalIndexVectoriser<ReadOnlyVector<float>>();
 			if(type == typeof(ReadOnlyMatrix<float>))
@@ -1892,6 +1400,8 @@ namespace BrightData.Helper
 				return new OneHotVectoriser<IndexList>(maxSize);
 			if(type == typeof(WeightedIndexList))
 				return new OneHotVectoriser<WeightedIndexList>(maxSize);
+			if(type == typeof(BinaryData))
+				return new OneHotVectoriser<BinaryData>(maxSize);
 			if(type == typeof(ReadOnlyVector<float>))
 				return new OneHotVectoriser<ReadOnlyVector<float>>(maxSize);
 			if(type == typeof(ReadOnlyMatrix<float>))

@@ -9,7 +9,7 @@ namespace BrightData.LinearAlgebra.Clustering
     /// </summary>
     internal class NonNegativeMatrixFactorisation(LinearAlgebraProvider<float> lap, uint numIterations, float errorThreshold = 0.001f, ICostFunction<float>? costFunction = null) : IClusteringStrategy
     {
-        readonly ICostFunction<float> _costFunction = costFunction ?? new QuadraticCostFunction<float>(lap);
+        readonly ICostFunction<float> _costFunction = costFunction ?? new MeanSquaredErrorCostFunction<float>(lap);
 
         public uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric)
         {
@@ -69,10 +69,6 @@ namespace BrightData.LinearAlgebra.Clustering
             }
         }
 
-        float DifferenceCost(IReadOnlyMatrix<float> m1, IReadOnlyMatrix<float> m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
-        //float DifferenceCost(IMatrix m1, IMatrix m2) => m1.AllRowsAsReadOnly(false)
-        //    .Zip(m2.AllRowsAsReadOnly(false), (r1, r2) => _costFunction.Cost(r1.ReadOnlySegment, r2.ReadOnlySegment))
-        //    .Average()
-        //;
+        float DifferenceCost(IHaveReadOnlyTensorSegment<float> m1, IHaveReadOnlyTensorSegment<float> m2) => _costFunction.Cost(m1.ReadOnlySegment, m2.ReadOnlySegment);
     }
 }

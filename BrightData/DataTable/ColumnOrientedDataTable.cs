@@ -463,7 +463,8 @@ namespace BrightData.DataTable
             };
         }
 
-        public IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T: notnull
+        public IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) 
+            where T: notnull
         {
             var typeofT = typeof(T);
             var reader = _columnReader[index];
@@ -482,10 +483,6 @@ namespace BrightData.DataTable
                 return (IReadOnlyBufferWithMetaData<T>)ret;
             }
 
-            if (typeofT.GetTypeInfo().IsAssignableFrom(dataType.GetTypeInfo())) {
-                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.CastConverter(typeof(T), reader), _columnMetaData[index]);
-            }
-
             if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
                 var converter = StaticConverters.GetConverter(dataType, typeof(T));
                 return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(typeof(T), reader, converter), _columnMetaData[index]);
@@ -494,10 +491,13 @@ namespace BrightData.DataTable
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
         }
 
-        public IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) where FT: notnull where TT : notnull
+        public IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) 
+            where FT: notnull 
+            where TT : notnull
         {
             var from = GetColumn<FT>(index);
-            return (IReadOnlyBufferWithMetaData<TT>)GenericTypeMapping.TypeConverter(typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
+            var ret = (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
+            return new ReadOnlyBufferMetaDataWrapper<TT>(ret, _columnMetaData[index]);
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];

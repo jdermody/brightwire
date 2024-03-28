@@ -22,7 +22,6 @@ namespace BrightData.DataTable
         IProvideDataBlocks? tempData = null, 
         int blockSize = Consts.DefaultBlockSize, 
         uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
-        : IWriteDataTables
     {
         public async Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output)
         {

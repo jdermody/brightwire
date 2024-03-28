@@ -1,21 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BrightData.Helper;
+using System;
+using System.Numerics;
 
 namespace BrightData.LinearAlgebra.CostFunctions
 {
-    internal class MeanSquaredErrorCostFunction : ICostFunction<float>
+    internal class MeanSquaredErrorCostFunction<T>(LinearAlgebraProvider<T> lap) : ICostFunction<T> 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        public float Cost(IReadOnlyNumericSegment<float> predicted, IReadOnlyNumericSegment<float> expected)
+        public T Cost(IReadOnlyNumericSegment<T> predicted, IReadOnlyNumericSegment<T> expected)
         {
-            throw new NotImplementedException();
+            using var difference        = lap.Subtract(expected, predicted);
+            using var squaredDifference = lap.Squared(difference);
+            using var result            = lap.Multiply(squaredDifference, T.CreateSaturating(0.5f));
+            return Math<T>.Constrain(lap.Sum(result));
         }
 
-        public IReadOnlyNumericSegment<float> Gradient(IReadOnlyNumericSegment<float> predicted, IReadOnlyNumericSegment<float> expected)
+        public IReadOnlyNumericSegment<T> Gradient(IReadOnlyNumericSegment<T> predicted, IReadOnlyNumericSegment<T> expected)
         {
-            throw new NotImplementedException();
+            using var ret = lap.Subtract(expected, predicted);
+            return lap.Multiply(ret, (T.One + T.One) / T.CreateSaturating(expected.Size));
         }
     }
 }

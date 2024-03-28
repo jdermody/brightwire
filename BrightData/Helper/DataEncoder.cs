@@ -9,7 +9,7 @@ namespace BrightData.Helper
     /// <summary>
     /// Encodes types from/to bytes
     /// </summary>
-    public class DataEncoder : IDataReader
+    public class DataEncoder
     {
         readonly BrightDataContext _context;
         internal DataEncoder(BrightDataContext context) => _context = context;

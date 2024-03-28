@@ -34,7 +34,7 @@ namespace BrightData.Buffer.ByteBlockReaders
 
         public Task Update(uint byteOffset, ReadOnlyMemory<byte> data)
         {
-            // nop
+            // nop - cannot overwrite read only memory
             return Task.CompletedTask;
         }
 

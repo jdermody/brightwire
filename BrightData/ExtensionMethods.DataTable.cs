@@ -316,7 +316,7 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="filePath">File path on disk</param>
         /// <returns></returns>
-        public static Task<IDataTable> LoadTable(this BrightDataContext context, string filePath) => ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
+        public static Task<IDataTable> LoadTableFromFile(this BrightDataContext context, string filePath) => ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
 
         /// <summary>
         /// Sets the target column across an array of metadata
@@ -507,6 +507,9 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<ReadOnlyMatrix<float>> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
         {
+            if (columnIndices.Length == 0)
+                columnIndices = dataTable.ColumnCount.AsRange().ToArray();
+
             // consider the simple case
             if (columnIndices.Length == 1) {
                 var columnIndex = columnIndices[0];

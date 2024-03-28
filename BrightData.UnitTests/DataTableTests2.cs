@@ -179,5 +179,127 @@ namespace BrightData.UnitTests
             using var fromTable = (await dataTable.Get<ReadOnlyTensor4D<float>>(0, 0)).Create(_context.LinearAlgebraProvider);
             CheckSame(fromTable, firstTensor);
         }
+
+        Task<IDataTable> CreateSimpleTable()
+        {
+            var builder = _context.CreateTableBuilder();
+            builder.CreateColumn<int>();
+            builder.CreateColumn<float>();
+            builder.AddRow(1, 2f);
+            builder.AddRow(2, 4f);
+            return builder.BuildInMemory();
+        }
+
+        [Fact]
+        public async Task TableRowTests()
+        {
+            using var table = await CreateSimpleTable();
+            var buffer = table.GetRowsBuffer<int, float>();
+            var index = 1;
+            await foreach (var row in buffer) {
+                row.Size.Should().Be(2);
+                row.Get<int>(0).Should().Be(1 * index);
+                row.Get<float>(1).Should().Be(2f * index);
+                ++index;
+            }
+        }
+
+        [Fact]
+        public async Task ObjectConversion()
+        {
+            using var table = await CreateSimpleTable();
+            var buffer = table.GetColumn<object>(0);
+            var obj = (await buffer.ToArray())[0];
+            obj.Should().BeOfType<int>();
+            ((int)obj).Should().Be(1);
+        }
+
+        [Fact]
+        public async Task StringConversion()
+        {
+            using var table = await CreateSimpleTable();
+            var buffer = table.GetColumn<string>(0);
+            var str = (await buffer.ToArray())[0];
+            str.Should().BeOfType<string>();
+            int.Parse(str).Should().Be(1);
+        }
+
+        [Fact]
+        public async Task ColumnConversion()
+        {
+            using var table = await CreateSimpleTable();
+            var buffer = table.GetColumn<long>(0);
+            var val = (await buffer.ToArray())[0];
+            val.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task BinaryData()
+        {
+            var builder = _context.CreateTableBuilder();
+            builder.CreateColumn<BinaryData>();
+            var data = new BinaryData(1, 2, 3, 4);
+            builder.AddRow(data);
+            using var table = await builder.BuildInMemory();
+            var data2 = (BinaryData)table[0][0];
+            data2.Should().BeEquivalentTo(data);
+        }
+
+        [Fact]
+        public async Task ColumnMapping()
+        {
+            using var table = await CreateSimpleTable();
+            var mappedColumn = table.GetColumn<int, double>(0, x => x / 2.0);
+            var result = await mappedColumn.ToArray();
+            result[0].Should().Be(0.5);
+        }
+
+        [Fact]
+        public async Task GetBlock()
+        {
+            using var table = await CreateSimpleTable();
+            var slice = await table.Get<int>(0, 0, 1);
+            slice.Length.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task PersistMetaData()
+        {
+            using var table = await CreateSimpleTable();
+            table.MetaData.Set("test", 123);
+            table.PersistMetaData();
+            var buffer = table.GetRowsBuffer<int, float>();
+            var index = 1;
+            await foreach (var row in buffer) {
+                row.Size.Should().Be(2);
+                row.Get<int>(0).Should().Be(1 * index);
+                row.Get<float>(1).Should().Be(2f * index);
+                ++index;
+            }
+
+            table.MetaData.Get<int>("test", 0).Should().Be(123);
+        }
+
+        [Fact]
+        public async Task GetAllColumns()
+        {
+            using var table = await CreateSimpleTable();
+            using var stream = new MemoryStream();
+            await table.WriteColumnsTo(stream);
+            stream.Position = 0;
+            using var table2 = await _context.LoadTableFromStream(stream);
+            var matrix2 = await table2.AsMatrix();
+            matrix2.Should().BeEquivalentTo(await table.AsMatrix());
+        }
+
+        [Fact]
+        public async Task GetMany()
+        {
+            using var table = await CreateSimpleTable();
+            var firstRow = table[0];
+            var vals = firstRow.GetMany<string>(0, 1);
+            vals[0].Should().Be("1");
+            vals[1].Should().Be("2");
+        }
     }
 }

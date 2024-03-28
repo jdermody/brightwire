@@ -2933,25 +2933,6 @@
             <param name="writable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.NotifyProgress(BrightData.INotifyOperationProgress,System.Guid,System.UInt32,System.UInt32,System.Single)">
-            <summary>
-            Notifies about the progress of a multipart operation
-            </summary>
-            <param name="notify"></param>
-            <param name="operationId">Unique operation id</param>
-            <param name="index">Index of current part</param>
-            <param name="total">Total number of parts</param>
-            <param name="progress">Process within the part</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.WriteProgressPercentage(System.Single,System.Int32@,System.Diagnostics.Stopwatch)">
-            <summary>
-            Writes a progress bar to the console
-            </summary>
-            <param name="progress">New progress (between 0 and 1)</param>
-            <param name="previousPercentage">Current progress percentage (max 100)</param>
-            <param name="sw">Stopwatch since start of operation</param>
-            <returns>True if the progress has increased</returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.AsCommaSeparated``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Writes the enumerable to a comma separated string
@@ -3080,22 +3061,6 @@
             <param name="notify"></param>
             <param name="msg"></param>
             <param name="ct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CompleteInParallel``1(BrightData.IOperation{``0}[])">
-            <summary>
-            Returns the results from a collection of operations that might be run in parallel
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="operations"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CompleteInParallel``1(System.Collections.Generic.IReadOnlyList{BrightData.IOperation{``0}})">
-            <summary>
-            Returns the results from a collection of operations that might be run in parallel
-            </summary>
-            <param name="operations"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToMemory``1(System.Collections.Generic.IAsyncEnumerable{``0})">
@@ -3329,7 +3294,7 @@
             <param name="size">Number of rows to return</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.LoadTable(BrightData.BrightDataContext,System.String)">
+        <member name="M:BrightData.ExtensionMethods.LoadTableFromFile(BrightData.BrightDataContext,System.String)">
             <summary>
             Loads a data table from disk
             </summary>
@@ -4537,6 +4502,22 @@
             </summary>
             <param name="matrix"></param>
             <param name="columnX">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateMeanSquaredErrorCostFunction``1(BrightData.LinearAlgebra.LinearAlgebraProvider{``0})">
+            <summary>
+            Creates MSE cost function
+            </summary>
+            <param name="lap"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCrossEntropyCostFunction``1(BrightData.LinearAlgebra.LinearAlgebraProvider{``0})">
+            <summary>
+            Creates a cross entropy (logistic loss) cost function
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="lap"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyVector{System.Single})">
@@ -6252,27 +6233,6 @@
             Meta data store
             </summary>
         </member>
-        <member name="T:BrightData.IDataReader">
-            <summary>
-            Typed data reader
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataReader.Read``1(System.IO.BinaryReader)">
-            <summary>
-            Reads a typed value from a binary reader
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataReader.ReadArray``1(System.IO.BinaryReader)">
-            <summary>
-            Reads a typed array from a binary reader
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="reader"></param>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.IWriteToMetaData">
             <summary>
             Indicates that the type can write values to metadata
@@ -6292,18 +6252,6 @@
         <member name="M:BrightData.IDataAnalyser.AddObject(System.Object)">
             <summary>
             Adds an object to analyze
-            </summary>
-            <param name="obj"></param>
-        </member>
-        <member name="T:BrightData.IAcceptSequentialTypedData`1">
-            <summary>
-            Typed data can be sequentially added
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IAcceptSequentialTypedData`1.Add(`0)">
-            <summary>
-            Adds a typed object
             </summary>
             <param name="obj"></param>
         </member>
@@ -6329,6 +6277,12 @@
             Typed data analyser
             </summary>
             <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IDataAnalyser`1.Add(`0)">
+            <summary>
+            Adds a typed object
+            </summary>
+            <param name="obj"></param>
         </member>
         <member name="T:BrightData.NormalizationType">
             <summary>
@@ -6638,20 +6592,6 @@
             Returns the untyped item at this index
             </summary>
             <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.IOperation`1">
-            <summary>
-            A generic operation that might require user notification and that can be cancelled
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IOperation`1.Complete(BrightData.INotifyOperationProgress,System.Threading.CancellationToken)">
-            <summary>
-            Tries to complete the operation
-            </summary>
-            <param name="notifyUser">Optional interface to notify the user of progress</param>
-            <param name="cancellationToken">Cancellation token to cancel operation</param>
             <returns></returns>
         </member>
         <member name="T:BrightData.IndexListWithLabel`1">
@@ -6986,44 +6926,6 @@
             <summary>
             Custom conversion
             </summary>
-        </member>
-        <member name="T:BrightData.IDataTableVectoriser">
-            <summary>
-            Data table vectoriser
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTableVectoriser.Vectorise(System.Object[])">
-            <summary>
-            Vectorise a table row
-            </summary>
-            <param name="row"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTableVectoriser.Vectorise(BrightData.ICanRandomlyAccessData)">
-            <summary>
-            Vectorise a data table segment
-            </summary>
-            <param name="segment"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IDataTableVectoriser.OutputSize">
-            <summary>
-            Size of the output vectors
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTableVectoriser.GetOutputLabel(System.UInt32,System.UInt32)">
-            <summary>
-            Returns the associated label from the one hot encoding dictionary
-            </summary>
-            <param name="vectorIndex">Index within one hot encoded vector</param>
-            <param name="columnIndex">Data table column index</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTableVectoriser.Enumerate">
-            <summary>
-            Returns a sequence of vectorised table rows
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:BrightData.BlockMapper`2">
             <summary>
@@ -7564,20 +7466,6 @@
             <param name="name">New column name</param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IWriteDataTables">
-            <summary>
-            Writes tables to a stream
-            </summary>
-        </member>
-        <member name="M:BrightData.IWriteDataTables.Write(BrightData.Types.MetaData,BrightData.IReadOnlyBufferWithMetaData[],System.IO.Stream)">
-            <summary>
-            Writes to a stream
-            </summary>
-            <param name="tableMetaData"></param>
-            <param name="buffers"></param>
-            <param name="output"></param>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.IHaveLinearAlgebraProvider`1">
             <summary>
             Gives access to a linear algebra provider
@@ -7807,9 +7695,20 @@
             A read only span
             </summary>
         </member>
+        <member name="T:BrightData.IReadOnlyTensor">
+            <summary>
+            Read only tensor
+            </summary>
+        </member>
+        <member name="M:BrightData.IReadOnlyTensor.IsEntirelyFinite">
+            <summary>
+            Checks if the tensor is entirely finite (does not contain NAN or Infinity)
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IReadOnlyTensor`1">
             <summary>
-            Generic read only tensor
+            Typed read only tensor
             </summary>
         </member>
         <member name="M:BrightData.IReadOnlyTensor`1.ToArray">
@@ -7845,12 +7744,6 @@
         <member name="M:BrightData.IReadOnlyTensor`1.L2Norm">
             <summary>
             Returns the L2 norm of this tensor (euclidean norm)
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IReadOnlyTensor`1.IsEntirelyFinite">
-            <summary>
-            Checks if the tensor is entirely finite (does not contain NAN or Infinity)
             </summary>
             <returns></returns>
         </member>
@@ -8321,14 +8214,29 @@
             <param name="lap">Linear algebra provider</param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.ITensor`1">
+        <member name="T:BrightData.ITensor">
             <summary>
-            Untyped tensor interface - vector, matrix, 3D tensor etc
+            Mutable tensor
             </summary>
         </member>
-        <member name="P:BrightData.ITensor`1.Context">
+        <member name="M:BrightData.ITensor.Clear">
             <summary>
-            Underlying bright data context
+            Sets all values to zero
+            </summary>
+        </member>
+        <member name="P:BrightData.ITensor.TotalSize">
+            <summary>
+            Total count of all values
+            </summary>
+        </member>
+        <member name="P:BrightData.ITensor.Shape">
+            <summary>
+            Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
+            </summary>
+        </member>
+        <member name="T:BrightData.ITensor`1">
+            <summary>
+            Typed tensor interface - vector, matrix, 3D tensor etc
             </summary>
         </member>
         <member name="M:BrightData.ITensor`1.Reshape">
@@ -8364,26 +8272,11 @@
             <param name="columns">Number of columns in each matrix (one parameter is optional null)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ITensor`1.Clear">
-            <summary>
-            Sets all values to zero
-            </summary>
-        </member>
         <member name="M:BrightData.ITensor`1.Clone">
             <summary>
             Creates a copy of this tensor
             </summary>
             <returns></returns>
-        </member>
-        <member name="P:BrightData.ITensor`1.TotalSize">
-            <summary>
-            Total count of all values
-            </summary>
-        </member>
-        <member name="P:BrightData.ITensor`1.Shape">
-            <summary>
-            Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
-            </summary>
         </member>
         <member name="M:BrightData.ITensor`1.AddInPlace(BrightData.ITensor{`0})">
             <summary>
@@ -9348,6 +9241,14 @@
             </summary>
             <param name="size">Segment size</param>
             <param name="initializer">Function to initialize each value in the segment</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateSegment(System.UInt32,`0)">
+            <summary>
+            Creates a tensor segment with each value initialized to an initial value
+            </summary>
+            <param name="size"></param>
+            <param name="initialValue"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.Clone(BrightData.IReadOnlyNumericSegment{`0})">
