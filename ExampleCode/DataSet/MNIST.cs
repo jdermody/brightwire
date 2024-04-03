@@ -167,7 +167,7 @@ namespace ExampleCode.DataSet
 
             // map for CUDA
             if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, ret));
+                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, (ITensorDataProvider)ret));
 
             return ret;
         }
@@ -185,7 +185,7 @@ namespace ExampleCode.DataSet
 
             // map for CUDA
             if (useCudaTensorCache && brightContext.LinearAlgebraProvider.IsCuda(out var cudaProvider))
-                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, ret));
+                _tensorCache.Add(await CudaTensorDataCache.Create(cudaProvider, (ITensorDataProvider)ret));
 
             return ret;
         }

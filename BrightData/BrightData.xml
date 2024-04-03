@@ -1915,292 +1915,102 @@
         <member name="M:BrightData.TableRow`10.Get(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.IDataTable">
-            <summary>
-            Data table interface
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``2(System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``2(System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``3(System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``3(System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``4(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``4(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``5(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``5(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``6(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``6(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``7(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``7(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``8(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``8(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``9(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``9(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.Enumerate``10(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
-            <summary>
-            Enumerates typed data rows
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRowsBuffer``10(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a typed buffer to access rows
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.RowCount">
-            <summary>
-            Number of rows in the table
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.ColumnCount">
-            <summary>
-            Number of columns in the table
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.Orientation">
-            <summary>
-            Data table storage orientation
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.ColumnTypes">
-            <summary>
-            Array of the types of each column
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTable.ColumnMetaData">
-            <summary>
-            Array of the column metadata
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.PersistMetaData">
-            <summary>
-            Persists changes in the metadata to the underlying storage
-            </summary>
-        </member>
-        <member name="M:BrightData.IDataTable.GetColumn(System.UInt32)">
-            <summary>
-            Returns a column
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.GetColumn``1(System.UInt32)">
-            <summary>
-            Returns a typed column
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.GetColumn``2(System.UInt32,System.Func{``0,``1})">
-            <summary>
-            Returns a typed column after applying a conversion function to each value
-            </summary>
-            <param name="index"></param>
-            <param name="converter"></param>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="TT"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.GetColumnAnalysis(System.UInt32[])">
-            <summary>
-            Returns column analysis of the specified columns (or all if none specified)
-            </summary>
-            <param name="columnIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.Get``1(System.UInt32,System.UInt32)">
-            <summary>
-            Returns a typed value from the data table
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="columnIndex"></param>
-            <param name="rowIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.Get``1(System.UInt32,System.UInt32[])">
-            <summary>
-            Returns an array of column values
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="columnIndex"></param>
-            <param name="rowIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.EnumerateRows(System.Threading.CancellationToken)">
-            <summary>
-            Enumerates all rows of the table
-            </summary>
-            <param name="ct"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.GetColumns(System.Collections.Generic.IEnumerable{System.UInt32})">
-            <summary>
-            Returns an array of columns
-            </summary>
-            <param name="columnIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.WriteColumnsTo(System.IO.Stream,System.UInt32[])">
-            <summary>
-            Writes the specified columns to a stream
-            </summary>
-            <param name="stream"></param>
-            <param name="columnIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.WriteRowsTo(System.IO.Stream,System.UInt32[])">
-            <summary>
-            Writes the specified rows to a stream
-            </summary>
-            <param name="stream"></param>
-            <param name="rowIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTable.GetRows(System.UInt32[])">
-            <summary>
-            Returns an array of rows
-            </summary>
-            <param name="rowIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IDataTable.Item(System.UInt32)">
-            <summary>
-            Returns a row from the table
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.Distribution.BernoulliDistribution">
-            <summary>
-            Bernoulli distribution - https://en.wikipedia.org/wiki/Bernoulli_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="probability"></param>
-        </member>
-        <member name="M:BrightData.Distribution.BernoulliDistribution.#ctor(BrightData.BrightDataContext,System.Single)">
-            <summary>
-            Bernoulli distribution - https://en.wikipedia.org/wiki/Bernoulli_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="probability"></param>
-        </member>
-        <member name="T:BrightData.Distribution.BinomialDistribution">
-            <summary>
-            Binomial distribution - https://en.wikipedia.org/wiki/Binomial_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="probability"></param>
-            <param name="numTrials"></param>
-        </member>
-        <member name="M:BrightData.Distribution.BinomialDistribution.#ctor(BrightData.BrightDataContext,System.Single,System.UInt32)">
-            <summary>
-            Binomial distribution - https://en.wikipedia.org/wiki/Binomial_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="probability"></param>
-            <param name="numTrials"></param>
-        </member>
-        <member name="T:BrightData.Distribution.CategoricalDistribution">
-            <summary>
-            Categorical distribution - https://en.wikipedia.org/wiki/Categorical_distribution
-            </summary>
-        </member>
-        <member name="T:BrightData.Distribution.ContinuousDistribution">
-            <summary>
-            Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
-            </summary>
-        </member>
-        <member name="T:BrightData.Distribution.DiscreteUniformDistribution">
-            <summary>
-            Discrete uniform distribution - https://en.wikipedia.org/wiki/Discrete_uniform_distribution
-            </summary>
-        </member>
-        <member name="T:BrightData.Distribution.NormalDistribution">
-            <summary>
-            Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="mean"></param>
-            <param name="stdDev"></param>
-        </member>
-        <member name="M:BrightData.Distribution.NormalDistribution.#ctor(BrightData.BrightDataContext,System.Single,System.Single)">
-            <summary>
-            Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
-            </summary>
-            <param name="context"></param>
-            <param name="mean"></param>
-            <param name="stdDev"></param>
-        </member>
         <member name="T:BrightData.ExtensionMethods">
             <summary>
             Extension methods to attach analyser creation to the bright data context
             </summary>
             <summary>
             Extensions that work with a span of numbers
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``2(BrightData.IDataTable,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``2(BrightData.IDataTable,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``3(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``3(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``5(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``5(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``7(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``7(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``9(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``9(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.Types.MetaData)">
@@ -3916,6 +3726,66 @@
             <param name="columnIndices"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumn``2(BrightData.IDataTable,System.UInt32,System.Func{``0,``1})">
+            <summary>
+            Returns a typed column after applying a conversion function to each value
+            </summary>
+            <param name="dataTable"></param>
+            <param name="index"></param>
+            <param name="converter"></param>
+            <typeparam name="FT"></typeparam>
+            <typeparam name="TT"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnAnalysis(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns column analysis of the specified columns (or all if none specified)
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.EnumerateRows(BrightData.IDataTable,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates all rows of the table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="ct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumns(BrightData.IDataTable,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Returns an array of columns
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.WriteColumnsTo(BrightData.IDataTable,System.IO.Stream,System.UInt32[])">
+            <summary>
+            Writes the specified columns to a stream
+            </summary>
+            <param name="dataTable"></param>
+            <param name="stream"></param>
+            <param name="columnIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.WriteRowsTo(BrightData.IDataTable,System.IO.Stream,System.UInt32[])">
+            <summary>
+            Writes the specified rows to a stream
+            </summary>
+            <param name="dataTable"></param>
+            <param name="stream"></param>
+            <param name="rowIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetHead(BrightData.IDataTable,System.Int32)">
+            <summary>
+            Returns the first few rows in the data table
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.BrightDataContext)">
             <summary>
             Returns a randomly initialized float greater than or equal to 0f, and less than 1f
@@ -5607,6 +5477,67 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
+        <member name="T:BrightData.Distribution.BernoulliDistribution">
+            <summary>
+            Bernoulli distribution - https://en.wikipedia.org/wiki/Bernoulli_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+        </member>
+        <member name="M:BrightData.Distribution.BernoulliDistribution.#ctor(BrightData.BrightDataContext,System.Single)">
+            <summary>
+            Bernoulli distribution - https://en.wikipedia.org/wiki/Bernoulli_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+        </member>
+        <member name="T:BrightData.Distribution.BinomialDistribution">
+            <summary>
+            Binomial distribution - https://en.wikipedia.org/wiki/Binomial_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+            <param name="numTrials"></param>
+        </member>
+        <member name="M:BrightData.Distribution.BinomialDistribution.#ctor(BrightData.BrightDataContext,System.Single,System.UInt32)">
+            <summary>
+            Binomial distribution - https://en.wikipedia.org/wiki/Binomial_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+            <param name="numTrials"></param>
+        </member>
+        <member name="T:BrightData.Distribution.CategoricalDistribution">
+            <summary>
+            Categorical distribution - https://en.wikipedia.org/wiki/Categorical_distribution
+            </summary>
+        </member>
+        <member name="T:BrightData.Distribution.ContinuousDistribution">
+            <summary>
+            Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
+            </summary>
+        </member>
+        <member name="T:BrightData.Distribution.DiscreteUniformDistribution">
+            <summary>
+            Discrete uniform distribution - https://en.wikipedia.org/wiki/Discrete_uniform_distribution
+            </summary>
+        </member>
+        <member name="T:BrightData.Distribution.NormalDistribution">
+            <summary>
+            Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="mean"></param>
+            <param name="stdDev"></param>
+        </member>
+        <member name="M:BrightData.Distribution.NormalDistribution.#ctor(BrightData.BrightDataContext,System.Single,System.Single)">
+            <summary>
+            Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
+            </summary>
+            <param name="context"></param>
+            <param name="mean"></param>
+            <param name="stdDev"></param>
+        </member>
         <member name="T:BrightData.Helper.ConsoleProgressNotification">
             <summary>
             Writes progress notifications to the console
@@ -6955,6 +6886,88 @@
             <param name="matrixMapper"></param>
             <param name="tensor3DMapper"></param>
             <param name="tensor4DMapper"></param>
+        </member>
+        <member name="T:BrightData.IDataTable">
+            <summary>
+            Data tables contain structured tabular data
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTable.RowCount">
+            <summary>
+            Number of rows in the table
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTable.ColumnCount">
+            <summary>
+            Number of columns in the table
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTable.Orientation">
+            <summary>
+            Data table storage orientation
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTable.ColumnTypes">
+            <summary>
+            Array of the types of each column
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTable.ColumnMetaData">
+            <summary>
+            Array of the column metadata
+            </summary>
+        </member>
+        <member name="M:BrightData.IDataTable.PersistMetaData">
+            <summary>
+            Persists changes in the metadata to the underlying storage
+            </summary>
+        </member>
+        <member name="M:BrightData.IDataTable.GetColumn(System.UInt32)">
+            <summary>
+            Returns a column
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.GetColumn``1(System.UInt32)">
+            <summary>
+            Returns a typed column
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.Get``1(System.UInt32,System.UInt32)">
+            <summary>
+            Returns a typed value from the data table
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="rowIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.Get``1(System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of column values
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="columnIndex"></param>
+            <param name="rowIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.GetRows(System.UInt32[])">
+            <summary>
+            Returns an array of rows
+            </summary>
+            <param name="rowIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IDataTable.Item(System.UInt32)">
+            <summary>
+            Returns a row from the table
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.IByteBlockSource">
             <summary>
@@ -10816,12 +10829,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableVector`2.Create(BrightData.INumericSegment{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableVector`2.MapIndexed(System.Func{System.UInt32,`0,`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.LinearAlgebra.MutableVector`2.MapIndexedInPlace(System.Func{System.UInt32,`0,`0})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableVector`2.Create(BrightData.LinearAlgebra.LinearAlgebraProvider{`0})">

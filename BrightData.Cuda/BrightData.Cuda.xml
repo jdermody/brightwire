@@ -530,7 +530,7 @@
             Maintains a cache of CUDA tensors from a data table to avoid copying to device memory each time a tensor is used
             </summary>
         </member>
-        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Create(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.IDataTable)">
+        <member name="M:BrightData.Cuda.Helper.CudaTensorDataCache.Create(BrightData.Cuda.CudaLinearAlgebraProvider,BrightData.ITensorDataProvider)">
             <summary>
             Creates a CUDA tensor cache
             </summary>

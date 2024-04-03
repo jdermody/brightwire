@@ -82,19 +82,6 @@ namespace BrightData.LinearAlgebra
         public override IVector<T> Create(INumericSegment<T> segment) => Lap.CreateVector(segment);
 
         /// <inheritdoc />
-        public IVector<T> MapIndexed(Func<uint, T, T> mutator)
-        {
-            var ret = Segment.MapParallel(mutator);
-            return Create(ret);
-        }
-
-        /// <inheritdoc />
-        public void MapIndexedInPlace(Func<uint, T, T> mutator)
-        {
-            Segment.MapParallelInPlace(mutator);
-        }
-
-        /// <inheritdoc />
         public IVector<T> Create(LinearAlgebraProvider<T> lap) => lap.CreateVector((IReadOnlyVector<T>)this);
     }
 }

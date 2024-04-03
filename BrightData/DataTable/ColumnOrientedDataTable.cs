@@ -24,7 +24,7 @@ namespace BrightData.DataTable
     /// <summary>
     /// Column oriented data table
     /// </summary>
-    internal partial class ColumnOrientedDataTable : IDataTable
+    internal class ColumnOrientedDataTable : IDataTable, ITensorDataProvider
     {
         const int ReaderBlockSize = 128;
         internal struct Column
@@ -241,45 +241,6 @@ namespace BrightData.DataTable
             _reader.Update(_header.MetaDataOffset, memory);
         }
 
-        public async Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices)
-        {
-            if (!this.AllOrSpecifiedColumnIndices(true, columnIndices).All(i => _columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
-                var operations = this.AllOrSpecifiedColumnIndices(true, columnIndices).Select(i => _columnMetaData[i].Analyse(false, GetColumn(i))).ToArray();
-                await operations.ExecuteAllAsOne();
-            }
-            return this.AllOrSpecifiedColumnIndices(false, columnIndices).Select(x => _columnMetaData[x]).ToArray();
-        }
-
-        public async IAsyncEnumerable<GenericTableRow> EnumerateRows([EnumeratorCancellation] CancellationToken ct = default)
-        {
-            var size = _header.ColumnCount;
-            var enumerators = new IAsyncEnumerator<object>[size];
-            var currentTasks = new ValueTask<bool>[size];
-            var isValid = true;
-
-            for (uint i = 0; i < size; i++)
-                enumerators[i] = GetColumn(i).EnumerateAll().GetAsyncEnumerator(ct);
-
-            uint rowIndex = 0;
-            while (!ct.IsCancellationRequested && isValid) {
-                for (var i = 0; i < size; i++)
-                    currentTasks[i] = enumerators[i].MoveNextAsync();
-                for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
-                        isValid = false;
-                        break;
-                    }
-                }
-
-                if (isValid) {
-                    var curr = new object[size];
-                    for (var i = 0; i < size; i++)
-                        curr[i] = enumerators[i].Current;
-                    yield return new GenericTableRow(this, rowIndex++, curr);
-                }
-            }
-        }
-
         public IReadOnlyBufferWithMetaData[] GetColumns(params uint[] columnIndices)
         {
             IReadOnlyBufferWithMetaData[] ret;
@@ -298,17 +259,6 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public IReadOnlyBufferWithMetaData[] GetColumns(IEnumerable<uint> columnIndices)
-        {
-            return columnIndices.Select(GetColumn).ToArray();
-        }
-
-        public async Task WriteColumnsTo(Stream stream, params uint[] columnIndices)
-        {
-            var writer = new ColumnOrientedDataTableWriter();
-            await writer.Write(MetaData, GetColumns(columnIndices), stream);
-        }
-
         public void SetTensorMappers(
             BlockMapper<DataRangeColumnType, ReadOnlyVector<float>> vectorMapper,
             BlockMapper<MatrixColumnType, ReadOnlyMatrix<float>> matrixMapper,
@@ -324,18 +274,6 @@ namespace BrightData.DataTable
         }
 
         public BrightDataContext Context { get; }
-
-        public async Task WriteRowsTo(Stream stream, params uint[] rowIndices)
-        {
-            var writer = new ColumnOrientedDataTableBuilder(Context);
-            var newColumns = writer.CreateColumnsFrom(this);
-            var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : RowCount.AsRange().ToArray();
-            var operations = newColumns
-                .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(GetColumn((uint)i), x, wantedRowIndices))
-                .ToArray();
-            await operations.ExecuteAllAsOne();
-            await writer.WriteTo(stream);
-        }
 
         IReadOnlyBuffer<object>[] GetColumnsAsObjectBuffers()
         {
@@ -491,17 +429,6 @@ namespace BrightData.DataTable
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
         }
 
-        public IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) 
-            where FT: notnull 
-            where TT : notnull
-        {
-            var from = GetColumn<FT>(index);
-            var ret = (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
-            return new ReadOnlyBufferMetaDataWrapper<TT>(ret, _columnMetaData[index]);
-        }
-
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
-
-        public GenericTableRow[] Head => EnumerateRows().ToBlockingEnumerable().Take(5).ToArray();
     }
 }

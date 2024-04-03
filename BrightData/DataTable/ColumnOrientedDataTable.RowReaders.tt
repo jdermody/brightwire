@@ -36,53 +36,19 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
 <# } #>
-    /// <summary>
-    /// Data table interface
-    /// </summary>
-    public partial interface IDataTable
-    {
-<# for(var i = 2; i < COUNT; i++) {
-        var range = Enumerable.Range(1, i).ToList();
-        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
-        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
-        var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
-#>
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
-<# for(var j = 1; j <= i; j++) { #>
-            uint columnIndex<#= j #> = <#= j-1 #>, 
-<# } #>
-            CancellationToken ct = default
-        ) <#= where #>;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
-<# for(var j = 1; j <= i; j++) { #>
-            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
-<# } #>
-        ) <#= where #>;
-
-<# } #>
-    }
 }
 
-namespace BrightData.DataTable
+namespace BrightData
 {
-    internal partial class ColumnOrientedDataTable
-    {
-<# for(var i = 2; i < COUNT; i++) {
+    public partial class ExtensionMethods
+    {<# for(var i = 2; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();
         var typeString = String.Join(", ", range.Select(x => $"T{x}"));
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
         var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
         var rowParams = String.Join(", ", range.Select(x => $"e{x}.Current"));
-        var getColumns = String.Join(", ", range.Select(x => $"GetColumn<T{x}>(columnIndex{x})"));
+        var getColumns = String.Join(", ", range.Select(x => $"dataTable.GetColumn<T{x}>(columnIndex{x})"));
         var currentValues = String.Join(", ", range.Select(x => $"e{x}.Current"));
         var bufferInput = String.Join(", ", range.Select(x => $"IReadOnlyBuffer<T{x}> input{x}"));
         var allBs = String.Join(", ", range.Select(x => $"b{x}"));
@@ -91,7 +57,11 @@ namespace BrightData.DataTable
         var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
         var allArrayValues = String.Join(", ", range.Select(x => $"a{x}[i]"));
 #>      
-        public async IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
+            this IDataTable dataTable,
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #>, 
 <# } #>
@@ -100,7 +70,7 @@ namespace BrightData.DataTable
         {
             const int size = <#= i #>;
 <# for(var j = 1; j <= i; j++) { #>
-            await using var e<#= j #> = GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
+            await using var e<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
 <# } #>
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
@@ -117,7 +87,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<<#= typeString #>>(this, rowIndex++, <#= rowParams #>);
+                    var row = new TableRow<<#= typeString #>>(dataTable, rowIndex++, <#= rowParams #>);
                     yield return row;
                 }
             }
@@ -243,14 +213,19 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
+            this IDataTable dataTable,
 <# for(var j = 1; j <= i; j++) { #>
             uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
 <# } #>
         ) 
             <#= where #>
         {
-            return new RowReader<<#= typeString #>>(this, <#= getColumns #>);
+            return new RowReader<<#= typeString #>>(dataTable, <#= getColumns #>);
         }
 <# } #>
     }

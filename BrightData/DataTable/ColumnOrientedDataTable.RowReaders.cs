@@ -22,7 +22,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -39,7 +38,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -57,7 +55,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -76,7 +73,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -96,7 +92,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -117,7 +112,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -139,7 +133,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -162,7 +155,6 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
     /// <summary>
     /// Typed data table row
     /// </summary>
@@ -186,254 +178,25 @@ namespace BrightData
             _ => throw new Exception("Column index was out of range")
         };
     }
-
-    /// <summary>
-    /// Data table interface
-    /// </summary>
-    public partial interface IDataTable
-    {
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1
-        ) where T1: notnull where T2: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2
-        ) where T1: notnull where T2: notnull where T3: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            uint columnIndex6 = 5, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4,
-            uint columnIndex6 = 5
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            uint columnIndex6 = 5, 
-            uint columnIndex7 = 6, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4,
-            uint columnIndex6 = 5,
-            uint columnIndex7 = 6
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            uint columnIndex6 = 5, 
-            uint columnIndex7 = 6, 
-            uint columnIndex8 = 7, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4,
-            uint columnIndex6 = 5,
-            uint columnIndex7 = 6,
-            uint columnIndex8 = 7
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            uint columnIndex6 = 5, 
-            uint columnIndex7 = 6, 
-            uint columnIndex8 = 7, 
-            uint columnIndex9 = 8, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4,
-            uint columnIndex6 = 5,
-            uint columnIndex7 = 6,
-            uint columnIndex8 = 7,
-            uint columnIndex9 = 8
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull;
-
-        /// <summary>
-        /// Enumerates typed data rows
-        /// </summary>
-        IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            uint columnIndex1 = 0, 
-            uint columnIndex2 = 1, 
-            uint columnIndex3 = 2, 
-            uint columnIndex4 = 3, 
-            uint columnIndex5 = 4, 
-            uint columnIndex6 = 5, 
-            uint columnIndex7 = 6, 
-            uint columnIndex8 = 7, 
-            uint columnIndex9 = 8, 
-            uint columnIndex10 = 9, 
-            CancellationToken ct = default
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
-
-        /// <summary>
-        /// Creates a typed buffer to access rows
-        /// </summary>
-        IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            uint columnIndex1 = 0,
-            uint columnIndex2 = 1,
-            uint columnIndex3 = 2,
-            uint columnIndex4 = 3,
-            uint columnIndex5 = 4,
-            uint columnIndex6 = 5,
-            uint columnIndex7 = 6,
-            uint columnIndex8 = 7,
-            uint columnIndex9 = 8,
-            uint columnIndex10 = 9
-        ) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull;
-
-    }
 }
 
-namespace BrightData.DataTable
+namespace BrightData
 {
-    internal partial class ColumnOrientedDataTable
-    {
-      
-        public async IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
+    public partial class ExtensionMethods
+    {      
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             [EnumeratorCancellation] CancellationToken ct = default) 
             where T1: notnull where T2: notnull
         {
             const int size = 2;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -448,7 +211,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2>(this, rowIndex++, e1.Current, e2.Current);
+                    var row = new TableRow<T1, T2>(dataTable, rowIndex++, e1.Current, e2.Current);
                     yield return row;
                 }
             }
@@ -560,16 +323,25 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2>> GetRowsBuffer<T1, T2>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1
         ) 
             where T1: notnull where T2: notnull
         {
-            return new RowReader<T1, T2>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2));
+            return new RowReader<T1, T2>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3>> Enumerate<T1, T2, T3>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -577,9 +349,9 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull
         {
             const int size = 3;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -595,7 +367,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3>(this, rowIndex++, e1.Current, e2.Current, e3.Current);
+                    var row = new TableRow<T1, T2, T3>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current);
                     yield return row;
                 }
             }
@@ -725,17 +497,26 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3>> GetRowsBuffer<T1, T2, T3>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2
         ) 
             where T1: notnull where T2: notnull where T3: notnull
         {
-            return new RowReader<T1, T2, T3>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3));
+            return new RowReader<T1, T2, T3>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4>> Enumerate<T1, T2, T3, T4>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -744,10 +525,10 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull
         {
             const int size = 4;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -764,7 +545,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current);
+                    var row = new TableRow<T1, T2, T3, T4>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current);
                     yield return row;
                 }
             }
@@ -912,7 +693,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> GetRowsBuffer<T1, T2, T3, T4>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -920,10 +706,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull
         {
-            return new RowReader<T1, T2, T3, T4>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4));
+            return new RowReader<T1, T2, T3, T4>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5>> Enumerate<T1, T2, T3, T4, T5>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -933,11 +723,11 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
         {
             const int size = 5;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -955,7 +745,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current);
                     yield return row;
                 }
             }
@@ -1121,7 +911,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> GetRowsBuffer<T1, T2, T3, T4, T5>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1130,10 +925,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5));
+            return new RowReader<T1, T2, T3, T4, T5>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6>> Enumerate<T1, T2, T3, T4, T5, T6>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1144,12 +943,12 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
         {
             const int size = 6;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = dataTable.GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -1168,7 +967,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current);
                     yield return row;
                 }
             }
@@ -1352,7 +1151,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> GetRowsBuffer<T1, T2, T3, T4, T5, T6>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1362,10 +1166,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5, T6>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6));
+            return new RowReader<T1, T2, T3, T4, T5, T6>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7>> Enumerate<T1, T2, T3, T4, T5, T6, T7>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1377,13 +1185,13 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
         {
             const int size = 7;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = dataTable.GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = dataTable.GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -1403,7 +1211,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current);
                     yield return row;
                 }
             }
@@ -1605,7 +1413,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1616,10 +1429,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5, T6, T7>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7));
+            return new RowReader<T1, T2, T3, T4, T5, T6, T7>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1632,14 +1449,14 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
         {
             const int size = 8;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = dataTable.GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = dataTable.GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = dataTable.GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -1660,7 +1477,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current);
                     yield return row;
                 }
             }
@@ -1880,7 +1697,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -1892,10 +1714,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7), GetColumn<T8>(columnIndex8));
+            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -1909,15 +1735,15 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
         {
             const int size = 9;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
-            await using var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = dataTable.GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = dataTable.GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = dataTable.GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e9 = dataTable.GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -1939,7 +1765,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current);
                     yield return row;
                 }
             }
@@ -2177,7 +2003,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -2190,10 +2021,14 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7), GetColumn<T8>(columnIndex8), GetColumn<T9>(columnIndex9));
+            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8), dataTable.GetColumn<T9>(columnIndex9));
         }
       
-        public async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> Enumerate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
@@ -2208,16 +2043,16 @@ namespace BrightData.DataTable
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
         {
             const int size = 10;
-            await using var e1 = GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
-            await using var e2 = GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
-            await using var e3 = GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
-            await using var e4 = GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
-            await using var e5 = GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
-            await using var e6 = GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
-            await using var e7 = GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
-            await using var e8 = GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
-            await using var e9 = GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
-            await using var e10 = GetColumn<T10>(columnIndex10).GetAsyncEnumerator(ct);
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            await using var e2 = dataTable.GetColumn<T2>(columnIndex2).GetAsyncEnumerator(ct);
+            await using var e3 = dataTable.GetColumn<T3>(columnIndex3).GetAsyncEnumerator(ct);
+            await using var e4 = dataTable.GetColumn<T4>(columnIndex4).GetAsyncEnumerator(ct);
+            await using var e5 = dataTable.GetColumn<T5>(columnIndex5).GetAsyncEnumerator(ct);
+            await using var e6 = dataTable.GetColumn<T6>(columnIndex6).GetAsyncEnumerator(ct);
+            await using var e7 = dataTable.GetColumn<T7>(columnIndex7).GetAsyncEnumerator(ct);
+            await using var e8 = dataTable.GetColumn<T8>(columnIndex8).GetAsyncEnumerator(ct);
+            await using var e9 = dataTable.GetColumn<T9>(columnIndex9).GetAsyncEnumerator(ct);
+            await using var e10 = dataTable.GetColumn<T10>(columnIndex10).GetAsyncEnumerator(ct);
             var currentTasks = new ValueTask<bool>[size];
             var isValid = true;
             uint rowIndex = 0;
@@ -2240,7 +2075,7 @@ namespace BrightData.DataTable
                     }
                 }
                 if(isValid) {
-                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
+                    var row = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(dataTable, rowIndex++, e1.Current, e2.Current, e3.Current, e4.Current, e5.Current, e6.Current, e7.Current, e8.Current, e9.Current, e10.Current);
                     yield return row;
                 }
             }
@@ -2496,7 +2331,12 @@ namespace BrightData.DataTable
                 return ret;
             }
         }
-        public IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRowsBuffer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            this IDataTable dataTable,
             uint columnIndex1 = 0,
             uint columnIndex2 = 1,
             uint columnIndex3 = 2,
@@ -2510,7 +2350,7 @@ namespace BrightData.DataTable
         ) 
             where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
         {
-            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this, GetColumn<T1>(columnIndex1), GetColumn<T2>(columnIndex2), GetColumn<T3>(columnIndex3), GetColumn<T4>(columnIndex4), GetColumn<T5>(columnIndex5), GetColumn<T6>(columnIndex6), GetColumn<T7>(columnIndex7), GetColumn<T8>(columnIndex8), GetColumn<T9>(columnIndex9), GetColumn<T10>(columnIndex10));
+            return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8), dataTable.GetColumn<T9>(columnIndex9), dataTable.GetColumn<T10>(columnIndex10));
         }
     }
 }

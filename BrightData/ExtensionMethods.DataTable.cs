@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ using BrightData.Analysis;
 using BrightData.Buffer.ByteBlockReaders;
 using BrightData.Buffer.Operations;
 using BrightData.Buffer.Operations.Vectorisation;
+using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;
@@ -1767,5 +1770,125 @@ namespace BrightData
         {
             return dataTable.GetColumns(dataTable.AllOrSpecifiedColumnIndices(true, columnIndices));
         }
+
+        /// <summary>
+        /// Returns a typed column after applying a conversion function to each value
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="index"></param>
+        /// <param name="converter"></param>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <returns></returns>
+        public static IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(this IDataTable dataTable, uint index, Func<FT, TT> converter) 
+            where FT: notnull 
+            where TT : notnull
+        {
+            var from = dataTable.GetColumn<FT>(index);
+            var ret = (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), from, new CustomConversionFunction<FT, TT>(converter));
+            return new ReadOnlyBufferMetaDataWrapper<TT>(ret, dataTable.ColumnMetaData[index]);
+        }
+
+        /// <summary>
+        /// Returns column analysis of the specified columns (or all if none specified)
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
+        public static async Task<MetaData[]> GetColumnAnalysis(this IDataTable dataTable, params uint[] columnIndices)
+        {
+            var columnMetaData = dataTable.ColumnMetaData;
+            if (!AllOrSpecifiedColumnIndices(dataTable, true, columnIndices).All(i => columnMetaData[i].Get(Consts.HasBeenAnalysed, false))) {
+                var operations = AllOrSpecifiedColumnIndices(dataTable, true, columnIndices).Select(i => columnMetaData[i].Analyse(false, dataTable.GetColumn(i))).ToArray();
+                await operations.ExecuteAllAsOne();
+            }
+            return AllOrSpecifiedColumnIndices(dataTable, false, columnIndices).Select(x => columnMetaData[x]).ToArray();
+        }
+
+        /// <summary>
+        /// Enumerates all rows of the table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public static async IAsyncEnumerable<GenericTableRow> EnumerateRows(this IDataTable dataTable, [EnumeratorCancellation] CancellationToken ct = default)
+        {
+            var size = dataTable.ColumnCount;
+            var enumerators = new IAsyncEnumerator<object>[size];
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+
+            for (uint i = 0; i < size; i++)
+                enumerators[i] = dataTable.GetColumn(i).EnumerateAll().GetAsyncEnumerator(ct);
+
+            uint rowIndex = 0;
+            while (!ct.IsCancellationRequested && isValid) {
+                for (var i = 0; i < size; i++)
+                    currentTasks[i] = enumerators[i].MoveNextAsync();
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+
+                if (isValid) {
+                    var curr = new object[size];
+                    for (var i = 0; i < size; i++)
+                        curr[i] = enumerators[i].Current;
+                    yield return new GenericTableRow(dataTable, rowIndex++, curr);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns an array of columns
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
+        public static IReadOnlyBufferWithMetaData[] GetColumns(this IDataTable dataTable, IEnumerable<uint> columnIndices)
+        {
+            return columnIndices.Select(dataTable.GetColumn).ToArray();
+        }
+
+        /// <summary>
+        /// Writes the specified columns to a stream
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="stream"></param>
+        /// <param name="columnIndices"></param>
+        /// <returns></returns>
+        public static Task WriteColumnsTo(this IDataTable dataTable, Stream stream, params uint[] columnIndices)
+        {
+            var writer = new ColumnOrientedDataTableWriter();
+            return writer.Write(dataTable.MetaData, dataTable.GetColumns(columnIndices), stream);
+        }
+
+        /// <summary>
+        /// Writes the specified rows to a stream
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="stream"></param>
+        /// <param name="rowIndices"></param>
+        /// <returns></returns>
+        public static async Task WriteRowsTo(this IDataTable dataTable, Stream stream, params uint[] rowIndices)
+        {
+            var writer = new ColumnOrientedDataTableBuilder(dataTable.Context);
+            var newColumns = writer.CreateColumnsFrom(dataTable);
+            var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : dataTable.RowCount.AsRange().ToArray();
+            var operations = newColumns
+                .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(dataTable.GetColumn((uint)i), x, wantedRowIndices))
+                .ToArray();
+            await operations.ExecuteAllAsOne();
+            await writer.WriteTo(stream);
+        }
+
+        /// <summary>
+        /// Returns the first few rows in the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
+        public static GenericTableRow[] GetHead(this IDataTable dataTable, int rowCount = 5) => dataTable.EnumerateRows().ToBlockingEnumerable().Take(rowCount).ToArray();
     }
 }

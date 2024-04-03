@@ -14,7 +14,7 @@ namespace BrightData.Cuda.Helper
         readonly CudaLinearAlgebraProvider _lap;
         readonly IDeviceMemoryPtr          _data;
 
-        CudaTensorDataCache(CudaLinearAlgebraProvider lap, IDataTable table, ReadOnlyMemory<float> tensorData)
+        CudaTensorDataCache(CudaLinearAlgebraProvider lap, ITensorDataProvider table, ReadOnlyMemory<float> tensorData)
         {
             // copy entire tensor block into CUDA device
             lap.BindThread();
@@ -32,7 +32,7 @@ namespace BrightData.Cuda.Helper
         /// <param name="lap"></param>
         /// <param name="table"></param>
         /// <returns></returns>
-        public static async Task<CudaTensorDataCache> Create(CudaLinearAlgebraProvider lap, IDataTable table)
+        public static async Task<CudaTensorDataCache> Create(CudaLinearAlgebraProvider lap, ITensorDataProvider table)
         {
             var tensorData = await table.GetTensorData();
             return new(lap, table, tensorData);

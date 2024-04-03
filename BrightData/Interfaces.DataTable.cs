@@ -325,7 +325,10 @@ namespace BrightData
         );
     }
 
-    public partial interface IDataTable : IDisposable, IHaveMetaData, ITensorDataProvider, IHaveBrightDataContext
+    /// <summary>
+    /// Data tables contain structured tabular data
+    /// </summary>
+    public interface IDataTable : IDisposable, IHaveMetaData, IHaveBrightDataContext
     {
         /// <summary>
         /// Number of rows in the table
@@ -373,23 +376,6 @@ namespace BrightData
         IReadOnlyBufferWithMetaData<T> GetColumn<T>(uint index) where T : notnull;
 
         /// <summary>
-        /// Returns a typed column after applying a conversion function to each value
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="converter"></param>
-        /// <typeparam name="FT"></typeparam>
-        /// <typeparam name="TT"></typeparam>
-        /// <returns></returns>
-        IReadOnlyBufferWithMetaData<TT> GetColumn<FT, TT>(uint index, Func<FT, TT> converter) where FT : notnull where TT : notnull;
-
-        /// <summary>
-        /// Returns column analysis of the specified columns (or all if none specified)
-        /// </summary>
-        /// <param name="columnIndices"></param>
-        /// <returns></returns>
-        Task<MetaData[]> GetColumnAnalysis(params uint[] columnIndices);
-
-        /// <summary>
         /// Returns a typed value from the data table
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -406,36 +392,6 @@ namespace BrightData
         /// <param name="rowIndices"></param>
         /// <returns></returns>
         Task<T[]> Get<T>(uint columnIndex, params uint[] rowIndices) where T : notnull;
-
-        /// <summary>
-        /// Enumerates all rows of the table
-        /// </summary>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<GenericTableRow> EnumerateRows(CancellationToken ct = default);
-
-        /// <summary>
-        /// Returns an array of columns
-        /// </summary>
-        /// <param name="columnIndices"></param>
-        /// <returns></returns>
-        IReadOnlyBufferWithMetaData[] GetColumns(IEnumerable<uint> columnIndices);
-
-        /// <summary>
-        /// Writes the specified columns to a stream
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="columnIndices"></param>
-        /// <returns></returns>
-        Task WriteColumnsTo(Stream stream, params uint[] columnIndices);
-
-        /// <summary>
-        /// Writes the specified rows to a stream
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="rowIndices"></param>
-        /// <returns></returns>
-        Task WriteRowsTo(Stream stream, params uint[] rowIndices);
 
         /// <summary>
         /// Returns an array of rows
