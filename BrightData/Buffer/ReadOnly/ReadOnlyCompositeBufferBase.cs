@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -26,15 +27,19 @@ namespace BrightData.Buffer.ReadOnly
             BlockSize = reader.ReadUInt32();
             BlockCount = reader.ReadUInt32();
 
+            BlockSizes = new uint[BlockCount];
             _blockData = new (long Position, uint Size)[BlockCount];
-            for (var i = 0; i < BlockCount; i++)
+            for (var i = 0; i < BlockCount; i++) {
                 _blockData[i] = (reader.ReadInt64(), reader.ReadUInt32());
+                BlockSizes[i] = reader.ReadUInt32();
+            }
         }
 
         public uint Size { get; }
         public uint BlockSize { get; }
         public uint BlockCount { get; }
         public Type DataType => typeof(T);
+        public uint[] BlockSizes { get; }
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {

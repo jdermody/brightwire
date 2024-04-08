@@ -76,7 +76,7 @@ namespace BrightData.Parquet
             writer.CustomMetadata = dataTable.MetaData.AllKeys.ToDictionary(x => x, x => dataTable.MetaData.Get(x)?.ToString() ?? "");
 
             // write each block
-            for (uint i = 0; i < firstColumn.BlockCount; i++) {
+            for (uint i = 0, len = (uint)firstColumn.BlockSizes.Length; i < len; i++) {
                 using var blockWriter = writer.CreateRowGroup();
                 var columnIndex = 0;
                 foreach (var column in columns) {

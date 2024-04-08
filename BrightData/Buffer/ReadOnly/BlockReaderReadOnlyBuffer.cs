@@ -47,6 +47,22 @@ namespace BrightData.Buffer.ReadOnly
             notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
+        public uint[] BlockSizes
+        {
+            get
+            {
+                var ret = new uint[BlockCount];
+                var lastBlockIndex = BlockCount - 1;
+                for (uint i = 0; i < lastBlockIndex; i++)
+                    ret[i] = BlockSize;
+                
+                var start = _offset + lastBlockIndex * BlockSize * _sizeOfT;
+                var end = Math.Min(start + BlockSize * _sizeOfT, _byteSize + _offset);
+                ret[lastBlockIndex] = (end - start) / _sizeOfT;
+                return ret;
+            }
+        }
+
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)

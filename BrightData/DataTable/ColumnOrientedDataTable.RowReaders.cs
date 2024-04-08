@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -220,30 +221,26 @@ namespace BrightData
         class RowReader<T1, T2> : IReadOnlyBuffer<TableRow<T1, T2>> where T1: notnull where T2: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
 
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2>);
                 _input1 = input1;
                 _input2 = input2;
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -253,7 +250,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -269,7 +266,7 @@ namespace BrightData
                 if (block1.Length != block2.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 var ret = new TableRow<T1, T2>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, ret);
                 return ret;
             }
 
@@ -317,7 +314,7 @@ namespace BrightData
                 if (len != a2.Length)
                     throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 var ret = new TableRow<T1, T2>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2>(_dataTable, i + offset, a1[i], a2[i]);
                 return ret;
@@ -376,6 +373,7 @@ namespace BrightData
         class RowReader<T1, T2, T3> : IReadOnlyBuffer<TableRow<T1, T2, T3>> where T1: notnull where T2: notnull where T3: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -383,22 +381,14 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3>);
                 _input1 = input1;
                 _input2 = input2;
@@ -406,8 +396,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -417,7 +406,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -437,7 +426,7 @@ namespace BrightData
                 if (block1.Length != block3.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 var ret = new TableRow<T1, T2, T3>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, ret);
                 return ret;
             }
 
@@ -491,7 +480,7 @@ namespace BrightData
                 if (len != a3.Length)
                     throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3>(_dataTable, i + offset, a1[i], a2[i], a3[i]);
                 return ret;
@@ -554,6 +543,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -562,28 +552,16 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4>);
                 _input1 = input1;
                 _input2 = input2;
@@ -592,8 +570,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -603,7 +580,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -627,7 +604,7 @@ namespace BrightData
                 if (block1.Length != block4.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 var ret = new TableRow<T1, T2, T3, T4>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, ret);
                 return ret;
             }
 
@@ -687,7 +664,7 @@ namespace BrightData
                 if (len != a4.Length)
                     throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i]);
                 return ret;
@@ -754,6 +731,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -763,34 +741,18 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5>);
                 _input1 = input1;
                 _input2 = input2;
@@ -800,8 +762,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -811,7 +772,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -839,7 +800,7 @@ namespace BrightData
                 if (block1.Length != block5.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, ret);
                 return ret;
             }
 
@@ -905,7 +866,7 @@ namespace BrightData
                 if (len != a5.Length)
                     throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i]);
                 return ret;
@@ -976,6 +937,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5, T6> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -986,40 +948,20 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5, IReadOnlyBuffer<T6> input6)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-                if (input1.BlockSize != input6.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input6:{input6.BlockSize})");
-                if(input1.BlockCount != input6.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input6:{input6.BlockCount})");
-                if(input1.Size != input6.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input6:{input6.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input6.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6>);
                 _input1 = input1;
                 _input2 = input2;
@@ -1030,8 +972,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -1041,7 +982,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -1073,7 +1014,7 @@ namespace BrightData
                 if (block1.Length != block6.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, ret);
                 return ret;
             }
 
@@ -1145,7 +1086,7 @@ namespace BrightData
                 if (len != a6.Length)
                     throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5, T6>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i]);
                 return ret;
@@ -1220,6 +1161,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5, T6, T7> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -1231,46 +1173,22 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5, IReadOnlyBuffer<T6> input6, IReadOnlyBuffer<T7> input7)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-                if (input1.BlockSize != input6.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input6:{input6.BlockSize})");
-                if(input1.BlockCount != input6.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input6:{input6.BlockCount})");
-                if(input1.Size != input6.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input6:{input6.Size})");
-                if (input1.BlockSize != input7.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input7:{input7.BlockSize})");
-                if(input1.BlockCount != input7.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input7:{input7.BlockCount})");
-                if(input1.Size != input7.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input7:{input7.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input6.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input7.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7>);
                 _input1 = input1;
                 _input2 = input2;
@@ -1282,8 +1200,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -1293,7 +1210,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -1329,7 +1246,7 @@ namespace BrightData
                 if (block1.Length != block7.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, ret);
                 return ret;
             }
 
@@ -1407,7 +1324,7 @@ namespace BrightData
                 if (len != a7.Length)
                     throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i]);
                 return ret;
@@ -1486,6 +1403,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5, T6, T7, T8> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -1498,52 +1416,24 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5, IReadOnlyBuffer<T6> input6, IReadOnlyBuffer<T7> input7, IReadOnlyBuffer<T8> input8)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-                if (input1.BlockSize != input6.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input6:{input6.BlockSize})");
-                if(input1.BlockCount != input6.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input6:{input6.BlockCount})");
-                if(input1.Size != input6.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input6:{input6.Size})");
-                if (input1.BlockSize != input7.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input7:{input7.BlockSize})");
-                if(input1.BlockCount != input7.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input7:{input7.BlockCount})");
-                if(input1.Size != input7.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input7:{input7.Size})");
-                if (input1.BlockSize != input8.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input8:{input8.BlockSize})");
-                if(input1.BlockCount != input8.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input8:{input8.BlockCount})");
-                if(input1.Size != input8.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input8:{input8.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input6.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input7.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input8.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8>);
                 _input1 = input1;
                 _input2 = input2;
@@ -1556,8 +1446,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -1567,7 +1456,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -1607,7 +1496,7 @@ namespace BrightData
                 if (block1.Length != block8.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, ret);
                 return ret;
             }
 
@@ -1691,7 +1580,7 @@ namespace BrightData
                 if (len != a8.Length)
                     throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i]);
                 return ret;
@@ -1774,6 +1663,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -1787,58 +1677,26 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5, IReadOnlyBuffer<T6> input6, IReadOnlyBuffer<T7> input7, IReadOnlyBuffer<T8> input8, IReadOnlyBuffer<T9> input9)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-                if (input1.BlockSize != input6.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input6:{input6.BlockSize})");
-                if(input1.BlockCount != input6.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input6:{input6.BlockCount})");
-                if(input1.Size != input6.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input6:{input6.Size})");
-                if (input1.BlockSize != input7.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input7:{input7.BlockSize})");
-                if(input1.BlockCount != input7.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input7:{input7.BlockCount})");
-                if(input1.Size != input7.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input7:{input7.Size})");
-                if (input1.BlockSize != input8.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input8:{input8.BlockSize})");
-                if(input1.BlockCount != input8.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input8:{input8.BlockCount})");
-                if(input1.Size != input8.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input8:{input8.Size})");
-                if (input1.BlockSize != input9.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input9:{input9.BlockSize})");
-                if(input1.BlockCount != input9.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input9:{input9.BlockCount})");
-                if(input1.Size != input9.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input9:{input9.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input6.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input7.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input8.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input9.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>);
                 _input1 = input1;
                 _input2 = input2;
@@ -1852,8 +1710,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -1863,7 +1720,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -1907,7 +1764,7 @@ namespace BrightData
                 if (block1.Length != block9.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, ret);
                 return ret;
             }
 
@@ -1997,7 +1854,7 @@ namespace BrightData
                 if (len != a9.Length)
                     throw new Exception($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i], a9[i]);
                 return ret;
@@ -2084,6 +1941,7 @@ namespace BrightData
         class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
         {
             readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
             readonly IReadOnlyBuffer<T1> _input1;
             readonly IReadOnlyBuffer<T2> _input2;
             readonly IReadOnlyBuffer<T3> _input3;
@@ -2098,64 +1956,28 @@ namespace BrightData
             public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1, IReadOnlyBuffer<T2> input2, IReadOnlyBuffer<T3> input3, IReadOnlyBuffer<T4> input4, IReadOnlyBuffer<T5> input5, IReadOnlyBuffer<T6> input6, IReadOnlyBuffer<T7> input7, IReadOnlyBuffer<T8> input8, IReadOnlyBuffer<T9> input9, IReadOnlyBuffer<T10> input10)
             {
                 _dataTable = dataTable;
-                if (input1.BlockSize != input2.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input2:{input2.BlockSize})");
-                if(input1.BlockCount != input2.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input2:{input2.BlockCount})");
-                if(input1.Size != input2.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input2:{input2.Size})");
-                if (input1.BlockSize != input3.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input3:{input3.BlockSize})");
-                if(input1.BlockCount != input3.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input3:{input3.BlockCount})");
-                if(input1.Size != input3.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input3:{input3.Size})");
-                if (input1.BlockSize != input4.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input4:{input4.BlockSize})");
-                if(input1.BlockCount != input4.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input4:{input4.BlockCount})");
-                if(input1.Size != input4.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input4:{input4.Size})");
-                if (input1.BlockSize != input5.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input5:{input5.BlockSize})");
-                if(input1.BlockCount != input5.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input5:{input5.BlockCount})");
-                if(input1.Size != input5.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input5:{input5.Size})");
-                if (input1.BlockSize != input6.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input6:{input6.BlockSize})");
-                if(input1.BlockCount != input6.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input6:{input6.BlockCount})");
-                if(input1.Size != input6.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input6:{input6.Size})");
-                if (input1.BlockSize != input7.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input7:{input7.BlockSize})");
-                if(input1.BlockCount != input7.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input7:{input7.BlockCount})");
-                if(input1.Size != input7.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input7:{input7.Size})");
-                if (input1.BlockSize != input8.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input8:{input8.BlockSize})");
-                if(input1.BlockCount != input8.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input8:{input8.BlockCount})");
-                if(input1.Size != input8.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input8:{input8.Size})");
-                if (input1.BlockSize != input9.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input9:{input9.BlockSize})");
-                if(input1.BlockCount != input9.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input9:{input9.BlockCount})");
-                if(input1.Size != input9.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input9:{input9.Size})");
-                if (input1.BlockSize != input10.BlockSize)
-                    throw new ArgumentException($"Expected all buffers to have same block size (input1:{input1.BlockSize} vs input10:{input10.BlockSize})");
-                if(input1.BlockCount != input10.BlockCount)
-                    throw new ArgumentException($"Expected all buffers to have same block count (input1:{input1.BlockCount} vs input10:{input10.BlockCount})");
-                if(input1.Size != input10.Size)
-                    throw new ArgumentException($"Expected all buffers to have same size (input1:{input1.Size} vs input10:{input10.Size})");
-
+                BlockSizes = input1.BlockSizes;
+                if (!BlockSizes.SequenceEqual(input2.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input3.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input4.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input5.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input6.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input7.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input8.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input9.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                if (!BlockSizes.SequenceEqual(input10.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
                 Size = input1.Size;
-                BlockSize = input1.BlockSize;
-                BlockCount = input1.BlockCount;
                 DataType = typeof(TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>);
                 _input1 = input1;
                 _input2 = input2;
@@ -2170,8 +1992,7 @@ namespace BrightData
             }
 
             public uint Size { get; }
-            public uint BlockSize { get; }
-            public uint BlockCount { get; }
+            public uint[] BlockSizes { get; }
             public Type DataType { get; }
             public async IAsyncEnumerable<object> EnumerateAll()
             {
@@ -2181,7 +2002,7 @@ namespace BrightData
 
             public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
             {
-                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
                     callback(block.Span);
                 }
@@ -2229,7 +2050,7 @@ namespace BrightData
                 if (block1.Length != block10.Length)
                     throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block10:{block10.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[block1.Length];
-                Copy(blockIndex * BlockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, block10.Span, ret);
+                Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, block10.Span, ret);
                 return ret;
             }
 
@@ -2325,7 +2146,7 @@ namespace BrightData
                 if (len != a10.Length)
                     throw new Exception($"Expected blocks to have same size - block {10} had length {a10.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[len];
-                var offset = blockIndex * _input1.BlockSize;
+                var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
                     ret[i] = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(_dataTable, i + offset, a1[i], a2[i], a3[i], a4[i], a5[i], a6[i], a7[i], a8[i], a9[i], a10[i]);
                 return ret;

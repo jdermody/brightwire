@@ -19,8 +19,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
         protected abstract TT Convert(in FT from);
 
         public uint Size => from.Size;
-        public uint BlockSize => from.BlockSize;
-        public uint BlockCount => from.BlockCount;
+        public uint[] BlockSizes => from.BlockSizes;
         public Type DataType => typeof(TT);
         public override async IAsyncEnumerable<object> EnumerateAll()
         {

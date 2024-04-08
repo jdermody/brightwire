@@ -21,7 +21,7 @@ namespace BrightData.Buffer.Operations
             _size = _from.First().Size;
             if (_from.Any(x => x.Size != _size))
                 throw new ArgumentException("Expected all input buffers to have the same size", nameof(from));
-            _blockSize = (uint)_from.Average(x => x.BlockSize);
+            _blockSize = (uint)_from.Average(x => x.BlockSizes.Average(y => y));
             _mutator = mutator;
             _to = to;
         }

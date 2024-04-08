@@ -288,6 +288,7 @@ namespace BrightData.DataTable
 
         public async Task<GenericTableRow[]> GetRows(params uint[] rowIndices)
         {
+            // take all rows if none specified
             if (rowIndices.Length == 0) {
                 Array.Resize(ref rowIndices, (int)RowCount);
                 for (uint i = 0; i < RowCount; i++)
@@ -296,10 +297,7 @@ namespace BrightData.DataTable
 
             var columns = _genericColumns.Value;
             var len = columns.Length;
-            var blockSize = columns[0].BlockSize;
-            Debug.Assert(columns.Skip(1).All(x => x.BlockSize == blockSize));
-
-            var blocks = rowIndices.Select(x => (SourceIndex: x, BlockIndex: x / blockSize, RelativeBlockIndex: x % blockSize))
+            var blocks = columns[0].GetIndices(rowIndices)
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;

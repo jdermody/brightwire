@@ -134,13 +134,14 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<ReadOnlySequence<T>> AsReadOnlySequence<T>(this IReadOnlyBuffer<T> buffer) where T : notnull
         {
-            if(buffer.BlockCount == 0)
+            var blockSizes = buffer.BlockSizes;
+            if(blockSizes.Length == 0)
                 return ReadOnlySequence<T>.Empty;
 
             var first = new MemorySegment<T>(await buffer.GetTypedBlock(0));
             var last = first;
-            for(var i = 1; i < buffer.BlockCount; i++)
-                last = last.Append(await buffer.GetTypedBlock(1));
+            for(uint i = 1; i < blockSizes.Length; i++)
+                last = last.Append(await buffer.GetTypedBlock(i));
             return new ReadOnlySequence<T>(first, 0, last, last.Memory.Length);
         }
 
@@ -164,10 +165,18 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<T> GetItem<T>(this IReadOnlyBuffer<T> buffer, uint index) where T: notnull
         {
-            var blockIndex = index / buffer.BlockSize;
-            var blockMemory = await buffer.GetTypedBlock(blockIndex);
-            var ret = blockMemory.Span[(int)(index % buffer.BlockSize)];
-            return ret;
+            uint offset = 0, blockIndex = 0;
+            foreach (var block in buffer.BlockSizes) {
+                if (index - offset < block) {
+                    var blockMemory = await buffer.GetTypedBlock(blockIndex);
+                    var ret = blockMemory.Span[(int)(index - offset)];
+                    return ret;
+                }
+                offset += block;
+                ++blockIndex;
+            }
+
+            throw new ArgumentException($"Item not found at index {index}");
         }
 
         /// <summary>
@@ -179,10 +188,11 @@ namespace BrightData
         /// <returns></returns>
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
         {
-            var blocks = indices.Select((x, i) => (TargetIndex: (uint)i, BlockIndex: x / buffer.BlockSize, RelativeIndex: x % buffer.BlockSize))
-                    .GroupBy(x => x.BlockIndex)
-                    .OrderBy(x => x.Key)
-                ;
+            var blocks = buffer.GetIndices(indices)
+                .Select((x, i) => (x.BlockIndex, x.RelativeBlockIndex, SourceIndex: i))
+                .GroupBy(x => x.BlockIndex)
+                .OrderBy(x => x.Key)
+            ;
             var ret = new T[indices.Length];
             foreach (var block in blocks) {
                 var blockMemory = await buffer.GetTypedBlock(block.Key);
@@ -190,11 +200,11 @@ namespace BrightData
             }
             return ret;
 
-            static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint Index, uint BlockIndex, uint RelativeIndex)> list, T[] output)
+            static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint BlockIndex, uint RelativeIndex, int SourceIndex)> list, T[] output)
             {
                 var span = data.Span;
-                foreach (var (targetIndex, _, relativeIndex) in list)
-                    output[targetIndex] = span[(int)relativeIndex];
+                foreach (var (_, relativeIndex, sourceIndex) in list)
+                    output[sourceIndex] = span[(int)relativeIndex];
             }
         }
 
@@ -1002,6 +1012,53 @@ namespace BrightData
         {
             var converter = StaticConverters.GetConverter(buffer.DataType, type);
             return GenericTypeMapping.TypeConverter(type, buffer, converter);
+        }
+
+        /// <summary>
+        /// Returns the block index and relative block index (index within each block) of each item in the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static IEnumerable<(uint BlockIndex, uint RelativeBlockIndex)> AllIndices(this IReadOnlyBuffer buffer)
+        {
+            uint blockIndex = 0;
+            foreach (var block in buffer.BlockSizes) {
+                for(uint i = 0; i < block; i++)
+                    yield return (blockIndex, i);
+                ++blockIndex;
+            }
+        }
+
+        /// <summary>
+        /// Returns all indices in the buffer, including their block index and relative block index (index within each block)
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="rowIndices">Row indices to select (or all if non specified)</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint Index, uint BlockIndex, uint RelativeBlockIndex)> GetIndices(this IReadOnlyBuffer buffer, params uint[] rowIndices)
+        {
+            if (rowIndices.Length == 0) {
+                uint absoluteIndex = 0;
+                foreach (var (blockIndex, relativeBlockIndex) in AllIndices(buffer))
+                    yield return (absoluteIndex++, blockIndex, relativeBlockIndex);
+            }
+            else {
+                foreach(var item in GetIndices(buffer, (IEnumerable<uint>)rowIndices))
+                    yield return item;
+            }
+        }
+
+        /// <summary>
+        /// Returns all indices in the buffer, including their block index and relative block index (index within each block)
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="rowIndices">Row indices to select (or all if non specified)</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint Index, uint BlockIndex, uint RelativeBlockIndex)> GetIndices(this IReadOnlyBuffer buffer, IEnumerable<uint> rowIndices)
+        {
+            var blockIndices = AllIndices(buffer).ToArray();
+            foreach (var index in rowIndices)
+                yield return (index, blockIndices[index].BlockIndex, blockIndices[index].RelativeBlockIndex);
         }
     }
 }

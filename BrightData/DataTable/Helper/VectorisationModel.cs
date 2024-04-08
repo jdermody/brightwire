@@ -143,33 +143,32 @@ namespace BrightData.DataTable.Helper
         /// <returns></returns>
         public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(table.AllOrSpecifiedColumnIndices(false, columnIndices)));
 
-        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers, MetaData[]? metaData) where T : IReadOnlyBuffer
+        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers, MetaData[]? metaData) 
+            where T : IReadOnlyBuffer
         {
             if (buffers.Length != Vectorisers.Length)
                 throw new ArgumentException($"Expected to receive {Vectorisers.Length} buffers (not {buffers.Length})", nameof(buffers));
             var first = buffers[0];
-            if (buffers.Skip(1).Any(x => x.Size != first.Size || x.BlockSize != first.BlockSize))
+            if (buffers.Skip(1).Any(x => !x.BlockSizes.SequenceEqual(first.BlockSizes)))
                 throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
 
             var len = Vectorisers.Length;
             var tasks = new Task[len];
 
-            for (uint i = 0; i < first.BlockCount; i++)
-            {
-                var blockSize = i + 1 == first.BlockCount
-                    ? first.Size - first.BlockSize * i
-                    : first.BlockSize;
+            uint blockIndex = 0;
+            foreach(var blockSize in first.BlockSizes) {
                 var buffer = new float[blockSize, OutputSize];
                 uint offset = 0;
                 var index = 0;
                 for (var j = 0; j < len; j++)
                 {
                     var vectoriser = Vectorisers[j];
-                    tasks[index++] = vectoriser.WriteBlock(buffers[j], i, offset, buffer);
+                    tasks[index++] = vectoriser.WriteBlock(buffers[j], blockIndex, offset, buffer);
                     offset += vectoriser.OutputSize;
                 }
                 await Task.WhenAll(tasks);
                 yield return buffer;
+                ++blockIndex;
             }
 
             if (metaData is not null)

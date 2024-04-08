@@ -18,8 +18,8 @@ namespace BrightData.Buffer.ReadOnly.Helper
         where IT : notnull
         where T : notnull
     {
-        public uint BlockSize => index.BlockSize;
-        public uint BlockCount => index.BlockCount;
+        public uint[] BlockSizes => index.BlockSizes;
+        public uint BlockCount { get; } = (uint)index.BlockSizes.Length;
         public Type DataType => typeof(T);
         public uint Size => index.Size;
 

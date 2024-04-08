@@ -491,12 +491,7 @@ namespace BrightData
         /// <summary>
         /// Size of each block in the buffer
         /// </summary>
-        public uint BlockSize { get; }
-
-        /// <summary>
-        /// Number of blocks in the buffer
-        /// </summary>
-        public uint BlockCount { get; }
+        public uint[] BlockSizes { get; }
 
         /// <summary>
         /// The type of data within the buffer

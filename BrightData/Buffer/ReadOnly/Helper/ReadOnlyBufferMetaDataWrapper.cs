@@ -16,9 +16,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
     {
         public uint Size => buffer.Size;
 
-        public uint BlockSize => buffer.BlockSize;
-
-        public uint BlockCount => buffer.BlockCount;
+        public uint[] BlockSizes => buffer.BlockSizes;
 
         public Type DataType => buffer.DataType;
 

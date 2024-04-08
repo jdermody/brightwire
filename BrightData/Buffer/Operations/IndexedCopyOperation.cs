@@ -19,15 +19,13 @@ namespace BrightData.Buffer.Operations
     {
         public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            var blockSize = from.BlockSize;
-            var blocks = indices.Select(x => (Index: x, BlockIndex: x / blockSize))
+            var blocks = from.GetIndices(indices)
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
             foreach (var block in blocks) {
                 var blockMemory = await from.GetTypedBlock(block.Key);
-                var baseOffset = block.Key * blockSize;
-                CopyIndices(blockMemory, block.Select(x => (int)(x.Index - baseOffset)));
+                CopyIndices(blockMemory, block.Select(x => (int)x.RelativeBlockIndex));
             }
             return;
 

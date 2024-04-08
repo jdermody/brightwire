@@ -124,7 +124,7 @@ namespace BrightData.UnitTests
             var stringBuffer = _streamProvider.CreateCompositeBuffer(2, 0, 128);
             stringBuffer.Append(data);
             var index = 0;
-            for (uint i = 0; i < stringBuffer.BlockCount; i++) {
+            for (uint i = 0, len = (uint)stringBuffer.BlockSizes.Length; i < len; i++) {
                 var block = await stringBuffer.GetTypedBlock(i);
                 foreach (var item in block.ToArray())
                     item.Should().Be(data[index++]);
@@ -157,7 +157,7 @@ namespace BrightData.UnitTests
             await foreach (var item in intBuffer)
                 item.Should().Be(++index);
             index = 0;
-            for (uint i = 0; i < intBuffer.BlockCount; i++) {
+            for (uint i = 0, len = (uint)intBuffer.BlockSizes.Length; i < len; i++) {
                 var block = await intBuffer.GetTypedBlock(i);
                 foreach(var item in block.ToArray())
                     item.Should().Be(++index);

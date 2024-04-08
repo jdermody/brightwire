@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,6 +53,25 @@ namespace BrightData.Buffer.Composite
         public uint BlockSize => (uint)_blockSize;
         public uint? DistinctItems => (uint?)_distinct?.Count;
         public Type DataType => typeof(T);
+
+        public uint[] BlockSizes
+        {
+            get
+            {
+                var ret = new uint[BlockCount];
+                var index = 0;
+                if (_inMemoryBlocks is not null) {
+                    foreach (var block in _inMemoryBlocks) {
+                        ret[index++] = BlockSize;
+                    }
+                }
+                for(uint i = 0; i < _blocksInFile; i++)
+                    ret[index++] = BlockSize;
+                if (_currBlock is not null)
+                    ret[index] = _currBlock.Size;
+                return ret;
+            }
+        }
 
         public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
@@ -221,10 +241,12 @@ namespace BrightData.Buffer.Composite
             writer.Write(BlockCount);
             writer.Flush();
 
+            // create space for the block positions
             var headerPosition = stream.Position;
-            var blockPositions = new (long Offset, uint Size)[BlockCount];
-            stream.Seek((sizeof(long) + sizeof(uint)) * BlockCount, SeekOrigin.Current);
+            var blockPositions = new (long Offset, uint ByteSize, uint Count)[BlockCount];
+            stream.Seek((sizeof(long) + sizeof(uint) + sizeof(uint)) * BlockCount, SeekOrigin.Current);
             stream.SetLength(stream.Position);
+
             var index = 0;
             var dataBlock = stream.AsDataBlock();
             var pos = (uint)stream.Position;
@@ -234,7 +256,7 @@ namespace BrightData.Buffer.Composite
             {
                 foreach (var block in _inMemoryBlocks) {
                     var blockSize = await block.WriteTo(dataBlock);
-                    blockPositions[index++] = (pos, blockSize);
+                    blockPositions[index++] = (pos, blockSize, block.Size);
                     pos += blockSize;
                 }
             }
@@ -249,7 +271,7 @@ namespace BrightData.Buffer.Composite
                     var block = _blockFactory(blockData.ToArray(), true);
                     var blockSize = await block.WriteTo(dataBlock);
                     offset += size;
-                    blockPositions[index++] = (pos, blockSize);
+                    blockPositions[index++] = (pos, blockSize, block.Size);
                     pos += blockSize;
                 }
             }
@@ -257,13 +279,14 @@ namespace BrightData.Buffer.Composite
             // write current block
             if (_currBlock is not null) {
                 var blockSize = await _currBlock.WriteTo(dataBlock);
-                blockPositions[index] = (pos, blockSize);
+                blockPositions[index] = (pos, blockSize, _currBlock.Size);
             }
 
             stream.Seek(headerPosition, SeekOrigin.Begin);
-            foreach (var (startPos, size) in blockPositions) {
+            foreach (var (startPos, byteSize, count) in blockPositions) {
                 writer.Write(startPos);
-                writer.Write(size);
+                writer.Write(byteSize);
+                writer.Write(count);
             }
 
             // move the stream position to the end position

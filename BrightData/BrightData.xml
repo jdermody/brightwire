@@ -1007,12 +1007,6 @@
             <param name="from"></param>
             <param name="converter"></param>
         </member>
-        <member name="T:BrightData.Buffer.ReadOnly.Helper.BufferConcatenator`1">
-            <summary>
-            Concatenates multiple buffers into one single buffer
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
         <member name="T:BrightData.Buffer.ReadOnly.Helper.MappedReadOnlyBuffer`2">
             <summary>
             Adapts a buffer with a block mapper function
@@ -2506,6 +2500,29 @@
             </summary>
             <param name="buffer"></param>
             <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AllIndices(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Returns the block index and relative block index (index within each block) of each item in the buffer
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetIndices(BrightData.IReadOnlyBuffer,System.UInt32[])">
+            <summary>
+            Returns all indices in the buffer, including their block index and relative block index (index within each block)
+            </summary>
+            <param name="buffer"></param>
+            <param name="rowIndices">Row indices to select (or all if non specified)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetIndices(BrightData.IReadOnlyBuffer,System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Returns all indices in the buffer, including their block index and relative block index (index within each block)
+            </summary>
+            <param name="buffer"></param>
+            <param name="rowIndices">Row indices to select (or all if non specified)</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToType(System.TypeCode)">
@@ -7047,14 +7064,9 @@
             Read only buffer - composed of multiple blocks of a fixed size
             </summary>
         </member>
-        <member name="P:BrightData.IReadOnlyBuffer.BlockSize">
+        <member name="P:BrightData.IReadOnlyBuffer.BlockSizes">
             <summary>
             Size of each block in the buffer
-            </summary>
-        </member>
-        <member name="P:BrightData.IReadOnlyBuffer.BlockCount">
-            <summary>
-            Number of blocks in the buffer
             </summary>
         </member>
         <member name="P:BrightData.IReadOnlyBuffer.DataType">
