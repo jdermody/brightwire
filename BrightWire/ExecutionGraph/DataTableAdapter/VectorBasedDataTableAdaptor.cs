@@ -23,6 +23,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public static async Task<VectorBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
         {
+            var targetColumn = dataTable.GetTargetColumn();
             var buffer = dataTable.GetRowsBuffer<ReadOnlyVector<float>, ReadOnlyVector<float>>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
             var firstRow = await buffer.GetItem(0);
             return new(dataTable, featureColumns, firstRow.C1.Size, firstRow.C2.Size);

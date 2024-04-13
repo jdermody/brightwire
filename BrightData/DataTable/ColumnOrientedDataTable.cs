@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
 using BrightData.Buffer.ReadOnly;
@@ -88,13 +85,8 @@ namespace BrightData.DataTable
             _columnReader       = new IReadOnlyBufferWithMetaData[ColumnCount];
             CreateColumnReaders();
 
-            // create data readers
-            //_strings            = new(() => ReadStrings(_header.StringOffset, _header.StringSizeBytes));
-            //_tensors            = new(() => GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes));
-            //_data               = new(() => GetBlock<byte>(_header.DataOffset, _header.DataSizeBytes));
-            //_indices            = new(() => GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes));
-            //_weightedIndices    = new(() => GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes));
-            _genericColumns     = new(GetColumnsAsObjectBuffers);
+            // create lazily loaded column to object columns
+            _genericColumns = new(GetColumnsAsObjectBuffers);
         }
 
         public static async Task<IDataTable> Load(BrightDataContext context, IByteBlockReader reader)
@@ -286,49 +278,9 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public async Task<GenericTableRow[]> GetRows(params uint[] rowIndices)
-        {
-            // take all rows if none specified
-            if (rowIndices.Length == 0) {
-                Array.Resize(ref rowIndices, (int)RowCount);
-                for (uint i = 0; i < RowCount; i++)
-                    rowIndices[i] = i;
-            }
-
-            var columns = _genericColumns.Value;
-            var len = columns.Length;
-            var blocks = columns[0].GetIndices(rowIndices)
-                .GroupBy(x => x.BlockIndex)
-                .OrderBy(x => x.Key)
-            ;
-            var ret = rowIndices.Select(x => new GenericTableRow(this, x, new object[len])).ToArray();
-            var retTable = ret.ToLookup(x => x.RowIndex);
-            var tasks = new Task<ReadOnlyMemory<object>>[len];
-            foreach (var block in blocks) {
-                for(var i = 0; i < len; i++)
-                    tasks[i] = columns[i].GetTypedBlock(block.Key);
-                await Task.WhenAll(tasks);
-                foreach (var (sourceIndex, _, relativeBlockIndex) in block) {
-                    foreach (var row in retTable[sourceIndex]) {
-                        var rowValues = row.Values;
-                        for (var i = 0; i < len; i++)
-                            rowValues[i] = tasks[i].Result.Span[(int)relativeBlockIndex];
-                    }
-                }
-            }
-            return ret;
-        }
-
-        public GenericTableRow this[uint index]
-        {
-            get
-            {
-                var columns = _genericColumns.Value;
-                var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
-                Task.WhenAll(fetchTasks).Wait();
-                return new GenericTableRow(this, index, fetchTasks.Select(x => x.Result).ToArray());
-            }
-        }
+        public Task<GenericTableRow[]> GetRows(params uint[] rowIndices) => ExtensionMethods.GetRows(this, rowIndices);
+        public Task<GenericTableRow> this[uint index] => this.GetRow(index);
+        public IAsyncEnumerable<GenericTableRow> EnumerateRows() => ExtensionMethods.EnumerateRows(this);
 
         public Task<T> Get<T>(uint columnIndex, uint rowIndex) where T: notnull
         {
@@ -428,5 +380,6 @@ namespace BrightData.DataTable
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
+        IReadOnlyBuffer<object>[] IHaveGenericColumns.GenericColumns => _genericColumns.Value;
     }
 }

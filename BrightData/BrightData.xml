@@ -2525,6 +2525,14 @@
             <param name="rowIndices">Row indices to select (or all if non specified)</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ToObjectBuffer(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Converts the typed buffer to a buffer of objects
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToType(System.TypeCode)">
             <summary>
             Converts a type code to a type
@@ -3801,6 +3809,29 @@
             Returns the first few rows in the data table
             </summary>
             <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.EnumerateRows(BrightData.IDataTable)">
+            <summary>
+            Enumerates the rows in a data table
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow(BrightData.IDataTable,System.UInt32)">
+            <summary>
+            Returns a generic row from the data table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="index">Row index</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns an array of rows from the data table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="rowIndices">Row indices to return or all if non specified</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.BrightDataContext)">
@@ -6985,6 +7016,29 @@
             </summary>
             <param name="index"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.EnumerateRows">
+            <summary>
+            Enumerates each row in the table
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.GetAsyncEnumerator(System.Threading.CancellationToken)">
+            <summary>
+            Enumerates each row in the table
+            </summary>
+            <param name="ct"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IHaveGenericColumns">
+            <summary>
+            Indicates that the type contains an array of generic columns
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveGenericColumns.GenericColumns">
+            <summary>
+            Generic column array
+            </summary>
         </member>
         <member name="T:BrightData.IByteBlockSource">
             <summary>

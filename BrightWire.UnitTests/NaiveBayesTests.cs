@@ -38,7 +38,7 @@ namespace BrightWire.UnitTests
 
             var model = await index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
-            var row = testDataTable[0];
+            var row = await testDataTable[0];
             var classification = classifier.Classify(row);
             classification.First().Label.Should().Be("female");
         }

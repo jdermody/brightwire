@@ -15,6 +15,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
+using static BrightData.DataTable.ColumnOrientedDataTable;
 
 namespace BrightData
 {
@@ -1059,6 +1060,17 @@ namespace BrightData
             var blockIndices = AllIndices(buffer).ToArray();
             foreach (var index in rowIndices)
                 yield return (index, blockIndices[index].BlockIndex, blockIndices[index].RelativeBlockIndex);
+        }
+
+        /// <summary>
+        /// Converts the typed buffer to a buffer of objects
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static IReadOnlyBuffer<object> ToObjectBuffer(this IReadOnlyBuffer buffer)
+        {
+            return GenericTypeMapping.ToObjectConverter(buffer);
         }
     }
 }

@@ -8,6 +8,7 @@ using BrightData;
 using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
+using BrightData.Parquet;
 using BrightWire;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;

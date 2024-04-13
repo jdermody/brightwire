@@ -230,7 +230,7 @@ namespace BrightWire.ExecutionGraph
 
 				// volume classification
 				if (featureColumnType == BrightDataType.Tensor3D && targetColumnType == BrightDataType.Vector)
-					return new Tensor3DBasedDataTableAdapter(dataTable, featureColumns);
+					return await Tensor3DBasedDataTableAdapter.Create(dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == BrightDataType.IndexList)

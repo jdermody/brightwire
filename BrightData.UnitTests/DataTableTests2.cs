@@ -131,7 +131,7 @@ namespace BrightData.UnitTests
             var fromTable2 = columnItems[1];
             CheckSame(fromTable2, secondMatrix);
 
-            dataTable[1][0].Should().BeEquivalentTo(secondMatrix);
+            (await dataTable[1])[0].Should().BeEquivalentTo(secondMatrix);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace BrightData.UnitTests
             var data = new BinaryData(1, 2, 3, 4);
             builder.AddRow(data);
             using var table = await builder.BuildInMemory();
-            var data2 = (BinaryData)table[0][0];
+            var data2 = (BinaryData)(await table[0])[0];
             data2.Should().BeEquivalentTo(data);
         }
 
@@ -296,7 +296,7 @@ namespace BrightData.UnitTests
         public async Task GetMany()
         {
             using var table = await CreateSimpleTable();
-            var firstRow = table[0];
+            var firstRow = await table[0];
             var vals = firstRow.GetMany<string>(0, 1);
             vals[0].Should().Be("1");
             vals[1].Should().Be("2");

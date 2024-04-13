@@ -66,7 +66,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
+        public static IAsyncEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }

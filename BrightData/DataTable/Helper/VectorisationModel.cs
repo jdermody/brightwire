@@ -12,7 +12,7 @@ namespace BrightData.DataTable.Helper
     /// </summary>
     public class VectorisationModel
     {
-        readonly record struct ArrayWrapper(object[] Values)
+        readonly record struct ArrayWrapper(object[] Values) : ICanRandomlyAccessData
         {
             public void Dispose()
             {

@@ -29,7 +29,7 @@ namespace BrightData.UnitTests
             builder.AddRow(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
             var dataTable = await builder.BuildInMemory();
 
-            var firstRow = dataTable[0];
+            var firstRow = await dataTable[0];
             firstRow.Get<bool>(0).Should().BeTrue();
             firstRow.Get<sbyte>(1).Should().Be(100);
             firstRow.Get<DateTime>(2).Should().Be(now);

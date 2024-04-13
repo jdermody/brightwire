@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
+using ExtensionMethods = BrightData.ExtensionMethods;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -36,7 +37,7 @@ namespace ExampleCode.DataTableTrainers
                 if (writeResults) {
                     var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");
-                    var testData = await Test.GetAllRows();
+                    var testData = await ExtensionMethods.GetAllRows(Test);
 
                     // print the values that have been learned
                     foreach (var item in output) {

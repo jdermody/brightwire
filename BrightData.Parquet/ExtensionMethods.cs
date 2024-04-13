@@ -94,5 +94,15 @@ namespace BrightData.Parquet
                 columnMetaData.Set(key, value);
             return builder.CreateColumn(field.ClrType.GetBrightDataType(), columnMetaData);
         }
+
+        public static Task<IDataTable> LoadParquetDataTableFromFile(this BrightDataContext context, string path)
+        {
+            return LoadParquetDataTableFromStream(context, File.OpenRead(path));
+        }
+
+        public static async Task<IDataTable> LoadParquetDataTableFromStream(this BrightDataContext context, Stream stream)
+        {
+            return await ParquetDataTableAdaptor.Create(context, stream);
+        }
     }
 }

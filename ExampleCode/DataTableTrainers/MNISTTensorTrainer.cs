@@ -76,7 +76,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
-            var firstRow = Test[0];
+            var firstRow = await Test[0];
             var tensor = (IReadOnlyTensor3D<float>) firstRow[0];
             var singleData = graph.CreateDataSource([tensor.Create(context.LinearAlgebraProvider)]);
             var result = (await executionEngine.Execute(singleData).First());

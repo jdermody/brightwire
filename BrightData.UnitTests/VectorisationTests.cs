@@ -102,7 +102,7 @@ namespace BrightData.UnitTests
         public async Task OtherVectorisation()
         {
             var table = await GetTable();
-            var row = table[0];
+            var row = await table[0];
             var vectoriser = await table.GetVectoriser(false);
             var vector1 = await vectoriser.Vectorise(table).ToFloatVectors();
             var vector2 = vectoriser.Vectorise(row);

@@ -106,9 +106,9 @@ namespace ExampleCode.DataTableTrainers
         //        WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
         //}
 
-        void WriteResults(string type, IRowClassifier classifier)
+        async Task WriteResults(string type, IRowClassifier classifier)
         {
-            var results = Test.Classify(classifier).ToList();
+            var results = await Test.Classify(classifier).ToArrayAsync(Test.RowCount);
             var score = results
                 .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
             Console.WriteLine($"{type} accuracy: {score:P}");

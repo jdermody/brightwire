@@ -161,6 +161,7 @@ namespace ExampleCode.DataTableTrainers
                 var naiveBayes = (await item.Training.Table.TrainNaiveBayes()).CreateClassifier();
                 Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
                     .Classify(naiveBayes)
+                    .ToBlockingEnumerable()
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 
@@ -179,6 +180,7 @@ namespace ExampleCode.DataTableTrainers
                 var knn = (await item.Training.Table.TrainKNearestNeighbours()).CreateClassifier(_context.LinearAlgebraProvider, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
+                    .ToBlockingEnumerable()
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 

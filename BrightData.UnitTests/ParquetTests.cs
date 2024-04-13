@@ -38,8 +38,8 @@ namespace BrightData.UnitTests
             for (var i = 0; i < dataTable.ColumnCount; i++)
                 dataTable2.ColumnTypes[i].Should().Be(dataTable.ColumnTypes[i]);
 
-            var row1 = dataTable[0];
-            var row2 = dataTable2[0];
+            var row1 = await dataTable[0];
+            var row2 = await dataTable2[0];
 
             row1.Get<bool>(0).Should().Be(row2.Get<bool>(0));
             row1.Get<sbyte>(1).Should().Be(row2.Get<sbyte>(1));

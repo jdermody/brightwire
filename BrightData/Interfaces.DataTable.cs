@@ -328,7 +328,7 @@ namespace BrightData
     /// <summary>
     /// Data tables contain structured tabular data
     /// </summary>
-    public interface IDataTable : IDisposable, IHaveMetaData, IHaveBrightDataContext
+    public interface IDataTable : IDisposable, IHaveMetaData, IHaveBrightDataContext, IHaveGenericColumns
     {
         /// <summary>
         /// Number of rows in the table
@@ -405,7 +405,31 @@ namespace BrightData
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        GenericTableRow this[uint index] { get; }
+        Task<GenericTableRow> this[uint index] { get; }
+
+        /// <summary>
+        /// Enumerates each row in the table
+        /// </summary>
+        /// <returns></returns>
+        IAsyncEnumerable<GenericTableRow> EnumerateRows();
+
+        /// <summary>
+        /// Enumerates each row in the table
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        public IAsyncEnumerator<GenericTableRow> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateRows().GetAsyncEnumerator(ct);
+    }
+
+    /// <summary>
+    /// Indicates that the type contains an array of generic columns
+    /// </summary>
+    public interface IHaveGenericColumns
+    {
+        /// <summary>
+        /// Generic column array
+        /// </summary>
+        IReadOnlyBuffer<object>[] GenericColumns { get; }
     }
 
     /// <summary>

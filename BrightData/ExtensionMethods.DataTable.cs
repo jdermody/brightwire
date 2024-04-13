@@ -631,7 +631,7 @@ namespace BrightData
                 builder.CreateFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").MetaData.SetTarget(true);
 
             // vectorise each row
-            foreach(var row in await dataTable.GetAllRows()) {
+            foreach(var row in await GetAllRows(dataTable)) {
                 var input = inputVectoriser.Vectorise(columnIndexList.Select(x => row.Values[x]).ToArray());
                 if (outputVectoriser != null)
                     builder.AddRow(input, outputVectoriser.Vectorise(row.Values[target!.Value]));
@@ -1888,7 +1888,86 @@ namespace BrightData
         /// Returns the first few rows in the data table
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="rowCount">Number of rows to return</param>
         /// <returns></returns>
         public static GenericTableRow[] GetHead(this IDataTable dataTable, int rowCount = 5) => dataTable.EnumerateRows().ToBlockingEnumerable().Take(rowCount).ToArray();
+
+        /// <summary>
+        /// Enumerates the rows in a data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
+        public static async IAsyncEnumerable<GenericTableRow> EnumerateRows(this IDataTable dataTable)
+        {
+            var columns = dataTable.GenericColumns;
+            var blockSizes = columns[0].BlockSizes;
+            var numColumns = columns.Length;
+            var tasks = new Task<ReadOnlyMemory<object>>[numColumns];
+            var rowIndex = 0U;
+
+            for(uint i = 0, numBlocks = (uint)blockSizes.Length; i < numBlocks; i++) {
+                for(var j = 0; j < numColumns; j++)
+                    tasks[j] = columns[j].GetTypedBlock(i);
+                await Task.WhenAll(tasks);
+
+                for (int k = 0, numRowsInBlock = tasks[0].Result.Length; k < numRowsInBlock; k++) {
+                    var rowValues = tasks.Select(x => x.Result.Span[k]).ToArray();
+                    yield return new GenericTableRow(dataTable, rowIndex++, rowValues);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a generic row from the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="index">Row index</param>
+        /// <returns></returns>
+        public static Task<GenericTableRow> GetRow(this IDataTable dataTable, uint index)
+        {
+            var columns = dataTable.GenericColumns;
+            var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
+            return Task.WhenAll(fetchTasks)
+                .ContinueWith(_ => new GenericTableRow(dataTable, index, fetchTasks.Select(x => x.Result).ToArray()));
+        }
+
+        /// <summary>
+        /// Returns an array of rows from the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="rowIndices">Row indices to return or all if non specified</param>
+        /// <returns></returns>
+        public static async Task<GenericTableRow[]> GetRows(this IDataTable dataTable, params uint[] rowIndices)
+        {
+            // take all rows if none specified
+            if (rowIndices.Length == 0) {
+                Array.Resize(ref rowIndices, (int)dataTable.RowCount);
+                for (uint i = 0; i < dataTable.RowCount; i++)
+                    rowIndices[i] = i;
+            }
+
+            var columns = dataTable.GenericColumns;
+            var len = columns.Length;
+            var blocks = columns[0].GetIndices(rowIndices)
+                    .GroupBy(x => x.BlockIndex)
+                    .OrderBy(x => x.Key)
+                ;
+            var ret = rowIndices.Select(x => new GenericTableRow(dataTable, x, new object[len])).ToArray();
+            var retTable = ret.ToLookup(x => x.RowIndex);
+            var tasks = new Task<ReadOnlyMemory<object>>[len];
+            foreach (var block in blocks) {
+                for(var i = 0; i < len; i++)
+                    tasks[i] = columns[i].GetTypedBlock(block.Key);
+                await Task.WhenAll(tasks);
+                foreach (var (sourceIndex, _, relativeBlockIndex) in block) {
+                    foreach (var row in retTable[sourceIndex]) {
+                        var rowValues = row.Values;
+                        for (var i = 0; i < len; i++)
+                            rowValues[i] = tasks[i].Result.Span[(int)relativeBlockIndex];
+                    }
+                }
+            }
+            return ret;
+        }
     }
 }

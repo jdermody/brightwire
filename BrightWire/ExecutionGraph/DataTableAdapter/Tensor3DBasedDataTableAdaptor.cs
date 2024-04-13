@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -13,18 +15,23 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _featureColumns;
         readonly uint _inputSize, _outputSize, _inputColumnIndex;
 
-        public Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns)
+        Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns, uint inputSize, uint outputSize, uint height, uint width, uint depth)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            var firstRow = dataTable[0];
-            var input = (IReadOnlyTensor3D<float>)firstRow[_inputColumnIndex = _featureColumnIndices[0]];
-            var output = (IReadOnlyVector<float>)firstRow[_targetColumnIndex];
-            _outputSize = output.Size;
-            _inputSize = input.ReadOnlySegment.Size;
-            Height = input.RowCount;
-            Width = input.ColumnCount;
-            Depth = input.Depth;
+            _outputSize = outputSize;
+            _inputSize = inputSize;
+            Height = height;
+            Width = width;
+            Depth = depth;
+        }
+
+        public static async Task<Tensor3DBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
+        {
+            var buffer = dataTable.GetRowsBuffer<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
+            var firstRow = await buffer.GetItem(0);
+            var firstTensor = firstRow.C1;
+            return new(dataTable, featureColumns, firstTensor.Size, firstRow.C2.Size, firstTensor.RowCount, firstTensor.ColumnCount, firstTensor.Depth);
         }
 
         Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
