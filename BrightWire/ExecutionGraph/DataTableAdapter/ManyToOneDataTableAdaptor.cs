@@ -26,9 +26,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             _rowDepth = new uint[dataTable.RowCount];
             ReadOnlyMatrix<float>? inputMatrix = null;
             ReadOnlyVector<float>? outputVector = null;
-            foreach(var row in dataTable.EnumerateRows().ToBlockingEnumerable()) {
-                inputMatrix = (ReadOnlyMatrix<float>)row[_featureColumnIndices[0]];
-                outputVector = (ReadOnlyVector<float>)row[_targetColumnIndex];
+            foreach(var row in _buffer.EnumerateAllTyped().ToBlockingEnumerable()) {
+                inputMatrix = row.C1;
+                outputVector = row.C2;
                 _rowDepth[row.RowIndex] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");

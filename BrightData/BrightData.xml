@@ -1765,6 +1765,22 @@
             <param name="columnIndex"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.TableRow`1">
+            <summary>
+            Typed data table row
+            </summary>
+        </member>
+        <member name="M:BrightData.TableRow`1.#ctor(BrightData.IDataTable,System.UInt32,`0)">
+            <summary>
+            Typed data table row
+            </summary>
+        </member>
+        <member name="P:BrightData.TableRow`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.TableRow`1.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.TableRow`2">
             <summary>
             Typed data table row
@@ -1917,6 +1933,26 @@
             Extensions that work with a span of numbers
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate``1(BrightData.IDataTable,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Enumerates typed data rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``1(BrightData.IDataTable,System.UInt32)">
+            <summary>
+            Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``1(BrightData.IDataTable,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``1(BrightData.IDataTable,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
+            </summary>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``2(BrightData.IDataTable,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
             <summary>
             Enumerates typed data rows
@@ -1925,6 +1961,16 @@
         <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``2(BrightData.IDataTable,System.UInt32,System.UInt32)">
             <summary>
             Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``2(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``2(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``3(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
@@ -1937,6 +1983,16 @@
             Creates a typed buffer to access rows
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``3(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``3(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
+            </summary>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
             <summary>
             Enumerates typed data rows
@@ -1945,6 +2001,16 @@
         <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``4(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``5(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
@@ -1957,6 +2023,16 @@
             Creates a typed buffer to access rows
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``5(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``5(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
+            </summary>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
             <summary>
             Enumerates typed data rows
@@ -1965,6 +2041,16 @@
         <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``6(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``7(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
@@ -1977,6 +2063,16 @@
             Creates a typed buffer to access rows
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``7(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``7(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
+            </summary>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
             <summary>
             Enumerates typed data rows
@@ -1985,6 +2081,16 @@
         <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``8(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``9(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
@@ -1997,6 +2103,16 @@
             Creates a typed buffer to access rows
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``9(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``9(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
+            </summary>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Enumerate``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Threading.CancellationToken)">
             <summary>
             Enumerates typed data rows
@@ -2005,6 +2121,16 @@
         <member name="M:BrightData.ExtensionMethods.GetRowsBuffer``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
             <summary>
             Creates a typed buffer to access rows
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRow``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns a single typed row from the data table
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRows``10(BrightData.IDataTable,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32[])">
+            <summary>
+            Returns an array of typed rows from the data table
             </summary>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.Types.MetaData)">
@@ -3809,6 +3935,7 @@
             Returns the first few rows in the data table
             </summary>
             <param name="dataTable"></param>
+            <param name="rowCount">Number of rows to return</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.EnumerateRows(BrightData.IDataTable)">
@@ -6630,6 +6757,16 @@
             <param name="numClusters"></param>
             <param name="metric"></param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.IHaveSingleIndex">
+            <summary>
+            Indicates that the type has a single index
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveSingleIndex.Index">
+            <summary>
+            The index of the type within a broader context
+            </summary>
         </member>
         <member name="T:BrightData.DataTableOrientation">
             <summary>

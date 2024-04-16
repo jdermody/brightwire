@@ -15,17 +15,17 @@ namespace BrightWire.Models.InstanceBased
         /// <summary>
         /// The list of vectors to match against
         /// </summary>
-        public float[][] Instance { get; set; } = Array.Empty<float[]>();
+        public float[][] Instance { get; set; } = [];
 
         /// <summary>
         /// The corresponding list of classifications
         /// </summary>
-        public string[] Classification { get; set; } = Array.Empty<string>();
+        public string[] Classification { get; set; } = [];
 
         /// <summary>
         /// The vector indexes to use to encode a data table row as a vector
         /// </summary>
-        public uint[] DataColumns { get; set; } = Array.Empty<uint>();
+        public uint[] DataColumns { get; set; } = [];
 
         /// <summary>
         /// The vector indexes to use to encode the other column(s) as a classification target

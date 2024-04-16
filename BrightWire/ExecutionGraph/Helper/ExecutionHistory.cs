@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             Parents = parent != null 
                 ? [parent]
-                : Array.Empty<NodeBase>();
+                : [];
 
             Source = source;
             Data = data;

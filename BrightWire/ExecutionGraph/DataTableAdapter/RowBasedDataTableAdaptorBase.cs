@@ -6,14 +6,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// <summary>
     /// Base class for data tables that work with generic data table rows
     /// </summary>
-    public abstract class GenericRowBasedDataTableAdapterBase : DataTableAdapterBase<ICanRandomlyAccessData>
+    /// <inheritdoc />
+    public abstract class GenericRowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) : DataTableAdapterBase<ICanRandomlyAccessData>(dataTable, featureColumns)
     {
-        /// <inheritdoc />
-	    protected GenericRowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) 
-            : base(dataTable, featureColumns)
-        {
-        }
-
         /// <summary>
         /// Returns a tensor segment from a segment provider
         /// </summary>

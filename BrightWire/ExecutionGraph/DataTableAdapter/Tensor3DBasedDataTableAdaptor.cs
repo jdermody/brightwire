@@ -19,6 +19,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
+            _inputColumnIndex = featureColumns.Single();
             _outputSize = outputSize;
             _inputSize = inputSize;
             Height = height;
@@ -28,10 +29,19 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public static async Task<Tensor3DBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
         {
-            var buffer = dataTable.GetRowsBuffer<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
-            var firstRow = await buffer.GetItem(0);
-            var firstTensor = firstRow.C1;
-            return new(dataTable, featureColumns, firstTensor.Size, firstRow.C2.Size, firstTensor.RowCount, firstTensor.ColumnCount, firstTensor.Depth);
+            var targetColumn = dataTable.GetTargetColumn();
+            ReadOnlyTensor3D<float> firstTensor;
+            var outputSize = 0U;
+
+            if (targetColumn.HasValue) {
+                var firstRow = await dataTable.GetRow<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>(featureColumns.Single(), targetColumn.Value);
+                firstTensor = firstRow.C1;
+                outputSize = firstRow.C2.Size;
+            }
+            else {
+                firstTensor = await dataTable.Get<ReadOnlyTensor3D<float>>(featureColumns.Single(), 0);
+            }
+            return new(dataTable, featureColumns, firstTensor.Size, outputSize, firstTensor.RowCount, firstTensor.ColumnCount, firstTensor.Depth);
         }
 
         Tensor3DBasedDataTableAdapter(IDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth, uint[] featureColumns)
@@ -60,21 +70,28 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
             using var inputRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            using var targetRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            MemoryOwner<IReadOnlyNumericSegment<float>>? targetRows = null;
             var index = 0;
 
-            await foreach (var row in GetRows(rows)) {
-                inputRows.Span[index] = GetSegment(_inputColumnIndex, row);
-                targetRows.Span[index] = GetSegment(_targetColumnIndex, row);
-                ++index;
+            try {
+                await foreach (var row in GetRows(rows)) {
+                    inputRows.Span[index] = GetSegment(_inputColumnIndex, row);
+                    if (_targetColumnIndex.HasValue) {
+                        (targetRows ??= MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length)).Span[index] = GetSegment(_targetColumnIndex.Value, row);
+                    }
+
+                    ++index;
+                }
+
+                var input = lap.CreateMatrixFromColumns(inputRows.Span);
+                var output = targetRows is not null
+                    ? lap.CreateMatrixFromRows(targetRows.Span).AsGraphData()
+                    : null;
+                return new MiniBatch(rows, this, new Tensor4DGraphData(input, Height, Width, Depth), output);
             }
-
-            var input = lap.CreateMatrixFromColumns(inputRows.Span);
-            var output = OutputSize > 0
-                ? lap.CreateMatrixFromRows(targetRows.Span).AsGraphData()
-                : null;
-
-            return new MiniBatch(rows, this, new Tensor4DGraphData(input, Height, Width, Depth), output);
+            finally {
+                targetRows?.Dispose();
+            }
         }
     }
 }

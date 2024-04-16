@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
+        DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -22,17 +22,19 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public static async Task<DefaultDataTableAdapter> Create(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
         {
+            var targetColumn = dataTable.GetTargetColumn();
+
             return new DefaultDataTableAdapter(
                 dataTable,
                 inputVectoriser ?? await dataTable.GetVectoriser(true, featureColumns),
-                outputVectoriser ?? await dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()),
+                outputVectoriser ?? (targetColumn.HasValue ? await dataTable.GetVectoriser(true, targetColumn.Value) : null),
                 featureColumns
             );
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new DefaultDataTableAdapter(dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
+            return new DefaultDataTableAdapter(dataTable, InputVectoriser!, OutputVectoriser, _featureColumns);
         }
 
         public override uint InputSize => InputVectoriser!.OutputSize;
@@ -41,9 +43,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override async Task<MiniBatch> Get(uint[] rowIndices)
         {
             var index = 0;
-            var data = new (float[], float[])[rowIndices.Length];
+            var data = new (float[], float[]?)[rowIndices.Length];
             await foreach (var row in GetRows(rowIndices))
-                data[index++] = (InputVectoriser!.Vectorise(row), OutputVectoriser!.Vectorise(row));
+                data[index++] = (InputVectoriser!.Vectorise(row), OutputVectoriser?.Vectorise(row));
             return GetMiniBatch(rowIndices, data);
         }
     }

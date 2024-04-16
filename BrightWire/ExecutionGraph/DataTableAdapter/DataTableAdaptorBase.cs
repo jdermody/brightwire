@@ -11,42 +11,34 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     /// Base class for data table based data adapters
     /// </summary>
     /// <typeparam name="T">The type of the cached data</typeparam>
-    public abstract class DataTableAdapterBase<T> : IDataSource
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <param name="dataTable"></param>
+    /// <param name="featureColumns"></param>
+    public abstract class DataTableAdapterBase<T>(IDataTable dataTable, uint[] featureColumns) : IDataSource
     {
         /// <summary>
         /// The data table column indices with features
         /// </summary>
-        protected readonly uint[] _featureColumnIndices;
+        protected readonly uint[] _featureColumnIndices = featureColumns;
 
 		/// <summary>
 		/// Target column index
 		/// </summary>
-        protected readonly uint _targetColumnIndex;
+        protected readonly uint? _targetColumnIndex = dataTable.GetTargetColumn();
 
 		/// <summary>
 		/// Data table
 		/// </summary>
-        protected readonly IDataTable _dataTable;
+        protected readonly IDataTable _dataTable = dataTable;
 
-        /// <summary>
-	    /// Constructor
-	    /// </summary>
-        /// <param name="dataTable"></param>
-	    /// <param name="featureColumns"></param>
-	    protected DataTableAdapterBase(IDataTable dataTable, uint[] featureColumns)
-        {
-            _dataTable = dataTable;
-            _targetColumnIndex = dataTable.GetTargetColumnOrThrow();
-            _featureColumnIndices = featureColumns;
-            RowCount = dataTable.RowCount;
-        }
-
-	    /// <inheritdoc />
+        /// <inheritdoc />
         public abstract uint InputSize { get; }
 	    /// <inheritdoc />
         public abstract uint? OutputSize { get; }
-	    /// <inheritdoc />
-        public virtual uint RowCount { get; }
+        /// <inheritdoc />
+        public virtual uint RowCount { get; } = dataTable.RowCount;
 
         /// <inheritdoc />
         public abstract Task<MiniBatch> Get(uint[] rows);
@@ -85,7 +77,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var input = lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[x].Input[y]).AsGraphData();
             var output = OutputSize > 0 
                 ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Output![y]).AsGraphData()
-                : null;
+                : null
+            ;
 
             return new MiniBatch(rows, this, input, output);
         }

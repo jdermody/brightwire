@@ -24,9 +24,18 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public static async Task<VectorBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
         {
             var targetColumn = dataTable.GetTargetColumn();
-            var buffer = dataTable.GetRowsBuffer<ReadOnlyVector<float>, ReadOnlyVector<float>>(featureColumns.Single(), dataTable.GetTargetColumnOrThrow());
-            var firstRow = await buffer.GetItem(0);
-            return new(dataTable, featureColumns, firstRow.C1.Size, firstRow.C2.Size);
+            ReadOnlyVector<float> firstVector;
+            var outputSize = 0U;
+
+            if (targetColumn.HasValue) {
+                var firstRow = await dataTable.GetRow<ReadOnlyVector<float>, ReadOnlyVector<float>>(featureColumns.Single(), targetColumn.Value);
+                firstVector = firstRow.C1;
+                outputSize = firstRow.C2.Size;
+            }
+            else {
+                firstVector = await dataTable.Get<ReadOnlyVector<float>>(featureColumns.Single(), 0);
+            }
+            return new(dataTable, featureColumns, firstVector.Size, outputSize);
         }
 
         public override uint InputSize { get; }

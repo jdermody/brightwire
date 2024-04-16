@@ -37,7 +37,7 @@ namespace ExampleCode.DataTableTrainers
                 if (writeResults) {
                     var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");
-                    var testData = await ExtensionMethods.GetAllRows(Test);
+                    var testData = await Test.GetAllRows();
 
                     // print the values that have been learned
                     foreach (var item in output) {

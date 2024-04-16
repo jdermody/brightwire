@@ -190,7 +190,6 @@ namespace BrightData
         public static async Task<T[]> GetItems<T>(this IReadOnlyBuffer<T> buffer, uint[] indices) where T: notnull
         {
             var blocks = buffer.GetIndices(indices)
-                .Select((x, i) => (x.BlockIndex, x.RelativeBlockIndex, SourceIndex: i))
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
             ;
@@ -201,10 +200,10 @@ namespace BrightData
             }
             return ret;
 
-            static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint BlockIndex, uint RelativeIndex, int SourceIndex)> list, T[] output)
+            static void AddIndexedItems(ReadOnlyMemory<T> data, IEnumerable<(uint RowIndex, uint BlockIndex, uint RelativeBlockIndex, uint SourceIndex)> list, T[] output)
             {
                 var span = data.Span;
-                foreach (var (_, relativeIndex, sourceIndex) in list)
+                foreach (var (_, _, relativeIndex, sourceIndex) in list)
                     output[sourceIndex] = span[(int)relativeIndex];
             }
         }
@@ -1036,12 +1035,12 @@ namespace BrightData
         /// <param name="buffer"></param>
         /// <param name="rowIndices">Row indices to select (or all if non specified)</param>
         /// <returns></returns>
-        public static IEnumerable<(uint Index, uint BlockIndex, uint RelativeBlockIndex)> GetIndices(this IReadOnlyBuffer buffer, params uint[] rowIndices)
+        public static IEnumerable<(uint RowIndex, uint BlockIndex, uint RelativeBlockIndex, uint SourceIndex)> GetIndices(this IReadOnlyBuffer buffer, params uint[] rowIndices)
         {
             if (rowIndices.Length == 0) {
                 uint absoluteIndex = 0;
                 foreach (var (blockIndex, relativeBlockIndex) in AllIndices(buffer))
-                    yield return (absoluteIndex++, blockIndex, relativeBlockIndex);
+                    yield return (absoluteIndex++, blockIndex, relativeBlockIndex, absoluteIndex++);
             }
             else {
                 foreach(var item in GetIndices(buffer, (IEnumerable<uint>)rowIndices))
@@ -1055,11 +1054,12 @@ namespace BrightData
         /// <param name="buffer"></param>
         /// <param name="rowIndices">Row indices to select (or all if non specified)</param>
         /// <returns></returns>
-        public static IEnumerable<(uint Index, uint BlockIndex, uint RelativeBlockIndex)> GetIndices(this IReadOnlyBuffer buffer, IEnumerable<uint> rowIndices)
+        public static IEnumerable<(uint RowIndex, uint BlockIndex, uint RelativeBlockIndex, uint SourceIndex)> GetIndices(this IReadOnlyBuffer buffer, IEnumerable<uint> rowIndices)
         {
             var blockIndices = AllIndices(buffer).ToArray();
+            var sourceIndex = 0U;
             foreach (var index in rowIndices)
-                yield return (index, blockIndices[index].BlockIndex, blockIndices[index].RelativeBlockIndex);
+                yield return (index, blockIndices[index].BlockIndex, blockIndices[index].RelativeBlockIndex, sourceIndex++);
         }
 
         /// <summary>

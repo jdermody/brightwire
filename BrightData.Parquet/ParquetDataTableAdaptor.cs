@@ -1,5 +1,4 @@
-﻿using BrightData.Converter;
-using BrightData.DataTable.Rows;
+﻿using BrightData.DataTable.Rows;
 using BrightData.Parquet.BufferAdaptors;
 using BrightData.Types;
 using Parquet;

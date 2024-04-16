@@ -243,6 +243,22 @@
             Base class for data table based data adapters
             </summary>
             <typeparam name="T">The type of the cached data</typeparam>
+            <remarks>
+            Constructor
+            </remarks>
+            <param name="dataTable"></param>
+            <param name="featureColumns"></param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Base class for data table based data adapters
+            </summary>
+            <typeparam name="T">The type of the cached data</typeparam>
+            <remarks>
+            Constructor
+            </remarks>
+            <param name="dataTable"></param>
+            <param name="featureColumns"></param>
         </member>
         <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._featureColumnIndices">
             <summary>
@@ -258,13 +274,6 @@
             <summary>
             Data table
             </summary>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.IDataTable,System.UInt32[])">
-            <summary>
-            Constructor
-            </summary>
-            <param name="dataTable"></param>
-            <param name="featureColumns"></param>
         </member>
         <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputSize">
             <inheritdoc />
@@ -327,8 +336,12 @@
             <summary>
             Base class for data tables that work with generic data table rows
             </summary>
+            <inheritdoc />
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase.#ctor(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Base class for data tables that work with generic data table rows
+            </summary>
             <inheritdoc />
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.GenericRowBasedDataTableAdapterBase.GetSegment(System.UInt32,BrightData.ICanRandomlyAccessData)">

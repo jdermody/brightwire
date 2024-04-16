@@ -71,15 +71,15 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = await Training.TrainNaiveBayes();
             if (writeResults)
-                WriteResults("Naive bayes", ret.CreateClassifier());
+                await WriteResults("Naive bayes", ret.CreateClassifier());
             return ret;
         }
 
-        public DecisionTree TrainDecisionTree(bool writeResults = true)
+        public async Task<DecisionTree> TrainDecisionTree(bool writeResults = true)
         {
             var ret = Training.TrainDecisionTree();
             if (writeResults)
-                WriteResults("Decision tree", ret.CreateClassifier());
+                await WriteResults("Decision tree", ret.CreateClassifier());
             return ret;
         }
 
@@ -87,7 +87,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = await Training.TrainRandomForest(numTrees, baggedRowCount);
             if(writeResults)
-                WriteResults("Random forest", ret.CreateClassifier());
+                await WriteResults("Random forest", ret.CreateClassifier());
             return ret;
         }
 
@@ -95,7 +95,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var ret = await Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
+                await WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
             return ret;
         }
 

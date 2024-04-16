@@ -277,7 +277,7 @@ namespace BrightData.UnitTests
                 ++index;
             }
 
-            table.MetaData.Get<int>("test", 0).Should().Be(123);
+            table.MetaData.Get("test", 0).Should().Be(123);
         }
 
         [Fact]

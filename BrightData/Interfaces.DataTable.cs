@@ -11,6 +11,17 @@ using BrightData.DataTable.Rows;
 namespace BrightData
 {
     /// <summary>
+    /// Indicates that the type has a single index
+    /// </summary>
+    public interface IHaveSingleIndex
+    {
+        /// <summary>
+        /// The index of the type within a broader context
+        /// </summary>
+        public uint Index { get; }
+    }
+
+    /// <summary>
     /// Determines if the data table is oriented as either rows or columns
     /// </summary>
     public enum DataTableOrientation : byte

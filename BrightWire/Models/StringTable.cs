@@ -10,6 +10,6 @@ namespace BrightWire.Models
         /// <summary>
         /// The array of indexed strings
         /// </summary>
-        public string[] Data { get; set; } = Array.Empty<string>();
+        public string[] Data { get; set; } = [];
     }
 }

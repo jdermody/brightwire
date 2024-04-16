@@ -15,7 +15,7 @@ using BrightData.DataTable.Rows;
 
 namespace BrightData
 {
-<# for(var i = 2; i < COUNT; i++) {
+<# for(var i = 1; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();
         var typeString = String.Join(", ", range.Select(x => $"T{x}"));
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
@@ -24,7 +24,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<<#= typeString #>>(IDataTable Table, uint RowIndex, <#= parameters #>) : TableRowBase(Table, RowIndex) <#= where #>
+    public record TableRow<<#= typeString #>>(IDataTable Table, uint RowIndex, <#= parameters #>) : TableRowBase(Table, RowIndex)
+        <#= where #>
     {
         /// <inheritdoc />
         public override uint Size => <#= i #>;
@@ -43,11 +44,11 @@ namespace BrightData
 namespace BrightData
 {
     public partial class ExtensionMethods
-    {<# for(var i = 2; i < COUNT; i++) {
+    {<# for(var i = 1; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();
         var typeString = String.Join(", ", range.Select(x => $"T{x}"));
         var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
-        var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
+        var where = String.Join("\n\t\t\t", range.Select(x => $"where T{x}: notnull"));
         var rowParams = String.Join(", ", range.Select(x => $"e{x}.Current"));
         var getColumns = String.Join(", ", range.Select(x => $"dataTable.GetColumn<T{x}>(columnIndex{x})"));
         var currentValues = String.Join(", ", range.Select(x => $"e{x}.Current"));
@@ -57,6 +58,9 @@ namespace BrightData
         var allReadOnlySpans = String.Join(", ", range.Select(x => $"ReadOnlySpan<T{x}> span{x}"));
         var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
         var allArrayValues = String.Join(", ", range.Select(x => $"a{x}[i]"));
+        var getTasks = String.Join(", ", range.Select(x => $"getTask{x}"));
+        var getTaskResults = String.Join(", ", range.Select(x => $"getTask{x}.Result"));
+        var spanResults = String.Join(", ", range.Select(x => $"span{x}[(int)relativeBlockIndex]"));
 #>      
         /// <summary>
         /// Enumerates typed data rows
@@ -223,6 +227,57 @@ namespace BrightData
             <#= where #>
         {
             return new RowReader<<#= typeString #>>(dataTable, <#= getColumns #>);
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<<#= typeString #>>> GetRow<<#= typeString #>>(
+            this IDataTable dataTable,
+            uint rowIndex,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
+<# } #>
+        )
+            <#= where #>
+        {
+<# for(var j = 1; j <= i; j++) { #>
+            var column<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>);
+<# } #>
+<# for(var j = 1; j <= i; j++) { #>
+            var getTask<#= j #> = column<#= j #>.GetItem(rowIndex);
+<# } #>
+            await Task.WhenAll(<#= getTasks #>);
+            return new TableRow<<#= typeString #>>(dataTable, rowIndex, <#= getTaskResults #>);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<<#= typeString #>>[]> GetRows<<#= typeString #>>(
+            this IDataTable dataTable,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #>,
+<# } #>
+            params uint[] rowIndices
+        )
+            <#= where #>
+        {
+<# for(var j = 1; j <= i; j++) { #>
+            var column<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>);
+<# } #>
+            return dataTable.CopyRows<TableRow<<#= typeString #>>>(column1, rowIndices, x => new TableRow<<#= typeString #>>[x.Length], async (blockIndex, rowCallback) => {
+<# for(var j = 1; j <= i; j++) { #>
+                var getTask<#= j #> = column<#= j #>.GetTypedBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= getTasks #>);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<<#= typeString #>> row) => {
+<# for(var j = 1; j <= i; j++) { #>
+                    var span<#= j #> = getTask<#= j #>.Result.Span;
+<# } #>
+                    row = new(dataTable, rowIndex, <#= spanResults #>);
+                }); 
+            });
         }
 <# } #>
     }

@@ -11,7 +11,23 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2>(IDataTable Table, uint RowIndex, T1 C1, T2 C2) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull
+    public record TableRow<T1>(IDataTable Table, uint RowIndex, T1 C1) : TableRowBase(Table, RowIndex)
+        where T1: notnull
+    {
+        /// <inheritdoc />
+        public override uint Size => 1;
+
+        /// <inheritdoc />
+        protected override object Get(uint columnIndex) => columnIndex switch {
+            0 => C1,
+            _ => throw new Exception("Column index was out of range")
+        };
+    }
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
+    public record TableRow<T1, T2>(IDataTable Table, uint RowIndex, T1 C1, T2 C2) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull
     {
         /// <inheritdoc />
         public override uint Size => 2;
@@ -26,7 +42,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull
+    public record TableRow<T1, T2, T3>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull
     {
         /// <inheritdoc />
         public override uint Size => 3;
@@ -42,7 +59,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull
+    public record TableRow<T1, T2, T3, T4>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull
     {
         /// <inheritdoc />
         public override uint Size => 4;
@@ -59,7 +77,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
+    public record TableRow<T1, T2, T3, T4, T5>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
     {
         /// <inheritdoc />
         public override uint Size => 5;
@@ -77,7 +96,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
+    public record TableRow<T1, T2, T3, T4, T5, T6>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
     {
         /// <inheritdoc />
         public override uint Size => 6;
@@ -96,7 +116,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
     {
         /// <inheritdoc />
         public override uint Size => 7;
@@ -116,7 +137,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
     {
         /// <inheritdoc />
         public override uint Size => 8;
@@ -137,7 +159,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
     {
         /// <inheritdoc />
         public override uint Size => 9;
@@ -159,7 +182,8 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) : TableRowBase(Table, RowIndex) where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) : TableRowBase(Table, RowIndex)
+        where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
     {
         /// <inheritdoc />
         public override uint Size => 10;
@@ -188,12 +212,181 @@ namespace BrightData
         /// <summary>
         /// Enumerates typed data rows
         /// </summary>
+        public static async IAsyncEnumerable<TableRow<T1>> Enumerate<T1>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0, 
+            [EnumeratorCancellation] CancellationToken ct = default) 
+            where T1: notnull
+        {
+            const int size = 1;
+            await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+            uint rowIndex = 0;
+
+            while (!ct.IsCancellationRequested && isValid) {
+                currentTasks[0] = e1.MoveNextAsync();
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if(isValid) {
+                    var row = new TableRow<T1>(dataTable, rowIndex++, e1.Current);
+                    yield return row;
+                }
+            }
+        }
+
+        class RowReader<T1> : IReadOnlyBuffer<TableRow<T1>> where T1: notnull
+        {
+            readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
+            readonly IReadOnlyBuffer<T1> _input1;
+
+            public RowReader(IDataTable dataTable, IReadOnlyBuffer<T1> input1)
+            {
+                _dataTable = dataTable;
+                BlockSizes = input1.BlockSizes;
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
+                Size = input1.Size;
+                DataType = typeof(TableRow<T1>);
+                _input1 = input1;
+            }
+
+            public uint Size { get; }
+            public uint[] BlockSizes { get; }
+            public Type DataType { get; }
+            public async IAsyncEnumerable<object> EnumerateAll()
+            {
+                await foreach(var item in EnumerateAllTyped())
+                    yield return item;
+            }
+
+            public async Task ForEachBlock(BlockCallback<TableRow<T1>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
+                    var block = await GetTypedBlock(i);
+                    callback(block.Span);
+                }
+            }
+
+            public async Task<ReadOnlyMemory<TableRow<T1>>> GetTypedBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetTypedBlock(blockIndex);
+                await Task.WhenAll(b1);
+                var block1 = b1.Result;
+                var ret = new TableRow<T1>[block1.Length];
+                Copy(blockIndex * _blockSize, block1.Span, ret);
+                return ret;
+            }
+
+            void Copy(uint firstIndex, ReadOnlySpan<T1> span1, Span<TableRow<T1>> output)
+            {
+                for (var i = 0; i < span1.Length; i++)
+                    output[i] = new TableRow<T1>(_dataTable, firstIndex + (uint)i, span1[i]);
+            }
+
+            public async IAsyncEnumerable<TableRow<T1>> EnumerateAllTyped()
+            {
+                const int size = 1;
+                await using var e1 = _input1.GetAsyncEnumerator();
+                var currentTasks = new ValueTask<bool>[size];
+                var isValid = true;
+                uint rowIndex = 0;
+
+                while (isValid) {
+                    currentTasks[0] = e1.MoveNextAsync();
+                    for (var i = 0; i < size; i++) {
+                        if (await currentTasks[i] != true) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if(isValid) {
+                        var row = new TableRow<T1>(_dataTable, rowIndex++, e1.Current);
+                        yield return row;
+                    }
+                }
+            }
+
+            public IAsyncEnumerator<TableRow<T1>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+                var b1 = _input1.GetBlock(blockIndex);
+                await Task.WhenAll(b1);
+                var a1 = (T1[])b1.Result;
+                var len = a1.Length;
+                var ret = new TableRow<T1>[len];
+                var offset = blockIndex * _blockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<T1>(_dataTable, i + offset, a1[i]);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<T1>> GetRowsBuffer<T1>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0
+        ) 
+            where T1: notnull
+        {
+            return new RowReader<T1>(dataTable, dataTable.GetColumn<T1>(columnIndex1));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1>> GetRow<T1>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0
+        )
+            where T1: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var getTask1 = column1.GetItem(rowIndex);
+            await Task.WhenAll(getTask1);
+            return new TableRow<T1>(dataTable, rowIndex, getTask1.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1>[]> GetRows<T1>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            return dataTable.CopyRows<TableRow<T1>>(column1, rowIndices, x => new TableRow<T1>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1> row) => {
+                    var span1 = getTask1.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex]);
+                }); 
+            });
+        }
+      
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
         public static async IAsyncEnumerable<TableRow<T1, T2>> Enumerate<T1, T2>(
             this IDataTable dataTable,
             uint columnIndex1 = 0, 
             uint columnIndex2 = 1, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull
+            where T1: notnull
+			where T2: notnull
         {
             const int size = 2;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -218,7 +411,8 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2> : IReadOnlyBuffer<TableRow<T1, T2>> where T1: notnull where T2: notnull
+        class RowReader<T1, T2> : IReadOnlyBuffer<TableRow<T1, T2>> where T1: notnull
+			where T2: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -329,9 +523,56 @@ namespace BrightData
             uint columnIndex1 = 0,
             uint columnIndex2 = 1
         ) 
-            where T1: notnull where T2: notnull
+            where T1: notnull
+			where T2: notnull
         {
             return new RowReader<T1, T2>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2>> GetRow<T1, T2>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1
+        )
+            where T1: notnull
+			where T2: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2);
+            return new TableRow<T1, T2>(dataTable, rowIndex, getTask1.Result, getTask2.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2>[]> GetRows<T1, T2>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            return dataTable.CopyRows<TableRow<T1, T2>>(column1, rowIndices, x => new TableRow<T1, T2>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -343,7 +584,9 @@ namespace BrightData
             uint columnIndex2 = 1, 
             uint columnIndex3 = 2, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
         {
             const int size = 3;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -370,7 +613,9 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3> : IReadOnlyBuffer<TableRow<T1, T2, T3>> where T1: notnull where T2: notnull where T3: notnull
+        class RowReader<T1, T2, T3> : IReadOnlyBuffer<TableRow<T1, T2, T3>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -496,9 +741,66 @@ namespace BrightData
             uint columnIndex2 = 1,
             uint columnIndex3 = 2
         ) 
-            where T1: notnull where T2: notnull where T3: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
         {
             return new RowReader<T1, T2, T3>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3>> GetRow<T1, T2, T3>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3);
+            return new TableRow<T1, T2, T3>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3>[]> GetRows<T1, T2, T3>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            return dataTable.CopyRows<TableRow<T1, T2, T3>>(column1, rowIndices, x => new TableRow<T1, T2, T3>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -511,7 +813,10 @@ namespace BrightData
             uint columnIndex3 = 2, 
             uint columnIndex4 = 3, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
         {
             const int size = 4;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -540,7 +845,10 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull
+        class RowReader<T1, T2, T3, T4> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -681,9 +989,76 @@ namespace BrightData
             uint columnIndex3 = 2,
             uint columnIndex4 = 3
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
         {
             return new RowReader<T1, T2, T3, T4>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4>> GetRow<T1, T2, T3, T4>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4);
+            return new TableRow<T1, T2, T3, T4>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4>[]> GetRows<T1, T2, T3, T4>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -697,7 +1072,11 @@ namespace BrightData
             uint columnIndex4 = 3, 
             uint columnIndex5 = 4, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
         {
             const int size = 5;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -728,7 +1107,11 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
+        class RowReader<T1, T2, T3, T4, T5> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -884,9 +1267,86 @@ namespace BrightData
             uint columnIndex4 = 3,
             uint columnIndex5 = 4
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5>> GetRow<T1, T2, T3, T4, T5>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5);
+            return new TableRow<T1, T2, T3, T4, T5>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5>[]> GetRows<T1, T2, T3, T4, T5>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -901,7 +1361,12 @@ namespace BrightData
             uint columnIndex5 = 4, 
             uint columnIndex6 = 5, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
         {
             const int size = 6;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -934,7 +1399,12 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -1105,9 +1575,96 @@ namespace BrightData
             uint columnIndex5 = 4,
             uint columnIndex6 = 5
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5, T6>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5, T6>> GetRow<T1, T2, T3, T4, T5, T6>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            var getTask6 = column6.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6);
+            return new TableRow<T1, T2, T3, T4, T5, T6>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result, getTask6.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5, T6>[]> GetRows<T1, T2, T3, T4, T5, T6>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5, T6>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5, T6>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                var getTask6 = column6.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5, T6> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    var span6 = getTask6.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex], span6[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -1123,7 +1680,13 @@ namespace BrightData
             uint columnIndex6 = 5, 
             uint columnIndex7 = 6, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
         {
             const int size = 7;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -1158,7 +1721,13 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -1344,9 +1913,106 @@ namespace BrightData
             uint columnIndex6 = 5,
             uint columnIndex7 = 6
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5, T6, T7>> GetRow<T1, T2, T3, T4, T5, T6, T7>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            var getTask6 = column6.GetItem(rowIndex);
+            var getTask7 = column7.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7);
+            return new TableRow<T1, T2, T3, T4, T5, T6, T7>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result, getTask6.Result, getTask7.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5, T6, T7>[]> GetRows<T1, T2, T3, T4, T5, T6, T7>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5, T6, T7>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5, T6, T7>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                var getTask6 = column6.GetTypedBlock(blockIndex);
+                var getTask7 = column7.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5, T6, T7> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    var span6 = getTask6.Result.Span;
+                    var span7 = getTask7.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex], span6[(int)relativeBlockIndex], span7[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -1363,7 +2029,14 @@ namespace BrightData
             uint columnIndex7 = 6, 
             uint columnIndex8 = 7, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
         {
             const int size = 8;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -1400,7 +2073,14 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -1601,9 +2281,116 @@ namespace BrightData
             uint columnIndex7 = 6,
             uint columnIndex8 = 7
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> GetRow<T1, T2, T3, T4, T5, T6, T7, T8>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            var getTask6 = column6.GetItem(rowIndex);
+            var getTask7 = column7.GetItem(rowIndex);
+            var getTask8 = column8.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8);
+            return new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result, getTask6.Result, getTask7.Result, getTask8.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[]> GetRows<T1, T2, T3, T4, T5, T6, T7, T8>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                var getTask6 = column6.GetTypedBlock(blockIndex);
+                var getTask7 = column7.GetTypedBlock(blockIndex);
+                var getTask8 = column8.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5, T6, T7, T8> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    var span6 = getTask6.Result.Span;
+                    var span7 = getTask7.Result.Span;
+                    var span8 = getTask8.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex], span6[(int)relativeBlockIndex], span7[(int)relativeBlockIndex], span8[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -1621,7 +2408,15 @@ namespace BrightData
             uint columnIndex8 = 7, 
             uint columnIndex9 = 8, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
         {
             const int size = 9;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -1660,7 +2455,15 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -1876,9 +2679,126 @@ namespace BrightData
             uint columnIndex8 = 7,
             uint columnIndex9 = 8
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8), dataTable.GetColumn<T9>(columnIndex9));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> GetRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            var column9 = dataTable.GetColumn<T9>(columnIndex9);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            var getTask6 = column6.GetItem(rowIndex);
+            var getTask7 = column7.GetItem(rowIndex);
+            var getTask8 = column8.GetItem(rowIndex);
+            var getTask9 = column9.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8, getTask9);
+            return new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result, getTask6.Result, getTask7.Result, getTask8.Result, getTask9.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[]> GetRows<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            var column9 = dataTable.GetColumn<T9>(columnIndex9);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                var getTask6 = column6.GetTypedBlock(blockIndex);
+                var getTask7 = column7.GetTypedBlock(blockIndex);
+                var getTask8 = column8.GetTypedBlock(blockIndex);
+                var getTask9 = column9.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8, getTask9);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    var span6 = getTask6.Result.Span;
+                    var span7 = getTask7.Result.Span;
+                    var span8 = getTask8.Result.Span;
+                    var span9 = getTask9.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex], span6[(int)relativeBlockIndex], span7[(int)relativeBlockIndex], span8[(int)relativeBlockIndex], span9[(int)relativeBlockIndex]);
+                }); 
+            });
         }
       
         /// <summary>
@@ -1897,7 +2817,16 @@ namespace BrightData
             uint columnIndex9 = 8, 
             uint columnIndex10 = 9, 
             [EnumeratorCancellation] CancellationToken ct = default) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+			where T10: notnull
         {
             const int size = 10;
             await using var e1 = dataTable.GetColumn<T1>(columnIndex1).GetAsyncEnumerator(ct);
@@ -1938,7 +2867,16 @@ namespace BrightData
             }
         }
 
-        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
+        class RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : IReadOnlyBuffer<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+			where T10: notnull
         {
             readonly IDataTable _dataTable;
             readonly uint _blockSize, _blockCount;
@@ -2169,9 +3107,136 @@ namespace BrightData
             uint columnIndex9 = 8,
             uint columnIndex10 = 9
         ) 
-            where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+			where T10: notnull
         {
             return new RowReader<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(dataTable, dataTable.GetColumn<T1>(columnIndex1), dataTable.GetColumn<T2>(columnIndex2), dataTable.GetColumn<T3>(columnIndex3), dataTable.GetColumn<T4>(columnIndex4), dataTable.GetColumn<T5>(columnIndex5), dataTable.GetColumn<T6>(columnIndex6), dataTable.GetColumn<T7>(columnIndex7), dataTable.GetColumn<T8>(columnIndex8), dataTable.GetColumn<T9>(columnIndex9), dataTable.GetColumn<T10>(columnIndex10));
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> GetRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            this IDataTable dataTable,
+            uint rowIndex,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8,
+            uint columnIndex10 = 9
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+			where T10: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            var column9 = dataTable.GetColumn<T9>(columnIndex9);
+            var column10 = dataTable.GetColumn<T10>(columnIndex10);
+            var getTask1 = column1.GetItem(rowIndex);
+            var getTask2 = column2.GetItem(rowIndex);
+            var getTask3 = column3.GetItem(rowIndex);
+            var getTask4 = column4.GetItem(rowIndex);
+            var getTask5 = column5.GetItem(rowIndex);
+            var getTask6 = column6.GetItem(rowIndex);
+            var getTask7 = column7.GetItem(rowIndex);
+            var getTask8 = column8.GetItem(rowIndex);
+            var getTask9 = column9.GetItem(rowIndex);
+            var getTask10 = column10.GetItem(rowIndex);
+            await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8, getTask9, getTask10);
+            return new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(dataTable, rowIndex, getTask1.Result, getTask2.Result, getTask3.Result, getTask4.Result, getTask5.Result, getTask6.Result, getTask7.Result, getTask8.Result, getTask9.Result, getTask10.Result);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[]> GetRows<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+            this IDataTable dataTable,
+            uint columnIndex1 = 0,
+            uint columnIndex2 = 1,
+            uint columnIndex3 = 2,
+            uint columnIndex4 = 3,
+            uint columnIndex5 = 4,
+            uint columnIndex6 = 5,
+            uint columnIndex7 = 6,
+            uint columnIndex8 = 7,
+            uint columnIndex9 = 8,
+            uint columnIndex10 = 9,
+            params uint[] rowIndices
+        )
+            where T1: notnull
+			where T2: notnull
+			where T3: notnull
+			where T4: notnull
+			where T5: notnull
+			where T6: notnull
+			where T7: notnull
+			where T8: notnull
+			where T9: notnull
+			where T10: notnull
+        {
+            var column1 = dataTable.GetColumn<T1>(columnIndex1);
+            var column2 = dataTable.GetColumn<T2>(columnIndex2);
+            var column3 = dataTable.GetColumn<T3>(columnIndex3);
+            var column4 = dataTable.GetColumn<T4>(columnIndex4);
+            var column5 = dataTable.GetColumn<T5>(columnIndex5);
+            var column6 = dataTable.GetColumn<T6>(columnIndex6);
+            var column7 = dataTable.GetColumn<T7>(columnIndex7);
+            var column8 = dataTable.GetColumn<T8>(columnIndex8);
+            var column9 = dataTable.GetColumn<T9>(columnIndex9);
+            var column10 = dataTable.GetColumn<T10>(columnIndex10);
+            return dataTable.CopyRows<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>(column1, rowIndices, x => new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[x.Length], async (blockIndex, rowCallback) => {
+                var getTask1 = column1.GetTypedBlock(blockIndex);
+                var getTask2 = column2.GetTypedBlock(blockIndex);
+                var getTask3 = column3.GetTypedBlock(blockIndex);
+                var getTask4 = column4.GetTypedBlock(blockIndex);
+                var getTask5 = column5.GetTypedBlock(blockIndex);
+                var getTask6 = column6.GetTypedBlock(blockIndex);
+                var getTask7 = column7.GetTypedBlock(blockIndex);
+                var getTask8 = column8.GetTypedBlock(blockIndex);
+                var getTask9 = column9.GetTypedBlock(blockIndex);
+                var getTask10 = column10.GetTypedBlock(blockIndex);
+                await Task.WhenAll(getTask1, getTask2, getTask3, getTask4, getTask5, getTask6, getTask7, getTask8, getTask9, getTask10);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> row) => {
+                    var span1 = getTask1.Result.Span;
+                    var span2 = getTask2.Result.Span;
+                    var span3 = getTask3.Result.Span;
+                    var span4 = getTask4.Result.Span;
+                    var span5 = getTask5.Result.Span;
+                    var span6 = getTask6.Result.Span;
+                    var span7 = getTask7.Result.Span;
+                    var span8 = getTask8.Result.Span;
+                    var span9 = getTask9.Result.Span;
+                    var span10 = getTask10.Result.Span;
+                    row = new(dataTable, rowIndex, span1[(int)relativeBlockIndex], span2[(int)relativeBlockIndex], span3[(int)relativeBlockIndex], span4[(int)relativeBlockIndex], span5[(int)relativeBlockIndex], span6[(int)relativeBlockIndex], span7[(int)relativeBlockIndex], span8[(int)relativeBlockIndex], span9[(int)relativeBlockIndex], span10[(int)relativeBlockIndex]);
+                }); 
+            });
         }
     }
 }

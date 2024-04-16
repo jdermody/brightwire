@@ -23,6 +23,7 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
+using static BrightData.ExtensionMethods;
 
 namespace BrightData
 {
@@ -1811,7 +1812,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public static async IAsyncEnumerable<GenericTableRow> EnumerateRows(this IDataTable dataTable, [EnumeratorCancellation] CancellationToken ct = default)
+        public static async IAsyncEnumerable<GenericTableRow> EnumerateRows(this IDataTable dataTable, [EnumeratorCancellation] CancellationToken ct)
         {
             var size = dataTable.ColumnCount;
             var enumerators = new IAsyncEnumerator<object>[size];
@@ -1937,7 +1938,27 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="rowIndices">Row indices to return or all if non specified</param>
         /// <returns></returns>
-        public static async Task<GenericTableRow[]> GetRows(this IDataTable dataTable, params uint[] rowIndices)
+        public static Task<GenericTableRow[]> GetRows(this IDataTable dataTable, params uint[] rowIndices)
+        {
+            var columns = dataTable.GenericColumns;
+            var numColumns = columns.Length;
+
+            return CopyRows(dataTable, columns[0], rowIndices, x => x.Select(y => new GenericTableRow(dataTable, y, new object[numColumns])).ToArray(), async (blockIndex, rowCallback) => {
+                var tasks = new Task<ReadOnlyMemory<object>>[numColumns];
+                for(var i = 0; i < numColumns; i++)
+                    tasks[i] = columns[i].GetTypedBlock(blockIndex);
+                await Task.WhenAll(tasks);
+                rowCallback((uint _, uint relativeBlockIndex, ref GenericTableRow row) => {
+                    var rowValues = row.Values;
+                    for (var i = 0; i < numColumns; i++)
+                        rowValues[i] = tasks[i].Result.Span[(int)relativeBlockIndex];
+                });
+            });
+        }
+
+        internal delegate void RowCallback<T>(uint absoluteIndex, uint relativeBlockIndex, ref T row);
+        static async Task<T[]> CopyRows<T>(this IDataTable dataTable, IReadOnlyBuffer representativeColumn, uint[] rowIndices, Func<uint[], T[]> factory, Func<uint, Action<RowCallback<T>>, Task> copyBlock)
+            where T: IHaveSingleIndex
         {
             // take all rows if none specified
             if (rowIndices.Length == 0) {
@@ -1946,27 +1967,26 @@ namespace BrightData
                     rowIndices[i] = i;
             }
 
-            var columns = dataTable.GenericColumns;
-            var len = columns.Length;
-            var blocks = columns[0].GetIndices(rowIndices)
-                    .GroupBy(x => x.BlockIndex)
-                    .OrderBy(x => x.Key)
-                ;
-            var ret = rowIndices.Select(x => new GenericTableRow(dataTable, x, new object[len])).ToArray();
-            var retTable = ret.ToLookup(x => x.RowIndex);
-            var tasks = new Task<ReadOnlyMemory<object>>[len];
+            // create output
+            var ret = factory(rowIndices);
+
+            // group by block indices
+            var blocks = representativeColumn.GetIndices(rowIndices)
+                .GroupBy(x => x.BlockIndex)
+                .OrderBy(x => x.Key)
+                .ToArray()
+            ;
+            
+            var index = 0;
+            var blockTasks = new Task[blocks.Length];
             foreach (var block in blocks) {
-                for(var i = 0; i < len; i++)
-                    tasks[i] = columns[i].GetTypedBlock(block.Key);
-                await Task.WhenAll(tasks);
-                foreach (var (sourceIndex, _, relativeBlockIndex) in block) {
-                    foreach (var row in retTable[sourceIndex]) {
-                        var rowValues = row.Values;
-                        for (var i = 0; i < len; i++)
-                            rowValues[i] = tasks[i].Result.Span[(int)relativeBlockIndex];
+                blockTasks[index++] = copyBlock(block.Key, cb => {
+                    foreach (var item in block) {
+                        cb(item.SourceIndex, item.RelativeBlockIndex, ref ret[item.SourceIndex]);
                     }
-                }
+                });
             }
+            await Task.WhenAll(blockTasks);
             return ret;
         }
     }

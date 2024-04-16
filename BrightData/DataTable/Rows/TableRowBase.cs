@@ -7,10 +7,12 @@ namespace BrightData.DataTable.Rows
     /// </summary>
     /// <param name="Table"></param>
     /// <param name="RowIndex"></param>
-    public abstract record TableRowBase(IDataTable Table, uint RowIndex) : IHaveSize
+    public abstract record TableRowBase(IDataTable Table, uint RowIndex) : IHaveSize, IHaveSingleIndex
     {
         /// <inheritdoc />
         public abstract uint Size { get; }
+
+        uint IHaveSingleIndex.Index => RowIndex;
 
         /// <summary>
         /// Gets a value from the row

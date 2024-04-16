@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -10,11 +11,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         protected readonly uint[] _featureColumns;
         protected readonly IReadOnlyBuffer<TableRow<T1, T2>> _buffer;
+        protected readonly uint _requiredTargetColumnIndex;
 
         protected TypedRowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            _buffer = dataTable.GetRowsBuffer<T1, T2>(_featureColumnIndices.Single(), _targetColumnIndex);
+            _requiredTargetColumnIndex = _targetColumnIndex ?? throw new Exception("Target column is required on data table");
+            _buffer = dataTable.GetRowsBuffer<T1, T2>(_featureColumnIndices.Single(), _requiredTargetColumnIndex);
         }
 
         /// <inheritdoc />

@@ -56,7 +56,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of string indexes and their probability
             /// </summary>
-            public StringIndexProbability[] Index { get; set; } = Array.Empty<StringIndexProbability>();
+            public StringIndexProbability[] Index { get; set; } = [];
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -68,7 +68,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// The list of possible classifications
         /// </summary>
-        public Class[] ClassData { get; set; } = Array.Empty<Class>();
+        public Class[] ClassData { get; set; } = [];
 
         /// <summary>
         /// Creates a classifier from the model

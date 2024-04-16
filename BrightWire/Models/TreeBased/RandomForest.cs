@@ -14,7 +14,7 @@ namespace BrightWire.Models.TreeBased
         /// <summary>
         /// The list of trees in the forest
         /// </summary>
-        public DecisionTree[] Forest { get; set; } = Array.Empty<DecisionTree>();
+        public DecisionTree[] Forest { get; set; } = [];
 
         /// <summary>
         /// Creates a classifier from the model
