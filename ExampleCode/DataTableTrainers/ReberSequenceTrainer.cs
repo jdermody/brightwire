@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class ReberSequenceTrainer : DataTableTrainer
+    internal class ReberSequenceTrainer(IDataTable dataTable) : DataTableTrainer(dataTable)
     {
-        public ReberSequenceTrainer(BrightDataTable dataTable) : base(dataTable)
-        {
-        }
-
-        public IGraphExecutionEngine TrainSimpleRecurrent()
+        public async Task<IGraphExecutionEngine> TrainSimpleRecurrent()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.CrossEntropy;
@@ -26,7 +22,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 32);
 
@@ -43,11 +39,11 @@ namespace ExampleCode.DataTableTrainers
 
             engine.LearningContext.ScheduleLearningRate(10, 0.01f);
             engine.LearningContext.ScheduleLearningRate(20, 0.003f);
-            var model = engine.Train(trainingIterations, testData);
+            var model = await engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
-        public IGraphExecutionEngine TrainGru()
+        public async Task<IGraphExecutionEngine> TrainGru()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -61,7 +57,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create the engine
             var learningRate = 0.01f;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
 
@@ -78,11 +74,11 @@ namespace ExampleCode.DataTableTrainers
 
             engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
             engine.LearningContext.ScheduleLearningRate(30, learningRate / 9);
-            var model = engine.Train(trainingIterations, testData);
+            var model = await engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
-        public IGraphExecutionEngine TrainLstm()
+        public async Task<IGraphExecutionEngine> TrainLstm()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -95,7 +91,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var learningRate = 0.01f;
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize: 32);
@@ -113,11 +109,11 @@ namespace ExampleCode.DataTableTrainers
 
             engine.LearningContext.ScheduleLearningRate(15, learningRate / 3);
             engine.LearningContext.ScheduleLearningRate(30, learningRate / 9);
-            var model = engine.Train(trainingIterations, testData);
+            var model = await engine.Train(trainingIterations, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
-        public static void GenerateSequences(IGraphExecutionEngine engine)
+        public static async Task GenerateSequences(IGraphExecutionEngine engine)
         {
             Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
 
@@ -131,7 +127,7 @@ namespace ExampleCode.DataTableTrainers
                 uint index = 0, eCount = 0;
                 var context = engine.LinearAlgebraProvider.Context;
                 var executionContext = engine.CreateExecutionContext();
-                var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart).SingleOrDefault();
+                var result = await engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart).FirstOrDefault();
                 if (result != null) {
                     var sb = new StringBuilder();
                     for (var i = 0; i < 32; i++) {
@@ -139,7 +135,7 @@ namespace ExampleCode.DataTableTrainers
                             .Select((v, j) => ((double) v, j))
                             .Where(d => d.Item1 >= 0.1f)
                             .ToList();
-                        if (!next.Any())
+                        if (next.Count == 0)
                             break;
 
                         var distribution = context.CreateCategoricalDistribution(next.Select(d => (float)d.Item1));
@@ -150,7 +146,7 @@ namespace ExampleCode.DataTableTrainers
 
                         Array.Clear(input, 0, ReberGrammar.Size);
                         input[nextIndex] = 1f;
-                        result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard).SingleOrDefault();
+                        result = await engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard).FirstOrDefault();
                     }
 
                     var str = sb.ToString();

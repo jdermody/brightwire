@@ -8,53 +8,28 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// Max pooling convolutional neural network
     /// </summary>
-    internal class MaxPool : NodeBase
+    internal class MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
+        : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<MaxPool>
+        class Backpropagation(MaxPool source, ITensor4D<float> indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
+            : SingleBackpropagationBase<MaxPool>(source)
         {
-            readonly ITensor4D _indices;
-            readonly uint _inputColumns, _inputRows, _outputColumns, _outputRows, _depth, _filterWidth, _filterHeight, _xStride, _yStride;
-
-            public Backpropagation(MaxPool source, ITensor4D indices, uint inputColumns, uint inputRows, uint outputColumns, uint outputRows, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
-                : base(source)
-            {
-	            _indices = indices;
-                _inputColumns = inputColumns;
-                _inputRows = inputRows;
-                _outputColumns = outputColumns;
-                _outputRows = outputRows;
-                _depth = depth;
-	            _filterWidth = filterWidth;
-				_filterHeight = filterHeight;
-				_xStride = xStride;
-				_yStride = yStride;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var errorMatrix = errorSignal.GetMatrix();
-                var tensor = errorMatrix.Reshape(null, _depth, _outputRows, _outputColumns);
-                var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _xStride, _yStride);
+                var tensor = errorMatrix.Reshape(null, depth, outputRows, outputColumns);
+                var output = tensor.ReverseMaxPool(indices, inputRows, inputColumns, filterWidth, filterHeight, xStride, yStride);
                 return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
-        }
-        uint _filterWidth, _filterHeight, _xStride, _yStride;
-
-        public MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null) : base(name)
-        {
-            _filterWidth = filterWidth;
-            _filterHeight = filterHeight;
-            _xStride = xStride;
-            _yStride = yStride;
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             var tensor = signal.GetMatrix().Reshape(null, signal.Depth, signal.Rows, signal.Columns);
-            var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);
+            var (output, index) = tensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
 
             var graphData = new Tensor4DGraphData(output);
-            return (this, graphData, () => new Backpropagation(this, index!, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
+            return (this, graphData, () => new Backpropagation(this, index!, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, filterWidth, filterHeight, xStride, yStride));
         }
 
         protected override (string Description, byte[] Data) GetInfo()
@@ -64,18 +39,18 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            _filterWidth = (uint)reader.ReadInt32();
-            _filterHeight = (uint)reader.ReadInt32();
-            _xStride = (uint)reader.ReadInt32();
-            _yStride = (uint)reader.ReadInt32();
+            filterWidth = (uint)reader.ReadInt32();
+            filterHeight = (uint)reader.ReadInt32();
+            xStride = (uint)reader.ReadInt32();
+            yStride = (uint)reader.ReadInt32();
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write((int)_filterWidth);
-            writer.Write((int)_filterHeight);
-            writer.Write((int)_xStride);
-            writer.Write((int)_yStride);
+            writer.Write((int)filterWidth);
+            writer.Write((int)filterHeight);
+            writer.Write((int)xStride);
+            writer.Write((int)yStride);
         }
     }
 }

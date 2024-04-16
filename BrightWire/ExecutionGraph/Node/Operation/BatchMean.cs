@@ -1,32 +1,20 @@
 ﻿using System;
-using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
     /// <summary>
     /// Calculates the mean across the batch 
     /// </summary>
-    internal class BatchMean : NodeBase
+    internal class BatchMean(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<BatchMean>
+        class Backpropagation(BatchMean source, uint rowCount) : SingleBackpropagationBase<BatchMean>(source)
         {
-            readonly uint _rowCount;
-
-            public Backpropagation(BatchMean source, uint rowCount) : base(source)
-            {
-                _rowCount = rowCount;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
-                using var ones = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => 1f / _rowCount);
+                using var ones = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (_, _) => 1f / rowCount);
                 return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
-        }
-
-        public BatchMean(string? name = null) : base(name)
-        {
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

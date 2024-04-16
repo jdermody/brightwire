@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Numerics;
 using System.Threading;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -11,22 +10,24 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment that temporarily owns a buffer from an array pool
     /// </summary>
-    public class ArrayPoolTensorSegment : ArrayBasedTensorSegment
+    public class ArrayPoolTensorSegment<T> : MutableTensorSegment<T> where T: unmanaged, INumber<T>
     {
-        readonly MemoryOwner<float> _memoryOwner;
+        readonly MemoryOwner<T> _memoryOwner;
         int _refCount = 0;
         bool _isValid = true;
 
         #if DEBUG
-        static uint NextId = 0, BreakOnCreate = 403, BreakOnRelease = 403;
-        uint _id = Interlocked.Increment(ref NextId);
+        static uint NextId = 0;
+        static readonly uint BreakOnCreate = uint.MaxValue;
+        static readonly uint BreakOnRelease = uint.MaxValue;
+        readonly uint _id = Interlocked.Increment(ref NextId);
         #endif
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Rented buffer from pool</param>
-        public ArrayPoolTensorSegment(MemoryOwner<float> data) : base(data.DangerousGetArray().Array!)
+        public ArrayPoolTensorSegment(MemoryOwner<T> data) : base(data.DangerousGetArray().Array!)
         {
             _memoryOwner = data;
             #if DEBUG
@@ -68,10 +69,10 @@ namespace BrightData.LinearAlgebra.Segments
         public override bool IsValid => _isValid;
 
         /// <inheritdoc />
-        public override string SegmentType => "memory owner";
+        public override string SegmentType => Consts.MemoryOwnerBased;
 
         /// <inheritdoc />
-        public override IEnumerable<float> Values
+        public override IEnumerable<T> Values
         {
             get
             {
@@ -81,15 +82,15 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public override float[] ToNewArray() => _memoryOwner.Span.ToArray();
+        public override T[] ToNewArray() => _memoryOwner.Span.ToArray();
 
         /// <inheritdoc />
-        public override void CopyFrom(ReadOnlySpan<float> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _memoryOwner.Span : _memoryOwner.Span[(int)targetOffset..]);
+        public override void CopyFrom(ReadOnlySpan<T> span, uint targetOffset) => span.CopyTo(targetOffset == 0 ? _memoryOwner.Span : _memoryOwner.Span[(int)targetOffset..]);
 
         /// <inheritdoc />
-        public override void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
+        public override void CopyTo(INumericSegment<T> segment, uint sourceOffset, uint targetOffset)
         {
-            var span = GetSpan(sourceOffset);
+            var span = ReadOnlySpan[(int)sourceOffset..];
             var (destinationArray, offset, stride) = segment.GetUnderlyingArray();
             if (destinationArray is not null && stride == 1)
                 span.CopyTo(destinationArray.AsSpan((int)(targetOffset + offset), (int)(segment.Size - targetOffset)));
@@ -98,6 +99,6 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public override ReadOnlySpan<float> GetSpan(uint offset = 0) => _memoryOwner.Span[(int)offset..];
+        public override ReadOnlySpan<T> ReadOnlySpan => _memoryOwner.Span;
     }
 }

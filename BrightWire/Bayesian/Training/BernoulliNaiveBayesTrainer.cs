@@ -1,4 +1,4 @@
-﻿using BrightData;
+﻿using BrightData.Types;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -9,13 +9,13 @@ namespace BrightWire.Bayesian.Training
     // http://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html
     internal class BernoulliNaiveBayesTrainer
     {
-        readonly HashSet<uint> _vocabulary = new();
+        readonly HashSet<uint> _vocabulary = [];
         readonly Dictionary<string, List<IndexList>> _documentClass = new();
 
         public void AddClassification(string documentClass, IndexList indexList)
         {
 	        if (!_documentClass.TryGetValue(documentClass, out var temp))
-                _documentClass.Add(documentClass, temp = new List<IndexList>());
+                _documentClass.Add(documentClass, temp = []);
 
             foreach (var item in indexList.Indices)
                 _vocabulary.Add(item);
@@ -32,7 +32,7 @@ namespace BrightWire.Bayesian.Training
                 for (var i = 0; i < item.Value.Count; i++) {
                     foreach (var word in item.Value[i].Indices) {
                         if (!docTerm.TryGetValue(word, out var temp))
-                            docTerm.Add(word, temp = new HashSet<int>());
+                            docTerm.Add(word, temp = []);
                         temp.Add(i);
                     }
                 }

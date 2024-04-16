@@ -1,4 +1,6 @@
-﻿using BrightData.Converter;
+﻿using System;
+using BrightData.Converter;
+using BrightData.Types;
 
 namespace BrightData.Analysis
 {
@@ -6,16 +8,12 @@ namespace BrightData.Analysis
     /// Used to cast other numeric types to doubles for numeric analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
+    internal class CastToDoubleNumericAnalysis<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>
+        where T : struct
     {
         readonly ConvertToDouble<T> _converter = new();
 
-        public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
-        {
-            Analysis = new NumericAnalyser(writeCount, maxCount);
-        }
-
-        public NumericAnalyser Analysis { get; }
+        public NumericAnalyser Analysis { get; } = new(writeCount);
 
         public void Add(T val)
         {
@@ -25,6 +23,12 @@ namespace BrightData.Analysis
         public void AddObject(object obj)
         {
             Add((T)obj);
+        }
+
+        public void Append(ReadOnlySpan<T> block)
+        {
+            foreach(ref readonly var item in block)
+                Analysis.Add(_converter.Convert(item));
         }
 
         public void WriteTo(MetaData metadata)

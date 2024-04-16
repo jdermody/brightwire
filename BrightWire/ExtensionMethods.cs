@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightData.LinearAlgebra;
 using BrightWire.Adaptors;
 using BrightWire.Bayesian.Training;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire
 {
@@ -42,36 +42,27 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Gets the strongly typed fields from a convertible row as an array
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="indices">Column indices to retrieve</param>
-        /// <typeparam name="T">Type to convert to</typeparam>
-        /// <returns></returns>
-        public static T[] GetFields<T>(this BrightDataTableRow row, params uint[] indices) where T: notnull => indices.Select(row.Get<T>).ToArray();
-
-        /// <summary>
         /// Classifies each row in the data table
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="classifier"></param>
         /// <returns></returns>
-        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this BrightDataTable dataTable, IRowClassifier classifier)
+        public static async IAsyncEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IDataTable dataTable, IRowClassifier classifier)
         {
-            for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
-                var row = dataTable.GetRow(i);
+            await foreach (var row in dataTable.EnumerateRows())
                 yield return (row, classifier.Classify(row));
-            }
         }
 
         /// <summary>
         /// Enumerates rows in the table as vectorized rows
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="oneHotEncode"></param>
         /// <returns></returns>
-        public static IEnumerable<(IVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this BrightDataTable dataTable)
+        public static IEnumerable<(IReadOnlyNumericSegment<float> Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable, bool oneHotEncode)
         {
-            return dataTable.GetVectorisedFeatures()
+            return dataTable.GetVectorisedFeatures(oneHotEncode)
+                .ToBlockingEnumerable()
                 .Select((r, i) => (Vector: r.Numeric, RowIndex: (uint) i, r.Label));
         }
 
@@ -81,12 +72,16 @@ namespace BrightWire
         /// <param name="dataTable"></param>
         /// <param name="k">Number of clusters</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this BrightDataTable dataTable, uint k)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
-            var data = dataTable.GetRowsAsLabeledFeatures()
-                .ToDictionary(d => d.Vector);
-            return data.Keys.HierarchicalCluster(k)
-                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            return vectors.HierarchicalCluster(k)
+                .Select(c => c.Select(v => (v, labels[v])).ToArray());
         }
 
         /// <summary>
@@ -97,28 +92,37 @@ namespace BrightWire
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this BrightDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            var data = dataTable.GetRowsAsLabeledFeatures().ToDictionary(d => d.Vector, x => (x.RowIndex, x.Label));
-            var clusters = data.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric);
-            var ret = clusters.Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            var clusters = vectors.KMeansCluster(dataTable.Context, k, maxIterations, distanceMetric);
+            var ret = clusters.Select(c => c.Select(v => (v, labels[v])).ToArray());
             return ret;
         }
 
         /// <summary>
-        /// Clusters the rows in the data table using non negative matrix factorisation clustering
+        /// Clusters the rows in the data table using non-negative matrix factorisation clustering
         /// </summary>
         /// <param name="dataTable"></param>
         /// <param name="k">Number of clusters</param>
         /// <param name="maxIterations">Maximum number of iterations</param>
         /// <returns></returns>
-        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this BrightDataTable dataTable, uint k, uint maxIterations = 1000)
+        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
-            var data = dataTable.GetRowsAsLabeledFeatures()
-                .ToDictionary(d => d.Vector);
-            return data.Keys.Nnmf(lap, k, maxIterations)
-                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
+            var vectors = new IReadOnlyVector<float>[dataTable.RowCount];
+            var labels = new string?[dataTable.RowCount];
+            foreach (var (vector, rowIndex, label) in dataTable.GetRowsAsLabeledFeatures(true)) {
+                vectors[rowIndex] = vector.ToReadOnlyVector();
+                labels[rowIndex] = label;
+            }
+            return vectors.Nnmf(lap, k, maxIterations)
+                .Select(c => c.Select(v => (v, labels[v])).ToArray());
         }
 
         /// <summary>
@@ -134,7 +138,7 @@ namespace BrightWire
         /// <param name="context"></param>
         /// <param name="lap">Linear algebra provider (optional)</param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this BrightDataContext context, LinearAlgebraProvider? lap = null) => new(lap ?? context.LinearAlgebraProvider);
+        public static GraphFactory CreateGraphFactory(this BrightDataContext context, LinearAlgebraProvider<float>? lap = null) => new(lap ?? context.LinearAlgebraProvider);
 
 
         /// <summary>
@@ -142,7 +146,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="lap"></param>
         /// <returns></returns>
-        public static GraphFactory CreateGraphFactory(this LinearAlgebraProvider lap) => new(lap);
+        public static GraphFactory CreateGraphFactory(this LinearAlgebraProvider<float> lap) => new(lap);
 
         /// <summary>
         /// Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows
@@ -151,28 +155,28 @@ namespace BrightWire
         /// <param name="windowSize">The number of rows in each matrix</param>
         /// <param name="columnIndices">Column indices to select</param>
         /// <returns></returns>
-        public static BrightDataTable CreateSequentialWindow(this BrightDataTable dataTable, uint windowSize, params uint[] columnIndices)
+        public static async Task<IDataTable> CreateSequentialWindow(this IDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
-            var builder = new BrightDataTableBuilder(dataTable.Context);
+            var builder = dataTable.Context.CreateTableBuilder();
             var hasAddedColumns = false;
             var context = dataTable.Context;
+            var rows = await dataTable.GetRows();
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
-                var past = context.CreateReadOnlyMatrixFromRows(dataTable
-                    .GetRows(windowSize.AsRange(i).ToArray())
-                    .Select(r => context.CreateReadOnlyVector(r.GetFields<float>(columnIndices)))
+                var past = context.CreateReadOnlyMatrixFromRows(windowSize.AsRange(i).Select(j => rows[j])
+                    .Select(r => context.CreateReadOnlyVector(r.GetMany<float>(columnIndices)))
                     .ToArray()
                 );
-                var targetRow = dataTable.GetRow(i + windowSize);
-                var target = context.CreateReadOnlyVector(targetRow.GetFields<float>(columnIndices));
+                var targetRow = rows[i + windowSize];
+                var target = context.CreateReadOnlyVector(targetRow.GetMany<float>(columnIndices));
                 if (!hasAddedColumns) {
                     hasAddedColumns = true;
-                    builder.AddFixedSizeMatrixColumn(past.RowCount, past.ColumnCount, "Past");
-                    builder.AddFixedSizeVectorColumn(target.Size, "Future").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeMatrixColumn(past.RowCount, past.ColumnCount, "Past");
+                    builder.CreateFixedSizeVectorColumn(target.Size, "Future").MetaData.SetTarget(true);
                 }
                 builder.AddRow(past, target);
             }
 
-            return builder.BuildInMemory();
+            return await builder.BuildInMemory();
         }
 
         /// <summary>
@@ -181,7 +185,7 @@ namespace BrightWire
         /// <param name="dataTable">Data table</param>
         /// <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
         /// <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
-        public static ConfusionMatrix CreateConfusionMatrix(this BrightDataTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
+        public static async Task<ConfusionMatrix> CreateConfusionMatrix(this IDataTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
         {
             var labels = new Dictionary<string, int>();
             var classifications = new Dictionary<int, Dictionary<int, uint>>();
@@ -194,7 +198,7 @@ namespace BrightWire
                 return index;
             }
 
-            foreach(var row in dataTable.GetRows()) {
+            await foreach(var row in dataTable.EnumerateRows()) {
                 var actual = GetIndex(row.Get<string>(actualClassificationColumnIndex), labels);
                 var expected = GetIndex(row.Get<string>(expectedClassificationColumnIndex), labels);
                 if (!classifications.TryGetValue(expected, out var expectedClassification))

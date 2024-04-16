@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class IntegerAdditionTrainer : DataTableTrainer
+    internal class IntegerAdditionTrainer(IDataTable data, IDataTable training, IDataTable test) : DataTableTrainer(data, training, test)
     {
-        public IntegerAdditionTrainer(BrightDataTable data, BrightDataTable training, BrightDataTable test) : base(data, training, test)
-        {
-        }
-
-        public void TrainRecurrentNeuralNetwork(bool writeResults = true)
+        public async Task TrainRecurrentNeuralNetwork(bool writeResults = true)
         {
             var graph = _context.CreateGraphFactory();
 
@@ -28,7 +23,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.001f, batchSize: 16);
 
@@ -43,21 +38,21 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
+            await engine.Train(trainingIterations, testData, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
                 var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(_context, 8));
-                var results = executionEngine.Execute(testData2, 128, null, true).ToArray();
+                var testData2 = await graph.CreateDataSource(await BinaryIntegers.Addition(_context, 8));
+                var results = await executionEngine.Execute(testData2, 128, null, true).ToListAsync();
 
                 // group the output
                 var groupedResults = new (float[][] Input, float[][] Target, float[][] Output)[8];
-                for (uint i = 0; i < 8; i++) {
+                for (var i = 0; i < 8; i++) {
                     var input = new float[32][];
                     var target = new float[32][];
                     var output = new float[32][];
-                    for (uint j = 0; j < 32; j++) {
+                    for (var j = 0; j < 32; j++) {
                         input[j] = results[j].Input![i].ToArray();
                         target[j] = results[j].Target![i].ToArray();
                         output[j] = results[j].Output[i].ToArray();

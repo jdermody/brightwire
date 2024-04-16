@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased
@@ -9,23 +9,16 @@ namespace BrightWire.TreeBased
     /// <summary>
     /// Classifies rows based on a previously trained model
     /// </summary>
-    internal class DecisionTreeClassifier : IRowClassifier
+    internal class DecisionTreeClassifier(DecisionTree tree) : IRowClassifier
     {
-        readonly DecisionTree _tree;
-
-        public DecisionTreeClassifier(DecisionTree tree)
+        public IEnumerable<string> ClassifyInternal(GenericTableRow row)
         {
-            _tree = tree;
-        }
-
-        public IEnumerable<string> ClassifyInternal(BrightDataTableRow row)
-        {
-            var p = _tree.Root;
+            var p = tree.Root;
             while(true) {
                 if (p.ColumnIndex.HasValue) {
                     string? findChild;
                     if(p.Split.HasValue) {
-                        var val = row.Get<double>(p.ColumnIndex.Value);
+                        var val = row.Get<float>(p.ColumnIndex.Value);
                         findChild = val < p.Split.Value ? "-" : "+";
                     }else
                         findChild = row.Get<string>(p.ColumnIndex.Value);
@@ -42,12 +35,12 @@ namespace BrightWire.TreeBased
             }
         }
 
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             var classification = ClassifyInternal(row).First();
-            return new[] {
+            return [
                 (classification, 1f)
-            };
+            ];
         }
     }
 }

@@ -6,13 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire
 {
@@ -26,27 +26,27 @@ namespace BrightWire
         /// <param name="testData">The test data source to use</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
+        public static async Task<GraphModel?> Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new GraphExecutionContext(engine);
             var userNotifications = engine.Context.UserNotifications;
 
 #if !DEBUG
-            var testId = Guid.NewGuid().ToString("n");
+            var testId = Guid.NewGuid();
             userNotifications?.OnStartOperation(testId);
-            engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
+            await engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(testId, percentage));
             userNotifications?.OnCompleteOperation(testId, false);
 #endif
 
             var count = 0;
             GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
-                var id = Guid.NewGuid().ToString("n");
+                var id = Guid.NewGuid();
                 userNotifications?.OnStartOperation(id);
-                engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
+                await engine.Train(executionContext, percentage => userNotifications?.OnOperationProgress(id, percentage));
                 if (++count == testCadence) {
                     userNotifications?.OnStartOperation(id);
-                    if (engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
+                    if (await engine.Test(testData, 128, percentage => userNotifications?.OnOperationProgress(id, percentage)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -66,7 +66,7 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IEnumerable<(BrightDataTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, BrightDataTable dataTable)
+        public static IAsyncEnumerable<(GenericTableRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowClassifier classifier, IDataTable dataTable)
         {
             return dataTable.Classify(classifier);
         }
@@ -87,8 +87,8 @@ namespace BrightWire
             return new ExecutionGraphModel {
                 Name = name!,
                 InputNode = data,
-                OtherNodes = connectedTo.ToArray(),
-                Wires = wireList.ToArray()
+                OtherNodes = [.. connectedTo],
+                Wires = [.. wireList]
             };
         }
 
@@ -141,10 +141,10 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static IReadOnlyVector[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+	    public static async Task<IReadOnlyVector<float>[][]> OrderSequentialOutput(this IAsyncEnumerable<ExecutionResult> results)
 	    {
-		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector>();
-		    foreach (var result in results) {
+		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector<float>>();
+		    await foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
                 var outputRows = result.Output;
@@ -162,10 +162,34 @@ namespace BrightWire
 	    }
 
         /// <summary>
+        /// Aligns the output of sequential graph execution into an ordered list of results
+        /// </summary>
+        /// <param name="results">Output from sequential graph execution</param>
+        public static IReadOnlyVector<float>[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
+        {
+            var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), IReadOnlyVector<float>>();
+            foreach (var result in results) {
+                var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
+                var rows = result.MiniBatchSequence.MiniBatch.Rows;
+                var outputRows = result.Output;
+                for (var i = 0; i < outputRows.Length; i++) {
+                    var rowIndex = rows[i];
+                    ret.Add((rowIndex, sequenceIndex), outputRows[i]);
+                }
+            }
+            return ret.GroupBy(d => d.Key.RowIndex)
+                    .Select(g => (g.Key, g.OrderBy(d => d.Key.SequenceIndex).Select(d => d.Value).ToArray()))
+                    .OrderBy(d => d.Key)
+                    .Select(d => d.Item2)
+                    .ToArray()
+                ;
+        }
+
+        /// <summary>
         /// Converts the matrix to a generic IGraphData
         /// </summary>
         /// <param name="matrix">Matrix to convert</param>
-        public static IGraphData AsGraphData(this IMatrix matrix)
+        public static IGraphData AsGraphData(this IMatrix<float> matrix)
         {
             return new MatrixGraphData(matrix);
         }
@@ -174,7 +198,7 @@ namespace BrightWire
         /// Converts the 3D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this ITensor3D tensor)
+        public static IGraphData AsGraphData(this ITensor3D<float> tensor)
         {
             return new Tensor3DGraphData(tensor);
         }
@@ -183,7 +207,7 @@ namespace BrightWire
         /// Converts the 4D tensor to a generic IGraphData
         /// </summary>
         /// <param name="tensor">Tensor to convert</param>
-        public static IGraphData AsGraphData(this ITensor4D tensor)
+        public static IGraphData AsGraphData(this ITensor4D<float> tensor)
         {
             return new Tensor4DGraphData(tensor);
         }
@@ -193,7 +217,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="miniBatch"></param>
         /// <returns></returns>
-        public static IEnumerable<IGraphContext> GetGraphContexts(this IMiniBatch miniBatch)
+        public static IEnumerable<IGraphContext> GetGraphContexts(this MiniBatch miniBatch)
         {
             for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {
                 var context = miniBatch.GetSequenceAtIndex(i).GraphContext;
@@ -207,6 +231,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static LinearAlgebraProvider GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
+        public static LinearAlgebraProvider<float> GetLinearAlgebraProvider(this IGraphContext context) => context.ExecutionContext.LinearAlgebraProvider;
     }
 }

@@ -6,30 +6,20 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     /// <summary>
     /// Calculates the square root of the input
     /// </summary>
-    internal class SquareRootOfInput : NodeBase
+    internal class SquareRootOfInput(string? name = null) : NodeBase(name)
     {
         /// <summary>
         /// Derivative of sqrt(x) is 0.5/sqrt(x)
         /// </summary>
-        class Backpropagation : SingleBackpropagationBase<SquareRootOfInput>
+        class Backpropagation(SquareRootOfInput source, IMatrix<float> output) : SingleBackpropagationBase<SquareRootOfInput>(source)
         {
-            readonly IMatrix _sqrtOutput;
-
-            public Backpropagation(SquareRootOfInput source, IMatrix output) : base(source)
-            {
-	            _sqrtOutput = output;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
                 using var oneHalf = context.GetLinearAlgebraProvider().CreateMatrix(es.RowCount, es.ColumnCount, (i, j) => 0.5f);
-                using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
+                using var delta = oneHalf.PointwiseMultiply(output);
                 return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
-        }
-        public SquareRootOfInput(string? name = null) : base(name)
-        {
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

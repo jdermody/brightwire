@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace BrightData.Distribution
 {
+    /// <summary>
+    /// Categorical distribution - https://en.wikipedia.org/wiki/Categorical_distribution
+    /// </summary>
     internal class CategoricalDistribution : INonNegativeDiscreteDistribution
     {
         readonly BrightDataContext _context;

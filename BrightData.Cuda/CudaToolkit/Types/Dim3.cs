@@ -4,47 +4,26 @@ using System.Runtime.InteropServices;
 namespace BrightData.Cuda.CudaToolkit.Types
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal readonly struct Dim3
+    internal readonly struct Dim3(uint xValue, uint yValue, uint zValue)
     {
-        public uint X { get; }
-        public uint Y { get; }
-        public uint Z { get; }
+        public uint X { get; } = xValue;
+        public uint Y { get; } = yValue;
+        public uint Z { get; } = zValue;
 
-        public Dim3(uint xValue, uint yValue, uint zValue)
+        public Dim3(uint xValue, uint yValue) : this(xValue, yValue, 1)
         {
-            X = xValue;
-            Y = yValue;
-            Z = zValue;
         }
-        public Dim3(uint xValue, uint yValue)
+        public Dim3(uint val) : this(val, 1, 1)
         {
-            X = xValue;
-            Y = yValue;
-            Z = 1;
         }
-        public Dim3(uint val)
+        public Dim3(int xValue, int yValue, int zValue) : this((uint)xValue, (uint)yValue, (uint)zValue)
         {
-            X = val;
-            Y = 1;
-            Z = 1;
         }
-        public Dim3(int xValue, int yValue, int zValue)
+        public Dim3(int xValue, int yValue) : this((uint)xValue, (uint)yValue, 1)
         {
-            X = (uint)xValue;
-            Y = (uint)yValue;
-            Z = (uint)zValue;
         }
-        public Dim3(int xValue, int yValue)
+        public Dim3(int val) : this((uint)val, 1, 1)
         {
-            X = (uint)xValue;
-            Y = (uint)yValue;
-            Z = 1;
-        }
-        public Dim3(int val)
-        {
-            X = (uint)val;
-            Y = 1;
-            Z = 1;
         }
 
         public static Dim3 Add(Dim3 src, Dim3 value)      => new(src.X + value.X, src.Y + value.Y, src.Z + value.Z);
@@ -100,6 +79,6 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
         public static Dim3 Min(Dim3 aValue, Dim3 bValue) => new(System.Math.Min(aValue.X, bValue.X), System.Math.Min(aValue.Y, bValue.Y), System.Math.Min(aValue.Z, bValue.Z));
         public static Dim3 Max(Dim3 aValue, Dim3 bValue) => new(System.Math.Max(aValue.X, bValue.X), System.Math.Max(aValue.Y, bValue.Y), System.Math.Max(aValue.Z, bValue.Z));
-        public uint Size => (uint)Marshal.SizeOf(this);
+        public uint Size => (uint)Marshal.SizeOf<Dim3>();
     }
 }

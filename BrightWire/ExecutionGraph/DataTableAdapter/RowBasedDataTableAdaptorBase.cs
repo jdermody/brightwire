@@ -1,20 +1,14 @@
 ﻿using System.Collections.Generic;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Base class for data tables that work with data table rows
+    /// Base class for data tables that work with generic data table rows
     /// </summary>
-    public abstract class RowBasedDataTableAdapterBase : DataTableAdapterBase<ICanRandomlyAccessData>
+    /// <inheritdoc />
+    public abstract class GenericRowBasedDataTableAdapterBase(IDataTable dataTable, uint[] featureColumns) : DataTableAdapterBase<ICanRandomlyAccessData>(dataTable, featureColumns)
     {
-        /// <inheritdoc />
-	    protected RowBasedDataTableAdapterBase(BrightDataTable dataTable, uint[] featureColumns) 
-            : base(dataTable, featureColumns)
-        {
-        }
-
         /// <summary>
         /// Returns a tensor segment from a segment provider
         /// </summary>
@@ -27,6 +21,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<ICanRandomlyAccessData> GetRows(uint[] rows) => _dataTable.GetRows(rows);
+        protected override async IAsyncEnumerable<ICanRandomlyAccessData> GetRows(uint[] rows)
+        {
+            var data = await _dataTable.GetRows(rows);
+            foreach(var item in data)
+                yield return item;
+        }
     }
 }

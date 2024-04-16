@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.Types;
 using BrightData.UnitTests.Helper;
 using BrightWire.TrainingData.Helper;
 using FluentAssertions;
@@ -10,13 +12,13 @@ namespace BrightWire.UnitTests
     public class NaiveBayesTests : CpuBase
     {
         [Fact]
-        public void TestNaiveBayes()
+        public async Task TestNaiveBayes()
         {
             var dataTable = _context.CreateTableBuilder();
-            dataTable.AddColumn(BrightDataType.Float, "height");
-            dataTable.AddColumn(BrightDataType.Int, "weight");
-            dataTable.AddColumn(BrightDataType.Int, "foot-size");
-            dataTable.AddColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
+            dataTable.CreateColumn(BrightDataType.Float, "height");
+            dataTable.CreateColumn(BrightDataType.Int, "weight");
+            dataTable.CreateColumn(BrightDataType.Int, "foot-size");
+            dataTable.CreateColumn(BrightDataType.String, "gender").MetaData.SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");
@@ -27,16 +29,16 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.BuildInMemory();
+            var index = await dataTable.BuildInMemory();
 
             var testData = _context.CreateTableBuilder();
-            testData.CopyColumnsFrom(index);
+            testData.CreateColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.BuildInMemory();
+            var testDataTable = await testData.BuildInMemory();
 
-            var model = index.TrainNaiveBayes();
+            var model = await index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
-            var row = testDataTable.GetRow(0);
+            var row = await testDataTable[0];
             var classification = classifier.Classify(row);
             classification.First().Label.Should().Be("female");
         }
@@ -45,18 +47,18 @@ namespace BrightWire.UnitTests
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             var data = new[] {
-                (new[] { "Chinese", "Beijing", "Chinese" }, true),
-                (new[] { "Chinese", "Chinese", "Shanghai" }, true),
-                (new[] { "Chinese", "Macao" }, true),
+                (["Chinese", "Beijing", "Chinese"], true),
+                (["Chinese", "Chinese", "Shanghai"], true),
+                (["Chinese", "Macao"], true),
                 (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
 
-            return data.Select(r => new IndexListWithLabel<string>(r.Item2 ? "china" : "japan", context.CreateIndexList(r.Item1.Select(stringTableBuilder.GetIndex)))).ToArray();
+            return data.Select(r => new IndexListWithLabel<string>(r.Item2 ? "china" : "japan", IndexList.Create(r.Item1.Select(stringTableBuilder.GetIndex)))).ToArray();
         }
 
         public static IndexList GetTestRow(BrightDataContext context, StringTableBuilder stringTableBuilder)
         {
-            return context.CreateIndexList(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
+            return IndexList.Create(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
         }
 
         [Fact]

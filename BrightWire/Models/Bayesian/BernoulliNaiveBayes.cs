@@ -61,7 +61,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of probabilities for each string index
             /// </summary>
-            public StringIndexProbability[] Index { get; set; } = Array.Empty<StringIndexProbability>();
+            public StringIndexProbability[] Index { get; set; } = [];
 
             /// <summary>
             /// The log of the inverse missing probability
@@ -78,12 +78,12 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// Classification data
         /// </summary>
-        public Class[] ClassData { get; set; } = Array.Empty<Class>();
+        public Class[] ClassData { get; set; } = [];
 
         /// <summary>
         /// The list of string indexes that were in the training set
         /// </summary>
-        public uint[] Vocabulary { get; set; } = Array.Empty<uint>();
+        public uint[] Vocabulary { get; set; } = [];
 
         /// <summary>
         /// Creates a classifier from this model

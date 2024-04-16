@@ -4,9 +4,9 @@ namespace BrightData.Cuda.CudaToolkit.Types
 {
     [StructLayout(LayoutKind.Sequential)]
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    public struct CuDevicePtr
+    public struct CuDevicePtr(SizeT pointer)
     {
-        public SizeT Pointer;
+        public SizeT Pointer = pointer;
         public static implicit operator ulong(CuDevicePtr src)
         {
             return src.Pointer;
@@ -45,10 +45,6 @@ namespace BrightData.Cuda.CudaToolkit.Types
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public readonly override int GetHashCode() => base.GetHashCode();
         public readonly override string ToString() => Pointer.ToString();
-        public CuDevicePtr(SizeT pointer)
-        {
-            Pointer = pointer;
-        }
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

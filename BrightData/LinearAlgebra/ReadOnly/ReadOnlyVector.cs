@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance;
@@ -8,66 +10,115 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra.ReadOnly
 {
-    internal class ReadOnlyVector : IReadOnlyVector, IEquatable<ReadOnlyVector>
+    /// <summary>
+    /// Read only vector
+    /// </summary>
+    public class ReadOnlyVector<T> : ReadOnlyTensorBase<T, IReadOnlyVector<T>>, IReadOnlyVector<T>, IEquatable<ReadOnlyVector<T>> 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly ReadOnlyVectorValueSemantics<ReadOnlyVector> _valueSemantics;
-        ArrayBasedTensorSegment? _segment = null;
-        float[] _data;
+        readonly ReadOnlyValueSemantics<ReadOnlyVector<T>, T> _valueSemantics;
 
-        public ReadOnlyVector(float[] data)
+        /// <summary>
+        /// Creates a vector from memory
+        /// </summary>
+        /// <param name="data"></param>
+        public ReadOnlyVector(ReadOnlyMemory<T> data) : base(new ReadOnlyTensorSegment<T>(data))
         {
-            _data = data;
             _valueSemantics = new(this);
         }
-        public ReadOnlyVector(uint size) : this(new float[size])
+
+        /// <summary>
+        /// Creates a vector from bytes
+        /// </summary>
+        /// <param name="data"></param>
+        public ReadOnlyVector(ReadOnlySpan<byte> data) : this(data.Cast<byte, T>().ToArray())
         {
-        }
-        public ReadOnlyVector(uint size, Func<uint, float> initializer) : this(size)
-        {
-            for (uint i = 0; i < size; i++)
-                _data[i] = initializer(i);
         }
 
-        public void WriteTo(BinaryWriter writer)
+        /// <summary>
+        /// Creates an empty vector
+        /// </summary>
+        /// <param name="size"></param>
+        public ReadOnlyVector(uint size) : this(new T[size])
+        {
+        }
+
+        /// <summary>
+        /// Creates a vector from the initializer
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="initializer"></param>
+        public ReadOnlyVector(uint size, Func<uint, T> initializer) : this(size.AsRange().Select(initializer).ToArray())
+        {
+        }
+
+        /// <summary>
+        /// Creates a vector from a segment
+        /// </summary>
+        /// <param name="segment"></param>
+        public ReadOnlyVector(IReadOnlyNumericSegment<T> segment) : base(segment)
+        {
+            _valueSemantics = new(this);
+        }
+
+        /// <inheritdoc />
+        public override void WriteTo(BinaryWriter writer)
         {
             writer.Write(1);
             writer.Write(Size);
-            writer.Write((_data).AsSpan().AsBytes());
+            writer.Write(ReadOnlySegment);
         }
 
-        public void Initialize(BrightDataContext context, BinaryReader reader)
+        /// <inheritdoc />
+        public override void Initialize(BrightDataContext context, BinaryReader reader)
         {
             if (reader.ReadInt32() != 1)
                 throw new Exception("Unexpected array size");
             var size = reader.ReadUInt32();
-            _data = reader.BaseStream.ReadArray<float>(size);
+            var data = reader.BaseStream.ReadArray<T>(size);
+            ReadOnlySegment = new ReadOnlyTensorSegment<T>(data);
+            Unsafe.AsRef(in _valueSemantics) = new(this);
         }
 
-        public ReadOnlySpan<float> GetSpan(ref SpanOwner<float> temp, out bool wasTempUsed)
-        {
-            wasTempUsed = false;
-            return _data.AsSpan();
-        }
+        /// <inheritdoc />
+        public T this[int index] => ReadOnlySegment[index];
 
-        public uint Size => (uint)_data.Length;
-        public bool IsReadOnly => true;
-        public float this[int index] => _data[index];
-        public float this[uint index] => _data[index];
-        public float[] ToArray() => _data;
-        public IVector Create(LinearAlgebraProvider lap) => lap.CreateVector(_data);
-        public IReadOnlyNumericSegment<float> ReadOnlySegment => _segment ??= new ArrayBasedTensorSegment(_data);
+        /// <inheritdoc />
+        public T this[uint index] => ReadOnlySegment[index];
 
-        // value semantics
-        public bool Equals(ReadOnlyVector? other) => _valueSemantics.Equals(other);
-        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVector);
+        /// <inheritdoc />
+        public IVector<T> Create(LinearAlgebraProvider<T> lap) => lap.CreateVector(ReadOnlySegment);
+
+        /// <inheritdoc />
+        public bool Equals(ReadOnlyVector<T>? other) => _valueSemantics.Equals(other);
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj) => _valueSemantics.Equals(obj as ReadOnlyVector<T>);
+
+        /// <inheritdoc />
         public override int GetHashCode() => _valueSemantics.GetHashCode();
 
+        /// <inheritdoc />
         public override string ToString()
         {
-            var preview = String.Join("|", _data.Take(Consts.DefaultPreviewSize));
+            var preview = String.Join("|", ReadOnlySegment.Values.Take(Consts.DefaultPreviewSize));
             if (Size > Consts.DefaultPreviewSize)
                 preview += "|...";
-            return $"Vector Info ({Size}): {preview}";
+            return $"Read Only Vector ({Size}): {preview}";
+        }
+
+        /// <inheritdoc />
+        public override ReadOnlySpan<byte> DataAsBytes => ReadOnlySegment.AsBytes();
+
+        /// <inheritdoc />
+        protected override ReadOnlyVector<T> Create(MemoryOwner<T> memory)
+        {
+            try {
+                return new ReadOnlyVector<T>(memory.Span.ToArray());
+            }
+            finally {
+                memory.Dispose();
+            }
         }
     }
 }

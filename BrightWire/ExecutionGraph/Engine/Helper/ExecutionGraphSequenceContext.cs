@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
@@ -11,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphContext
     {
-        public ExecutionGraphSequenceContext(GraphExecutionContext executionContext, IMiniBatchSequence miniBatch) : base(miniBatch)
+        public ExecutionGraphSequenceContext(GraphExecutionContext executionContext, MiniBatch.Sequence miniBatch) : base(miniBatch)
         {
             ExecutionContext = executionContext;
             BatchSequence.GraphContext = this;
@@ -25,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public bool IsTraining => false;
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext => null;
-        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider<float> LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         
         public IGraphData Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) { /* nop */ }

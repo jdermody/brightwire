@@ -8,7 +8,7 @@ namespace BrightWire.Descriptor
     /// </summary>
     internal class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
-        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix<float> template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, true);
             return new AdaGrad(cache, prev);

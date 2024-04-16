@@ -8,26 +8,19 @@ namespace BrightWire.Bayesian.Training
     /// Builds markov models with a window size of 2
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T> where T : notnull
+    internal class MarkovModelTrainer2<T>(T empty, int minObservations = 1) : IMarkovModelTrainer2<T>
+        where T : notnull
     {
         readonly Dictionary<(T, T), List<T>> _data = new();
-        readonly int _minObservations;
-        readonly T _empty;
-
-        public MarkovModelTrainer2(T empty, int minObservations = 1)
-        {
-            _empty = empty;
-            _minObservations = minObservations;
-        }
 
         public void Add(IEnumerable<T> items)
         {
             var foundInput = false;
-            T prevPrev = _empty, prev = _empty;
+            T prevPrev = empty, prev = empty;
             foreach (var item in items) {
                 var head = (prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
-                    _data.Add(head, tempList = new List<T>());
+                    _data.Add(head, tempList = []);
                 tempList.Add(item);
                 prevPrev = prev;
                 prev = item;
@@ -37,8 +30,8 @@ namespace BrightWire.Bayesian.Training
             if (foundInput) {
                 var last = (prevPrev, prev);
                 if (!_data.TryGetValue(last, out var tempList))
-                    _data.Add(last, tempList = new List<T>());
-                tempList.Add(_empty);
+                    _data.Add(last, tempList = []);
+                tempList.Add(empty);
             }
         }
 
@@ -49,7 +42,7 @@ namespace BrightWire.Bayesian.Training
                 var transitions = item.Value
                     .GroupBy(v => v)
                     .Select(g => (g.Key, Count: g.Count()))
-                    .Where(d => d.Count >= _minObservations)
+                    .Where(d => d.Count >= minObservations)
                     .ToList()
                 ;
                 var total = (float)transitions.Sum(t => t.Count);
@@ -62,26 +55,19 @@ namespace BrightWire.Bayesian.Training
         }
     }
 
-    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T> where T : notnull
+    internal class MarkovModelTrainer3<T>(T empty, int minObservations = 1) : IMarkovModelTrainer3<T>
+        where T : notnull
     {
         readonly Dictionary<(T, T, T), List<T>> _data = new();
-        readonly int _minObservations;
-        readonly T _empty;
-
-        public MarkovModelTrainer3(T empty, int minObservations = 1)
-        {
-            _empty = empty;
-            _minObservations = minObservations;
-        }
 
         public void Add(IEnumerable<T> items)
         {
             var foundInput = false;
-            T prevPrevPrev = _empty, prevPrev = _empty, prev = _empty;
+            T prevPrevPrev = empty, prevPrev = empty, prev = empty;
             foreach (var item in items) {
                 var head = (prevPrevPrev, prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
-                    _data.Add(head, tempList = new List<T>());
+                    _data.Add(head, tempList = []);
                 tempList.Add(item);
                 prevPrevPrev = prevPrev;
                 prevPrev = prev;
@@ -92,8 +78,8 @@ namespace BrightWire.Bayesian.Training
             if (foundInput) {
                 var last = (prevPrevPrev, prevPrev, prev);
                 if (!_data.TryGetValue(last, out var tempList))
-                    _data.Add(last, tempList = new List<T>());
-                tempList.Add(_empty);
+                    _data.Add(last, tempList = []);
+                tempList.Add(empty);
             }
         }
 
@@ -104,7 +90,7 @@ namespace BrightWire.Bayesian.Training
                 var transitions = item.Value
                     .GroupBy(v => v)
                     .Select(g => (g.Key, Count: g.Count()))
-                    .Where(d => d.Count >= _minObservations)
+                    .Where(d => d.Count >= minObservations)
                     .ToList()
                 ;
                 var total = (float)transitions.Sum(t => t.Count);

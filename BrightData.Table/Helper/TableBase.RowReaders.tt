@@ -1,0 +1,163 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System.Runtime.CompilerServices;
+
+namespace BrightData.Table.Helper
+{
+    internal abstract partial class TableBase
+    {
+<# for(var i = 2; i < 21; i++) {
+        var range = Enumerable.Range(1, i).ToList();
+        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var where = String.Join(" ", range.Select(x => $" where T{x}: notnull"));
+        var rowParams = String.Join(", ", range.Select(x => $"e{x}.Current"));
+        var getColumns = String.Join(", ", range.Select(x => $"GetColumn<T{x}>(columnIndex{x})"));
+        var currentValues = String.Join(", ", range.Select(x => $"e{x}.Current"));
+        var bufferInput = String.Join(", ", range.Select(x => $"IReadOnlyBuffer<T{x}> input{x}"));
+        var allBs = String.Join(", ", range.Select(x => $"b{x}"));
+        var allBlockSpans = String.Join(", ", range.Select(x => $"block{x}.Span"));
+        var allReadOnlySpans = String.Join(", ", range.Select(x => $"ReadOnlySpan<T{x}> span{x}"));
+        var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
+#>
+        public readonly record struct Row<<#= typeString #>>(<#= parameters #>) <#= where #>;
+        public async IAsyncEnumerable<Row<<#= typeString #>>> Enumerate<<#= typeString #>>(
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #>, 
+<# } #>
+            [EnumeratorCancellation] CancellationToken ct = default) 
+            <#= where #>
+        {
+            const int size = <#= i #>;
+<# for(var j = 1; j <= i; j++) { #>
+            var e<#= j #> = GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
+<# } #>
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+
+            while (!ct.IsCancellationRequested && isValid) {
+<# for(var j = 1; j <= i; j++) { #>
+                currentTasks[<#= j-1 #>] = e<#= j #>.MoveNextAsync();
+<# } #>
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                var row = new Row<<#= typeString #>>(<#= rowParams #>);
+                yield return row;
+            }
+        }
+
+        class RowReader<<#= typeString #>> : IReadOnlyBuffer<Row<<#= typeString #>>> <#= where #>
+        {
+<# for(var j = 1; j <= i; j++) { #>
+            readonly IReadOnlyBuffer<T<#= j #>> _input<#= j #>;
+<# } #>
+
+            public RowReader(<#= bufferInput #>)
+            {
+<# for(var j = 2; j <= i; j++) { #>
+                if (input1.BlockSize != input<#= j #>.BlockSize)
+                    throw new ArgumentException("Expected all buffers to have same block size");
+                if(input1.BlockCount != input<#= j #>.BlockCount)
+                    throw new ArgumentException("Expected all buffers to have same block count");
+                if(input1.Size != input<#= j #>.Size)
+                    throw new ArgumentException("Expected all buffers to have same block count");
+<# } #>
+
+                Size = input1.Size;
+                BlockSize = input1.BlockSize;
+                BlockCount = input1.BlockCount;
+                DataType = typeof(Row<<#= typeString #>>);
+<# for(var j = 1; j <= i; j++) { #>
+                _input<#= j #> = input<#= j #>;
+<# } #>
+            }
+
+            public uint Size { get; }
+            public uint BlockSize { get; }
+            public uint BlockCount { get; }
+            public Type DataType { get; }
+            public async IAsyncEnumerable<object> EnumerateAll()
+            {
+                await foreach(var item in EnumerateAllTyped())
+                    yield return item;
+            }
+
+            public async Task ForEachBlock(BlockCallback<Row<<#= typeString #>>> callback, INotifyUser? notify = null, string? message = null, CancellationToken ct = default)
+            {
+                for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                    var block = await GetTypedBlock(i);
+                    callback(block.Span);
+                }
+            }
+
+            public async Task<ReadOnlyMemory<Row<<#= typeString #>>>> GetTypedBlock(uint blockIndex)
+            {
+<# for(var j = 1; j <= i; j++) { #>
+                var b<#= j #> = _input<#= j #>.GetTypedBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= allBs #>);
+<# for(var j = 1; j <= i; j++) { #>
+                var block<#= j #> = b<#= j #>.Result;
+<# } #>
+<# for(var j = 2; j <= i; j++) { #>
+                if (block1.Length != block<#= j #>.Length)
+                    throw new Exception("Expected all blocks to have same size");
+<# } #>
+                var ret = new Row<<#= typeString #>>[block1.Length];
+                Copy(<#= allBlockSpans #>, ret);
+                return ret;
+            }
+
+            static void Copy(<#= allReadOnlySpans #>, Span<Row<<#= typeString #>>> output)
+            {
+                for (var i = 0; i < span1.Length; i++)
+                    output[i] = new Row<<#= typeString #>>(<#= allSpans #>);
+            }
+
+            public async IAsyncEnumerable<Row<<#= typeString #>>> EnumerateAllTyped()
+            {
+                const int size = <#= i #>;
+<# for(var j = 1; j <= i; j++) { #>
+                var e<#= j #> = _input<#= j #>.GetAsyncEnumerator();
+<# } #>
+                var currentTasks = new ValueTask<bool>[size];
+                var isValid = true;
+
+                while (isValid) {
+<# for(var j = 1; j <= i; j++) { #>
+                    currentTasks[<#= j-1 #>] = e<#= j #>.MoveNextAsync();
+<# } #>
+                    for (var i = 0; i < size; i++) {
+                        if (await currentTasks[i] != true) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    var row = new Row<<#= typeString #>>(<#= currentValues #>);
+                    yield return row;
+                }
+            }
+
+            public IAsyncEnumerator<Row<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+        }
+        public IReadOnlyBuffer<Row<<#= typeString #>>> GetRowReader<<#= typeString #>>(
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
+<# } #>
+        ) 
+            <#= where #>
+        {
+
+            return new RowReader<<#= typeString #>>(<#= getColumns #>);
+        }
+<# } #>
+    }
+}

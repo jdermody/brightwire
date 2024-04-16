@@ -1,4 +1,6 @@
-﻿namespace BrightData.Analysis.Readers
+﻿using BrightData.Types;
+
+namespace BrightData.Analysis.Readers
 {
     /// <summary>
     /// Dimension analysis results
@@ -11,7 +13,7 @@
             YDimension = metaData.GetNullable<uint>(Consts.YDimension);
             ZDimension = metaData.GetNullable<uint>(Consts.ZDimension);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
-            Size = metaData.Get<uint>(Consts.Size);
+            Size = metaData.GetOrThrow<uint>(Consts.Size);
         }
 
         /// <summary>

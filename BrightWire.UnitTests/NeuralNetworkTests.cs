@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
@@ -9,22 +9,22 @@ namespace BrightWire.UnitTests
     public class NeuralNetworkTests : UnitTestBase
     {
         [Fact]
-        public void SimpleLinear()
+        public async Task SimpleLinear()
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float, "x");
-            builder.AddColumn(BrightDataType.Float, "y").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "x");
+            builder.CreateColumn(BrightDataType.Float, "y").MetaData.SetTarget(true);
             builder.AddRow(0.1f, 0.2f);
             builder.AddRow(0.2f, 0.4f);
             builder.AddRow(0.3f, 0.6f);
             builder.AddRow(0.4f, 0.8f);
             builder.AddRow(0.5f, 1f);
-            using var table = builder.BuildInMemory();
+            using var table = await builder.BuildInMemory();
 
             // train a simple neural network
             var graph = _context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(table, table, 
+            var model = await graph.TrainSimpleNeuralNetwork(table, table, 
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.3f, 
                 batchSize: 1, 
@@ -38,32 +38,32 @@ namespace BrightWire.UnitTests
             // test the model
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
-            var result = engine.Execute(new[] { 0.25f }).Single().Output[0][0];
+            var result = (await engine.Execute([0.25f]).First()).Output[0][0];
             result.Should().BeInRange(0.45f, 0.55f);
         }
 
         [Fact]
-        public void SimpleLinearNormalised()
+        public async Task SimpleLinearNormalised()
         {
             // create a simple table
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Int, "x");
-            builder.AddColumn(BrightDataType.Int, "y").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Int, "x");
+            builder.CreateColumn(BrightDataType.Int, "y").MetaData.SetTarget(true);
             builder.AddRow(1000, 2000);
             builder.AddRow(2000, 4000);
             builder.AddRow(3000, 6000);
             builder.AddRow(4000, 8000);
             builder.AddRow(5000, 10000);
-            using var table = builder.BuildInMemory();
+            using var table = await builder.BuildInMemory();
 
             // normalize the inputs
-            using var normalized = table.Normalize(NormalizationType.FeatureScale);
+            using var normalized = await table.Normalize(NormalizationType.FeatureScale);
             var inputNormalization = normalized.GetColumnNormalization(0);
             var outputNormalization = normalized.GetColumnNormalization(1);
 
             // train a simple neural network
             var graph = _context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(normalized, normalized, 
+            var model = await graph.TrainSimpleNeuralNetwork(normalized, normalized, 
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.1f, 
                 batchSize: 1, 
@@ -78,7 +78,8 @@ namespace BrightWire.UnitTests
             model.Should().NotBeNull();
             var engine = graph.CreateExecutionEngine(model!);
             var input = (float)inputNormalization.Normalize(2500);
-            var result = engine.Execute(new[] { input }).Single().Output;
+            var executionResults = engine.Execute([input]);
+            var result = (await executionResults.First()).Output;
             var normalizedResult = outputNormalization.ReverseNormalize(result[0][0]);
             normalizedResult.Should().BeInRange(4500, 5500);
         }

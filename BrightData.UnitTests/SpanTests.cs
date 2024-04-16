@@ -1,6 +1,4 @@
 ﻿using System;
-using BrightData.Helper;
-using BrightData.LinearAlgebra.Segments;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;

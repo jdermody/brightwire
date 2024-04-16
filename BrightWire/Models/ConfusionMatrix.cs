@@ -29,12 +29,12 @@ namespace BrightWire.Models
 		{
 			public int ClassificationIndex { get; set; }
 
-            public ActualClassification[] ActualClassifications { get; set; } = Array.Empty<ActualClassification>();
+            public ActualClassification[] ActualClassifications { get; set; } = [];
         }
 
-        public string[] ClassificationLabels { get; set; } = Array.Empty<string>();
+        public string[] ClassificationLabels { get; set; } = [];
 
-        public ExpectedClassification[] Classifications { get; set; } = Array.Empty<ExpectedClassification>();
+        public ExpectedClassification[] Classifications { get; set; } = [];
 
 		public string AsXml
 		{

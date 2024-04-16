@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-*Bright Wire* is a .net 7 class library.
+*Bright Wire* is a .net 8 class library.
 
 The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire-v2
 

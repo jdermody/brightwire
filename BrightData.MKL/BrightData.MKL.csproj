@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-	<Version>4.0.0-rc</Version>
+    <TargetFramework>net8.0</TargetFramework>
+	<Version>4.0.0</Version>
 	<Authors>Jack Dermody</Authors>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -12,11 +12,12 @@
     <PackageTags>mkl</PackageTags>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
     <PackageIcon>bw_favicon.png</PackageIcon>
-    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2024</Copyright>
     <Description>MKL provider for Bright Data - allows optimised linear algebra on Intel CPUs</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MKL.NET" Version="1.4.1" />
+    <PackageReference Include="MKL.NET" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>

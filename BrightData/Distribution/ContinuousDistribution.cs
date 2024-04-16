@@ -2,6 +2,9 @@
 
 namespace BrightData.Distribution
 {
+    /// <summary>
+    /// Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
+    /// </summary>
     internal class ContinuousDistribution : IContinuousDistribution
     {
         readonly BrightDataContext _context;

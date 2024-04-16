@@ -18,7 +18,10 @@ namespace BrightWire.ExecutionGraph.Node
     {
         string _id;
         string? _name;
-        List<WireToNode> _output = new();
+        List<WireToNode> _output = [];
+
+        public delegate void ForwardDelegate(NodeBase previous, NodeBase current, IGraphData input, IGraphData? output);
+        public event ForwardDelegate? OnForward;
 
         /// <summary>
         /// Constructor
@@ -32,12 +35,12 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         /// <summary>
-        /// Called when deserialising the node
+        /// Called when de-serialising the node
         /// </summary>
         /// <param name="graph">Graph factory</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Node serialisation data</param>
-        protected virtual void Initalise(GraphFactory graph, string? description, byte[]? data)
+        protected virtual void Initialise(GraphFactory graph, string? description, byte[]? data)
         {
             ReadFrom(data, reader => ReadFrom(graph, reader));
         }
@@ -91,6 +94,7 @@ namespace BrightWire.ExecutionGraph.Node
         {
             // execute the node
             var (from, output, backProp) = ForwardSingleStep(signal, channel, context, prev);
+            OnForward?.Invoke(from, this, signal, output);
 
             // add to the context history
             if (prev != null)
@@ -138,11 +142,7 @@ namespace BrightWire.ExecutionGraph.Node
             if (existing != null && connectedTo != null && wireList != null) {
                 foreach (var wire in Output) {
                     var sendTo = wire.SendTo;
-                    wireList.Add(new ExecutionGraphModel.Wire {
-                        FromId = _id,
-                        InputChannel = wire.Channel,
-                        ToId = sendTo.Id
-                    });
+                    wireList.Add(new ExecutionGraphModel.Wire(_id, sendTo.Id, wire.Channel));
                     if (existing.Add(sendTo))
                         connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
                 }
@@ -199,8 +199,8 @@ namespace BrightWire.ExecutionGraph.Node
         {
             _id = id;
             _name = name;
-            _output = new List<WireToNode>();
-            Initalise(factory, description, data);
+            _output = [];
+            Initialise(factory, description, data);
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="delta"></param>
         /// <param name="context"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public virtual void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             throw new NotImplementedException();
         }

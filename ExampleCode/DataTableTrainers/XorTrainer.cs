@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using ExtensionMethods = BrightData.ExtensionMethods;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class XorTrainer : DataTableTrainer
+    internal class XorTrainer(IDataTable table) : DataTableTrainer(table, table, table)
     {
-        public XorTrainer(BrightDataTable table) : base(table, table, table)
-        {
-        }
-
-        public ExecutionGraphModel? Train(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
+        public async Task<ExecutionGraphModel?> Train(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var targetColumnIndex = Table.Value.GetTargetColumnOrThrow();
 
             // train a model
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
-            var model = graph.TrainSimpleNeuralNetwork(
+            var model = await graph.TrainSimpleNeuralNetwork(
                 Training, 
                 Test, 
                 errorMetric, 
@@ -36,16 +33,16 @@ namespace ExampleCode.DataTableTrainers
             if (model != null) {
                 // create a new network to execute the learned network
                 var executionEngine = graph.CreateExecutionEngine(model);
-                var testData = graph.CreateDataSource(Test);
-                var output = executionEngine.Execute(testData).ToList();
+                var output = await executionEngine.Execute(await graph.CreateDataSource(Test)).ToListAsync();
                 if (writeResults) {
                     var testAccuracy = output.Average(o => o.CalculateError(errorMetric));
                     Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");
+                    var testData = await Test.GetAllRows();
 
                     // print the values that have been learned
                     foreach (var item in output) {
                         foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
-                            var row = Test.GetRow(index);
+                            var row = testData[index];
                             var result = item.Output[index];
                             var input = row.ToArray()
                                 .Select((v, i) => (Val: v, Ind: i))

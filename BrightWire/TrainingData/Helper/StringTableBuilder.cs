@@ -9,7 +9,7 @@ namespace BrightWire.TrainingData.Helper
     public class StringTableBuilder
     {
         readonly Dictionary<string, uint> _stringTable = new();
-        readonly List<string> _stringList = new();
+        readonly List<string> _stringList = [];
 
         /// <summary>
         /// Creates an empty string table builder
@@ -17,15 +17,15 @@ namespace BrightWire.TrainingData.Helper
         public StringTableBuilder() { }
 
         /// <summary>
-        /// Creates a string table builder pre populated with an existing string table
+        /// Creates a string table builder pre-populated with an existing string table
         /// </summary>
-        /// <param name="stringTable">The string table to pre populate</param>
+        /// <param name="stringTable">The string table to pre-populate</param>
         public StringTableBuilder(StringTable stringTable) : this(stringTable.Data) { }
 
         /// <summary>
-        /// Creates a string table builder pre populated with an existing string table
+        /// Creates a string table builder pre-populated with an existing string table
         /// </summary>
-        /// <param name="stringTable">The string table to pre populate</param>
+        /// <param name="stringTable">The string table to pre-populate</param>
         public StringTableBuilder(string[] stringTable)
         {
             for (uint i = 0; i < stringTable.Length; i++) {

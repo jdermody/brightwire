@@ -1,34 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Helper;
+using BrightData.Types;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Adapts data tables with a index list based feature columns (corresponding to an unweighted sparse vector)
+    /// Adapts data tables with an index list based feature columns (corresponding to an unweighted sparse vector)
     /// </summary>
-    internal class IndexListDataTableAdapter : DataTableAdapterBase<(IndexList, float[])>, IIndexListEncoder
+    internal class IndexListDataTableAdapter : DataTableAdapterBase<(IndexList, float[]?)>, IIndexListEncoder
     {
         readonly uint[] _featureColumns;
 
-        public IndexListDataTableAdapter(BrightDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        IndexListDataTableAdapter(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns, uint inputSize)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
-            OutputSize = OutputVectoriser.OutputSize;
-
-            var analysis = dataTable.GetColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
-            InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
+            OutputVectoriser = outputVectoriser;
+            OutputSize = OutputVectoriser?.OutputSize;
+            InputSize = inputSize;
         }
 
-        protected override IEnumerable<(IndexList, float[])> GetRows(uint[] rows)
+        public static async Task<IndexListDataTableAdapter> Create(IDataTable dataTable, VectorisationModel? outputVectoriser, uint[] featureColumns)
         {
-            return _dataTable
-                .GetRows(rows)
-                .Select(tableRow => (Combine(_featureColumnIndices.Select(i => (IndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow)));
+            var analysis = (await dataTable.GetColumnAnalysis(featureColumns)).Select(m => m.GetIndexAnalysis());
+            var inputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
+            return new(dataTable, outputVectoriser ?? await dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow()), featureColumns, inputSize);
+        }
+
+        protected override async IAsyncEnumerable<(IndexList, float[]?)> GetRows(uint[] rows)
+        {
+            foreach (var tableRow in await _dataTable.GetRows(rows))
+                yield return (Combine(_featureColumnIndices.Select(i => (IndexList)tableRow[i])), OutputVectoriser?.Vectorise(tableRow));
         }
 
         public override uint InputSize { get; }
@@ -44,15 +51,18 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return ret;
         }
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
-            var data = GetRows(rows).Select(r => (Encode(r.Item1), r.Item2)).ToArray();
+            var index = 0;
+            var data = new (float[], float[]?)[rows.Length];
+            await foreach (var row in GetRows(rows))
+                data[index++] = (Encode(row.Item1), row.Item2);
             return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new IndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns);
+            return new IndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns, InputSize);
         }
     }
 }

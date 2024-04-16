@@ -21,10 +21,10 @@ namespace BrightData.UnitTests
             var array = matrix.Segment.ToNewArray();
             array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
 
-            matrix.GetColumnAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
-            matrix.GetColumnAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
-            matrix.GetRowAsReadOnly(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
-            matrix.GetRowAsReadOnly(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
+            matrix.GetColumn(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
+            matrix.GetColumn(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
+            matrix.GetRow(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
+            matrix.GetRow(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
         }
 
         [Fact]
@@ -80,14 +80,14 @@ namespace BrightData.UnitTests
             multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 17, 22, 27, 22, 29, 36, 27, 36, 45 });
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Func<IMatrix, IMatrix, IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, IMatrix<float> b, Func<IMatrix<float>, IMatrix<float>, IMatrix<float>> func)
         {
             using var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateMatrix(b);
             return func(otherA, otherB);
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IMatrix b, Action<IMatrix, IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, IMatrix<float> b, Action<IMatrix<float>, IMatrix<float>> func)
         {
             var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateMatrix(b);
@@ -95,7 +95,7 @@ namespace BrightData.UnitTests
             return otherA;
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, IVector b, Action<IMatrix, IVector> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, IVector<float> b, Action<IMatrix<float>, IVector<float>> func)
         {
             var otherA = lap.CreateMatrix(a);
             using var otherB = lap.CreateVector(b);
@@ -103,21 +103,21 @@ namespace BrightData.UnitTests
             return otherA;
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, Func<IMatrix<float>, IMatrix<float>> func)
         {
             using var otherA = lap.CreateMatrix(a);
             var otherB = func(otherA);
             return otherB;
         }
 
-        static IMatrix Apply(LinearAlgebraProvider lap, IMatrix a, Action<IMatrix> func)
+        static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, Action<IMatrix<float>> func)
         {
             var otherA = lap.CreateMatrix(a);
             func(otherA);
             return otherA;
         }
 
-        static T Apply<T>(LinearAlgebraProvider lap, IMatrix a, Func<IMatrix, T> func)
+        static T Apply<T>(LinearAlgebraProvider<float> lap, IMatrix<float> a, Func<IMatrix<float>, T> func)
         {
             using var otherA = lap.CreateMatrix(a);
             var otherRow = func(otherA);
@@ -315,7 +315,7 @@ namespace BrightData.UnitTests
             using var a = _cpu.CreateMatrix(2, 5, (j, k) => k);
             using var b = _cpu.CreateMatrix(2, 5, (j, k) => j);
 
-            IMatrix gpu, gpu2;
+            IMatrix<float> gpu, gpu2;
             using var gpuA = _cuda.CreateMatrix(a);
             using var gpuB = _cuda.CreateMatrix(b);
             {
@@ -328,7 +328,7 @@ namespace BrightData.UnitTests
                 bStr.Should().BeEquivalentTo(gpuB.ToString());
             }
 
-            IMatrix mkl, mkl2;
+            IMatrix<float>mkl, mkl2;
             using var simpleA = _mkl.CreateMatrix(a);
             using var simpleB = _mkl.CreateMatrix(b);
             {
@@ -343,10 +343,10 @@ namespace BrightData.UnitTests
 
             var cpu = a.Subtract(b);
             var cpu2 = b.Subtract(a);
-            FloatMath.AreApproximatelyEqual(gpu, cpu).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpu2, cpu2).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(mkl, cpu).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(mkl2, cpu2).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(gpu, cpu).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(gpu2, cpu2).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(mkl, cpu).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(mkl2, cpu2).Should().BeTrue();
             gpu.Dispose();
             gpu2.Dispose();
             mkl.Dispose();
@@ -402,9 +402,9 @@ namespace BrightData.UnitTests
         {
             const int index = 7;
             using var a = _cpu.CreateMatrix(13, 17, (j, k) => (j + 1) * (k + 1));
-            var cpu = a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetColumnAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var cpu = a.GetColumn(index).ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetColumn(index).ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetColumn(index).ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -424,9 +424,9 @@ namespace BrightData.UnitTests
         {
             const int index = 11;
             using var a = _cpu.CreateMatrix(20, 50, (j, k) => k * j);
-            var cpu = a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray();
-            var gpu = Apply(_cuda, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
-            var mkl = Apply(_mkl, a, a => a.GetRowAsReadOnly(index).ReadOnlySegment.ToNewArray());
+            var cpu = a.GetRow(index).ToNewArray();
+            var gpu = Apply(_cuda, a, a => a.GetRow(index).ToNewArray());
+            var mkl = Apply(_mkl, a, a => a.GetRow(index).ToNewArray());
             AssertSame(cpu, gpu, mkl);
         }
 
@@ -821,16 +821,16 @@ namespace BrightData.UnitTests
                 var (top2, bottom2) = gpuA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
-                FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
-                FloatMath.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m1, top).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
             }
 
             using (var simpleA = _mkl.CreateMatrix(a)) {
                 var (top2, bottom2) = simpleA.SplitAtRow(position);
                 using var m1 = top2;
                 using var m2 = bottom2;
-                FloatMath.AreApproximatelyEqual(m1, top).Should().BeTrue();
-                FloatMath.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m1, top).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m2, bottom).Should().BeTrue();
             }
             top.Dispose();
             bottom.Dispose();
@@ -849,16 +849,16 @@ namespace BrightData.UnitTests
                 var (left2, right2) = gpuA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
-                FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
-                FloatMath.AreApproximatelyEqual(m2, right).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m1, left).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m2, right).Should().BeTrue();
             }
 
             using (var simpleA = _mkl.CreateMatrix(a)) {
                 var (left2, right2) = simpleA.SplitAtColumn(position);
                 using var m1 = left2;
                 using var m2 = right2;
-                FloatMath.AreApproximatelyEqual(m1, left).Should().BeTrue();
-                FloatMath.AreApproximatelyEqual(m2, right).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m1, left).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(m2, right).Should().BeTrue();
             }
             left.Dispose();
             right.Dispose();
@@ -1011,17 +1011,17 @@ namespace BrightData.UnitTests
             using var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1));
             using var vector = matrix.Reshape();
             using var matrix2 = vector.Reshape(3, 4);
-            FloatMath.AreApproximatelyEqual(matrix, matrix2);
+            Math<float>.AreApproximatelyEqual(matrix, matrix2);
 
             using var gpuMatrix = _cuda.CreateMatrix(matrix);
             using var gpuVector = gpuMatrix.Reshape();
             using var gpuMatrix2 = gpuVector.Reshape(3, 4);
-            FloatMath.AreApproximatelyEqual(gpuMatrix, gpuMatrix2).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(gpuMatrix, gpuMatrix2).Should().BeTrue();
 
             using var mklMatrix = _mkl.CreateMatrix(matrix);
             using var mklVector = mklMatrix.Reshape();
             using var mklMatrix2 = mklVector.Reshape(3, 4);
-            FloatMath.AreApproximatelyEqual(mklMatrix, mklMatrix2).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(mklMatrix, mklMatrix2).Should().BeTrue();
 
             AssertSame(matrix2, gpuMatrix2, mklMatrix2);
         }

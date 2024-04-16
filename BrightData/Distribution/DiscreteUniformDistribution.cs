@@ -2,6 +2,9 @@
 
 namespace BrightData.Distribution
 {
+    /// <summary>
+    /// Discrete uniform distribution - https://en.wikipedia.org/wiki/Discrete_uniform_distribution
+    /// </summary>
     internal class DiscreteUniformDistribution : IDiscreteDistribution
     {
         readonly BrightDataContext _context;

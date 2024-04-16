@@ -3,8 +3,10 @@ using BrightData.Analysis;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using BrightData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using System.Threading.Tasks;
+using BrightData.Types;
+using BrightData.DataTable.Columns;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -17,7 +19,7 @@ namespace BrightWire.Bayesian.Training
         {
             readonly Dictionary<uint, IDataAnalyser> _column = new();
 
-            public FrequencyAnalysis(BrightDataTable table, uint ignoreColumnIndex)
+            public FrequencyAnalysis(IDataTable table, uint ignoreColumnIndex)
             {
                 uint index = 0;
                 var metaData = table.ColumnMetaData;
@@ -37,7 +39,7 @@ namespace BrightWire.Bayesian.Training
                 }
             }
 
-            public void Process(object[] row)
+            public void Process(GenericTableRow row)
             {
                 foreach (var (key, value) in _column)
                     value.AddObject(row[key]);
@@ -49,7 +51,7 @@ namespace BrightWire.Bayesian.Training
             public ulong Total { get; private set; } = 0;
         }
 
-        public static NaiveBayes Train(BrightDataTable table)
+        public static async Task<NaiveBayes> Train(IDataTable table)
         {
             // analyse the table to get the set of class values
             var targetColumn = table.GetTargetColumnOrThrow();
@@ -57,7 +59,7 @@ namespace BrightWire.Bayesian.Training
             // analyse each row by its classification
             var rowsByClassification = new Dictionary<string, FrequencyAnalysis>();
             ulong rowCount = 0;
-            foreach(var (_, row) in table.GetAllRowData()) {
+            await foreach(var row in table.EnumerateRows()) {
                 var target = row[targetColumn].ToString();
                 if (target != null) {
                     if (!rowsByClassification.TryGetValue(target, out var analysis))

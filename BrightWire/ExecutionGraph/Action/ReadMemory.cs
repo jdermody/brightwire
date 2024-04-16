@@ -2,23 +2,16 @@
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    internal class ReadMemory : IAction
-	{
-		string _id;
-
-		public ReadMemory(string id)
+    internal class ReadMemory(string id) : IAction
+    {
+        public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
 		{
-			_id = id;
-		}
-
-		public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
-		{
-			var memory = context.ExecutionContext.GetMemory(_id);
+			var memory = context.ExecutionContext.GetMemory(id);
 			return memory.AsGraphData();
 		}
 
-		public void Initialise(string data) => _id = data;
+		public void Initialise(string data) => id = data;
 
-        public string Serialise() => _id;
+        public string Serialise() => id;
     }
 }

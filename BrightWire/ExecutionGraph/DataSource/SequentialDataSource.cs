@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.LinearAlgebra;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using System.Threading.Tasks;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -15,10 +16,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     internal class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly IMatrix[] _data;
-        readonly LinearAlgebraProvider _lap;
+	    readonly IMatrix<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public SequentialDataSource(LinearAlgebraProvider lap, IMatrix[] matrixList)
+        public SequentialDataSource(LinearAlgebraProvider<float> lap, IMatrix<float>[] matrixList)
         {
             _lap = lap;
             _data = matrixList;
@@ -37,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
@@ -45,8 +46,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             foreach (var item in data) {
                 for (uint i = 0, len = item.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new());
-                    temp.Add(item.GetRowAsReadOnly(i).ReadOnlySegment);
+                        inputData.Add(i, temp = []);
+                    temp.Add(item.GetRow(i));
                 }
             }
 
@@ -61,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 ;
                 miniBatch.Add(type, input.AsGraphData(), null);
             }
-            return miniBatch;
+            return Task.FromResult(miniBatch);
         }
 
         public uint[][] GetSequentialBatches()
@@ -74,12 +75,12 @@ namespace BrightWire.ExecutionGraph.DataSource
             ;
         }
 
-        public IDataSource CloneWith(BrightDataTable dataTable)
+        public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }
 
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser => null;
+        public VectorisationModel? OutputVectoriser => null;
     }
 }

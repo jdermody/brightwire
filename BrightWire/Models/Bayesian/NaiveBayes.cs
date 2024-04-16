@@ -55,7 +55,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of categories within the column and their probability (categorical only)
             /// </summary>
-            public CategoricalProbability[] Probability { get; set; } = Array.Empty<CategoricalProbability>();
+            public CategoricalProbability[] Probability { get; set; } = [];
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -109,7 +109,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The column data associated with this classification
             /// </summary>
-            public Column[] ColumnSummary { get; set; } = Array.Empty<Column>();
+            public Column[] ColumnSummary { get; set; } = [];
 
 	        /// <summary>
 	        /// The classification prior probability
@@ -126,7 +126,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A list of possible classifications and their data
         /// </summary>
-        public ClassSummary[] Class { get; set; } = Array.Empty<ClassSummary>();
+        public ClassSummary[] Class { get; set; } = [];
 
         /// <summary>
         /// Creates a classifier from this model

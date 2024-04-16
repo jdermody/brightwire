@@ -7,7 +7,6 @@ using BrightData.Cuda;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
-using BrightData.Serialisation;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -17,11 +16,11 @@ namespace BrightData.UnitTests
 {
     public class TensorTests2 : UnitTestBase
     {
-        readonly LinearAlgebraProvider     _linearAlgebraProvider;
-        readonly MklLinearAlgebraProvider  _mklLinearAlgebraProvider;
-        readonly CudaProvider              _cudaProvider;
-        readonly CudaLinearAlgebraProvider _cudaLinearAlgebraProvider;
-        readonly ITestOutputHelper         _output;
+        readonly LinearAlgebraProvider<float> _linearAlgebraProvider;
+        readonly MklLinearAlgebraProvider     _mklLinearAlgebraProvider;
+        readonly CudaProvider                 _cudaProvider;
+        readonly CudaLinearAlgebraProvider    _cudaLinearAlgebraProvider;
+        readonly ITestOutputHelper            _output;
 
         static readonly uint DefaultVectorSize  = 1000;
         static readonly uint DefaultRowCount    = 200;
@@ -30,7 +29,7 @@ namespace BrightData.UnitTests
         public TensorTests2(ITestOutputHelper output)
         {
             _output                    = output;
-            _linearAlgebraProvider     = new LinearAlgebraProvider(_context);
+            _linearAlgebraProvider     = new LinearAlgebraProvider<float>(_context);
             _mklLinearAlgebraProvider  = new MklLinearAlgebraProvider(_context);
             _cudaProvider              = _context.CreateCudaProvider(Path.Combine(Environment.CurrentDirectory, "cuda", "brightwire.ptx"));
             _cudaLinearAlgebraProvider = new CudaLinearAlgebraProvider(_context, _cudaProvider);
@@ -49,7 +48,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestCudaDirectInitialization()
         {
-            var span = new ReadOnlySpan<float>(new float[] { 1, 2, 3, 4, 5, 6, 7, 8 }, 2, 2);
+            var span = new ReadOnlySpan<float>([1, 2, 3, 4, 5, 6, 7, 8], 2, 2);
             var segment = _cudaLinearAlgebraProvider.CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
             var test = segment.ToNewArray();
@@ -66,12 +65,12 @@ namespace BrightData.UnitTests
 
             buffer.Seek(0, SeekOrigin.Begin);
             using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
-            using var vector2 = _context.Create<IVector>(reader);
-            vector2.Should().BeEquivalentTo(vector);
+            using var vector2 = _context.Create<IVector<float>>(reader);
+            vector2.ToArray().Should().BeEquivalentTo(vector.ToArray());
         }
 
         void Test<TT, R>(TT simple, TT mkl, TT cuda, Func<TT, TT, R> test, Func<R, R, bool> verifyResult)
-            where TT: ITensor
+            where TT: ITensor<float>
         {
             try {
                 simple.Segment.CopyTo(mkl.Segment);
@@ -125,7 +124,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 _cudaLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 (v1, v2) => v1.DotProduct(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -141,7 +140,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
                 (v1, v2) => v1.Transpose(),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -158,7 +157,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(rowCount, columnCount, false), 
                 (v1, v2) => v1.Multiply(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -173,7 +172,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 (v1, v2) => v1.TransposeThisAndMultiply(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -188,7 +187,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 (v1, v2) => v1.TransposeAndMultiply(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -217,7 +216,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 _cudaLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 (v1, v2) => v1.L2Norm(),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -232,7 +231,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 _cudaLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 (v1, v2) => v1.PointwiseMultiply(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 
@@ -247,7 +246,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 _cudaLinearAlgebraProvider.CreateVector(DefaultVectorSize, false), 
                 (v1, v2) => v1.PointwiseDivide(v2),
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2, 14)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2, 14)
             );
         }
 
@@ -288,7 +287,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateVector(vector), 
                 _cudaLinearAlgebraProvider.CreateVector(vector), 
                 (a, b) => a.Sum(), 
-                (r1, r2) => FloatMath.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
             );
         }
 

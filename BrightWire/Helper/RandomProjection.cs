@@ -7,9 +7,9 @@ namespace BrightWire.Helper
     /// <summary>
     /// Implements random projection
     /// </summary>
-    internal class RandomProjection : IRandomProjection, IHaveSize, IHaveLinearAlgebraProvider
+    internal class RandomProjection : IRandomProjection, IHaveSize, IHaveLinearAlgebraProvider<float>
     {
-        public RandomProjection(LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public RandomProjection(LinearAlgebraProvider<float> lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             LinearAlgebraProvider = lap;
             Size = reducedSize;
@@ -31,18 +31,18 @@ namespace BrightWire.Helper
             GC.SuppressFinalize(this);
         }
 
-        public LinearAlgebraProvider LinearAlgebraProvider { get; }
+        public LinearAlgebraProvider<float> LinearAlgebraProvider { get; }
 	    public uint Size { get; }
-		public IMatrix Matrix { get; }
+		public IMatrix<float> Matrix { get; }
 
-	    public IVector Compute(IVector vector)
+	    public IVector<float> Compute(IVector<float> vector)
         {
             using var m = vector.Reshape(1, null);
             using var m2 = m.Multiply(Matrix);
-            return LinearAlgebraProvider.CreateVector(m2.GetRowAsReadOnly(0));
+            return LinearAlgebraProvider.CreateVector(m2.GetRow(0));
         }
 
-        public IMatrix Compute(IMatrix matrix)
+        public IMatrix<float> Compute(IMatrix<float> matrix)
         {
             return matrix.Multiply(Matrix);
         }

@@ -7,12 +7,6 @@ namespace BrightWire.UnitTests.Helper
 {
     internal class MockLearningContext : ILearningContext
     {
-#pragma warning disable 8618
-        public MockLearningContext()
-#pragma warning restore 8618
-        {
-        }
-
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }
         public uint CurrentEpoch { get; set; }
@@ -20,18 +14,7 @@ namespace BrightWire.UnitTests.Helper
         public float BatchLearningRate { get; set; }
         public uint BatchSize { get; set; }
         public uint RowCount { get; set; }
-        public void StoreUpdate(NodeBase fromNode, IMatrix update, Action<IMatrix> updater)
-        {
-
-        }
-
-        public void StoreUpdate(NodeBase fromNode, IVector update, Action<IVector> updater)
-        {
-            
-        }
-
-        public bool DeferUpdates { get; set; }
-        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor<float> error)
         {
         }
 
@@ -76,11 +59,10 @@ namespace BrightWire.UnitTests.Helper
         }
 
 
-        public Action<string> MessageLog { get; set; }
-        public event Action<ILearningContext> BeforeEpochStarts;
-        public event Action<ILearningContext> AfterEpochEnds;
-        public IErrorMetric ErrorMetric { get; set; }
-        public GraphFactory GraphFactory { get; set; }
+        public event Action<ILearningContext>? BeforeEpochStarts;
+        public event Action<ILearningContext>? AfterEpochEnds;
+        public IErrorMetric? ErrorMetric { get; set; }
+        public GraphFactory? GraphFactory { get; set; }
         public void ResetEpoch()
         {
             throw new NotImplementedException();

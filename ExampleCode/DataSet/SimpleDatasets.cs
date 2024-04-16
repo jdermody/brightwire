@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
@@ -12,27 +13,25 @@ using ExampleCode.DataTableTrainers;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataSet
 {
     internal static class SimpleDataSets
     {
-        public static DataTableTrainer Iris(this BrightDataContext context)
+        public static async Task<DataTableTrainer> Iris(this BrightDataContext context)
         {
-            var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            var reader = await GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try
             {
-                using var table = context.ParseCsv(reader, false);
+                using var table = await context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
-                using var numericTable = table.Convert(
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric, 
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric
+                using var numericTable = await table.Convert(null, 
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric, 
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric
                 );
-                using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
-                using var column = table.GetColumn(4);
+                using var normalized = await numericTable.Normalize(NormalizationType.FeatureScale);
                 return new DataTableTrainer(normalized);
             }
             finally
@@ -41,21 +40,21 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static StockDataTrainer StockData(this BrightDataContext context)
+        public static async Task<StockDataTrainer> StockData(this BrightDataContext context)
         {
-            var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
+            var reader = await GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
-                using var table = context.ParseCsv(reader, true);
+                using var table = await context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
-                using var numericTable = table.Convert(
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToNumeric,
-                    ColumnConversionOperation.ToDate);
-                using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
+                using var numericTable = await table.Convert(null, 
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToNumeric,
+                    ColumnConversion.ToDate);
+                using var normalised = await numericTable.Normalize(NormalizationType.FeatureScale);
                 return new StockDataTrainer(normalised);
             }
             finally {
@@ -63,48 +62,57 @@ namespace ExampleCode.DataSet
             }
         }
 
-        public static XorTrainer Xor(this BrightDataContext context)
+        public static async Task<XorTrainer> Xor(this BrightDataContext context)
         {
             // Some training data that the network will learn.  The XOR pattern looks like:
             // 0 0 => 0
             // 1 0 => 1
             // 0 1 => 1
             // 1 1 => 0
-            var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
+            var table = await BrightWire.TrainingData.Artificial.Xor.Get(context);
             return new XorTrainer(table);
         }
 
-        public static IntegerAdditionTrainer IntegerAddition(this BrightDataContext context)
+        public static async Task<IntegerAdditionTrainer> IntegerAddition(this BrightDataContext context)
         {
-            var data = BinaryIntegers.Addition(context, 1000);
-            var (training, test) = data.Split();
+            var data = await BinaryIntegers.Addition(context, 1000);
+            var (training, test) = await data.Split();
             return new IntegerAdditionTrainer(data, training, test);
         }
 
-        public static SentenceTable BeautifulandDamned(this BrightDataContext context)
+        public static async Task<SentenceTable> BeautifulAndDamned(this BrightDataContext context)
         {
-            using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
-            var data = reader.ReadToEnd();
+            using var reader = await GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
+            var data = await reader.ReadToEndAsync();
             var pos = data.IndexOf("CHAPTER I", StringComparison.Ordinal);
             var mainText = data[(pos + 9)..].Trim();
 
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
-        public static Mnist Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
+        public static async Task<Mnist> Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
         {
-            var testImages = DataSet.Mnist.Load(
+            var streams = new[] {
                 GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
                 GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz"),
-                numToLoad
-            );
-            var trainingImages = DataSet.Mnist.Load(
                 GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
-                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz"),
-                numToLoad
-            );
+                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
+            };
+            await Task.WhenAll(streams);
 
-            return new Mnist(context, trainingImages, testImages);
+            var test = Task.Run(() => DataSet.Mnist.Load(
+                streams[0].Result,
+                streams[1].Result,
+                numToLoad
+            ));
+            var train = Task.Run(() => DataSet.Mnist.Load(
+                streams[2].Result,
+                streams[3].Result,
+                numToLoad
+            ));
+            await Task.WhenAll(test, train);
+
+            return new Mnist(context, train.Result, test.Result);
         }
 
         public static SentimentDataTrainer SentimentData(this BrightDataContext context)
@@ -114,40 +122,41 @@ namespace ExampleCode.DataSet
             return new SentimentDataTrainer(context, directory);
         }
 
-        public static TestClusteringTrainer TextClustering(this BrightDataContext context)
+        public static async Task<TestClusteringTrainer> TextClustering(this BrightDataContext context)
         {
-            using var reader = GetStreamReader(context, "aaai-accepted-papers.csv",
+            using var reader = await GetStreamReader(context, "aaai-accepted-papers.csv",
                 "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv");
-            using var table = context.ParseCsv(reader, true);
+            using var table = await context.ParseCsv(reader, true);
 
             var keywordSplit = " \n".ToCharArray();
             var topicSplit = "\n".ToCharArray();
 
-            var docList = new List<TestClusteringTrainer.AaaiDocument>();
-            foreach (var (_, row) in table.GetAllRowData()) {
-                docList.Add(new TestClusteringTrainer.AaaiDocument(
+            var docList = new TestClusteringTrainer.AaaiDocument[table.RowCount];
+            var index = 0;
+            await foreach (var row in table.EnumerateRows()) {
+                docList[index++] = new TestClusteringTrainer.AaaiDocument(
                     (string)row[0],
                     ((string)row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
                     ((string)row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),
                     (string)row[5],
                     ((string)row[2]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries)
-                ));
+                );
             }
 
             return new TestClusteringTrainer(context, docList);
         }
 
-        public static ReberSequenceTrainer ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
+        public static async Task<ReberSequenceTrainer> ReberSequencePrediction(this BrightDataContext context, bool extended = true, int? minLength = 8, int? maxLength = 12)
         {
             var grammar = new ReberGrammar(context.Random);
             var sequences = extended
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
             var trainingData = sequences.Take(2000).ToArray();
-            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, trainingData));
+            return new ReberSequenceTrainer(await ReberGrammar.GetOneHot(context, trainingData));
         }
 
-        public static SequenceToSequenceTrainer OneToMany(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> OneToMany(this BrightDataContext context)
         {
             var grammar = new SequenceGenerator(context, dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
@@ -162,7 +171,7 @@ namespace ExampleCode.DataSet
                     .ToDictionary(d => d.Key, d => (float)d.Item2)
                 ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var rows = new IReadOnlyVector[sequenceData.Count];
+                var rows = new IReadOnlyVector<float>[sequenceData.Count];
                 var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
@@ -173,27 +182,27 @@ namespace ExampleCode.DataSet
                 var output = context.CreateReadOnlyMatrixFromRows(rows);
                 if (addTableColumns) {
                     addTableColumns = false;
-                    builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
-                    builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn(summary.Size, "Summary");
+                    builder.CreateFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").MetaData.SetTarget(true);
                 }
                 builder.AddRow(summary, output);
             }
 
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
-        public static SequenceToSequenceTrainer ManyToOne(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> ManyToOne(this BrightDataContext context)
         {
             const int size = 5, dictionarySize = 16;
             var grammar = new SequenceGenerator(context, dictionarySize: dictionarySize, minSize: size-1, maxSize: size+1);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix, "Sequence");
-            builder.AddColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix, "Sequence");
+            builder.CreateColumn(BrightDataType.Vector, "Summary").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences) {
                 var index = 0;
-                var rows = new IReadOnlyVector[sequence.Length];
+                var rows = new IReadOnlyVector<float>[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
@@ -204,19 +213,19 @@ namespace ExampleCode.DataSet
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateReadOnlyMatrixFromRows(rows), target);
             }
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
         static string Reverse(string str) => new(str.Reverse().ToArray());
 
-        public static SequenceToSequenceTrainer SequenceToSequence(this BrightDataContext context)
+        public static async Task<SequenceToSequenceTrainer> SequenceToSequence(this BrightDataContext context)
         {
             const int sequenceLength = 5;
             var grammar = new SequenceGenerator(context, 3, sequenceLength-1, sequenceLength+1, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix, "Input");
-            builder.AddColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix, "Input");
+            builder.CreateColumn(BrightDataType.Matrix, "Output").MetaData.SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -225,7 +234,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(encodedSequence, encodedSequence2);
             }
 
-            return new SequenceToSequenceTrainer(grammar, builder.BuildInMemory());
+            return new SequenceToSequenceTrainer(grammar, await builder.BuildInMemory());
         }
 
         //public static LinearTrainer SimpleLinear(this BrightDataContext context)
@@ -258,34 +267,34 @@ namespace ExampleCode.DataSet
         //    return new LinearTrainer(normalized);
         //}
 
-        public static BicyclesTrainer Bicycles(this BrightDataContext context)
+        public static async Task<BicyclesTrainer> Bicycles(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
-            using var completeTable = context.ParseCsv(hoursData, true);
+            using var completeTable = await context.ParseCsv(hoursData, true);
 
             // drop the first six columns (index and date features)
-            using var filteredTable = completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
-            var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i)).ToArray());
+            using var filteredTable = await completeTable.CopyColumnsToNewTable(null, completeTable.ColumnCount.AsRange().Skip(5).ToArray());
+            var dataColumns = filteredTable.ColumnCount.AsRange().ToArray();
+            using var converted = await filteredTable.Convert(null, dataColumns.Select(i => ColumnConversion.ToDouble.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
-            using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
+            using var ret = await converted.Normalize(NormalizationType.Standard);
 
             ret.SetTargetColumn(ret.ColumnCount-1);
             return new BicyclesTrainer(ret);
         }
 
-        public static EmotionsTrainer Emotions(this BrightDataContext context)
+        public static async Task<EmotionsTrainer> Emotions(this BrightDataContext context)
         {
             var directory = ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
-            var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
-            var test = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
-            var training = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
+            var table = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
+            var test = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
+            var training = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
             return new EmotionsTrainer(table, training, test);
         }
 
-        public static AdultTrainer Adult(this BrightDataContext context)
+        public static async Task<AdultTrainer> Adult(this BrightDataContext context)
         {
             static string AdjustString(string str)
             {
@@ -295,48 +304,48 @@ namespace ExampleCode.DataSet
                 return str;
             }
 
-            static BrightDataTable ConvertTable(BrightDataTable table, string path)
+            static async Task<IDataTable> ConvertTable(IDataTable table, string path)
             {
-                using var converted = table.Convert(
+                using var converted = await table.Convert(null,
                     // convert numeric columns
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(0), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(2), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(4), 
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(10),
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(11),
-                    ColumnConversionOperation.ToNumeric.ConvertColumn(12),
+                    ColumnConversion.ToNumeric.ConvertColumn(0), 
+                    ColumnConversion.ToNumeric.ConvertColumn(2), 
+                    ColumnConversion.ToNumeric.ConvertColumn(4), 
+                    ColumnConversion.ToNumeric.ConvertColumn(10),
+                    ColumnConversion.ToNumeric.ConvertColumn(11),
+                    ColumnConversion.ToNumeric.ConvertColumn(12),
 
                     // convert to categorical index
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(1),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(3),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(5),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(6),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(7),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(8),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(9),
-                    ColumnConversionOperation.ToCategoricalIndex.ConvertColumn(13),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(1),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(3),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(5),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(6),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(7),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(8),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(9),
+                    ColumnConversion.ToCategoricalIndex.ConvertColumn(13),
 
-                    table.CreateCustomColumnMutator<string, string>(14, AdjustString)
+                    ColumnConversion.Custom.ConvertColumn<string, string>(14, AdjustString)
                 );
                 converted.SetTargetColumn(14);
-                using var normalized = converted.Normalize(NormalizationType.Standard);
-
-                return normalized.Clone(path);
+                var normalized = await converted.Normalize(NormalizationType.Standard);
+                await normalized.WriteTo(path);
+                return normalized;
             }
 
-            var adultTraining = GetDataTable(context, "adult_data.table", path => {
-                using var reader = GetStreamReader(context, "adult.data.csv",
+            var adultTraining = await GetDataTable(context, "adult_data.table", async path => {
+                using var reader = await GetStreamReader(context, "adult.data.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data");
-                using var data = context.ParseCsv(reader, false);
-                return ConvertTable(data, path);
+                using var data = await context.ParseCsv(reader, false);
+                return await ConvertTable(data, path);
             });
 
-            var adultTest = GetDataTable(context, "adult_test.table", path => {
-                using var reader2 = GetStreamReader(context, "adult.test.csv",
+            var adultTest = await GetDataTable(context, "adult_test.table", async path => {
+                using var reader2 = await GetStreamReader(context, "adult.test.csv",
                     "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test");
-                reader2.ReadLine();
-                using var test = context.ParseCsv(reader2, false);
-                return ConvertTable(test, path);
+                await reader2.ReadLineAsync();
+                using var test = await context.ParseCsv(reader2, false);
+                return await ConvertTable(test, path);
             });
 
             return new AdultTrainer(null, adultTraining, adultTest);
@@ -363,21 +372,20 @@ namespace ExampleCode.DataSet
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static BrightDataTable GetDataTable(this BrightDataContext context, string fileName, Func<string, BrightDataTable> createTable)
+        static async Task<IDataTable> GetDataTable(this BrightDataContext context, string fileName, Func<string, Task<IDataTable>> createTable)
         {
             var path = GetDataFilePath(context, fileName);
             if (!File.Exists(path))
-                return createTable(path);
-
-            return context.LoadTable(path);
+                return await createTable(path);
+            return await context.LoadTableFromFile(path);
         }
 
-        static StreamReader GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
+        static async Task<StreamReader> GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
         {
-            return new(GetStream(context, fileName, remoteUrl));
+            return new(await GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
+        static async Task<Stream> GetStream(this BrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
         {
             var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
@@ -385,19 +393,17 @@ namespace ExampleCode.DataSet
             {
                 Console.Write($"Downloading data set from {remoteUrl}...");
 
-                using var handler = new HttpClientHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.All,
-                    AllowAutoRedirect = true,
-                };
+                using var handler = new HttpClientHandler();
+                handler.AutomaticDecompression = DecompressionMethods.All;
+                handler.AllowAutoRedirect = true;
                 using var client = new HttpClient(handler);
-                var response = client.GetAsync(remoteUrl).Result;
+                var response = await client.GetAsync(remoteUrl);
                 response.EnsureSuccessStatusCode();
 
                 // get the stream
-                var responseStream = response.Content.ReadAsStreamAsync().Result;
+                var responseStream = await response.Content.ReadAsStreamAsync();
                 var mediaType = response.Content.Headers.ContentType?.MediaType;
-                if (mediaType == "application/gzip" || mediaType == "application/x-gzip")
+                if (mediaType is "application/gzip" or "application/x-gzip")
                     responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
 
                 Console.WriteLine("done");
@@ -407,8 +413,8 @@ namespace ExampleCode.DataSet
 
                 try
                 {
-                    using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                    responseStream.CopyTo(file);
+                    await using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                    await responseStream.CopyToAsync(file);
                     wasDownloaded = true;
                 }
                 catch

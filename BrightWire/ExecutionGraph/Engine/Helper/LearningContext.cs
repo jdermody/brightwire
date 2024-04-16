@@ -12,24 +12,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     internal class LearningContext : ILearningContext
     {
-        class NodeError
+        class NodeError(NodeBase node, NodeErrorType errorType, ITensor<float> error)
         {
-            public NodeError(NodeBase node, NodeErrorType errorType, ITensor error)
-            {
-                Node = node;
-                ErrorType = errorType;
-                Error = error;
-            }
-
-            public NodeBase Node { get; }
-            public NodeErrorType ErrorType { get; }
-            public ITensor Error { get; }
+            public NodeBase Node { get; } = node;
+            public NodeErrorType ErrorType { get; } = errorType;
+            public ITensor<float> Error { get; } = error;
         }
 
 	    readonly Dictionary<uint, float> _learningRateSchedule = new();
         readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new();
-        readonly List<NodeError> _nodeError = new();
-        readonly HashSet<NodeBase> _updatesDisabled = new();
+        readonly List<NodeError> _nodeError = [];
+        readonly HashSet<NodeBase> _updatesDisabled = [];
         readonly Stopwatch _timer = new();
 
         public LearningContext(GraphFactory graphFactory, IErrorMetric errorMetric)
@@ -56,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 
-        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor error)
+        public void AddError(NodeErrorType errorType, NodeBase fromNode, ITensor<float> error)
         {
             if (!_updatesDisabled.Contains(fromNode))
                 _nodeError.Add(new NodeError(fromNode, errorType, error));

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BrightData.Types;
 
 namespace BrightData.Analysis.Readers
 {
@@ -9,18 +10,18 @@ namespace BrightData.Analysis.Readers
     {
         internal NumericAnalysis(MetaData metaData)
         {
-            L1Norm             = metaData.Get<double>(Consts.L1Norm);
-            L2Norm             = metaData.Get<double>(Consts.L2Norm);
-            Min                = metaData.Get<double>(Consts.Min);
-            Max                = metaData.Get<double>(Consts.Max);
-            Mean               = metaData.Get<double>(Consts.Mean);
+            L1Norm             = metaData.GetOrThrow<double>(Consts.L1Norm);
+            L2Norm             = metaData.GetOrThrow<double>(Consts.L2Norm);
+            Min                = metaData.GetOrThrow<double>(Consts.Min);
+            Max                = metaData.GetOrThrow<double>(Consts.Max);
+            Mean               = metaData.GetOrThrow<double>(Consts.Mean);
             SampleVariance     = metaData.GetNullable<double>(Consts.SampleVariance);
             SampleStdDev       = metaData.GetNullable<double>(Consts.SampleStdDev);
             PopulationVariance = metaData.GetNullable<double>(Consts.PopulationVariance);
             PopulationStdDev   = metaData.GetNullable<double>(Consts.PopulationStdDev);
             Median             = metaData.GetNullable<double>(Consts.Median);
             Mode               = metaData.GetNullable<double>(Consts.Mode);
-            Total              = metaData.Get<ulong>(Consts.Total);
+            Total              = metaData.GetOrThrow<ulong>(Consts.Total);
             NumDistinct        = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency          = Get(Consts.FrequencyPrefix, metaData);
             FrequencyRange     = Get(Consts.FrequencyRangePrefix, metaData);
@@ -29,7 +30,7 @@ namespace BrightData.Analysis.Readers
         static (string Label, double value)[] Get(string prefix, MetaData metaData)
         {
             return metaData.GetStringsWithPrefix(prefix)
-                .Select(k => (Label: k[prefix.Length..], Value: metaData.Get<double>(k)))
+                .Select(k => (Label: k[prefix.Length..], Value: metaData.GetOrThrow<double>(k)))
                 .ToArray();
         }
 

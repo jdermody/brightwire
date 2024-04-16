@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>4.0.0-rc</Version>
+    <Version>4.0.0</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>Bright ML</Product>
@@ -11,7 +11,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
-    <Copyright>Copyright © Jack Dermody 2016-2023</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2024</Copyright>
     <PackageTags>machinelearning</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>

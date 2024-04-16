@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to short
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToShort<T> : ConverterBase<T>, ICanConvert<T, short>
         where T : notnull
     {

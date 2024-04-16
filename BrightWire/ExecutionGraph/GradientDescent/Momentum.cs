@@ -7,16 +7,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Gradient descent with momentum
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
     /// </summary>
-    internal class Momentum : AdaGrad
+    internal class Momentum(float momentum, IMatrix<float> cache, IGradientDescentOptimisation updater)
+        : AdaGrad(cache, updater)
     {
-        protected float _momentum;
-        
-        public Momentum(float momentum, IMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
-        {
-            _momentum = momentum;
-        }
+        protected float _momentum = momentum;
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             _cache.AddInPlace(delta, 1f, _momentum);
             _updater.Update(source, _cache, context);

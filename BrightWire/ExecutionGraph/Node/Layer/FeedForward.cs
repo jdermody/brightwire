@@ -8,17 +8,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// Feed forward neural network
     /// https://en.wikipedia.org/wiki/Feedforward_neural_network
     /// </summary>
-    internal class FeedForward : NodeBase, IFeedForward
+    internal class FeedForward(uint inputSize, uint outputSize, IVector<float> bias, IMatrix<float> weight, IGradientDescentOptimisation updater, string? name = null)
+        : NodeBase(name), IFeedForward
     {
-        protected class Backpropagation : SingleBackpropagationBase<FeedForward>
+        protected class Backpropagation(FeedForward source, IMatrix<float> input) : SingleBackpropagationBase<FeedForward>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(FeedForward source, IMatrix input) : base(source)
-            {
-                _input = input;
-            }
-
             protected override void DisposeMemory(bool isDisposing)
             {
                 //_input.Dispose();
@@ -32,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var ret = es.TransposeAndMultiply(_source.Weight);
 
                 // calculate the update to the weights
-                var weightUpdate = _input.TransposeThisAndMultiply(es);
+                var weightUpdate = input.TransposeThisAndMultiply(es);
 
                 // store the updates
                 var learningContext = context.LearningContext!;
@@ -43,21 +37,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        IGradientDescentOptimisation _updater;
-
-        public FeedForward(uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string? name = null) : base(name)
-        {
-            Bias = bias;
-            Weight = weight;
-            _updater = updater;
-            InputSize = inputSize;
-            OutputSize = outputSize;
-        }
-
-        public IVector Bias { get; private set; }
-        public IMatrix Weight { get; private set; }
-        public uint InputSize { get; private set; }
-        public uint OutputSize { get; private set; }
+        public IVector<float> Bias { get; private set; } = bias;
+        public IMatrix<float> Weight { get; private set; } = weight;
+        public uint InputSize { get; private set; } = inputSize;
+        public uint OutputSize { get; private set; } = outputSize;
 
         protected override void DisposeInternal(bool isDisposing)
         {
@@ -65,38 +48,38 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             Weight.Dispose();
         }
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             if(type == NodeErrorType.Bias)
-                UpdateBias((IMatrix)delta, context);
+                UpdateBias((IMatrix<float>)delta, context);
             else if (type == NodeErrorType.Weight)
-                UpdateWeights((IMatrix)delta, context);
+                UpdateWeights((IMatrix<float>)delta, context);
             else
                 throw new NotImplementedException();
         }
 
-        public void UpdateWeights(IMatrix delta, ILearningContext context)
+        public void UpdateWeights(IMatrix<float> delta, ILearningContext context)
         {
-            _updater.Update(Weight, delta, context);
+            updater.Update(Weight, delta, context);
             //if(!Weight.IsEntirelyFinite())
             //    Debugger.Break();
         }
 
-        public void UpdateBias(IMatrix delta, ILearningContext context)
+        public void UpdateBias(IMatrix<float> delta, ILearningContext context)
         {
             using var columnSums = delta.ColumnSums();
             columnSums.MultiplyInPlace(1f / delta.RowCount);
             Bias.AddInPlace(columnSums, 1f, context.LearningRate);
         }
 
-        protected IMatrix FeedForwardInternal(IMatrix input, IMatrix weight)
+        protected IMatrix<float> FeedForwardInternal(IMatrix<float> input, IMatrix<float> weight)
         {
             var output = input.Multiply(weight);
             output.AddToEachRow(Bias.Segment);
             return output;
         }
 
-        public IMatrix Forward(IMatrix input) => FeedForwardInternal(input, Weight);
+        public IMatrix<float> Forward(IMatrix<float> input) => FeedForwardInternal(input, Weight);
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -136,7 +119,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 weight.CopyTo(Weight);
 
             // ReSharper disable once ConstantNullCoalescingCondition
-            _updater ??= factory.CreateWeightUpdater(Weight);
+            updater ??= factory.CreateWeightUpdater(Weight);
         }
 
         public override void WriteTo(BinaryWriter writer)

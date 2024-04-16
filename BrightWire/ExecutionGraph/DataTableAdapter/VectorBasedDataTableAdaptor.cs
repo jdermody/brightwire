@@ -1,66 +1,70 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire.ExecutionGraph.Helper;
 using CommunityToolkit.HighPerformance.Buffers;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
     /// Segment table adapter for tables with vector data
     /// </summary>
-    internal class VectorBasedDataTableAdapter : RowBasedDataTableAdapterBase
+    internal class VectorBasedDataTableAdapter : TypedRowBasedDataTableAdapterBase<ReadOnlyVector<float>, ReadOnlyVector<float>>
     {
-        readonly uint[] _featureColumns;
-        readonly uint _inputColumnIndex;
-
-        public VectorBasedDataTableAdapter(BrightDataTable dataTable, uint[] featureColumns) 
-            : base(dataTable, featureColumns)
+        /// <summary>
+        /// Segment table adapter for tables with vector data
+        /// </summary>
+        VectorBasedDataTableAdapter(IDataTable dataTable, uint[] featureColumns, uint inputSize, uint? outputSize) : base(dataTable, featureColumns)
         {
-            _featureColumns = featureColumns;
-            var firstRow = dataTable.GetRow(0);
-            var input = (IReadOnlyVector)firstRow[_inputColumnIndex = _featureColumnIndices.Single()];
-            var output = (IReadOnlyVector)firstRow[_targetColumnIndex];
+            InputSize = inputSize;
+            OutputSize = outputSize;
+        }
 
-            InputSize = input.Size;
-            OutputSize = output.Size;
+        public static async Task<VectorBasedDataTableAdapter> Create(IDataTable dataTable, uint[] featureColumns)
+        {
+            var targetColumn = dataTable.GetTargetColumn();
+            ReadOnlyVector<float> firstVector;
+            var outputSize = 0U;
+
+            if (targetColumn.HasValue) {
+                var firstRow = await dataTable.GetRow<ReadOnlyVector<float>, ReadOnlyVector<float>>(featureColumns.Single(), targetColumn.Value);
+                firstVector = firstRow.C1;
+                outputSize = firstRow.C2.Size;
+            }
+            else {
+                firstVector = await dataTable.Get<ReadOnlyVector<float>>(featureColumns.Single(), 0);
+            }
+            return new(dataTable, featureColumns, firstVector.Size, outputSize);
         }
 
         public override uint InputSize { get; }
-	    public override uint? OutputSize { get; }
+        public override uint? OutputSize { get; }
 
-        public override IMiniBatch Get(uint[] rows)
+        public override async Task<MiniBatch> Get(uint[] rows)
         {
             var lap = _dataTable.Context.LinearAlgebraProvider;
-            using var inputRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            using var targetRows = SpanOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
-            var inputRowPtr = inputRows.Span;
-            var targetRowsPtr = targetRows.Span;
+            using var inputRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
+            using var targetRows = MemoryOwner<IReadOnlyNumericSegment<float>>.Allocate(rows.Length);
             var index = 0;
 
-            foreach (var row in GetRows(rows)) {
-                inputRowPtr[index] = GetSegment(_inputColumnIndex, row);
-                targetRowsPtr[index] = GetSegment(_targetColumnIndex, row);
+            await foreach (var row in GetRows(rows)) {
+                inputRows.Span[index] = row.C1.ReadOnlySegment;
+                targetRows.Span[index] = row.C2.ReadOnlySegment;
                 ++index;
             }
 
-            var input = lap.CreateMatrixFromRows(inputRowPtr);
+            var input = lap.CreateMatrixFromRows(inputRows.Span);
             var output = OutputSize > 0
-                ? lap.CreateMatrixFromRows(targetRowsPtr)
+                ? lap.CreateMatrixFromRows(targetRows.Span)
                 : null;
 
             return new MiniBatch(rows, this, input.AsGraphData(), output?.AsGraphData());
-
-            //var data = GetRows(rows)
-            //    .Select(r => (((IReadOnlyVector)r[_inputColumnIndex]).ToArray(), ((IReadOnlyVector)r[_targetColumnIndex]).ToArray()))
-            //    .ToArray()
-            //;
-            //return GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new VectorBasedDataTableAdapter(dataTable, _featureColumns);
+            return new VectorBasedDataTableAdapter(dataTable, _featureColumns, InputSize, OutputSize);
         }
     }
 }

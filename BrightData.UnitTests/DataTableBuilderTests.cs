@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -7,14 +8,14 @@ namespace BrightData.UnitTests
     public class DataTableBuilderTests : UnitTestBase
     {
         [Fact]
-        public void BuildSimple()
+        public async Task BuildSimple()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Int, "int");
-            builder.AddColumn(BrightDataType.String, "str");
+            builder.CreateColumn(BrightDataType.Int, "int");
+            builder.CreateColumn(BrightDataType.String, "str");
             builder.AddRow(6, "test");
             builder.AddRow(7, "test 2");
-            var table = builder.BuildInMemory();
+            var table = await builder.BuildInMemory();
             table.ColumnTypes[0].Should().Be(BrightDataType.Int);
         }
     }

@@ -5,52 +5,41 @@ using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightData.Serialisation;
+using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Attention
 {
     internal class SimpleAttention : NodeBase
     {
-        LinearAlgebraProvider _lap;
+        LinearAlgebraProvider<float> _lap;
         string _encoderName, _decoderName;
         uint _inputSize, _encoderSize, _decoderSize, _blockSize;
         IGradientDescentOptimisation _updater;
-        IMatrix _attention;
+        IMatrix<float> _attention;
 
-        class Backpropagation : SingleBackpropagationBase<SimpleAttention>
+        class Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix<float> inputMatrix, INumericSegment<float>[] softmax)
+            : SingleBackpropagationBase<SimpleAttention>(source)
         {
-            readonly uint _position, _sequenceSize;
-            readonly IMatrix _inputMatrix;
-            readonly INumericSegment<float>[] _softmax;
-
-            public Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix inputMatrix, INumericSegment<float>[] softmax) : base(source)
-            {
-                _position = position;
-                _sequenceSize = sequenceSize;
-                _inputMatrix = inputMatrix;
-                _softmax = softmax;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var (left, right) = errorSignal.GetMatrix().SplitAtColumn(_position);
+                var (left, right) = errorSignal.GetMatrix().SplitAtColumn(position);
                 Debug.Assert(right.IsEntirelyFinite());
 
                 // train the attention layer
                 var learningContext = context.LearningContext!;
                 var lap = context.GetLinearAlgebraProvider();
-                using var errorTensor = lap.CreateTensor3D(_sequenceSize.AsRange().Select(_ => right).ToArray());
-                using var errorMatrix = errorTensor.Reshape(_inputMatrix.RowCount, _inputMatrix.ColumnCount);
-                using var weightError = errorMatrix.PointwiseMultiply(_inputMatrix);
+                using var errorTensor = lap.CreateTensor3D(sequenceSize.AsRange().Select(_ => right).ToArray());
+                using var errorMatrix = errorTensor.Reshape(inputMatrix.RowCount, inputMatrix.ColumnCount);
+                using var weightError = errorMatrix.PointwiseMultiply(inputMatrix);
                 using var weightVector = weightError.RowSums();
                 weightVector.MultiplyInPlace(1f / weightError.ColumnCount);
 
-                using var weightMatrix = weightVector.Reshape(null, _sequenceSize);
-                var softmaxError = weightMatrix.SoftmaxDerivativePerRow(_softmax);
+                using var weightMatrix = weightVector.Reshape(null, sequenceSize);
+                var softmaxError = weightMatrix.SoftmaxDerivativePerRow(softmax);
                 //using var softmaxErrorMatrix = lap.CreateMatrixFromColumns(softmaxError);
                 using var softmaxErrorMatrix = lap.CreateMatrixFromRows(softmaxError);
                 using var softmaxErrorMatrix2 = softmaxErrorMatrix.Reshape(null, 1);
-                var attentionError = softmaxErrorMatrix2.TransposeThisAndMultiply(_inputMatrix);
+                var attentionError = softmaxErrorMatrix2.TransposeThisAndMultiply(inputMatrix);
                 learningContext.AddError(NodeErrorType.Default, _source, attentionError);
                 softmaxError.DisposeAll();
 
@@ -60,20 +49,20 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             protected override void DisposeMemory(bool isDisposing)
             {
                 if (isDisposing) {
-                    _softmax.DisposeAll();
+                    softmax.DisposeAll();
                 }
             }
         }
 
         public SimpleAttention(
-            LinearAlgebraProvider lap, 
+            LinearAlgebraProvider<float> lap, 
             string encoderName, 
             string decoderName,
             uint inputSize, 
             uint encoderSize, 
             uint decoderSize,
             IWeightInitialisation weightInit,
-            Func<IMatrix, IGradientDescentOptimisation> updater,
+            Func<IMatrix<float>, IGradientDescentOptimisation> updater,
             string? name, 
             string? id = null
         ) : base(name, id)
@@ -94,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             var batchSize = context.BatchSequence.MiniBatch.BatchSize;
 
             // get the previous decoder state
-            IMatrix? decoderHiddenState = null;
+            IMatrix<float>? decoderHiddenState = null;
             if (_decoderSize > 0) {
                 if (currentIndex == 0) {
                     if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
@@ -114,13 +103,13 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             // find each encoder hidden state and sequence input
             var previousBatch = context.BatchSequence.MiniBatch.PreviousMiniBatch ?? throw new Exception("No previous mini batch");
             Debug.Assert(batchSize == previousBatch.BatchSize);
-            IMatrix[]? encoderStates = null;
-            var inputs = new IMatrix[previousBatch.SequenceCount];
+            IMatrix<float>[]? encoderStates = null;
+            var inputs = new IMatrix<float>[previousBatch.SequenceCount];
             for (uint i = 0, len = previousBatch.SequenceCount; i < len; i++) {
                 var sequence = previousBatch.GetSequenceAtIndex(i);
                 if (_encoderSize > 0) {
                     if (i == 0)
-                        encoderStates = new IMatrix[len];
+                        encoderStates = new IMatrix<float>[len];
                     var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix()
                         ?? throw new Exception("Not able to find the encoder hidden state");
                     if (encoderState.ColumnCount != _encoderSize)
@@ -143,10 +132,10 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             for (uint i = 0; i < numInputRows; i++) {
                 var sequenceIndex = i / batchSize;
                 var batchIndex = i % batchSize;
-                var inputRow = inputMatrix.Row(i);
-                inputs[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, 0);
-                encoderStates?[sequenceIndex].Row(batchIndex).CopyTo(inputRow, 0, _inputSize);
-                decoderHiddenState?.Row(batchIndex).CopyTo(inputRow, 0, _inputSize + _encoderSize);
+                var inputRow = inputMatrix.GetRow(i);
+                inputs[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, sourceOffset:0, targetOffset:0);
+                encoderStates?[sequenceIndex].GetRow(batchIndex).CopyTo(inputRow, 0, _inputSize);
+                decoderHiddenState?.GetRow(batchIndex).CopyTo(inputRow, 0, _inputSize + _encoderSize);
             }
 
             // find the per batch softmax
@@ -167,9 +156,9 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, sequenceSize, inputMatrix, softmax));
         }
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
-            _updater.Update(_attention, (IMatrix)delta, context);
+            _updater.Update(_attention, (IMatrix<float>)delta, context);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

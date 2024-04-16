@@ -17,25 +17,14 @@ namespace BrightData.Cuda
     /// </summary>
     public unsafe class CudaProvider : IGpuLinearAlgebraProvider, IHaveBrightDataContext, IDisposable
 	{
-        readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = new();
+        readonly Dictionary<List<(uint X, uint Y)>, ConvolutionsData> _convolutionDataCache = [];
         const int BlockSize = 32;
 		const int N = BlockSize * BlockSize;
         internal const int FloatSize = sizeof(float);
 
-        class KernelExecution
-		{
-			readonly CuFunction _function;
-			readonly Dim3 _block;
-			readonly Dim3 _thread;
-
-			public KernelExecution(CuFunction function, Dim3 block, Dim3 thread)
-			{
-				_function = function;
-				_block = block;
-				_thread = thread;
-			}
-
-			public void Run(CuStream stream, uint sharedMemSize, object[] param)
+        class KernelExecution(CuFunction function, Dim3 block, Dim3 thread)
+        {
+            public void Run(CuStream stream, uint sharedMemSize, object[] param)
 			{
 				var paramList = new IntPtr[param.Length];
 				var handleList = new GCHandle[param.Length];
@@ -46,9 +35,9 @@ namespace BrightData.Cuda
 					paramList[i] = handleList[i].AddrOfPinnedObject();
 				}
 
-				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(_function,
-					_block.X, _block.Y, _block.Z,
-					_thread.X, _thread.Y, _thread.Z,
+				var result = DriverApiNativeMethods.Launch.cuLaunchKernel(function,
+					block.X, block.Y, block.Z,
+					thread.X, thread.Y, thread.Z,
 					sharedMemSize,
                     stream,
 					paramList,
@@ -63,16 +52,11 @@ namespace BrightData.Cuda
 			}
 		}
 
-		class KernelModule
-		{
-			readonly CuModule _module;
+		class KernelModule(CudaContext context, string path)
+        {
+			readonly CuModule _module = context.LoadModule(path);
 
-			public KernelModule(CudaContext context, string path)
-			{
-				_module = context.LoadModule(path);
-			}
-
-			public CuFunction LoadFunction(string name)
+            public CuFunction LoadFunction(string name)
 			{
 				var ret = new CuFunction();
 				if (DriverApiNativeMethods.ModuleManagement.cuModuleGetFunction(ref ret, _module, name) != CuResult.Success)
@@ -111,6 +95,7 @@ namespace BrightData.Cuda
 			_leakyRelu,
 			_leakyReluDerivative,
 			_memSet,
+            _memCpy,
 			_sumColumns,
 			_pointwiseDivide,
 			_sqrt,
@@ -227,6 +212,7 @@ namespace BrightData.Cuda
 			_relu                   = _kernel.LoadFunction("RELU");
 			_reluDerivative         = _kernel.LoadFunction("RELUDerivative");
 			_memSet                 = _kernel.LoadFunction("MemSet");
+            _memCpy                 = _kernel.LoadFunction("MemCpy");
 			_sumColumns             = _kernel.LoadFunction("SumColumns");
 			_pointwiseDivide        = _kernel.LoadFunction("PointwiseDivide");
 			_sqrt                   = _kernel.LoadFunction("Sqrt");
@@ -418,7 +404,7 @@ namespace BrightData.Cuda
 				Invoke(_isFinite, stream, size, a.DevicePointer, temp.DevicePointer, size, ai);
                 float sum = 0;
                 CudaBlasNativeMethods.cublasSasum_v2(_blas.Value, temp.DeviceVariable.Size, temp.DeviceVariable.DevicePointer, 1, ref sum);
-                return FloatMath.IsZero(sum);
+                return Math<float>.IsZero(sum);
 			}
 			finally {
 				temp.Release();
@@ -545,6 +531,11 @@ namespace BrightData.Cuda
 		{
 			Invoke(_memSet, stream, count, data.DevicePointer, value, count, offset, increment);
 		}
+
+        internal void MemCpy(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint count, CuStream* stream = null, uint offsetA = 0, uint offsetB = 0, uint incrementA = 1, uint incrementB = 1)
+        {
+            Invoke(_memCpy, stream, count, a.DevicePointer, b.DevicePointer, count, offsetA, offsetB, incrementA, incrementB);
+        }
 
 		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, uint size, float valueAdjustment, uint ai = 1, uint bi = 1, CuStream* stream = null)
 		{

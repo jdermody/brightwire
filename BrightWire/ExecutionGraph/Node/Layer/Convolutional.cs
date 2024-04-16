@@ -11,29 +11,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	/// </summary>
     internal class Convolutional : NodeBase
 	{
-		class Backpropagation : SingleBackpropagationBase<Convolutional>
-		{
-			readonly ITensor3D _im2Col;
-			readonly uint _inputWidth, _inputHeight, _inputDepth, _newWidth, _newHeight;
-
-			public Backpropagation(Convolutional source, ITensor3D im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint newWidth, uint newHeight)
-				: base(source)
-			{
-				_im2Col = im2Col;
-				_newWidth = newWidth;
-				_newHeight = newHeight;
-				_inputWidth = inputWidth;
-				_inputHeight = inputHeight;
-				_inputDepth = inputDepth;
-			}
-
+		class Backpropagation(Convolutional source, ITensor3D<float> im2Col, uint inputWidth, uint inputHeight, uint depth, uint newWidth, uint newHeight)
+            : SingleBackpropagationBase<Convolutional>(source)
+        {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                var tensor = errorSignal.GetMatrix().Reshape(null, _source._filter.ColumnCount, _newHeight, _newWidth);
+                var tensor = errorSignal.GetMatrix().Reshape(null, _source._filter.ColumnCount, newHeight, newWidth);
                 var padding = _source._padding;
 
                 // calculate the weight and bias updates
-                using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
+                using (var update = im2Col.TransposeThisAndMultiply(tensor)) {
                     var weightUpdate = update.AddAllMatrices();
                     var biasUpdate = tensor.ColumnSums();
 
@@ -50,9 +37,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var xStride = _source._xStride;
                     var yStride = _source._yStride;
 
-                    var outputRows = _inputHeight + padding * 2;
-                    var outputColumns = _inputWidth + padding * 2;
-                    var outputDepth = _inputDepth;
+                    var outputRows = inputHeight + padding * 2;
+                    var outputColumns = inputWidth + padding * 2;
+                    var outputDepth = depth;
 
                     var reverseIm2Col = tensor.ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
                     var delta = reverseIm2Col;
@@ -63,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     }
 
                     var deltaMatrix = delta.ReshapeAsMatrix();
-                    var ret = new Tensor4DGraphData(deltaMatrix, _inputHeight, _inputWidth, inputDepth);
+                    var ret = new Tensor4DGraphData(deltaMatrix, inputHeight, inputWidth, inputDepth);
                     return ret;
                 }
                 return GraphData.Null;
@@ -71,14 +58,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
 		IGradientDescentOptimisation? _updater;
 		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
-		IMatrix _filter;
-		IVector _bias;
+		IMatrix<float> _filter;
+		IVector<float> _bias;
 		bool _shouldBackpropagate;
 
 		public Convolutional(
 			bool shouldBackpropagate,
 			IWeightInitialisation weightInitialisation,
-			Func<IMatrix, IGradientDescentOptimisation> updater,
+			Func<IMatrix<float>, IGradientDescentOptimisation> updater,
 			uint inputDepth,
 			uint filterCount,
 			uint padding,
@@ -109,12 +96,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             if(type == NodeErrorType.Bias)
                 _bias.AddInPlace(delta, 1f, context.LearningRate);
 			else if (type == NodeErrorType.Weight)
-                _updater!.Update(_filter, (IMatrix)delta, context);
+                _updater!.Update(_filter, (IMatrix<float>)delta, context);
             else
                 throw new NotImplementedException();
         }

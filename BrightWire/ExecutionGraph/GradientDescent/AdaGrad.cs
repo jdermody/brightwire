@@ -7,23 +7,17 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// AdaGrad gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
     /// </summary>
-    internal class AdaGrad : IGradientDescentOptimisation
+    internal class AdaGrad(IMatrix<float> cache, IGradientDescentOptimisation updater) : IGradientDescentOptimisation
     {
-        protected IMatrix _cache;
-        protected IGradientDescentOptimisation _updater;
-
-        public AdaGrad(IMatrix cache, IGradientDescentOptimisation updater)
-        {
-            _cache = cache;
-            _updater = updater;
-        }
+        protected IMatrix<float> _cache = cache;
+        protected IGradientDescentOptimisation _updater = updater;
 
         public virtual void Dispose()
         {
             _cache.Dispose();
         }
 
-        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public virtual void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(deltaSquared);

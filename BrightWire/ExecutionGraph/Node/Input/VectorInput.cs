@@ -5,14 +5,11 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
-    internal class VectorInput : NodeBase
-	{
-		class Backpropagation : SingleBackpropagationBase<VectorInput>
-		{
-			public Backpropagation(VectorInput source) : base(source)
-			{
-			}
-
+    internal class VectorInput(BrightDataContext context, float[] data, string? name = null, string? id = null)
+        : NodeBase(name, id)
+    {
+		class Backpropagation(VectorInput source) : SingleBackpropagationBase<VectorInput>(source)
+        {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
@@ -27,24 +24,15 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
-        readonly BrightDataContext _context;
-        readonly float[] _data;
+        public float[] Data => data;
 
-		public VectorInput(BrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
-        {
-            _context = context;
-            _data = data;
-        }
-
-		public float[] Data => _data;
-
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext learningContext)
         {
             var temp = SpanOwner<float>.Empty;
             var array = delta.Segment.GetSpan(ref temp, out var wasTempUsed);
             try {
-                for (var j = 0; j < _data.Length; j++)
-                    _data[j] += array[j] * context.LearningRate;
+                for (var j = 0; j < data.Length; j++)
+                    data[j] += array[j] * learningContext.LearningRate;
             }
             finally {
                 if(wasTempUsed)
@@ -52,10 +40,10 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext graphContext, NodeBase? source)
         {
-            var data = context.GetLinearAlgebraProvider().CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (_, y) => _data[y]);
-            return (this, data.AsGraphData(), () => new Backpropagation(this));
+            var data1 = graphContext.GetLinearAlgebraProvider().CreateMatrix(graphContext.BatchSequence.MiniBatch.BatchSize, (uint)data.Length, (_, y) => data[y]);
+            return (this, data1.AsGraphData(), () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()
@@ -65,13 +53,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void WriteTo(BinaryWriter writer)
 		{
-            _context.CreateReadOnlyVector(_data).WriteTo(writer);
+            context.CreateReadOnlyVector(data).WriteTo(writer);
 		}
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-            var temp = _context.LoadReadOnlyVectorFrom(reader);
-            temp.ReadOnlySegment.CopyTo(_data);
+            var temp = context.LoadReadOnlyVectorFrom(reader);
+            temp.ReadOnlySegment.CopyTo(data);
 		}
 	}
 }

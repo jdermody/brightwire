@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -12,12 +12,12 @@ namespace BrightWire.TrainingData.Artificial
         /// Generates a data table containing XOR training data
         /// </summary>
         /// <returns></returns>
-        public static BrightDataTable Get(BrightDataContext context)
+        public static Task<IDataTable> Get(BrightDataContext context)
         {
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float, "X");
-            builder.AddColumn(BrightDataType.Float, "Y");
-            builder.AddColumn(BrightDataType.Float, "XOR").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "X");
+            builder.CreateColumn(BrightDataType.Float, "Y");
+            builder.CreateColumn(BrightDataType.Float, "XOR").MetaData.SetTarget(true);
 
             builder.AddRow(0.0f, 0.0f, 0.0f);
             builder.AddRow(1.0f, 0.0f, 1.0f);

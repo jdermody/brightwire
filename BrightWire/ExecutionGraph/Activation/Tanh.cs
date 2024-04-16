@@ -8,26 +8,17 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Tanh activation function
     /// https://en.wikipedia.org/wiki/Activation_function
     /// </summary>
-    internal class Tanh : NodeBase
+    internal class Tanh(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<Tanh>
+        class Backpropagation(Tanh source, IMatrix<float> matrix) : SingleBackpropagationBase<Tanh>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(Tanh source, IMatrix matrix) : base(source)
-            {
-                _input = matrix;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                using var od = _input.TanhDerivative();
+                using var od = matrix.TanhDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
         }
-
-        public Tanh(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

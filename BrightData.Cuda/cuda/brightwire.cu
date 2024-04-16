@@ -16,6 +16,8 @@
 
 #define BLOCKSIZE 32
 #define N BLOCKSIZE*BLOCKSIZE
+#define NEG_INF __int_as_float(0xff800000)
+#define POS_INF __int_as_float(0x7f800000)
 
 typedef unsigned int uint;
 
@@ -200,6 +202,13 @@ extern "C"
         }
 	}
 
+    __global__ void MemCpy(float* __restrict a, float* __restrict b, uint count, uint offsetA, uint offsetB, uint ai, uint bi)
+	{
+        for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
+			a[offsetA + (index * ai)] = b[offsetB + (index * bi)];
+        }
+	}
+
 	__global__ void FindMinAndMax(const float* __restrict a, uint count, float* __restrict minBlock, float* __restrict maxBlock, uint ai)
 	{
 		uint tidX = threadIdx.x;
@@ -260,10 +269,12 @@ extern "C"
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
             uint ind = index * ai;
             float val = a[ind];
-			if (val < min)
+			if (val < min || val == NEG_INF)
 				a[ind] = min;
-			if (val > max)
+			if (val > max || val == POS_INF)
 				a[ind] = max;
+            if(isnan(val))
+                a[ind] = 0;
         }
 	}
 

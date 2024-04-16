@@ -1,29 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData.Types;
 
 namespace BrightData.Analysis
 {
     /// <summary>
     /// Numeric analysis
     /// </summary>
-    internal class NumericAnalyser : IDataAnalyser<double>
-	{
-		readonly uint _writeCount, _maxCount;
-		readonly SortedDictionary<double, ulong> _distinct = new();
-
-		double _mean, _m2, _min, _max, _mode, _l1, _l2;
+    internal class NumericAnalyser(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<double>
+    {
+        readonly SortedDictionary<double, ulong> _distinct = [];
+		double _mean, _m2, _min = double.MaxValue, _max = double.MinValue, _mode, _l1, _l2;
 		ulong _total, _highestCount;
 
-		public NumericAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
-		{
-            _max = double.MinValue;
-            _min = double.MaxValue;
-            _maxCount = maxCount;
-            _writeCount = writeCount;
-		}
-
-		public virtual void Add(double val)
+        public virtual void Add(double val)
 		{
 			++_total;
 
@@ -40,22 +31,26 @@ namespace BrightData.Analysis
 				_max = val;
 
 			// add to distinct values
-			if (_distinct.Count < _maxCount) {
-                if (_distinct.TryGetValue(val, out var count))
-					_distinct[val] = ++count;
-				else
-					_distinct.Add(val, count = 1);
+            if (_distinct.TryGetValue(val, out var count))
+                _distinct[val] = ++count;
+            else
+                _distinct.Add(val, count = 1);
 
-				if (count > _highestCount) {
-					_highestCount = count;
-					_mode = val;
-				}
-			}
+            if (count > _highestCount) {
+                _highestCount = count;
+                _mode = val;
+            }
 
 			// calculate norms
 			_l1 += Math.Abs(val);
 			_l2 += val * val;
 		}
+
+        public void Append(ReadOnlySpan<double> span)
+        {
+            foreach(var item in span)
+                Add(item);
+        }
 
 		public double L1Norm => _l1;
 	    public double L2Norm => Math.Sqrt(_l2);
@@ -64,7 +59,7 @@ namespace BrightData.Analysis
 	    public double Mean => _mean;
 	    public double? SampleVariance => _total > 1 ? _m2 / (_total - 1) : null;
         public double? PopulationVariance => _total > 0 ? _m2 / _total : null;
-        public uint? NumDistinct => _distinct.Count < _maxCount ? (uint?)_distinct.Count : null;
+        public uint NumDistinct => (uint)_distinct.Count;
 
 	    public double? SampleStdDev {
             get
@@ -92,7 +87,7 @@ namespace BrightData.Analysis
             get
             {
                 double? ret = null;
-                if (_distinct.Count < _maxCount && _distinct.Any()) {
+                if (_distinct.Count > 0) {
                     if (_total % 2 == 1)
                         return SortedValues.Skip((int) (_total / 2)).First();
                     return SortedValues.Skip((int) (_total / 2 - 1)).Take(2).Average();
@@ -116,7 +111,7 @@ namespace BrightData.Analysis
         {
             get
             {
-                if (_distinct.Count < _maxCount && _distinct.Any())
+                if (_distinct.Count > 0)
                     return _mode;
                 return null;
             }
@@ -147,26 +142,26 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.PopulationStdDev, PopulationStdDev);
             metadata.SetIfNotNull(Consts.Median, Median);
 			metadata.SetIfNotNull(Consts.Mode, Mode);
-			if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {
-				var total = (double) _total;
-                var range = Max - Min;
-                if (range > 0) {
-                    var bin = new LinearBinnedFrequencyAnalysis(Min, Max, 10);
-                    var index = 0;
-                    foreach (var item in _distinct.OrderByDescending(kv => kv.Value)) {
-                        if (index++ < _writeCount)
-                            metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
-                        for (ulong i = 0; i < item.Value; i++)
-                            bin.Add(item.Key);
-                    }
+            metadata.Set(Consts.NumDistinct, NumDistinct);
 
-                    foreach (var (s, e, c) in bin.ContinuousFrequency) {
-                        if (c == 0 && (double.IsNegativeInfinity(s) || double.IsPositiveInfinity(e)))
-                            continue;
-                        var start = double.IsNegativeInfinity(s) ? "-∞" : s.ToString("G17");
-                        var end = double.IsPositiveInfinity(e) ? "∞" : e.ToString("G17");
-                        metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", c / total);
-                    }
+			var total = (double) _total;
+            var range = Max - Min;
+            if (range > 0) {
+                var bin = new LinearBinnedFrequencyAnalysis(Min, Max, 10);
+                var index = 0U;
+                foreach (var item in _distinct.OrderByDescending(kv => kv.Value)) {
+                    if (index++ < writeCount)
+                        metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
+                    for (ulong i = 0; i < item.Value; i++)
+                        bin.Add(item.Key);
+                }
+
+                foreach (var (s, e, c) in bin.ContinuousFrequency) {
+                    if (c == 0 && (double.IsNegativeInfinity(s) || double.IsPositiveInfinity(e)))
+                        continue;
+                    var start = double.IsNegativeInfinity(s) ? "-∞" : s.ToString("G17");
+                    var end = double.IsPositiveInfinity(e) ? "∞" : e.ToString("G17");
+                    metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", c / total);
                 }
             }
 		}

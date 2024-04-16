@@ -2,20 +2,17 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.Types;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class EmotionsTrainer : DataTableTrainer
+    internal class EmotionsTrainer(IDataTable table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public EmotionsTrainer(BrightDataTable table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
-        {
-        }
-
-        public static BrightDataTable Parse(BrightDataContext context, string filePath)
+        public static async Task<IDataTable> Parse(BrightDataContext context, string filePath)
         {
             const int targetColumnCount = 6;
 
@@ -23,44 +20,54 @@ namespace ExampleCode.DataTableTrainers
             using var reader = new StreamReader(filePath);
             while (!reader.EndOfStream)
             {
-                var line = reader.ReadLine();
+                var line = await reader.ReadLineAsync();
                 if (line == "@data")
                     break;
             }
-            using var table = context.ParseCsvIntoMemory(reader, false);
+            using var table = await context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
-            var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
-            var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
-            var columnConversions = featureColumns
-                .Select(i => ColumnConversionOperation.ToNumeric.ConvertColumn(i))
-                .Concat(targetColumns.Select(i => ColumnConversionOperation.ToBoolean.ConvertColumn(i)))
+            var featureColumnIndices = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
+            var targetColumnIndices = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
+            var columnConversions = featureColumnIndices
+                .Select(i => ColumnConversion.ToFloat.ConvertColumn(i))
+                .Concat(targetColumnIndices.Select(i => ColumnConversion.ToBoolean.ConvertColumn(i)))
                 .ToArray();
-            using var converted = table.Convert(columnConversions);
+            using var converted = await table.Convert(null, columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var tempStreams = context.CreateTempStreamProvider();
-            var reinterpreted = converted.ReinterpretColumns(tempStreams, null, targetColumns.ReinterpretColumns(BrightDataType.IndexList, "Targets"));
-            reinterpreted.SetTargetColumn(reinterpreted.ColumnCount-1);
-
-            return reinterpreted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
-
+            using var tempStreams = context.CreateTempDataBlockProvider();
+            var featureColumns = converted.GetColumns(featureColumnIndices);
+            var targetColumns = converted.GetColumns(targetColumnIndices);
+            var targetVectoriser = await targetColumns.GetVectoriser(true);
+            var targetIndexLists = await targetVectoriser.Vectorise(targetColumns).ToIndexLists();
+            
+            var builder = context.CreateTableBuilder();
+            converted.MetaData.CopyTo(builder.TableMetaData);
+            builder.CreateColumnsFrom(featureColumns);
+            builder.CreateColumn(BrightDataType.IndexList, "Target").MetaData.SetTarget(true);
+            var allColumns = new IReadOnlyBufferWithMetaData[featureColumns.Length + 1];
+            featureColumns.CopyTo(allColumns, 0);
+            allColumns[featureColumns.Length] = targetIndexLists;
+            await builder.AddRows(allColumns);
+            var finalTable = await builder.Build(null);
+            return finalTable;
         }
 
-        static BrightDataTable ConvertToBinary(BrightDataTable table, uint indexOffset)
+        static async Task<IDataTable> ConvertToBinary(IDataTable table, uint indexOffset)
         {
             // converts the index list to a boolean based on if the flag is set
-            var ret = table.Project(null, r => {
-                var ret2 = (object[]) r.Clone();
-                var indexList = (IndexList) ret2[r.Length - 1];
-                ret2[r.Length - 1] = indexList.HasIndex(indexOffset);
-                return ret2;
+            var ret = await table.Project(r => {
+                var ret = r.Values;
+                var indexList = (IndexList) ret[r.Size - 1];
+                ret[r.Size - 1] = indexList.HasIndex(indexOffset);
+                return ret;
             });
-            ret.SetTargetColumn(ret.ColumnCount-1);
-            return ret;
+            ret.ColumnMetaData.SetTargetColumn(ret.ColumnCount-1);
+            return await ret.BuildInMemory();
         }
 
-        public void TrainNeuralNetwork()
+        public async Task TrainNeuralNetwork()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -74,28 +81,30 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create a training engine
-            const float trainingRate = 0.3f;
-            var trainingData = graph.CreateDataSource(Training);
+            const float trainingRate = 0.003f;
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate);
 
             // build the network
-            const int hiddenLayerSize = 64, trainingIterations = 2000;
+            const int hiddenLayerSize = 32, trainingIterations = 2000;
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
-                .AddDropOut(dropOutPercentage: 0.5f)
+                //.AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagation();
+
+            engine.LearningContext.ScheduleLearningRate(1000, trainingRate/2);
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(trainingIterations, testData, model => bestGraph = model.Graph, 50);
+            await engine.Train(trainingIterations, testData, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
 
             // output the results
             var rowIndex = 0;
@@ -115,7 +124,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public void TrainMultiClassifiers()
+        public async Task TrainMultiClassifiers()
         {
             var classificationLabel = new[] {
                 "amazed-suprised",
@@ -126,10 +135,10 @@ namespace ExampleCode.DataTableTrainers
                 "angry-aggresive"
             };
             var trainingTables = classificationLabel
-                .Select((c, i) => (Table: ConvertToBinary(Training, (uint) i), Label: c))
+                .Select((c, i) => (Table: ConvertToBinary(Training, (uint) i).Result, Label: c))
                 .ToArray();
             var testTables = classificationLabel
-                .Select((c, i) => (Table: ConvertToBinary(Test, (uint)i), Label: c))
+                .Select((c, i) => (Table: ConvertToBinary(Test, (uint)i).Result, Label: c))
                 .ToArray();
 
             var graph = _context.CreateGraphFactory();
@@ -149,9 +158,10 @@ namespace ExampleCode.DataTableTrainers
                 Console.WriteLine("Training on {0}", item.Training.Label);
 
                 // train and evaluate a naive bayes classifier
-                var naiveBayes = item.Training.Table.TrainNaiveBayes().CreateClassifier();
+                var naiveBayes = (await item.Training.Table.TrainNaiveBayes()).CreateClassifier();
                 Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
                     .Classify(naiveBayes)
+                    .ToBlockingEnumerable()
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 
@@ -167,15 +177,16 @@ namespace ExampleCode.DataTableTrainers
                 //);
 
                 // train and evaluate k nearest neighbours
-                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider, 10);
+                var knn = (await item.Training.Table.TrainKNearestNeighbours()).CreateClassifier(_context.LinearAlgebraProvider, 10);
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
+                    .ToBlockingEnumerable()
                     .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
                 );
 
                 // create a training engine
-                const float trainingRate = 0.1f;
-                var trainingData = graph.CreateDataSource(item.Training.Table);
+                const float trainingRate = 0.003f;
+                var trainingData = await graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
                 var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 64);
 
@@ -184,14 +195,14 @@ namespace ExampleCode.DataTableTrainers
                 graph.Connect(engine)
                     .AddFeedForward(hiddenLayerSize)
                     .Add(graph.SigmoidActivation())
-                    .AddDropOut(dropOutPercentage: 0.5f)
+                    //.AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.TanhActivation())
                     .AddBackpropagation()
                 ;
 
                 // train the network
-                engine.Train(trainingIterations, testData, null, 200);
+                await engine.Train(trainingIterations, testData, null, 200);
             }
         }
     }

@@ -3,28 +3,17 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
-    internal class InputSquared : NodeBase
+    internal class InputSquared(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<InputSquared>
+        class Backpropagation(InputSquared source, IMatrix<float> input) : SingleBackpropagationBase<InputSquared>(source)
         {
-			readonly IMatrix _input;
-
-            public Backpropagation(InputSquared source, IMatrix input) : base(source)
-            {
-				_input = input;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
-                var err = es.PointwiseMultiply(_input);
+                var err = es.PointwiseMultiply(input);
                 err.MultiplyInPlace(2f);
                 return errorSignal.ReplaceWith(err);
             }
-        }
-
-        public InputSquared(string? name = null) : base(name)
-        {
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

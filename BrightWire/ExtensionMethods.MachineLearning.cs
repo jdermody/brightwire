@@ -4,9 +4,9 @@ using BrightWire.Helper;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.TreeBased.Training;
-using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
@@ -14,7 +14,7 @@ using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.Types;
 
 namespace BrightWire
 {
@@ -27,7 +27,7 @@ namespace BrightWire
         /// <param name="fixedSize">The vector size to reduce from</param>
         /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public static IRandomProjection CreateRandomProjection(this LinearAlgebraProvider<float> lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
@@ -43,9 +43,7 @@ namespace BrightWire
         public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2) where T: notnull
         {
             var observation = new MarkovModelObservation2<T>(item1, item2);
-            if (model.TryGetValue(observation, out var ret))
-                return ret;
-            return null;
+            return model.GetValueOrDefault(observation);
         }
 
         /// <summary>
@@ -60,59 +58,28 @@ namespace BrightWire
         public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2, T item3) where T : notnull
         {
             var observation = new MarkovModelObservation3<T>(item1, item2, item3);
-            if (model.TryGetValue(observation, out var ret))
-                return ret;
-            return null;
+            return model.GetValueOrDefault(observation);
         }
 
         /// <summary>
-        /// Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
+        /// Non-negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IVector[][] Nnmf(this IEnumerable<IVector> data, LinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static uint[][] Nnmf(this IReadOnlyVector<float>[] data, LinearAlgebraProvider<float> lap, uint k, uint maxIterations = 1000)
         {
-            var clusterer = new NonNegativeMatrixFactorisation(lap, k);
-            return clusterer.Cluster(data, maxIterations);
-        }
-
-        /// <summary>
-        /// Hierarchical clustering successively finds the closest distance between pairs of centroids until k is reached
-        /// </summary>
-        /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="k">The number of clusters to find</param>
-        /// <returns>A list of k clusters</returns>
-        public static IVector[][] HierarchicalCluster(this IEnumerable<IVector> data, uint k)
-        {
-            using var clusterer = new Hierarchical(k, data);
-            clusterer.Cluster();
-            return clusterer.Clusters;
-        }
-
-        /// <summary>
-        /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
-        /// </summary>
-        /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="context">Bright data context</param>
-        /// <param name="k">The number of clusters to find</param>
-        /// <param name="maxIterations">The maximum number of iterations</param>
-        /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
-        /// <returns>A list of k clusters</returns>
-        public static IVector[][] KMeans(this IEnumerable<IVector> data, BrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
-        {
-            using var clusterer = new KMeans(context, k, data, distanceMetric);
-            clusterer.ClusterUntilConverged(maxIterations);
-            return clusterer.Clusters;
+            var clusterer = lap.Context.NewNNMFClustering(maxIterations);
+            return clusterer.Cluster(data, k, DistanceMetric.Euclidean);
         }
 
         /// <summary>
         /// K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
         /// </summary>
         /// <param name="data">The training data</param>
-        public static KNearestNeighbours TrainKNearestNeighbours(this BrightDataTable data)
+        public static Task<KNearestNeighbours> TrainKNearestNeighbours(this IDataTable data)
         {
             return KnnClassificationTrainer.Train(data);
         }
@@ -126,7 +93,7 @@ namespace BrightWire
         /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this BrightDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
+        public static Task<RandomForest> TrainRandomForest(this IDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
@@ -137,7 +104,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this BrightDataTable data, DecisionTreeTrainer.Config? config = null)
+        public static DecisionTree TrainDecisionTree(this IDataTable data, DecisionTreeTrainer.Config? config = null)
         {
             return DecisionTreeTrainer.Train(data, config);
         }
@@ -158,9 +125,9 @@ namespace BrightWire
 		/// <summary>
 		/// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
 		/// </summary>
-		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
+		/// <param name="table">The training data table that must have an index-list based column to classify against</param>
 		/// <returns></returns>
-	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this BrightDataTable table)
+	    public static async Task<MultinomialNaiveBayes> TrainMultinomialNaiveBayes(this IDataTable table)
 		{
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
@@ -169,7 +136,7 @@ namespace BrightWire
             if (indexListColumn.Index == targetColumnIndex)
                 throw new ArgumentException("No index list column of features");
 
-            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
+            var data = await table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainMultinomialNaiveBayes();
         }
 
@@ -191,14 +158,14 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="table">The training data table that must have an index-list based column</param>
 	    /// <returns>A model that can be used for classification</returns>
-	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this BrightDataTable table)
+	    public static async Task<BernoulliNaiveBayes> TrainBernoulliNaiveBayes(this IDataTable table)
 	    {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var indexListColumn = table.ColumnTypes
                 .Select((c, i) => (ColumnType: c, Index: (uint)i))
                 .Single(c => c.ColumnType == BrightDataType.IndexList);
 
-            var data = table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
+            var data = await table.MapRows(row => new IndexListWithLabel<string>(row.Get<string>(targetColumnIndex), row.Get<IndexList>(indexListColumn.Index)));
             return data.TrainBernoulliNaiveBayes();
         }
 
@@ -207,7 +174,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="table">The training data provider</param>
         /// <returns>A naive bayes model</returns>
-        public static NaiveBayes TrainNaiveBayes(this BrightDataTable table)
+        public static Task<NaiveBayes> TrainNaiveBayes(this IDataTable table)
         {
             return NaiveBayesTrainer.Train(table);
         }
@@ -237,9 +204,9 @@ namespace BrightWire
         /// <param name="gradientDescent"></param>
         /// <param name="weightInitialisation"></param>
         /// <returns></returns>
-        public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
-            BrightDataTable trainingTable,
-            BrightDataTable testTable,
+        public static async Task<ExecutionGraphModel?> TrainSimpleNeuralNetwork(this GraphFactory graph,
+            IDataTable trainingTable,
+            IDataTable testTable,
             IErrorMetric errorMetric,
             float learningRate,
             uint batchSize,
@@ -257,7 +224,7 @@ namespace BrightWire
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(trainingTable);
+            var trainingData = await graph.CreateDataSource(trainingTable);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize);
 
             // create the network
@@ -277,8 +244,8 @@ namespace BrightWire
             // train the network, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
-            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
-            engine.Test(testData);
+            await engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            await engine.Test(testData);
             return bestGraph;
         }
     }

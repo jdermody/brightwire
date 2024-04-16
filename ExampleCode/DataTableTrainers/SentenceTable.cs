@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.Types;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
     internal class SentenceTable
     {
-        readonly BrightDataTable _sentenceTable;
-        readonly Dictionary<string, uint> _stringIndex = new();
-        readonly List<string> _strings = new();
+        readonly IDataTable _sentenceTable;
+        readonly Dictionary<string, uint> _stringIndex = [];
+        readonly List<string> _strings = [];
         readonly uint _empty;
 
         public SentenceTable(BrightDataContext context, IEnumerable<string[]> sentences)
@@ -23,10 +24,10 @@ namespace ExampleCode.DataTableTrainers
             _empty = GetStringIndex("");
 
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.IndexList, "Sentences");
+            builder.CreateColumn(BrightDataType.IndexList, "Sentences");
             foreach(var sentence in sentences)
-                builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
-            _sentenceTable = builder.BuildInMemory();
+                builder.AddRow(IndexList.Create(sentence.Select(GetStringIndex).ToArray()));
+            _sentenceTable = builder.BuildInMemory().Result;
         }
 
         public uint GetStringIndex(string str)
@@ -56,8 +57,8 @@ namespace ExampleCode.DataTableTrainers
             // create a markov trainer that uses a window of size 3
             var context = _sentenceTable.Context;
             var trainer = context.CreateMarkovTrainer3(_empty);
-            using var column = _sentenceTable.GetColumn<IndexList>(0);
-            foreach(var sentence in column.Values)
+            var column = _sentenceTable.GetColumn<IndexList>(0);
+            foreach(var sentence in column.EnumerateAllTyped().ToBlockingEnumerable())
                 trainer.Add(sentence.Indices);
 
             var ret = trainer.Build();

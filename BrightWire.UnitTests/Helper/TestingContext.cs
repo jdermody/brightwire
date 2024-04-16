@@ -10,10 +10,10 @@ namespace BrightWire.UnitTests.Helper
 {
     internal class TestingContext : IGraphContext
     {
-        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new();
+        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = [];
 
 #pragma warning disable 8618
-        public TestingContext(LinearAlgebraProvider lap)
+        public TestingContext(LinearAlgebraProvider<float> lap)
 #pragma warning restore 8618
         {
             LearningContext = new MockLearningContext();
@@ -30,7 +30,7 @@ namespace BrightWire.UnitTests.Helper
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
 
-        public IMiniBatchSequence BatchSequence { get; }
+        public MiniBatch.Sequence BatchSequence { get; }
 
 
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)

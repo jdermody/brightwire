@@ -2,18 +2,19 @@
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.LinearAlgebra;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
     internal class TensorDataSource : IDataSource
     {
         readonly uint _rows, _columns, _depth, _matrixSize;
-        readonly ITensor3D[] _data;
-        readonly LinearAlgebraProvider _lap;
+        readonly ITensor3D<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public TensorDataSource(LinearAlgebraProvider lap, ITensor3D[] data)
+        public TensorDataSource(LinearAlgebraProvider<float> lap, ITensor3D<float>[] data)
         {
             _lap = lap;
             _data = data;
@@ -30,15 +31,15 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
         public uint RowCount => (uint)_data.Length;
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser => null;
+        public VectorisationModel? OutputVectoriser => null;
 
-        public IDataSource CloneWith(BrightDataTable dataTable)
+        public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix(InputSize, (uint)data.Count, (i, j) => {
@@ -47,16 +48,17 @@ namespace BrightWire.ExecutionGraph.DataSource
                 var z = i / _matrixSize;
                 var x = rem % _rows;
                 var y = rem / _rows;
-                return tensor.GetMatrix(z).GetRowAsReadOnly(x)[y];
+                return tensor.GetMatrix(z)[x, y];
             });
-            return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
+            var ret = new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
+            return Task.FromResult(ret);
         }
 
         public uint[][] GetSequentialBatches()
         {
-            return new[] {
+            return [
                 _data.Length.AsRange().ToArray()
-            };
+            ];
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;
@@ -123,7 +122,7 @@ namespace BrightData.Cuda.Helper
         /// <inheritdoc />
         public virtual void CopyToDevice(ReadOnlySpan<float> span, uint offsetSource = 0)
         {
-            fixed (float* p = &MemoryMarshal.GetReference(span))
+            fixed (float* p = span)
             {
                 var ptr = p + offsetSource * sizeof(float);
                 DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyHtoD_v2(DevicePointer, (IntPtr)ptr, Math.Min(Size, span.Length) * sizeof(float)).CheckResult();

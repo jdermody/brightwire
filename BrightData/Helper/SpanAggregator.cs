@@ -24,9 +24,10 @@ namespace BrightData.Helper
         readonly SpanAggregationOperation<T> _operation;
         uint _count = 0;
 
-        SpanAggregator(int size, SpanAggregationOperation<T> operation)
+        SpanAggregator(uint size, SpanAggregationOperation<T> operation)
         {
-            _delta = SpanOwner<T>.Allocate(size);
+            _delta = SpanOwner<T>.Allocate((int)size);
+            _delta.Span.Clear();
             _operation = operation;
         }
 
@@ -35,7 +36,7 @@ namespace BrightData.Helper
         /// </summary>
         /// <param name="size"></param>
         /// <returns></returns>
-        public static SpanAggregator<T> GetOnlineAverage(int size) => new(size, OnlineAverage);
+        public static SpanAggregator<T> GetOnlineAverage(uint size) => new(size, OnlineAverage);
 
         /// <summary>
         /// Disposes the span aggregation
@@ -62,7 +63,7 @@ namespace BrightData.Helper
         /// <summary>
         /// Online average aggregation
         /// </summary>
-        static readonly SpanAggregationOperation<T> OnlineAverage = (T existing, T value, uint total) => {
+        static readonly SpanAggregationOperation<T> OnlineAverage = (existing, value, total) => {
             var delta = value - existing;
             return existing + delta / T.CreateSaturating(total);
         };

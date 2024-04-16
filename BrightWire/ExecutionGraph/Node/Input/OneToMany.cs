@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace BrightWire.ExecutionGraph.Node.Input
 {
     /// <summary>
-    /// Waits for all children to finish backpropagating before sending the error further backward
+    /// Waits for all children to finish back-propagating before sending the error further backward
     /// </summary>
     internal sealed class OneToMany : NodeBase
     {

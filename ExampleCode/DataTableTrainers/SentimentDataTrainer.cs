@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.Helper;
+using BrightData.Types;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -41,13 +42,13 @@ namespace ExampleCode.DataTableTrainers
                     .Where(l => !String.IsNullOrWhiteSpace(l))
                     .Select(l => l.Split(separator))
                     .Select(s => (Sentence: Tokenise(s[0]), Classification: s[1][0] == '1' ? "positive" : "negative"))
-                    .Where(d => d.Sentence.Any());
+                    .Where(d => d.Sentence.Length > 0);
                 sentences.AddRange(data);
             }
 
             var (training, test) = sentences.Shuffle(context.Random).ToArray().Split();
-            _indexedSentencesTraining = BuildIndexedClassifications(context, training, _stringTable);
-            _indexedSentencesTest = BuildIndexedClassifications(context, test, _stringTable);
+            _indexedSentencesTraining = BuildIndexedClassifications(training, _stringTable);
+            _indexedSentencesTest = BuildIndexedClassifications(test, _stringTable);
             _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             _context = context;
         }
@@ -74,17 +75,17 @@ namespace ExampleCode.DataTableTrainers
             return multinomial;
         }
 
-        public (IGraphExecutionEngine, WireBuilder, IGraphTrainingEngine) TrainNeuralNetwork(uint numIterations)
+        public async Task<(IGraphExecutionEngine, WireBuilder, IGraphTrainingEngine)> TrainNeuralNetwork(uint numIterations)
         {
             var indexer = GetIndexer();
-            var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
-            var testTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
+            var trainingTable = await GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
+            var testTable = await GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
             var graph = _context.CreateGraphFactory();
 
-            var trainingData = graph.CreateDataSource(trainingTable);
-            var testData = graph.CreateDataSource(testTable);
+            var trainingData = await graph.CreateDataSource(trainingTable);
+            var testData = await graph.CreateDataSource(testTable);
 
-            // use rmsprop gradient descent and xavier weight initialisation
+            // use rms prop gradient descent and xavier weight initialisation
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
@@ -106,20 +107,20 @@ namespace ExampleCode.DataTableTrainers
 
             Console.WriteLine("Training neural network classifier...");
             GraphModel? bestNetwork = null;
-            engine.Train(numIterations, testData, network => bestNetwork = network);
+            await engine.Train(numIterations, testData, network => bestNetwork = network);
             return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, engine);
         }
 
-        public IGraphEngine StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public async Task<IGraphEngine> StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             // create combined data tables with both index lists and encoded vectors
             var graph = engine.LearningContext.GraphFactory;
             var context = graph.Context;
             var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d.Data.Indices.Max());
             var indexer = GetIndexer();
-            var training = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
-            var test = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
-            var trainingData = graph.CreateDataSource(training, 0);
+            var training = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
+            var test = await CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTest);
+            var trainingData = await graph.CreateDataSource(training, 0);
             var testData = trainingData.CloneWith(test);
             var outputSize = trainingData.GetOutputSizeOrThrow();
 
@@ -159,27 +160,27 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine("Training stacked neural network classifier...");
             GraphModel? bestStackedNetwork = null;
             engine.Reset();
-            engine.Train(20, testData, network => bestStackedNetwork = network);
+            await engine.Train(20, testData, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
 
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static BrightDataTable GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(lap, maxIndex);
+                var features = indexList.AsDense(maxIndex).Create(lap);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
                     addColumns = false;
-                    builder.AddFixedSizeVectorColumn(features.Size, "Features");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn(features.Size, "Features");
+                    builder.CreateFixedSizeVectorColumn((uint)vector.Length, "Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, context.CreateReadOnlyVector(vector));
             }
@@ -189,30 +190,30 @@ namespace ExampleCode.DataTableTrainers
 
         static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
 
-        static IndexListWithLabel<string>[] BuildIndexedClassifications(BrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
+        static IndexListWithLabel<string>[] BuildIndexedClassifications((string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => new IndexListWithLabel<string>(d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
+                .Select(d => new IndexListWithLabel<string>(d.Item2, IndexList.Create(d.Item1.Select(stringTable.GetIndex).ToArray())))
                 .ToArray()
             ;
         }
 
-        static BrightDataTable CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
             var lap = context.LinearAlgebraProvider;
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.AsDense(lap, maxIndex);
+                var features = indexList.AsDense(maxIndex).Create(lap);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
                     addColumns = false;
-                    builder.AddFixedSizeVectorColumn(features.Size, "Vector");
-                    builder.AddColumn(BrightDataType.IndexList, "Index List");
-                    builder.AddColumn(BrightDataType.String, "Target");
-                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
+                    builder.CreateFixedSizeVectorColumn(features.Size, "Vector");
+                    builder.CreateColumn(BrightDataType.IndexList, "Index List");
+                    builder.CreateColumn(BrightDataType.String, "Target");
+                    builder.CreateFixedSizeVectorColumn((uint)vector.Length, "Vector Target").MetaData.SetTarget(true);
                 }
                 builder.AddRow(features, indexList, classification, context.CreateReadOnlyVector(vector));
             }
@@ -220,9 +221,9 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildInMemory();
         }
 
-        static IIndexStrings GetIndexer() => new StringIndexer("negative", "positive");
+        static StringIndexer GetIndexer() => new("negative", "positive");
 
-        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
+        public async Task TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
             var empty = new float[102];
             Console.WriteLine("Enter some text to test the classifiers...");
@@ -242,9 +243,9 @@ namespace ExampleCode.DataTableTrainers
                         indices.Add(stringIndex);
                     embeddings.Add(GetInputVector(0, 0, token) ?? empty);
                 }
-                if (indices.Any())
+                if (indices.Count > 0)
                 {
-                    var indexList = _context.CreateIndexList(indices);
+                    var indexList = IndexList.Create(indices);
                     var bc = bernoulli.Classify(indexList).First().Label;
                     var mc = multinomial.Classify(indexList).First().Label;
                     Console.WriteLine("Bernoulli classification: " + bc);
@@ -256,8 +257,8 @@ namespace ExampleCode.DataTableTrainers
                         word[101] = mc == "positive" ? 1f : 0f;
                     }
 
-                    foreach (var (token, result) in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output[0]))) {
-                        using var softmax = result.ReadOnlySegment.GetReadOnlySpan(x => x.Softmax());
+                    foreach (var (token, result) in tokens.Zip(await neuralNetwork.ExecuteSequential(embeddings.ToArray()).ToListAsync(), (t, r) => (Token: t, Result: r.Output[0]))) {
+                        using var softmax = result.ReadOnlySegment.ApplyReadOnlySpan(x => x.Softmax());
                         var label = softmax.Span.AsReadOnly().MaximumIndex() == 0 ? "positive" : "negative";
                         Console.WriteLine($"{token}: {label}");
                     }
@@ -268,12 +269,12 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public IGraphExecutionEngine TrainBiLstm(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public async Task<IGraphExecutionEngine> TrainBiLstm(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var graph = _context.CreateGraphFactory();
-            var trainingTable = CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
-            var testTable = CreateTable(_indexedSentencesTest, bernoulli, multinomial);
-            var training = graph.CreateDataSource(trainingTable);
+            var trainingTable = await CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
+            var testTable = await CreateTable(_indexedSentencesTest, bernoulli, multinomial);
+            var training = await graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
             var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.01f, batchSize: 128);
@@ -300,15 +301,15 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(10, test, bn => bestGraph = bn.Graph);
+            await engine.Train(10, test, bn => bestGraph = bn.Graph);
             return engine.CreateExecutionEngine(bestGraph);
         }
 
-        BrightDataTable CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        Task<IDataTable> CreateTable(IndexListWithLabel<string>[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Matrix);
-            builder.AddColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Matrix);
+            builder.CreateColumn(BrightDataType.Matrix).MetaData.SetTarget(true);
 
             var empty = new float[102];
             foreach (var (classification, indexList) in data) {
@@ -326,11 +327,11 @@ namespace ExampleCode.DataTableTrainers
         static float[]? GetInputVector(float c1, float c2, string word)
         {
             var embedding = Data.Embeddings.Get(word);
-            if(embedding == null && word.StartsWith("not_"))
+            if(embedding == ReadOnlySpan<float>.Empty && word.StartsWith("not_"))
                 embedding = Data.Embeddings.Get(word[4..]);
-            if (embedding != null) {
+            if (embedding != ReadOnlySpan<float>.Empty) {
                 var ret = new float[embedding.Length + 2];
-                Array.Copy(embedding, ret, embedding.Length);
+                embedding.CopyTo(ret);
                 ret[embedding.Length] = c1;
                 ret[embedding.Length + 1] = c2;
                 return ret;

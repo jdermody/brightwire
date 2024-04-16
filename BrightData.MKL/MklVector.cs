@@ -3,14 +3,12 @@
 namespace BrightData.MKL
 {
     /// <inheritdoc />
-    public class MklVector : BrightVector<MklLinearAlgebraProvider>
+    /// <inheritdoc />
+    public class MklVector(INumericSegment<float> data, MklLinearAlgebraProvider computationUnit)
+        : MutableVector<float, MklLinearAlgebraProvider>(data, computationUnit)
     {
-        /// <inheritdoc />
-        public MklVector(INumericSegment<float> data, MklLinearAlgebraProvider computationUnit) : base(data, computationUnit)
-        {
-        }
 
         /// <inheritdoc />
-        public override IVector Create(INumericSegment<float> segment) => new MklVector(segment, Lap);
+        public override IVector<float> Create(INumericSegment<float> segment) => new MklVector(segment, Lap);
     }
 }

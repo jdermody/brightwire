@@ -943,7 +943,7 @@ namespace BrightData.Cuda.CudaToolkit
         public uint elementSize;
         public SizeT width;
         public SizeT height;
-        public static CudaMemsetNodeParams Init<T>(CudaDeviceVariable<T> deviceVariable, uint value) where T : struct
+        public static CudaMemsetNodeParams Init<T>(CudaDeviceVariable<T> deviceVariable, uint value) where T : unmanaged
         {
             var para = new CudaMemsetNodeParams {
                 dst = deviceVariable.DevicePointer,

@@ -6,23 +6,19 @@ using BrightWire.Helper;
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
     /// <summary>
-    /// Executes an action when backpropagating
+    /// Executes an action when back-propagating
     /// </summary>
-    internal class ExecuteBackwardAction : NodeBase, IHaveAction
+    internal class ExecuteBackwardAction(IAction action, string? name = null) : NodeBase(name), IHaveAction
     {
-        class Backpropagation : SingleBackpropagationBase<ExecuteBackwardAction>
+        class Backpropagation(ExecuteBackwardAction source) : SingleBackpropagationBase<ExecuteBackwardAction>(source)
         {
-            public Backpropagation(ExecuteBackwardAction source) : base(source) { }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 return _source.Action.Execute(errorSignal, context, _source);
             }
         }
 
-	    public ExecuteBackwardAction(IAction action, string? name = null) : base(name) { Action = action; }
-
-        public IAction Action { get; set; }
+        public IAction Action { get; set; } = action;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -34,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             return (TypeLoader.GetTypeName(Action), Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
-        protected override void Initalise(GraphFactory factory, string? description, byte[]? data)
+        protected override void Initialise(GraphFactory factory, string? description, byte[]? data)
         {
             if (description == null)
                 throw new Exception("Description cannot be null");

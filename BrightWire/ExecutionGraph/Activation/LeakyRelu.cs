@@ -8,26 +8,17 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Leaky RELU activation
     /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
     /// </summary>
-    internal class LeakyRelu : NodeBase
+    internal class LeakyRelu(string? name = null) : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<LeakyRelu>
+        class Backpropagation(LeakyRelu source, IMatrix<float> matrix) : SingleBackpropagationBase<LeakyRelu>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(LeakyRelu source, IMatrix matrix) : base(source)
-            {
-                _input = matrix;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
-                using var od = _input.LeakyReluDerivative();
+                using var od = matrix.LeakyReluDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
         }
-
-        public LeakyRelu(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {

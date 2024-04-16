@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Action
                 if (target == null)
                     context.LearningContext.DeferBackpropagation(null, context.Backpropagate);
                 else {
-                    var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, input.GetMatrix(), target);
+                    var gradient = context.LearningContext.ErrorMetric.CalculateGradient(input.GetMatrix(), target);
                     context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), context.Backpropagate);
                 }
             }

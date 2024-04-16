@@ -1,0 +1,284 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<# var COUNT = 11; #>
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using BrightData.DataTable.Rows;
+
+namespace BrightData
+{
+<# for(var i = 1; i < COUNT; i++) {
+        var range = Enumerable.Range(1, i).ToList();
+        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
+#>
+    /// <summary>
+    /// Typed data table row
+    /// </summary>
+    public record TableRow<<#= typeString #>>(IDataTable Table, uint RowIndex, <#= parameters #>) : TableRowBase(Table, RowIndex)
+        <#= where #>
+    {
+        /// <inheritdoc />
+        public override uint Size => <#= i #>;
+
+        /// <inheritdoc />
+        protected override object Get(uint columnIndex) => columnIndex switch {
+<# for(var j = 0; j < i; j++) { #>
+            <#= j #> => C<#= j+1 #>,
+<# } #>
+            _ => throw new Exception("Column index was out of range")
+        };
+    }
+<# } #>
+}
+
+namespace BrightData
+{
+    public partial class ExtensionMethods
+    {<# for(var i = 1; i < COUNT; i++) {
+        var range = Enumerable.Range(1, i).ToList();
+        var typeString = String.Join(", ", range.Select(x => $"T{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var where = String.Join("\n\t\t\t", range.Select(x => $"where T{x}: notnull"));
+        var rowParams = String.Join(", ", range.Select(x => $"e{x}.Current"));
+        var getColumns = String.Join(", ", range.Select(x => $"dataTable.GetColumn<T{x}>(columnIndex{x})"));
+        var currentValues = String.Join(", ", range.Select(x => $"e{x}.Current"));
+        var bufferInput = String.Join(", ", range.Select(x => $"IReadOnlyBuffer<T{x}> input{x}"));
+        var allBs = String.Join(", ", range.Select(x => $"b{x}"));
+        var allBlockSpans = String.Join(", ", range.Select(x => $"block{x}.Span"));
+        var allReadOnlySpans = String.Join(", ", range.Select(x => $"ReadOnlySpan<T{x}> span{x}"));
+        var allSpans = String.Join(", ", range.Select(x => $"span{x}[i]"));
+        var allArrayValues = String.Join(", ", range.Select(x => $"a{x}[i]"));
+        var getTasks = String.Join(", ", range.Select(x => $"getTask{x}"));
+        var getTaskResults = String.Join(", ", range.Select(x => $"getTask{x}.Result"));
+        var spanResults = String.Join(", ", range.Select(x => $"span{x}[(int)relativeBlockIndex]"));
+#>      
+        /// <summary>
+        /// Enumerates typed data rows
+        /// </summary>
+        public static async IAsyncEnumerable<TableRow<<#= typeString #>>> Enumerate<<#= typeString #>>(
+            this IDataTable dataTable,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #>, 
+<# } #>
+            [EnumeratorCancellation] CancellationToken ct = default) 
+            <#= where #>
+        {
+            const int size = <#= i #>;
+<# for(var j = 1; j <= i; j++) { #>
+            await using var e<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>).GetAsyncEnumerator(ct);
+<# } #>
+            var currentTasks = new ValueTask<bool>[size];
+            var isValid = true;
+            uint rowIndex = 0;
+
+            while (!ct.IsCancellationRequested && isValid) {
+<# for(var j = 1; j <= i; j++) { #>
+                currentTasks[<#= j-1 #>] = e<#= j #>.MoveNextAsync();
+<# } #>
+                for (var i = 0; i < size; i++) {
+                    if (await currentTasks[i] != true) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if(isValid) {
+                    var row = new TableRow<<#= typeString #>>(dataTable, rowIndex++, <#= rowParams #>);
+                    yield return row;
+                }
+            }
+        }
+
+        class RowReader<<#= typeString #>> : IReadOnlyBuffer<TableRow<<#= typeString #>>> <#= where #>
+        {
+            readonly IDataTable _dataTable;
+            readonly uint _blockSize, _blockCount;
+<# for(var j = 1; j <= i; j++) { #>
+            readonly IReadOnlyBuffer<T<#= j #>> _input<#= j #>;
+<# } #>
+
+            public RowReader(IDataTable dataTable, <#= bufferInput #>)
+            {
+                _dataTable = dataTable;
+                BlockSizes = input1.BlockSizes;
+<# for(var j = 2; j <= i; j++) { #>
+                if (!BlockSizes.SequenceEqual(input<#= j #>.BlockSizes))
+                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+<# } #>
+                _blockCount = (uint)BlockSizes.Length;
+                _blockSize = BlockSizes[0];
+                Size = input1.Size;
+                DataType = typeof(TableRow<<#= typeString #>>);
+<# for(var j = 1; j <= i; j++) { #>
+                _input<#= j #> = input<#= j #>;
+<# } #>
+            }
+
+            public uint Size { get; }
+            public uint[] BlockSizes { get; }
+            public Type DataType { get; }
+            public async IAsyncEnumerable<object> EnumerateAll()
+            {
+                await foreach(var item in EnumerateAllTyped())
+                    yield return item;
+            }
+
+            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            {
+                for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
+                    var block = await GetTypedBlock(i);
+                    callback(block.Span);
+                }
+            }
+
+            public async Task<ReadOnlyMemory<TableRow<<#= typeString #>>>> GetTypedBlock(uint blockIndex)
+            {
+<# for(var j = 1; j <= i; j++) { #>
+                var b<#= j #> = _input<#= j #>.GetTypedBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= allBs #>);
+<# for(var j = 1; j <= i; j++) { #>
+                var block<#= j #> = b<#= j #>.Result;
+<# } #>
+<# for(var j = 2; j <= i; j++) { #>
+                if (block1.Length != block<#= j #>.Length)
+                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block<#= j #>:{block<#= j #>.Length})");
+<# } #>
+                var ret = new TableRow<<#= typeString #>>[block1.Length];
+                Copy(blockIndex * _blockSize, <#= allBlockSpans #>, ret);
+                return ret;
+            }
+
+            void Copy(uint firstIndex, <#= allReadOnlySpans #>, Span<TableRow<<#= typeString #>>> output)
+            {
+                for (var i = 0; i < span1.Length; i++)
+                    output[i] = new TableRow<<#= typeString #>>(_dataTable, firstIndex + (uint)i, <#= allSpans #>);
+            }
+
+            public async IAsyncEnumerable<TableRow<<#= typeString #>>> EnumerateAllTyped()
+            {
+                const int size = <#= i #>;
+<# for(var j = 1; j <= i; j++) { #>
+                await using var e<#= j #> = _input<#= j #>.GetAsyncEnumerator();
+<# } #>
+                var currentTasks = new ValueTask<bool>[size];
+                var isValid = true;
+                uint rowIndex = 0;
+
+                while (isValid) {
+<# for(var j = 1; j <= i; j++) { #>
+                    currentTasks[<#= j-1 #>] = e<#= j #>.MoveNextAsync();
+<# } #>
+                    for (var i = 0; i < size; i++) {
+                        if (await currentTasks[i] != true) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if(isValid) {
+                        var row = new TableRow<<#= typeString #>>(_dataTable, rowIndex++, <#= currentValues #>);
+                        yield return row;
+                    }
+                }
+            }
+
+            public IAsyncEnumerator<TableRow<<#= typeString #>>> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
+
+            public async Task<Array> GetBlock(uint blockIndex)
+            {
+<# for(var j = 1; j <= i; j++) { #>
+                var b<#= j #> = _input<#= j #>.GetBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= allBs #>);
+<# for(var j = 1; j <= i; j++) { #>
+                var a<#= j #> = (T<#= j #>[])b<#= j #>.Result;
+<# } #>
+                var len = a1.Length;
+<# for(var j = 2; j <= i; j++) { #>
+                if (len != a<#= j #>.Length)
+                    throw new Exception($"Expected blocks to have same size - block {<#= j #>} had length {a<#= j #>.Length} but expected {len}");
+<# } #>
+                var ret = new TableRow<<#= typeString #>>[len];
+                var offset = blockIndex * _blockSize;
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new TableRow<<#= typeString #>>(_dataTable, i + offset, <#= allArrayValues #>);
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// Creates a typed buffer to access rows
+        /// </summary>
+        public static IReadOnlyBuffer<TableRow<<#= typeString #>>> GetRowsBuffer<<#= typeString #>>(
+            this IDataTable dataTable,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
+<# } #>
+        ) 
+            <#= where #>
+        {
+            return new RowReader<<#= typeString #>>(dataTable, <#= getColumns #>);
+        }
+
+        /// <summary>
+        /// Returns a single typed row from the data table
+        /// </summary>
+        public static async Task<TableRow<<#= typeString #>>> GetRow<<#= typeString #>>(
+            this IDataTable dataTable,
+            uint rowIndex,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #><#= (j == i) ? "" : "," #>
+<# } #>
+        )
+            <#= where #>
+        {
+<# for(var j = 1; j <= i; j++) { #>
+            var column<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>);
+<# } #>
+<# for(var j = 1; j <= i; j++) { #>
+            var getTask<#= j #> = column<#= j #>.GetItem(rowIndex);
+<# } #>
+            await Task.WhenAll(<#= getTasks #>);
+            return new TableRow<<#= typeString #>>(dataTable, rowIndex, <#= getTaskResults #>);
+        }
+
+        /// <summary>
+        /// Returns an array of typed rows from the data table
+        /// </summary>
+        public static Task<TableRow<<#= typeString #>>[]> GetRows<<#= typeString #>>(
+            this IDataTable dataTable,
+<# for(var j = 1; j <= i; j++) { #>
+            uint columnIndex<#= j #> = <#= j-1 #>,
+<# } #>
+            params uint[] rowIndices
+        )
+            <#= where #>
+        {
+<# for(var j = 1; j <= i; j++) { #>
+            var column<#= j #> = dataTable.GetColumn<T<#= j #>>(columnIndex<#= j #>);
+<# } #>
+            return dataTable.CopyRows<TableRow<<#= typeString #>>>(column1, rowIndices, x => new TableRow<<#= typeString #>>[x.Length], async (blockIndex, rowCallback) => {
+<# for(var j = 1; j <= i; j++) { #>
+                var getTask<#= j #> = column<#= j #>.GetTypedBlock(blockIndex);
+<# } #>
+                await Task.WhenAll(<#= getTasks #>);
+                rowCallback((uint rowIndex, uint relativeBlockIndex, ref TableRow<<#= typeString #>> row) => {
+<# for(var j = 1; j <= i; j++) { #>
+                    var span<#= j #> = getTask<#= j #>.Result.Span;
+<# } #>
+                    row = new(dataTable, rowIndex, <#= spanResults #>);
+                }); 
+            });
+        }
+<# } #>
+    }
+}

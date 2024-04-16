@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using BrightData;
@@ -45,7 +47,7 @@ namespace BrightWire.Models
             /// <summary>
             /// The .NET type name of the node type
             /// </summary>
-            public string TypeName { get; set; } = "";
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]public string TypeName { get; set; } = "";
 
             /// <summary>
             /// The unique id within the graph
@@ -77,22 +79,22 @@ namespace BrightWire.Models
         /// <summary>
         /// Wires connect nodes (aka edges)
         /// </summary>
-        public class Wire : IAmSerializable
+        public class Wire(string fromId, string toId, uint inputChannel) : IAmSerializable
         {
             /// <summary>
             /// The source node id
             /// </summary>
-            public string FromId { get; internal set; } = "";
+            public string FromId => fromId;
 
             /// <summary>
             /// The target node id
             /// </summary>
-            public string ToId { get; internal set; } = "";
+            public string ToId => toId;
 
             /// <summary>
             /// The channel on the target node to send the source node's output
             /// </summary>
-            public uint InputChannel { get; internal set; }
+            public uint InputChannel => inputChannel;
 
             /// <inheritdoc />
 	        public override string ToString()
@@ -101,7 +103,12 @@ namespace BrightWire.Models
             }
 
             /// <inheritdoc />
-            public void Initialize(BrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+            public void Initialize(BrightDataContext context, BinaryReader reader)
+            {
+                Unsafe.AsRef(in fromId) = reader.ReadString();
+                Unsafe.AsRef(in toId) = reader.ReadString();
+                Unsafe.AsRef(in inputChannel) = (uint)reader.ReadInt32();
+            }
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -139,12 +146,12 @@ namespace BrightWire.Models
         /// <summary>
         /// Other connected nodes
         /// </summary>
-        public Node[] OtherNodes { get; set; } = Array.Empty<Node>();
+        public Node[] OtherNodes { get; set; } = [];
 
         /// <summary>
         /// A list of the wires that connect the nodes in the graph
         /// </summary>
-        public Wire[] Wires { get; set; } = Array.Empty<Wire>();
+        public Wire[] Wires { get; set; } = [];
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

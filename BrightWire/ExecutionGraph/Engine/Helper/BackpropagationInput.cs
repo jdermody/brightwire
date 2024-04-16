@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class BackpropagationInput
     {
-        readonly HashSet<NodeBase> _input = new();
+        readonly HashSet<NodeBase> _input = [];
         readonly Dictionary<NodeBase, IGraphData?> _error = new();
         readonly IGraphData? _nodeOutput;
 
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 return _error.Single().Value;
 
             IGraphData? ret = null;
-            IMatrix? matrix = null;
+            IMatrix<float>? matrix = null;
             var count = 0;
             foreach (var item in _error.Values) {
                 if (item?.HasValue != true)

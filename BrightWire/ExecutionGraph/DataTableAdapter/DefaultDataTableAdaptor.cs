@@ -1,39 +1,51 @@
-﻿using System.Linq;
+﻿using System.Threading.Tasks;
 using BrightData;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Helper;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Vectorises each row of the data table on demand
+    /// Vectorise each row of the data table on demand
     /// </summary>
-    internal class DefaultDataTableAdapter : RowBasedDataTableAdapterBase
+    internal class DefaultDataTableAdapter : GenericRowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdapter(BrightDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        DefaultDataTableAdapter(IDataTable dataTable, VectorisationModel inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
             : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices);
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
+            InputVectoriser = inputVectoriser;
+            OutputVectoriser = outputVectoriser;
         }
 
-        public override IDataSource CloneWith(BrightDataTable dataTable)
+        public static async Task<DefaultDataTableAdapter> Create(IDataTable dataTable, VectorisationModel? inputVectoriser, VectorisationModel? outputVectoriser, uint[] featureColumns)
         {
-            return new DefaultDataTableAdapter(dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
+            var targetColumn = dataTable.GetTargetColumn();
+
+            return new DefaultDataTableAdapter(
+                dataTable,
+                inputVectoriser ?? await dataTable.GetVectoriser(true, featureColumns),
+                outputVectoriser ?? (targetColumn.HasValue ? await dataTable.GetVectoriser(true, targetColumn.Value) : null),
+                featureColumns
+            );
+        }
+
+        public override IDataSource CloneWith(IDataTable dataTable)
+        {
+            return new DefaultDataTableAdapter(dataTable, InputVectoriser!, OutputVectoriser, _featureColumns);
         }
 
         public override uint InputSize => InputVectoriser!.OutputSize;
         public override uint? OutputSize => OutputVectoriser?.OutputSize;
 
-        public override IMiniBatch Get(uint[] rowIndices)
+        public override async Task<MiniBatch> Get(uint[] rowIndices)
         {
-            var rows = GetRows(rowIndices);
-            var data = rows
-                .Select(r => (InputVectoriser!.Vectorise(r), OutputVectoriser!.Vectorise(r)))
-                .ToArray()
-            ;
+            var index = 0;
+            var data = new (float[], float[]?)[rowIndices.Length];
+            await foreach (var row in GetRows(rowIndices))
+                data[index++] = (InputVectoriser!.Vectorise(row), OutputVectoriser?.Vectorise(row));
             return GetMiniBatch(rowIndices, data);
         }
     }

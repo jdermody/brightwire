@@ -2,8 +2,9 @@
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData.LinearAlgebra;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -12,10 +13,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     internal class VectorDataSource : IDataSource
     {
-	    readonly IVector[] _data;
-        readonly LinearAlgebraProvider _lap;
+	    readonly IVector<float>[] _data;
+        readonly LinearAlgebraProvider<float> _lap;
 
-        public VectorDataSource(LinearAlgebraProvider lap, IVector[] data)
+        public VectorDataSource(LinearAlgebraProvider<float> lap, IVector<float>[] data)
         {
             _lap = lap;
             _data = data;
@@ -25,29 +26,27 @@ namespace BrightWire.ExecutionGraph.DataSource
             OutputSize = null;
         }
 
-        public uint InputCount => 1;
-        public bool IsSequential => false;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public VectorisationModel? InputVectoriser => null;
+        public VectorisationModel? OutputVectoriser => null;
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);
-            return new MiniBatch(rows, this, input.AsGraphData(), null);
+            return Task.FromResult(new MiniBatch(rows, this, input.AsGraphData(), null));
         }
 
         public uint[][] GetSequentialBatches()
         {
-            return new[] {
+            return [
                 _data.Length.AsRange().ToArray()
-            };
+            ];
         }
 
-        public IDataSource CloneWith(BrightDataTable dataTable)
+        public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }

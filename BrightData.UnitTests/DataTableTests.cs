@@ -1,89 +1,86 @@
 ﻿using System;
 using System.Linq;
-using BrightData.DataTable;
+using System.Threading.Tasks;
+using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using BrightWire;
 using FluentAssertions;
 using Xunit;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightData.UnitTests
 {
     public class DataTableTests : CpuBase
     {
         [Fact]
-        public void TestColumnTypes()
+        public async Task TestColumnTypes()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Boolean, "boolean");
-            builder.AddColumn(BrightDataType.SByte, "byte");
-            builder.AddColumn(BrightDataType.Date, "date");
-            builder.AddColumn(BrightDataType.Double, "double");
-            builder.AddColumn(BrightDataType.Float, "float");
-            builder.AddColumn(BrightDataType.Int, "int");
-            builder.AddColumn(BrightDataType.Long, "long");
-            builder.AddColumn(BrightDataType.String, "string");
+            builder.CreateColumn(BrightDataType.Boolean, "boolean");
+            builder.CreateColumn(BrightDataType.SByte, "byte");
+            builder.CreateColumn(BrightDataType.Date, "date");
+            builder.CreateColumn(BrightDataType.Double, "double");
+            builder.CreateColumn(BrightDataType.Float, "float");
+            builder.CreateColumn(BrightDataType.Int, "int");
+            builder.CreateColumn(BrightDataType.Long, "long");
+            builder.CreateColumn(BrightDataType.String, "string");
 
             var now = DateTime.Now;
             builder.AddRow(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
-            var dataTable = builder.BuildInMemory();
+            var dataTable = await builder.BuildInMemory();
 
-            var firstRow = dataTable.GetRow(0);
+            var firstRow = await dataTable[0];
             firstRow.Get<bool>(0).Should().BeTrue();
-            firstRow.Get<byte>(1).Should().Be(100);
+            firstRow.Get<sbyte>(1).Should().Be(100);
             firstRow.Get<DateTime>(2).Should().Be(now);
             firstRow.Get<double>(3).Should().Be(1.0 / 3);
             firstRow.Get<float>(4).Should().Be(0.5f);
             firstRow.Get<int>(5).Should().Be(int.MaxValue);
             firstRow.Get<long>(6).Should().Be(long.MaxValue);
             firstRow.Get<string>(7).Should().Be("test");
-
         }
 
-        static void CompareRows(BrightDataTableRow row1, BrightDataTableRow row2)
+        static void CompareRows(GenericTableRow row1, GenericTableRow row2)
         {
             row1.Size.Should().Be(row2.Size);
             for (uint i = 0; i < row1.Size; i++)
-                row1[i].Should().BeEquivalentTo(row2[i]);
+                row1.Values[i].Should().BeEquivalentTo(row2.Values[i]);
         }
 
-        static void CompareTables(BrightDataTable table1, BrightDataTable table2)
+        static async Task CompareTables(IDataTable table1, IDataTable table2)
         {
             var rand = new Random();
             table1.ColumnCount.Should().Be(table2.ColumnCount);
             table1.RowCount.Should().Be(table2.RowCount);
             table1.GetTargetColumn().Should().Be(table2.GetTargetColumn());
 
-            for (uint i = 0; i < 128; i++) {
-                var index = (uint)rand.Next((int)table1.RowCount);
-                var row1 = table1.GetRow(index);
-                var row2 = table2.GetRow(index);
-                CompareRows(row1, row2);
-            }
+            var rowSample = 128.AsRange().Select(_ => (uint)rand.Next((int)table1.RowCount)).ToArray();
+            var rows1 = await table1.GetRows(rowSample);
+            var rows2 = await table2.GetRows(rowSample);
+            foreach(var (r1, r2) in rows1.Zip(rows2))
+                CompareRows(r1, r2);
         }
 
-        static void RandomSample(uint rowCount, BrightDataTable table, Action<uint, BrightDataTableRow> callback)
+        static async Task RandomSample(uint rowCount, IDataTable table, Action<uint, GenericTableRow> callback)
         {
             var rand = new Random();
-            for (var i = 0; i < 128; i++) {
-                var index = (uint)rand.Next((int)rowCount);
-                var row = table.GetRow(index);
+            var rowSample = 128.AsRange().Select(_ => (uint)rand.Next((int)rowCount)).ToArray();
+            var rows = await table.GetRows(rowSample);
+            foreach(var (row, index) in rows.Zip(rowSample))
                 callback(index, row);
-            }
         }
 
-        static BrightDataTable CreateComplexTable(BrightDataContext context)
+        static Task<IDataTable> CreateComplexTable(BrightDataContext context)
         {
             var builder = context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Boolean, "boolean");
-            builder.AddColumn(BrightDataType.SByte, "byte");
-            builder.AddColumn(BrightDataType.Date, "date");
-            builder.AddColumn(BrightDataType.Double, "double");
-            builder.AddColumn(BrightDataType.Float, "float");
-            builder.AddColumn(BrightDataType.Int, "int");
-            builder.AddColumn(BrightDataType.Long, "long");
-            builder.AddColumn(BrightDataType.String, "string");
+            builder.CreateColumn(BrightDataType.Boolean, "boolean");
+            builder.CreateColumn(BrightDataType.SByte, "byte");
+            builder.CreateColumn(BrightDataType.Date, "date");
+            builder.CreateColumn(BrightDataType.Double, "double");
+            builder.CreateColumn(BrightDataType.Float, "float");
+            builder.CreateColumn(BrightDataType.Int, "int");
+            builder.CreateColumn(BrightDataType.Long, "long");
+            builder.CreateColumn(BrightDataType.String, "string");
 
             for (var i = 1; i <= 10; i++)
                 builder.AddRow(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
@@ -91,10 +88,10 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void TestDataTableAnalysis()
+        public async Task TestDataTableAnalysis()
         {
-            var table = CreateComplexTable(_context);
-            var analysis = table.AllColumnAnalysis();
+            var table = await CreateComplexTable(_context);
+            var analysis = await table.GetColumnAnalysis();
 
             var boolAnalysis = analysis[0].GetFrequencyAnalysis();
             boolAnalysis.NumDistinct.Should().Be(2);
@@ -114,84 +111,86 @@ namespace BrightData.UnitTests
             stringAnalysis.MaxLength.Should().Be(2);
         }
 
-        BrightDataTable GetSimpleTable()
+        Task<IDataTable> GetSimpleTable()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Int, "val");
+            builder.CreateColumn(BrightDataType.Int, "val");
 
             for (var i = 0; i < 10000; i++)
                 builder.AddRow(i);
             return builder.BuildInMemory();
         }
 
-        BrightDataTable GetSimpleTable2()
+        async Task<IDataTable> GetSimpleTable2()
         {
-            var table = GetSimpleTable();
-            var table2 = table.Project(null, r => new object[] { Convert.ToDouble(r[0]) });
+            using var table = await GetSimpleTable();
+            var builder = await table.Project(r => [Convert.ToDouble(r[0])]);
+            var table2 = await builder.BuildInMemory();
             table2.ColumnTypes[0].Should().Be(BrightDataType.Double);
             return table2;
         }
 
         [Fact]
-        public void TestTableSlice()
+        public async Task TestTableSlice()
         {
-            var table = GetSimpleTable();
-            var rows = table.CopyRowsToNewTable(null, Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).GetRows().Select(r => r.Get<int>(0)).ToList();
+            using var table = await GetSimpleTable();
+            using var table2 = await table.CopyRowsToNewTable(null, 100.AsRange(5000).ToArray());
+            var rows = (await table2.GetRows()).Select(r => r.Get<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)
                 rows[i].Should().Be(5000 + i);
         }
 
         [Fact]
-        public void TestTableSplit()
+        public async Task TestTableSplit()
         {
-            var table = GetSimpleTable();
-            var (training, test) = table.Split(0.75);
+            var table = await GetSimpleTable();
+            var (training, test) = await table.Split(0.75);
             training.RowCount.Should().Be(7500);
             test.RowCount.Should().Be(2500);
         }
 
         [Fact]
-        public void TestStandardNormalisation()
+        public async Task TestStandardNormalisation()
         {
-            var table = GetSimpleTable2();
-            var analysis = table.GetColumnAnalysis(0).GetNumericAnalysis();
+            using var table = await GetSimpleTable2();
+            var analysis = (await table.GetColumnAnalysis(0))[0].GetNumericAnalysis();
             var mean = analysis.Mean;
             var stdDev = analysis.PopulationStdDev!.Value;
-            var normalised = table.Normalize(NormalizationType.Standard);
+            using var normalised = await table.Normalize(NormalizationType.Standard);
+            var existing = await table.GetColumn(0).ToArray<double>();
 
-            RandomSample(table.RowCount, normalised, (index, row) => {
+            await RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                var prevRow = table.GetRow(index);
-                var prevVal = prevRow.Get<double>(0);
+                var prevVal = existing[index];
                 var expected = (prevVal - mean) / stdDev;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
         [Fact]
-        public void TestDataTableClone()
+        public async Task TestDataTableClone()
         {
-            using var table = CreateComplexTable(_context);
-            using var clone = table.Clone(null);
-            CompareTables(table, clone);
+            using var table = await CreateComplexTable(_context);
+            using var clone = await table.Clone(null);
+            await CompareTables(table, clone);
         }
 
         [Fact]
-        public void ConcatTables()
+        public async Task ConcatTables()
         {
-            using var table = CreateComplexTable(_context);
-            using var table2 = CreateComplexTable(_context);
-            var table3 = table.ConcatenateRows(table2);
+            using var table = await CreateComplexTable(_context);
+            using var table2 = await CreateComplexTable(_context);
+            var table3 = await table.ConcatenateRows(null, table2);
             table3.ColumnCount.Should().Be(table.ColumnCount);
             table3.RowCount.Should().Be(table.RowCount + table2.RowCount);
         }
 
         [Fact]
-        public void ShuffleTables()
+        public async Task ShuffleTables()
         {
-            using var table = CreateComplexTable(_context);
-            using var shuffled = table.Shuffle(null);
+            using var table = await CreateComplexTable(_context);
+            using var shuffled = await table.Shuffle(null);
             shuffled.RowCount.Should().Be(table.RowCount);
         }
 
@@ -204,93 +203,91 @@ namespace BrightData.UnitTests
         //}
 
         [Fact]
-        public void GroupTable()
+        public async Task GroupTable()
         {
-            using var table = CreateComplexTable(_context);
-            foreach (var (_, dataTable) in table.GroupBy(0)) {
+            using var table = await CreateComplexTable(_context);
+            foreach (var (_, dataTable) in await table.GroupBy(0)) {
                 dataTable.RowCount.Should().Be(table.RowCount / 2);
             }
         }
 
         [Fact]
-        public void TestStandardNormalisation2()
+        public async Task TestStandardNormalisation2()
         {
-            var table = GetSimpleTable2();
-            var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
-            var normalised = table.Normalize(NormalizationType.Standard);
+            var table = await GetSimpleTable2();
+            var analysis = (await table.GetColumnAnalysis(0))[0].GetNumericAnalysis();
+            var normalised = await table.Normalize(NormalizationType.Standard);
+            var existing = await table.GetColumn(0).ToArray<double>();
 
-            RandomSample(table.RowCount, normalised, (index, row) => {
+            await RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                var prevRow = table.GetRow(index);
-                var prevVal = (double)prevRow[0];
+                var prevVal = existing[index];
                 var expected = (prevVal - analysis.Mean) / analysis.PopulationStdDev!;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
         [Fact]
-        public void TestFeatureScaleNormalisation()
+        public async Task TestFeatureScaleNormalisation()
         {
-            var table = GetSimpleTable2();
-            var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
-            var normalised = table.Normalize(NormalizationType.FeatureScale);
+            var table = await GetSimpleTable2();
+            var analysis = (await table.GetColumnAnalysis(0))[0].GetNumericAnalysis();
+            var normalised = await table.Normalize(NormalizationType.FeatureScale);
+            var existing = await table.GetColumn(0).ToArray<double>();
 
-            RandomSample(table.RowCount, normalised, (index, row) => {
+            await RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                var prevRow = table.GetRow(index);
-                var prevVal = (double)prevRow[0];
+                var prevVal = existing[index];
                 var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
         [Fact]
-        public void TestL2Normalisation()
+        public async Task TestL2Normalisation()
         {
-            var table = GetSimpleTable2();
-            var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
-            var normalised = table.Normalize(NormalizationType.Euclidean);
-
-            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Values.Select(d => Math.Pow(d, 2)).Sum());
+            var table = await GetSimpleTable2();
+            var analysis = (await table.GetColumnAnalysis(0))[0].GetNumericAnalysis();
+            var normalised = await table.Normalize(NormalizationType.Euclidean);
+            var existing = await table.GetColumn(0).ToArray<double>();
+            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).EnumerateAllTyped().ToBlockingEnumerable().Select(d => Math.Pow(d, 2)).Sum());
             analysis.L2Norm.Should().Be(l2Norm);
 
-            RandomSample(table.RowCount, normalised, (index, row) => {
+            await RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                var prevRow = table.GetRow(index);
-                var prevVal = prevRow.Get<double>(0);
+                var prevVal = existing[index];
                 var expected = prevVal / analysis.L2Norm;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
         [Fact]
-        public void TestL1Normalisation()
+        public async Task TestL1Normalisation()
         {
-            var table = GetSimpleTable2();
-            var analysis = table.AllColumnAnalysis()[0].GetNumericAnalysis();
-            var normalised = table.Normalize(NormalizationType.Manhattan);
-
-            var l1Norm = table.GetColumn<double>(0).Values.Select(Math.Abs).Sum();
+            var table = await GetSimpleTable2();
+            var analysis = (await table.GetColumnAnalysis(0))[0].GetNumericAnalysis();
+            var normalised = await table.Normalize(NormalizationType.Manhattan);
+            var existing = await table.GetColumn(0).ToArray<double>();
+            var l1Norm = table.GetColumn<double>(0).EnumerateAllTyped().ToBlockingEnumerable().Select(Math.Abs).Sum();
             analysis.L1Norm.Should().Be(l1Norm);
 
-            RandomSample(table.RowCount, normalised, (index, row) => {
+            await RandomSample(table.RowCount, normalised, (index, row) => {
                 var val = row.Get<double>(0);
-                var prevRow = table.GetRow(index);
-                var prevVal = prevRow.Get<double>(0);
+                var prevVal = existing[index];
                 var expected = prevVal / analysis.L1Norm;
-                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
+                Math<double>.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
         [Fact]
-        public void TestTargetColumnIndex()
+        public async Task TestTargetColumnIndex()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String, "a");
-            builder.AddColumn(BrightDataType.String, "b").MetaData.SetTarget(true);
-            builder.AddColumn(BrightDataType.String, "c");
+            builder.CreateColumn(BrightDataType.String, "a");
+            builder.CreateColumn(BrightDataType.String, "b").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.String, "c");
             builder.AddRow("a", "b", "c");
-            var table = builder.BuildInMemory();
+            var table = await builder.BuildInMemory();
 
             table.GetTargetColumnOrThrow().Should().Be(1);
             table.RowCount.Should().Be(1);
@@ -298,89 +295,70 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void AsMatrix()
+        public async Task AsMatrix()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float, "val1");
-            builder.AddColumn(BrightDataType.Double, "val2");
-            builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "val1");
+            builder.CreateColumn(BrightDataType.Double, "val2");
+            builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
             builder.AddRow(0.7f, 0.5, "c");
             builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.BuildInMemory();
-            var matrix = table.AsMatrix(0, 1);
+            var table = await builder.BuildInMemory();
+            var matrix = await table.AsMatrix(0, 1);
             matrix[0, 0].Should().Be(0.5f);
-            matrix[1, 0].Should().Be(0.2f);
+            matrix[0, 1].Should().Be(0.2f);
+            matrix[1, 0].Should().Be(1.1f);
             matrix[1, 1].Should().Be(1.5f);
         }
 
         [Fact]
-        public void AsMatrix2()
-        {
-            var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float, "val1");
-            builder.AddColumn(BrightDataType.Double, "val2");
-            builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
-
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
-
-            var table = builder.BuildInMemory();
-            var matrix = table.AsMatrix(0, 1);
-            matrix[0, 0].Should().Be(0.5f);
-            matrix[1, 0].Should().Be(0.2f);
-            matrix[1, 1].Should().Be(1.5f);
-        }
-
-        [Fact]
-        public void SelectColumns()
+        public async Task SelectColumns()
         {
             var builder = _context.CreateTableBuilder();
 
-            builder.AddColumn(BrightDataType.Float, "val1");
-            builder.AddColumn(BrightDataType.Double, "val2");
-            builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
-            builder.AddColumn(BrightDataType.String, "cls2");
+            builder.CreateColumn(BrightDataType.Float, "val1");
+            builder.CreateColumn(BrightDataType.Double, "val2");
+            builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.String, "cls2");
 
             builder.AddRow(0.5f, 1.1, "a", "a2");
             builder.AddRow(0.2f, 1.5, "b", "b2");
             builder.AddRow(0.7f, 0.5, "c", "c2");
             builder.AddRow(0.2f, 0.6, "d", "d2");
 
-            var table = builder.BuildInMemory();
-            var table2 = table.CopyColumnsToNewTable(null, 1, 2, 3);
+            var table = await builder.BuildInMemory();
+            var table2 = await table.CopyColumnsToNewTable(null, 1, 2, 3);
 
             table2.GetTargetColumnOrThrow().Should().Be(1);
             table2.RowCount.Should().Be(4);
             table2.ColumnCount.Should().Be(3);
 
-            using var column = table2.GetColumn(0).As<ITableSegment<double>>();
-            var columnValues = column.Values.ToArray();
+            var column = table2.GetColumn(0);
+            var columnValues = await column.ToArray<double>();
             columnValues[0].Should().Be(1.1);
             columnValues[1].Should().Be(1.5);
         }
 
         [Fact]
-        public void Fold()
+        public async Task Fold()
         {
             var builder = _context.CreateTableBuilder();
 
-            builder.AddColumn(BrightDataType.Float, "val1");
-            builder.AddColumn(BrightDataType.Double, "val2");
-            builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "val1");
+            builder.CreateColumn(BrightDataType.Double, "val2");
+            builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
             builder.AddRow(0.7f, 0.5, "c");
             builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.BuildInMemory();
-            var folds = table.Fold(4).ToList();
+            var table = await builder.BuildInMemory();
+            var folds = table.Fold(4).ToBlockingEnumerable().ToList();
             folds.Count.Should().Be(4);
             foreach (var (training, validation) in folds) {
                 training.RowCount.Should().Be(3);
@@ -389,33 +367,34 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void TableFilter()
+        public async Task TableFilter()
         {
             var builder = _context.CreateTableBuilder();
 
-            builder.AddColumn(BrightDataType.Float, "val1");
-            builder.AddColumn(BrightDataType.Double, "val2");
-            builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+            builder.CreateColumn(BrightDataType.Float, "val1");
+            builder.CreateColumn(BrightDataType.Double, "val2");
+            builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
             builder.AddRow(0.5f, 1.1, "a");
             builder.AddRow(0.2f, 1.5, "b");
             builder.AddRow(0.7f, 0.5, "c");
             builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.BuildInMemory();
-            var projectedTable = table.Project(null, r => (string)r[2] == "b" ? null : r);
+            var table = await builder.BuildInMemory();
+            var projectedTableBuilder = await table.Project(r => (string)r[2] == "b" ? null : r.Values);
+            var projectedTable = await projectedTableBuilder.BuildInMemory();
 
             projectedTable.ColumnCount.Should().Be(table.ColumnCount);
             projectedTable.RowCount.Should().Be(3);
         }
 
         [Fact]
-        public void TableConfusionMatrix()
+        public async Task TableConfusionMatrix()
         {
             var builder = _context.CreateTableBuilder();
 
-            builder.AddColumn(BrightDataType.String, "actual");
-            builder.AddColumn(BrightDataType.String, "expected");
+            builder.CreateColumn(BrightDataType.String, "actual");
+            builder.CreateColumn(BrightDataType.String, "expected");
 
             const int catCat = 5;
             const int catDog = 2;
@@ -439,31 +418,31 @@ namespace BrightData.UnitTests
                 builder.AddRow("rabbit", "dog");
             for (var i = 0; i < rabbitRabbit; i++)
                 builder.AddRow("rabbit", "rabbit");
-            var table = builder.BuildInMemory();
-            var confusionMatrix = table.CreateConfusionMatrix(1, 0);
+            var table = await builder.BuildInMemory();
+            var confusionMatrix = await table.CreateConfusionMatrix(1, 0);
 
             confusionMatrix.GetCount("cat", "dog").Should().Be(catDog);
             confusionMatrix.GetCount("dog", "rabbit").Should().Be(dogRabbit);
             confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(rabbitRabbit);
         }
 
-        static void CheckTableConversion<T>(BrightDataTableBuilder builder, ColumnConversionOperation conversionType, BrightDataType columnType)
+        static async Task CheckTableConversion<T>(IBuildDataTables builder, ColumnConversion conversionType, BrightDataType columnType) where T: notnull
         {
-            var table = builder.BuildInMemory();
-            var converted = table.Convert(conversionType.ConvertColumn(0), conversionType.ConvertColumn(1));
+            var table = await builder.BuildInMemory();
+            var converted = await table.Convert(null, conversionType.ConvertColumn(0), conversionType.ConvertColumn(1));
             converted.ColumnTypes[0].Should().Be(columnType);
             converted.ColumnTypes[1].Should().Be(columnType);
 
-            foreach (var (b1, b2) in converted.ForEachRow<T, T>())
-                b1.Should().Be(b2);
+            await foreach (var row in converted.Enumerate<T, T>())
+                row.C1.Should().Be(row.C2);
         }
 
         [Fact]
-        public void BooleanColumnConversion()
+        public Task BooleanColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
-            builder.AddColumn(BrightDataType.Boolean);
+            builder.CreateColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.Boolean);
 
             builder.AddRow("True", true);
             builder.AddRow("Y", true);
@@ -476,15 +455,15 @@ namespace BrightData.UnitTests
             builder.AddRow("f", false);
             builder.AddRow("0", false);
 
-            CheckTableConversion<bool>(builder, ColumnConversionOperation.ToBoolean, BrightDataType.Boolean);
+            return CheckTableConversion<bool>(builder, ColumnConversion.ToBoolean, BrightDataType.Boolean);
         }
 
         [Fact]
-        public void DateColumnConversion()
+        public Task DateColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
-            builder.AddColumn(BrightDataType.Date);
+            builder.CreateColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.Date);
 
             void AddRow(string dateStr) => builder.AddRow(dateStr, DateTime.Parse(dateStr));
 
@@ -504,71 +483,69 @@ namespace BrightData.UnitTests
             AddRow(date.ToString("u"));
             AddRow(date.ToString("U"));
 
-            CheckTableConversion<DateTime>(builder, ColumnConversionOperation.ToDate, BrightDataType.Date);
+            return CheckTableConversion<DateTime>(builder, ColumnConversion.ToDateTime, BrightDataType.Date);
         }
 
         [Fact]
-        public void ByteColumnConversion()
+        public Task ByteColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
-            builder.AddColumn(BrightDataType.SByte);
+            builder.CreateColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.SByte);
 
             for (int i = 0, len = sbyte.MaxValue - sbyte.MinValue; i < len; i++) {
                 var val = (sbyte)(sbyte.MinValue + i);
                 builder.AddRow(val.ToString(), val);
             }
-            CheckTableConversion<sbyte>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.SByte);
+            return CheckTableConversion<sbyte>(builder, ColumnConversion.ToNumeric, BrightDataType.SByte);
         }
 
         [Fact]
-        public void ShortColumnConversion()
+        public Task ShortColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.String);
-            builder.AddColumn(BrightDataType.Short);
+            builder.CreateColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.Short);
 
             foreach (var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
                 builder.AddRow(val.ToString(), (short)val);
 
-            CheckTableConversion<short>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.Short);
+            return CheckTableConversion<short>(builder, ColumnConversion.ToNumeric, BrightDataType.Short);
         }
 
         [Fact]
-        public void IntColumnConversion()
+        public Task IntColumnConversion()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Int);
-            builder.AddColumn(BrightDataType.String);
+            builder.CreateColumn(BrightDataType.Int);
+            builder.CreateColumn(BrightDataType.String);
 
             builder.AddRow(int.MinValue, int.MinValue.ToString());
             builder.AddRow(0, "0");
             builder.AddRow(int.MaxValue, int.MaxValue.ToString());
 
-            CheckTableConversion<int>(builder, ColumnConversionOperation.ToNumeric, BrightDataType.Int);
+            return CheckTableConversion<int>(builder, ColumnConversion.ToNumeric, BrightDataType.Int);
         }
 
         [Fact]
-        public void ManyToVector()
+        public async Task ManyToVector()
         {
             var builder = _context.CreateTableBuilder();
-            builder.AddColumn(BrightDataType.Float);
-            builder.AddColumn(BrightDataType.Float);
+            builder.CreateColumn(BrightDataType.Float);
+            builder.CreateColumn(BrightDataType.Float);
 
             builder.AddRow(0.1f, 0.2f);
             builder.AddRow(0.3f, 0.4f);
 
-            using var tempStreams = _context.CreateTempStreamProvider();
-            var manyToOne = new uint[] { 0, 1 }.ReinterpretColumns(BrightDataType.Vector, "Data");
+            using var tempStreams = _context.CreateTempDataBlockProvider();
 
-            var table = builder.BuildInMemory();
-            var newTable = table.ReinterpretColumns(tempStreams, null, manyToOne);
+            var table = await builder.BuildInMemory();
+            var inputColumns = table.GetColumns(0, 1).Cast<IReadOnlyBuffer>().ToArray();
+            var vectors = await inputColumns.Vectorise(tempStreams);
 
-            newTable.ColumnCount.Should().Be(1);
-            var metaData = newTable.ColumnMetaData[0];
-            metaData.GetColumnIndex().Should().Be(0);
-            metaData.GetName().Should().Be("Data");
-            metaData.GetColumnType().Should().Be(BrightDataType.Vector);
+            vectors.Size.Should().Be(2);
+            var vector = await vectors.GetItem(0);
+            vector.Size.Should().Be(2);
         }
     }
 }

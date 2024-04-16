@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class SequenceToSequenceTrainer : DataTableTrainer
+    internal class SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, IDataTable dataTable) : DataTableTrainer(dataTable)
     {
-        readonly SequenceGenerator _sequenceGenerator;
-
-        public SequenceToSequenceTrainer(SequenceGenerator sequenceGenerator, BrightDataTable dataTable) : base(dataTable)
-        {
-            _sequenceGenerator = sequenceGenerator;
-        }
-
-        public void TrainOneToMany()
+        public async Task TrainOneToMany()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -31,7 +25,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create the engine
             const float trainingRate = 0.003f;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, 8);
             engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
@@ -46,27 +40,25 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(40, testData, g => bestModel = g.Graph);
+            await engine.Train(40, testData, g => bestModel = g.Graph);
             var executionEngine = engine.CreateExecutionEngine(bestModel);
+            var orderedOutput = await executionEngine.Execute(testData).OrderSequentialOutput();
 
-            var output = executionEngine.Execute(testData);
-            var orderedOutput = output.OrderSequentialOutput();
-
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => (
-                    Input: GetStringIndices(Test.Get<IReadOnlyVector>(i, 0)),
-                    Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
+                    Input: GetStringIndices(Test.Get<ReadOnlyVector<float>>(0, i).Result),
+                    Output: orderedOutput[i].Select(v => v.GetMinAndMaxValues().MaxIndex).ToArray()
                 ))
             ;
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result)}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input)} => {sequenceGenerator.Decode(result)}");
             }
         }
 
-        static uint[] GetStringIndices(IReadOnlyVector vector)
+        static uint[] GetStringIndices(IReadOnlyVector<float> vector)
         {
             return GetStringIndices(vector.ReadOnlySegment.ToNewArray());
         }
@@ -78,7 +70,7 @@ namespace ExampleCode.DataTableTrainers
             .ToArray()
         ;
 
-        public void TrainManyToOne()
+        public async Task TrainManyToOne()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -90,7 +82,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the engine
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.00375f, 8);
 
@@ -106,18 +98,17 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestModel = null;
-            engine.Train(10, testData, g => bestModel = g.Graph);
+            await engine.Train(10, testData, g => bestModel = g.Graph);
 
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-            var output = executionEngine.Execute(testData);
-            var orderedOutput = output.OrderSequentialOutput();
+            var orderedOutput = await executionEngine.Execute(testData).OrderSequentialOutput();
 
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
+                    var matrix = Test.Get<ReadOnlyMatrix<float>>(0, i).Result;
                     return (
-                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
+                        Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
                         Output: GetStringIndices(orderedOutput[i].Last())
                     );
                 })
@@ -126,11 +117,11 @@ namespace ExampleCode.DataTableTrainers
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input.OrderBy(d => d).ToArray())} => {_sequenceGenerator.Decode(result)}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input.OrderBy(d => d).ToArray())} => {sequenceGenerator.Decode(result)}");
             }
         }
 
-        public void TrainSequenceToSequence()
+        public async Task TrainSequenceToSequence()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -146,9 +137,9 @@ namespace ExampleCode.DataTableTrainers
             const float trainingRate = 0.01f;
 
             // indicate that this is Sequence to Sequence as the sequence lengths are the same
-            Training.TableMetaData.Set("Seq2Seq", true);
+            Training.MetaData.Set("Seq2Seq", true);
 
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
@@ -170,11 +161,11 @@ namespace ExampleCode.DataTableTrainers
             // train
             ExecutionGraphModel? bestModel = null;
             engine.LearningContext.ScheduleLearningRate(30, trainingRate / 3);
-            engine.Train(60, testData, model => bestModel = model.Graph);
+            await engine.Train(60, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);
-            var testResults = executionEngine.Execute(testData).ToList();
+            var testResults = await executionEngine.Execute(testData).ToListAsync();
             var orderedOutput = testResults.OrderSequentialOutput();
 
             var attention = testResults
@@ -186,13 +177,13 @@ namespace ExampleCode.DataTableTrainers
             foreach (var item in attention)
                 Console.WriteLine($"{item.Key}: {item.Value}");
 
-            // convert each vector to a string index (vector index with highest value becomes the string index)
+            // convert each vector to a string index (vector index with the highest value becomes the string index)
             var inputOutput = orderedOutput.Length.AsRange()
                 .Select(i => {
-                    var matrix = Test.Get<IReadOnlyMatrix>(i, 0);
+                    var matrix = Test.Get<ReadOnlyMatrix<float>>(0, i).Result;
                     return (
-                        Input: matrix.AllRows().Select(r => r.GetMaximumIndex()).ToArray(),
-                        Output: orderedOutput[i].Select(v => v.GetMaximumIndex()).ToArray()
+                        Input: matrix.RowCount.AsRange().Select(x => matrix.GetReadOnlyRow(x).GetMaximumIndex()).ToArray(),
+                        Output: orderedOutput[i].Select(v => v.GetMinAndMaxValues().MaxIndex).ToArray()
                     );
                 })
                 .ToList()
@@ -217,7 +208,7 @@ namespace ExampleCode.DataTableTrainers
 
             // write sample of results
             foreach (var (input, result) in inputOutput.Shuffle(_context.Random).Take(20)) {
-                Console.WriteLine($"{_sequenceGenerator.Decode(input)} => {_sequenceGenerator.Decode(result.Reverse())}");
+                Console.WriteLine($"{sequenceGenerator.Decode(input)} => {sequenceGenerator.Decode(result.Reverse())}");
             }
         }
     }

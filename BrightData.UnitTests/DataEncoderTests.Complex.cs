@@ -4,17 +4,13 @@ using BrightData.UnitTests.Fixtures;
 using Xunit;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
+using BrightData.Types;
 
 namespace BrightData.UnitTests
 {
     public partial class DataEncoderTests
     {
-        readonly SerialisationFixture _context;
-
-        public DataEncoderTests()
-        {
-            _context = new SerialisationFixture();
-        }
+        readonly SerialisationFixture _context = new();
 
         void Encode<T>(T input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>>? optionsFunc = null) where T: notnull
         {
@@ -39,7 +35,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeStringArray()
         {
-            EncodeArray(new [] {"1", "2", "3"});
+            EncodeArray(["1", "2", "3"]);
         }
 
         [Fact]
@@ -56,7 +52,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeBoolArray()
         {
-            EncodeArray(new[] { true, false });
+            EncodeArray([true, false]);
         }
 
         [Fact]
@@ -68,37 +64,37 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeDateTimeArray()
         {
-            EncodeArray(new[] { DateTime.Now, DateTime.Now.AddMilliseconds(100) });
+            EncodeArray([DateTime.Now, DateTime.Now.AddMilliseconds(100)]);
         }
 
         [Fact]
         public void EncodeIndexList()
         {
-            Encode(_context.Context.CreateIndexList(1, 2, 3), options => options.ComparingByMembers<IndexList>());
+            Encode(IndexList.Create(1, 2, 3));
         }
 
         [Fact]
         public void EncodeIndexListArray()
         {
-            EncodeArray(new [] {
-                _context.Context.CreateIndexList(1, 2, 3),
-                _context.Context.CreateIndexList(2, 3, 4)
-            }, options => options.ComparingByMembers<IndexList>());
+            EncodeArray([
+                IndexList.Create(1, 2, 3),
+                IndexList.Create(2, 3, 4)
+            ]);
         }
 
         [Fact]
         public void EncodeWeightedIndexList()
         {
-            Encode(_context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)), options => options.ComparingByMembers<WeightedIndexList>());
+            Encode(WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)));
         }
 
         [Fact]
         public void EncodeWeightedIndexListArray()
         {
-            EncodeArray(new [] {
-                _context.Context.CreateWeightedIndexList((1, 1f), (2, 0.5f), (3, 0f)),
-                _context.Context.CreateWeightedIndexList((2, 1f), (3, 0.5f), (4, 0f)),
-            }, options => options.ComparingByMembers<WeightedIndexList>());
+            EncodeArray([
+                WeightedIndexList.Create((1, 1f), (2, 0.5f), (3, 0f)),
+                WeightedIndexList.Create((2, 1f), (3, 0.5f), (4, 0f))
+            ]);
         }
 
         [Fact]
@@ -112,10 +108,10 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeFloatVectorArray()
         {
-            EncodeArray(new [] {
-                _context.Context.CreateReadOnlyVector(8, i => (float)i),
+            EncodeArray([
+                _context.Context.CreateReadOnlyVector(8, i => i),
                 _context.Context.CreateReadOnlyVector(8, i => (float)i*2)
-            });
+            ]);
         }
 
         //[Fact]
@@ -139,16 +135,16 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeBinaryData()
         {
-            Encode(new BinaryData(new byte[] { 1, 2, 3 }), options => options.ComparingByValue<BinaryData>());
+            Encode(new BinaryData(1, 2, 3), options => options.ComparingByValue<BinaryData>());
         }
 
         [Fact]
         public void EncodeBinaryDataArray()
         {
-            EncodeArray(new[] {
-                new BinaryData(new byte[] { 1, 2, 3 }),
-                new BinaryData(new byte[] { 2, 3, 4 })
-            }, options => options.ComparingByValue<BinaryData>());
+            EncodeArray([
+                new BinaryData(1, 2, 3),
+                new BinaryData(2, 3, 4)
+            ], options => options.ComparingByValue<BinaryData>());
         }
     }
 }

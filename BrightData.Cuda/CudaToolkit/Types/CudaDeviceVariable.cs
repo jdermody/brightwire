@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Cuda.CudaToolkit.Types
 {
-    internal class CudaDeviceVariable<T> : IDisposable where T : struct
+    internal class CudaDeviceVariable<T> : IDisposable where T : unmanaged
     {
         readonly CuDevicePtr _devPtr;
         readonly SizeT _size = 0;
@@ -16,7 +16,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             _devPtr = new CuDevicePtr();
             _size = size;
-            _typeSize = (uint)Marshal.SizeOf(typeof(T));
+            _typeSize = (uint)Marshal.SizeOf<T>();
 
             _res = DriverApiNativeMethods.MemoryManagement.cuMemAlloc_v2(ref _devPtr, _typeSize * size);
 
@@ -27,7 +27,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         {
             _devPtr = new CuDevicePtr();
             _size = size;
-            _typeSize = (uint)Marshal.SizeOf(typeof(T));
+            _typeSize = (uint)Marshal.SizeOf<T>();
 
             _res = DriverApiNativeMethods.MemoryManagement.cuMemAllocAsync(ref _devPtr, _typeSize * size, stream);
 
@@ -45,7 +45,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
             _res = DriverApiNativeMethods.MemoryManagement.cuMemGetAddressRange_v2(ref nullPtr, ref _size, devPtr);
 
             if (_res != CuResult.Success) throw new CudaException(_res);
-            _typeSize = (uint)Marshal.SizeOf(typeof(T));
+            _typeSize = (uint)Marshal.SizeOf<T>();
             var sizeInBytes = _size;
             _size = sizeInBytes / _typeSize;
             if (sizeInBytes != _size * _typeSize)
@@ -59,7 +59,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
         public CudaDeviceVariable(CuDevicePtr devPtr, bool isOwner, SizeT size)
         {
             _devPtr = devPtr;
-            _typeSize = (uint)Marshal.SizeOf(typeof(T));
+            _typeSize = (uint)Marshal.SizeOf<T>();
             _size = size / _typeSize;
             if (size != _size * _typeSize)
                 throw new CudaException("Variable size is not a multiple of its type size.");
@@ -73,7 +73,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
 
             if (_res != CuResult.Success) throw new CudaException(_res);
 
-            _typeSize = Marshal.SizeOf(typeof(T));
+            _typeSize = Marshal.SizeOf<T>();
             _size = sizeInBytes / _typeSize;
 
             if (sizeInBytes != _size * _typeSize)
@@ -330,48 +330,6 @@ namespace BrightData.Cuda.CudaToolkit.Types
             if (res != CuResult.Success)
                 throw new CudaException(res);
         }
-        public void CopyToHost(ref T dest)
-        {
-            if (_disposed) throw new ObjectDisposedException(ToString());
-            var aSizeInBytes = _typeSize;
-            var handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            CuResult res;
-            try
-            {
-                var ptr = handle.AddrOfPinnedObject();
-                res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(ptr, _devPtr, aSizeInBytes);
-
-                dest = (T)(Marshal.PtrToStructure(ptr, typeof(T)) ?? throw new InvalidOperationException());
-            }
-            finally
-            {
-                handle.Free();
-            }
-
-            if (res != CuResult.Success)
-                throw new CudaException(res);
-        }
-        public void CopyToHost(ref T dest, SizeT offsetSrc)
-        {
-            if (_disposed) throw new ObjectDisposedException(ToString());
-            var aSizeInBytes = _typeSize;
-            var handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
-            CuResult res;
-            try
-            {
-                var ptr = handle.AddrOfPinnedObject();
-                res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(ptr, _devPtr + offsetSrc, aSizeInBytes);
-
-                dest = (T)(Marshal.PtrToStructure(ptr, typeof(T)) ?? throw new InvalidOperationException());
-            }
-            finally
-            {
-                handle.Free();
-            }
-
-            if (res != CuResult.Success)
-                throw new CudaException(res);
-        }
         public void CopyToHost(IntPtr dest)
         {
             if (_disposed) throw new ObjectDisposedException(ToString());
@@ -509,33 +467,22 @@ namespace BrightData.Cuda.CudaToolkit.Types
                 throw new CudaException(_res);
             return exportData;
         }
-        public T this[SizeT index]
+        public unsafe T this[SizeT index]
         {
             get
             {
-                if (_disposed) throw new ObjectDisposedException(ToString());
-
+                if (_disposed) 
+                    throw new ObjectDisposedException(ToString());
                 var position = _devPtr + index * _typeSize;
-                var dest = new T();
-
-                var aSizeInBytes = _typeSize;
-                var handle = GCHandle.Alloc(dest, GCHandleType.Pinned);
+                Span<T> local = stackalloc T[1];
                 CuResult res;
-                try
-                {
-                    var ptr = handle.AddrOfPinnedObject();
-                    res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2(ptr, position, aSizeInBytes);
-
-                    dest = (T)(Marshal.PtrToStructure(ptr, typeof(T)) ?? throw new InvalidOperationException());
+                var aSizeInBytes = _typeSize;
+                fixed (T* ptr = local) {
+                    res = DriverApiNativeMethods.SynchronousMemcpyV2.cuMemcpyDtoH_v2((IntPtr)ptr, position, aSizeInBytes);
                 }
-                finally
-                {
-                    handle.Free();
-                }
-
                 if (res != CuResult.Success)
                     throw new CudaException(res);
-                return dest;
+                return local[0];
             }
 
             set

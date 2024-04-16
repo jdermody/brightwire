@@ -7,33 +7,22 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     internal class ReverseTemporalJoin : MultiGateBase
     {
-        class Backpropagation : BackpropagationBase<ReverseTemporalJoin>
+        class Backpropagation(ReverseTemporalJoin source, uint reverseSize, NodeBase forward, NodeBase backward)
+            : BackpropagationBase<ReverseTemporalJoin>(source)
         {
-            readonly uint _reverseSize;
-            readonly NodeBase _forward;
-            readonly NodeBase _backward;
-
-            public Backpropagation(ReverseTemporalJoin source, uint reverseSize, NodeBase forward, NodeBase backward) : base(source)
-            {
-                _reverseSize = reverseSize;
-                _forward = forward;
-                _backward = backward;
-            }
-
             public override IEnumerable<(IGraphData Signal, IGraphContext Context, NodeBase? ToNode)> Backward(IGraphData errorSignal, IGraphContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                yield return (errorSignal.ReplaceWith(left), context, _forward);
+                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - reverseSize);
+                yield return (errorSignal.ReplaceWith(left), context, forward);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
                 var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (_backward, errorSignal.ReplaceWith(right)));
+                _source._reverseBackpropagation.Add(reversedSequenceIndex, (backward, errorSignal.ReplaceWith(right)));
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {
-                    //for(uint i = batch.SequenceCount-1; i >= 0; i++) {
                     foreach(var i in batch.SequenceCount.AsRange().Reverse()) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
@@ -45,8 +34,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
-        Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)> _reverseInput = new();
+        Dictionary<uint, (IMatrix<float> Data, uint ReversedSize, NodeBase ForwardParent)> _input = new();
+        Dictionary<uint, (IMatrix<float> Data, NodeBase ReverseParent)> _reverseInput = new();
 
         Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new();
         Dictionary<uint, IGraphContext> _contextTable = new();
@@ -58,8 +47,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IMatrix Data, NodeBase ReverseParent)>();
+            _input = new Dictionary<uint, (IMatrix<float> Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IMatrix<float> Data, NodeBase ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
             _contextTable = new Dictionary<uint, IGraphContext>();
@@ -81,7 +70,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 wire.SendTo.Forward(next, context, wire.Channel, this);
         }
 
-        protected override (IMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override (IMatrix<float>? Next, Func<IBackpropagate>? BackProp) Activate(IGraphContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

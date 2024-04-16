@@ -1,18 +1,14 @@
-﻿using BrightWire;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+﻿using BrightData;
+using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class StockDataTrainer : DataTableTrainer
+    internal class StockDataTrainer(IDataTable table) : DataTableTrainer(table)
     {
-        public StockDataTrainer(BrightDataTable table) : base(table)
-        {
-        }
-
         public SequentialWindowStockDataTrainer GetSequentialWindow(uint windowSize = 14)
         {
             return new(
-                Table.Value.CreateSequentialWindow(windowSize, 0, 1, 2, 3, 4)
+                Table.Value.CreateSequentialWindow(windowSize, 0, 1, 2, 3, 4).Result
             );
         }
     }

@@ -2,19 +2,22 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+	<PublishAot>true</PublishAot>
+	<TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
 
   <ItemGroup>
 	  <PackageReference Include="BetterConsoleTables" Version="1.1.3" />
 	  <PackageReference Include="MKL.NET.win-x64" Version="2022.0.0.115" />
-	  <PackageReference Include="SharpCompress" Version="0.32.2" />
+	  <PackageReference Include="SharpCompress" Version="0.36.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData.Cuda\BrightData.Cuda.csproj" />
     <ProjectReference Include="..\BrightData.MKL\BrightData.MKL.csproj" />
+    <ProjectReference Include="..\BrightData.Parquet\BrightData.Parquet.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
     <ProjectReference Include="..\Data\Data.csproj" />

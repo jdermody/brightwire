@@ -4,7 +4,7 @@ using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
-using BrightData.Serialisation;
+using BrightData.Helper;
 
 namespace BrightWire.Helper
 {
@@ -90,13 +90,6 @@ namespace BrightWire.Helper
             model.FromId.WriteTo(writer);
             model.ToId.WriteTo(writer);
             model.InputChannel.WriteTo(writer);
-        }
-
-        public static void ReadFrom(BrightDataContext _, BinaryReader reader, ExecutionGraphModel.Wire model)
-        {
-            model.FromId = reader.ReadString();
-            model.ToId = reader.ReadString();
-            model.InputChannel = (uint)reader.ReadInt32();
         }
 
         public static void WriteTo(BernoulliNaiveBayes model, BinaryWriter writer)

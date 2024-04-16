@@ -3,9 +3,9 @@ using System.Runtime.Serialization;
 
 namespace BrightData.Cuda.CudaToolkit
 {
-    internal class CudaBlasException : Exception
+    internal class CudaBlasException(CuBlasStatus error) : Exception(GetErrorMessageFromCuResult(error))
     {
-        public CuBlasStatus CudaBlasError { get; set; }
+        public CuBlasStatus CudaBlasError { get; set; } = error;
 
         static string GetErrorMessageFromCuResult(CuBlasStatus error)
         {
@@ -25,12 +25,7 @@ namespace BrightData.Cuda.CudaToolkit
             return error + ": " + message;
         }
 
-        public CudaBlasException(CuBlasStatus error)
-            : base(GetErrorMessageFromCuResult(error))
-        {
-            CudaBlasError = error;
-        }
-
+        [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", DiagnosticId = "SYSLIB0051", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

@@ -2,6 +2,10 @@
 
 namespace BrightData.Converter
 {
+    /// <summary>
+    /// Converts to float
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ConvertToFloat<T> : ConverterBase<T>, ICanConvert<T, float>
         where T: notnull
     {

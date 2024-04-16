@@ -1,64 +1,54 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+using BrightData.DataTable.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     /// <summary>
     /// Helper class when executing a single sequence
     /// </summary>
-    internal class SequentialRowDataSource : IDataSource
+    internal class SequentialRowDataSource(float[][] data, LinearAlgebraProvider<float> lap) : IDataSource
     {
-        readonly float[][] _data;
-        readonly LinearAlgebraProvider _lap;
-
-        public SequentialRowDataSource(float[][] data, LinearAlgebraProvider lap)
-        {
-            _data = data;
-            _lap = lap;
-            InputSize = (uint)data.First().Length;
-            InputCount = (uint)data.Length;
-        }
-
-        public uint InputSize { get; }
+        public uint InputSize { get; } = (uint)data.First().Length;
         public uint? OutputSize { get; } = null;
         public uint RowCount => 1;
-        public uint InputCount { get; }
-        public IDataTableVectoriser? InputVectoriser { get; } = null;
-        public IDataTableVectoriser? OutputVectoriser { get; } = null;
+        public uint InputCount { get; } = (uint)data.Length;
+        public VectorisationModel? InputVectoriser { get; } = null;
+        public VectorisationModel? OutputVectoriser { get; } = null;
 
-        public IDataSource CloneWith(BrightDataTable dataTable)
+        public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(uint[] rows)
+        public Task<MiniBatch> Get(uint[] rows)
         {
             var ret = new MiniBatch(rows, this);
             int index = 0;
-            foreach (var row in _data) {
+            foreach (var row in data) {
                 var type = MiniBatchSequenceType.Standard;
                 if (index == 0)
                     type = MiniBatchSequenceType.SequenceStart;
-                else if (index == _data.Length - 1)
+                else if (index == data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
-                using var temp = _lap.CreateVector(row);
+                using var temp = lap.CreateVector(row);
                 ret.Add(type, temp.Reshape(1, null).AsGraphData(), null);
                 ++index;
             }
-            return ret;
+            return Task.FromResult(ret);
         }
 
         public uint[][] GetSequentialBatches()
         {
-            return new[] {
-                new uint [] {
+            return [
+                [
                     0
-                }
-            };
+                ]
+            ];
         }
     }
 }

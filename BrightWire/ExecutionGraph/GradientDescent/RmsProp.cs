@@ -7,16 +7,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Rms prop gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
     /// </summary>
-    internal class RmsProp : AdaGrad
+    internal class RmsProp(float decayRate, IMatrix<float> cache, IGradientDescentOptimisation updater)
+        : AdaGrad(cache, updater)
     {
-        protected float _decayRate;
+        protected float _decayRate = decayRate;
 
-        public RmsProp(float decayRate, IMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
-        {
-            _decayRate = decayRate;
-        }
-
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);

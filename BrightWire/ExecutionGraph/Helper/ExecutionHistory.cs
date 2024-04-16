@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public ExecutionHistory(NodeBase source, IGraphData data, NodeBase? parent = null)
         {
             Parents = parent != null 
-                ? new[] { parent } 
-                : Array.Empty<NodeBase>();
+                ? [parent]
+                : [];
 
             Source = source;
             Data = data;

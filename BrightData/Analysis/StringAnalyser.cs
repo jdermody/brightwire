@@ -1,15 +1,13 @@
-﻿namespace BrightData.Analysis
+﻿using BrightData.Types;
+
+namespace BrightData.Analysis
 {
     /// <summary>
     /// String analysis
     /// </summary>
-    internal class StringAnalyser : FrequencyAnalyser<string>
+    internal class StringAnalyser(uint writeCount = Consts.MaxWriteCount) : FrequencyAnalyser<string>(writeCount)
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
-
-        public StringAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct) : base(writeCount, maxCount)
-        {
-        }
 
         public override void Add(string? str)
         {

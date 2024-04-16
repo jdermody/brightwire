@@ -21,7 +21,7 @@ namespace BrightWire.UnitTests
             var context = new TestingContext(_cpu);
             var output = action.Execute(input, context, null!);
 
-            FloatMath.AreApproximatelyEqual(output.GetMatrix(), expectedOutput.GetMatrix()).Should().BeTrue();
+            Math<float>.AreApproximatelyEqual(output.GetMatrix(), expectedOutput.GetMatrix()).Should().BeTrue();
         }
 
         [Fact]

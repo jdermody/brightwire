@@ -9,24 +9,24 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class CrossEntropy : IErrorMetric
     {
-        public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
+        public IMatrix<float>CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
         {
-            var lap = context.GetLinearAlgebraProvider();
-            using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, (i, j) => 1f);
+            var lap = output.LinearAlgebraProvider;
+            using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, (_, _) => 1f);
             using var oneMinusOutput = ones.Subtract(output);
             using var oneMinusOutputTimesOutput = oneMinusOutput.PointwiseMultiply(output);
             using var delta = targetOutput.Subtract(output);
             return delta.PointwiseDivide(oneMinusOutputTimesOutput);
         }
 
-        public float Compute(IVectorData output, IVectorData targetOutput)
+        public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)
         {
             float ret = 0;
             var len = output.Size;
             for (var i = 0; i < len; i++) {
                 var a = output.ReadOnlySegment[i];
                 var y = targetOutput.ReadOnlySegment[i];
-                ret += FloatMath.Constrain(-y * FloatMath.Log(a) - (1.0f - y) * FloatMath.Log(1.0f - a));
+                ret += Math<float>.Constrain(-y * Math<float>.Log(a) - (1.0f - y) * Math<float>.Log(1.0f - a));
             }
             return ret / len;
         }
@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             for (var i = 0; i < len; i++) {
                 var a = output[i];
                 var y = targetOutput[i];
-                ret += FloatMath.Constrain(-y * FloatMath.Log(a) - (1.0f - y) * FloatMath.Log(1.0f - a));
+                ret += Math<float>.Constrain(-y * Math<float>.Log(a) - (1.0f - y) * Math<float>.Log(1.0f - a));
             }
             return ret / len;
         }

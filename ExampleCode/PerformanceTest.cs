@@ -10,10 +10,10 @@ namespace ExampleCode
 {
     internal static class PerformanceTest
     {
-        public static void Run(params LinearAlgebraProvider[] laps)
+        public static void Run(params LinearAlgebraProvider<float>[] laps)
         {
             var headers = new ColumnHeader("Operation").ToEnumerable()
-                .Concat(laps.Select(lap => new ColumnHeader(lap.ProviderName + " (ms)", Alignment.Right)))
+                .Concat(laps.Select(lap => new ColumnHeader(lap.ProviderName + " (μs)", Alignment.Right)))
                 .ToArray();
 
             var table = new Table(new TableConfiguration(Style.Unicode), headers);
@@ -48,14 +48,14 @@ namespace ExampleCode
             Console.CursorLeft = 0;
             Console.CursorTop = 0;
             table.AddRow(name.ToEnumerable()
-                .Concat(results.Select(r => $"{r.TotalMilliseconds:N0}"))
+                .Concat(results.Select(r => $"{r.TotalMicroseconds:N0}"))
                 .Cast<object>()
                 .ToArray()
             );
             Console.Write(table.ToString());
         }
 
-        static TimeSpan MatrixMultiply(LinearAlgebraProvider lap, uint size)
+        static TimeSpan MatrixMultiply(LinearAlgebraProvider<float> lap, uint size)
         {
             using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
             using var matrix2 = matrix.Clone();
@@ -66,7 +66,7 @@ namespace ExampleCode
             return sw.Elapsed;
         }
 
-        static TimeSpan MatrixTranspose(LinearAlgebraProvider lap, uint size)
+        static TimeSpan MatrixTranspose(LinearAlgebraProvider<float> lap, uint size)
         {
             using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
 
@@ -76,7 +76,7 @@ namespace ExampleCode
             return sw.Elapsed;
         }
 
-        static TimeSpan MatrixTransposeThisAndMultiply(LinearAlgebraProvider lap, uint size)
+        static TimeSpan MatrixTransposeThisAndMultiply(LinearAlgebraProvider<float> lap, uint size)
         {
             using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
             using var matrix2 = matrix.Clone();
@@ -87,7 +87,7 @@ namespace ExampleCode
             return sw.Elapsed;
         }
 
-        static TimeSpan MatrixTransposeAndMultiply(LinearAlgebraProvider lap, uint size)
+        static TimeSpan MatrixTransposeAndMultiply(LinearAlgebraProvider<float> lap, uint size)
         {
             using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
             using var matrix2 = matrix.Clone();
@@ -98,7 +98,7 @@ namespace ExampleCode
             return sw.Elapsed;
         }
 
-        static TimeSpan MatrixPointwiseMultiply(LinearAlgebraProvider lap, uint size)
+        static TimeSpan MatrixPointwiseMultiply(LinearAlgebraProvider<float> lap, uint size)
         {
             using var matrix = lap.CreateMatrix(size, size, (i, j) => (i+1) * (j+1));
             using var matrix2 = matrix.Clone();

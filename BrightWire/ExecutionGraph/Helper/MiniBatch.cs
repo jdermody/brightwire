@@ -5,66 +5,76 @@ namespace BrightWire.ExecutionGraph.Helper
     /// <summary>
     /// Information about the current mini batch
     /// </summary>
-	public class MiniBatch : IMiniBatch
+    /// <remarks>
+    /// Creates a sequential mini batch
+    /// </remarks>
+    /// <param name="rows">The indices of the rows in this mini batch</param>
+    /// <param name="dataSource">Associated data source</param>
+    public class MiniBatch(uint[] rows, IDataSource dataSource)
     {
         /// <summary>
         /// A sequence within a mini batch
         /// </summary>
-	    internal class Sequence : IMiniBatchSequence
+	    public class Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
         {
-            public IMiniBatch MiniBatch { get; }
-            public uint SequenceIndex { get; }
-            public MiniBatchSequenceType Type { get; }
-            public IGraphData? Input { get; }
-            public IGraphData? Target { get; }
-            public IGraphContext? GraphContext { get; set; }
+            /// <summary>
+            /// Mini batch
+            /// </summary>
+            public MiniBatch MiniBatch { get; } = miniBatch;
 
-            public Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
-            {
-                Input = input;
-                Target = target;
-                MiniBatch = miniBatch;
-                SequenceIndex = sequenceIndex;
-                Type = type;
-            }
+            /// <summary>
+            /// Index of the sequence
+            /// </summary>
+            public uint SequenceIndex { get; } = sequenceIndex;
+
+            /// <summary>
+            /// Sequence type
+            /// </summary>
+            public MiniBatchSequenceType Type { get; } = type;
+
+            /// <summary>
+            /// Input data
+            /// </summary>
+            public IGraphData? Input { get; } = input;
+
+            /// <summary>
+            /// Training target data
+            /// </summary>
+            public IGraphData? Target { get; } = target;
+
+            /// <summary>
+            /// Graph sequence context that has been executed for this sequence
+            /// </summary>
+            public IGraphContext? GraphContext { get; set; }
 
             /// <inheritdoc />
             public override string ToString() => $"{SequenceIndex} - {Type}";
         }
-        readonly List<Sequence> _sequence = new();
+        readonly List<Sequence> _sequence = [];
 	    int _index = 0;
 
-		/// <summary>
-		/// Creates a non sequential mini batch
-		/// </summary>
-		/// <param name="rows">The indices of the rows in this mini batch</param>
-		/// <param name="dataSource">Associated data source</param>
-		/// <param name="input">Mini batch input data</param>
-		/// <param name="output">Expected output data (when training, otherwise null)</param>
-        public MiniBatch(uint[] rows, IDataSource dataSource, IGraphData input, IGraphData? output) : this(rows, dataSource)
+        /// <summary>
+        /// Creates a non sequential mini batch
+        /// </summary>
+        /// <param name="rows">The indices of the rows in this mini batch</param>
+        /// <param name="dataSource">Associated data source</param>
+        /// <param name="input">Mini batch input data</param>
+        /// <param name="output">Expected output data (when training, otherwise null)</param>
+        /// <param name="isSequential"></param>
+        /// <param name="type"></param>
+        /// <param name="sequenceIndex"></param>
+        public MiniBatch(uint[] rows, IDataSource dataSource, IGraphData input, IGraphData? output, bool isSequential = false, MiniBatchSequenceType type = MiniBatchSequenceType.Standard, uint sequenceIndex = 0) : this(rows, dataSource)
         {
-            IsSequential = false;
-            _sequence.Add(new Sequence(input, output, this));
+            IsSequential = isSequential;
+            _sequence.Add(new Sequence(input, output, this, sequenceIndex, type));
         }
 
-		/// <summary>
-		/// Creates a sequential mini batch
-		/// </summary>
-		/// <param name="rows">The indices of the rows in this mini batch</param>
-		/// <param name="dataSource">Associated data source</param>
-        public MiniBatch(uint[] rows, IDataSource dataSource)
-        {
-            Rows = rows;
-            IsSequential = true;
-            DataSource = dataSource;
-        }
-
-		/// <summary>
-		/// Adds another item to the sequential mini batch
-		/// </summary>
-		/// <param name="type">Type of the sequential item</param>
-		/// <param name="input">Mini batch input data</param>
-		/// <param name="output">Expected output data (when training, otherwise null)</param>
+        /// <summary>
+        /// Adds another item to the sequential mini batch
+        /// </summary>
+        /// <param name="type">Type of the sequential item</param>
+        /// <param name="input">Mini batch input data</param>
+        /// <param name="output">Expected output data (when training, otherwise null)</param>
         public void Add(MiniBatchSequenceType type, IGraphData? input, IGraphData? output)
         {
             _sequence.Add(new Sequence(input, output, this, (uint) _sequence.Count, type));
@@ -73,18 +83,18 @@ namespace BrightWire.ExecutionGraph.Helper
         /// <summary>
         /// Row indexes of the current batch
         /// </summary>
-	    public uint[] Rows { get; }
+	    public uint[] Rows { get; } = rows;
 
 
         /// <summary>
         /// Data source
         /// </summary>
-	    public IDataSource DataSource { get; }
+	    public IDataSource DataSource { get; } = dataSource;
 
         /// <summary>
         /// True if the data is sequential
         /// </summary>
-	    public bool IsSequential { get; }
+	    public bool IsSequential { get; } = true;
 
         /// <summary>
         /// Number of items in the batch
@@ -94,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Helper
         /// <summary>
         /// Current sequence (non sequential batches have a single sequence)
         /// </summary>
-        public IMiniBatchSequence CurrentSequence => _sequence[_index];
+        public Sequence CurrentSequence => _sequence[_index];
 
         /// <summary>
         /// True if there is another item in the sequence after the current item
@@ -114,7 +124,7 @@ namespace BrightWire.ExecutionGraph.Helper
         /// <summary>
         /// Gets the next item in the sequence (or null if none)
         /// </summary>
-        public IMiniBatchSequence? GetNextSequence()
+        public Sequence? GetNextSequence()
         {
             if(HasNextSequence)
                 return _sequence[_index++];
@@ -125,7 +135,7 @@ namespace BrightWire.ExecutionGraph.Helper
         /// Gets a sequence item
         /// </summary>
         /// <param name="index">The index to retrieve</param>
-        public IMiniBatchSequence GetSequenceAtIndex(uint index)
+        public Sequence GetSequenceAtIndex(uint index)
         {
             return _sequence[(int)index];
         }
@@ -133,11 +143,11 @@ namespace BrightWire.ExecutionGraph.Helper
         /// <summary>
         /// Subsequent mini batch
         /// </summary>
-        public IMiniBatch? NextMiniBatch { get; set; } = null;
+        public MiniBatch? NextMiniBatch { get; set; } = null;
 
         /// <summary>
         /// Previous mini batch
         /// </summary>
-        public IMiniBatch? PreviousMiniBatch { get; set; } = null;
+        public MiniBatch? PreviousMiniBatch { get; set; } = null;
     }
 }

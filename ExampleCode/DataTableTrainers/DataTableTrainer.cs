@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.TreeBased;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -14,36 +14,33 @@ namespace ExampleCode.DataTableTrainers
     {
         protected readonly BrightDataContext _context;
 
-        public DataTableTrainer(BrightDataTable table)
+        public DataTableTrainer(IDataTable table)
         {
-            try {
-                var shuffled = table.Shuffle(null);
-                _context = table.Context;
-                TargetColumn = table.GetTargetColumnOrThrow();
-                Table = new(shuffled);
-                var (training, test) = shuffled.Split();
-                Training = training;
-                Test = test;
-            }
-            finally {
-                table.Dispose();
-            }
+            OriginalTable = table;
+            var shuffled = table.Shuffle(null).Result;
+            _context = table.Context;
+            TargetColumn = table.GetTargetColumnOrThrow();
+            Table = new(shuffled);
+            var (training, test) = shuffled.Split().Result;
+            Training = training;
+            Test = test;
         }
 
-        public DataTableTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test)
+        public DataTableTrainer(IDataTable? table, IDataTable training, IDataTable test)
         {
             _context = training.Context;
             TargetColumn = training.GetTargetColumnOrThrow();
             Training = training;
             Test = test;
             if (table is null)
-                Table = new(() => training.ConcatenateRows(test));
+                Table = new(() => training.ConcatenateRows(null, test).Result);
             else
                 Table = new(table);
         }
 
         public void Dispose()
         {
+            OriginalTable?.Dispose();
             if(Table.IsValueCreated)
                 Table.Value.Dispose();
             Training.Dispose();
@@ -51,9 +48,10 @@ namespace ExampleCode.DataTableTrainers
         }
 
         public uint TargetColumn { get; }
-        public Lazy<BrightDataTable> Table { get; }
-        public BrightDataTable Training { get; }
-        public BrightDataTable Test { get; }
+        public IDataTable? OriginalTable { get; }
+        public Lazy<IDataTable> Table { get; }
+        public IDataTable Training { get; }
+        public IDataTable Test { get; }
 
         public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.Value.KMeans(k));
         public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.Value.HierarchicalCluster(k));
@@ -69,35 +67,35 @@ namespace ExampleCode.DataTableTrainers
                 .Select(g => $"{g.Label ?? "<<NULL>>"} ({g.Count})")
             ));
 
-        public NaiveBayes TrainNaiveBayes(bool writeResults = true)
+        public async Task<NaiveBayes> TrainNaiveBayes(bool writeResults = true)
         {
-            var ret = Training.TrainNaiveBayes();
+            var ret = await Training.TrainNaiveBayes();
             if (writeResults)
-                WriteResults("Naive bayes", ret.CreateClassifier());
+                await WriteResults("Naive bayes", ret.CreateClassifier());
             return ret;
         }
 
-        public DecisionTree TrainDecisionTree(bool writeResults = true)
+        public async Task<DecisionTree> TrainDecisionTree(bool writeResults = true)
         {
             var ret = Training.TrainDecisionTree();
             if (writeResults)
-                WriteResults("Decision tree", ret.CreateClassifier());
+                await WriteResults("Decision tree", ret.CreateClassifier());
             return ret;
         }
 
-        public RandomForest TrainRandomForest(uint numTrees, uint? baggedRowCount = null, bool writeResults = true)
+        public async Task<RandomForest> TrainRandomForest(uint numTrees, uint? baggedRowCount = null, bool writeResults = true)
         {
-            var ret = Training.TrainRandomForest(numTrees, baggedRowCount);
+            var ret = await Training.TrainRandomForest(numTrees, baggedRowCount);
             if(writeResults)
-                WriteResults("Random forest", ret.CreateClassifier());
+                await WriteResults("Random forest", ret.CreateClassifier());
             return ret;
         }
 
-        public KNearestNeighbours TrainKNearestNeighbours(uint k, bool writeResults = true)
+        public async Task<KNearestNeighbours> TrainKNearestNeighbours(uint k, bool writeResults = true)
         {
-            var ret = Training.TrainKNearestNeighbours();
+            var ret = await Training.TrainKNearestNeighbours();
             if (writeResults)
-                WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
+                await WriteResults("K nearest neighbours", ret.CreateClassifier(_context.LinearAlgebraProvider, k));
             return ret;
         }
 
@@ -108,9 +106,9 @@ namespace ExampleCode.DataTableTrainers
         //        WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider2));
         //}
 
-        void WriteResults(string type, IRowClassifier classifier)
+        async Task WriteResults(string type, IRowClassifier classifier)
         {
-            var results = Test.Classify(classifier).ToList();
+            var results = await Test.Classify(classifier).ToArrayAsync(Test.RowCount);
             var score = results
                 .Average(d => d.Row.Get<string>(TargetColumn) == d.Classification.MaxBy(c => c.Weight).Label ? 1.0 : 0.0);
             Console.WriteLine($"{type} accuracy: {score:P}");
@@ -119,15 +117,15 @@ namespace ExampleCode.DataTableTrainers
         void WriteResults(string type, ITableClassifier classifier)
         {
             var results = classifier.Classify(Test).ToList();
-            using var column = Test.GetColumn(TargetColumn);
-            var expectedLabels = column.Values.Select(o => o.ToString()).ToArray();
+            var column = Test.GetColumn(TargetColumn);
+            var expectedLabels = column.GetValues().Select(o => o.ToString()).ToArray();
             var score = results
                 .Average(d => expectedLabels[d.RowIndex] == d.Predictions.MaxBy(c => c.Weight).Classification ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
-        public virtual void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
+        public virtual async Task TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -135,13 +133,13 @@ namespace ExampleCode.DataTableTrainers
             // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
-            // create the property set (use rmsprop gradient descent optimisation)
+            // create the property set (use rms prop gradient descent optimisation)
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
 
             // create the training and test data sources
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
@@ -156,7 +154,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            engine.Train(numIterations, testData, null, testCadence);
+            await engine.Train(numIterations, testData, null, testCadence);
         }
     }
 }

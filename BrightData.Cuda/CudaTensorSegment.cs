@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Cuda
 {
-    internal class CudaTensorSegment : INumericSegment<float>
+    internal class CudaTensorSegment(IDeviceMemoryPtr data, CudaProvider provider) : INumericSegment<float>
     {
         const string CudaSegmentType = "cuda";
-
-        public CudaTensorSegment(IDeviceMemoryPtr data)
-        {
-            DeviceMemory = data;
-        }
 
         public void Dispose()
         {
@@ -32,7 +28,7 @@ namespace BrightData.Cuda
         public int AddRef() => DeviceMemory.AddRef();
         public int Release() => DeviceMemory.Release();
 
-        public IDeviceMemoryPtr DeviceMemory { get; }
+        public IDeviceMemoryPtr DeviceMemory { get; } = data;
         public bool IsValid => DeviceMemory.IsValid;
         public uint Size => DeviceMemory.Size;
         public string SegmentType => CudaSegmentType;
@@ -63,7 +59,6 @@ namespace BrightData.Cuda
         }
 
         public IEnumerable<float> Values => ToNewArray();
-        public float[]? GetArrayIfEasilyAvailable() => null;
 
         public MemoryOwner<float> ToNewMemoryOwner()
         {
@@ -84,17 +79,31 @@ namespace BrightData.Cuda
             DeviceMemory.CopyToDevice(span, targetOffset);
         }
 
-        public void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
+        public unsafe void CopyTo(INumericSegment<float> segment, uint sourceOffset, uint targetOffset)
         {
-            if (segment.SegmentType == CudaSegmentType) {
-                var other = (CudaTensorSegment)segment;
-                var target = targetOffset == 0 ? other.DeviceMemory : other.DeviceMemory.Offset(targetOffset, other.DeviceMemory.Size - targetOffset);
-                var source = sourceOffset == 0 ? DeviceMemory : DeviceMemory.Offset(sourceOffset, DeviceMemory.Size - sourceOffset);
-                target.CopyToDevice(source);
+            if (segment.SegmentType == CudaSegmentType)
+                Copy(DeviceMemory, (CudaTensorSegment)segment, sourceOffset, targetOffset);
+            else if (segment is MutableTensorSegmentWrapper<float> { UnderlyingSegment.SegmentType: CudaSegmentType } wrapper) {
+                if(wrapper.Stride == 1)
+                    Copy(DeviceMemory, (CudaTensorSegment)wrapper.UnderlyingSegment, sourceOffset, targetOffset + wrapper.Offset);
+                else {
+                    if (sourceOffset != 0 || targetOffset != 0)
+                        throw new Exception("Not supported");
+                    var other = (CudaTensorSegment)wrapper.UnderlyingSegment;
+                    provider.MemCpy(other.DeviceMemory, DeviceMemory, wrapper.Size, null, wrapper.Offset, 0, wrapper.Stride, incrementB:1);
+                }
             }
             else {
                 using var buffer = ToNewMemoryOwner();
                 segment.CopyFrom(buffer.Span[(int)sourceOffset..], targetOffset);
+            }
+            return;
+
+            static void Copy(IDeviceMemoryPtr sourceSegment, CudaTensorSegment targetSegment, uint sourceOffset, uint targetOffset)
+            {
+                var target = targetOffset == 0 ? targetSegment.DeviceMemory : targetSegment.DeviceMemory.Offset(targetOffset, targetSegment.DeviceMemory.Size - targetOffset);
+                var source = sourceOffset == 0 ? sourceSegment : sourceSegment.Offset(sourceOffset, sourceSegment.Size - sourceOffset);
+                target.CopyToDevice(source);
             }
         }
 
@@ -108,6 +117,8 @@ namespace BrightData.Cuda
             throw new NotImplementedException();
         }
 
+        public IHaveReadOnlyContiguousSpan<float>? Contiguous => null;
+
         public void Clear()
         {
             DeviceMemory.Clear();
@@ -119,11 +130,6 @@ namespace BrightData.Cuda
             temp = SpanOwner<float>.Allocate((int)Size);
             DeviceMemory.CopyToHost(temp.DangerousGetArray());
             return temp.Span;
-        }
-
-        public ReadOnlySpan<float> GetSpan(uint offset)
-        {
-            throw new NotImplementedException();
         }
 
         public (float[]? Array, uint Offset, uint Stride) GetUnderlyingArray() => (null, 0, 0);

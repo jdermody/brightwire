@@ -15,6 +15,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new decimal[] {1, 2, 3});
         }
+
 		[Fact]
         public void EncodeDouble()
         {
@@ -26,6 +27,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new double[] {1, 2, 3});
         }
+
 		[Fact]
         public void EncodeFloat()
         {
@@ -37,6 +39,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new float[] {1, 2, 3});
         }
+
 		[Fact]
         public void EncodeLong()
         {
@@ -48,6 +51,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new long[] {1, 2, 3});
         }
+
 		[Fact]
         public void EncodeInt()
         {
@@ -57,8 +61,9 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeIntArray()
         {
-            EncodeArray(new[] {1, 2, 3});
+            EncodeArray([1, 2, 3]);
         }
+
 		[Fact]
         public void EncodeShort()
         {
@@ -70,6 +75,7 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new short[] {1, 2, 3});
         }
+
 		[Fact]
         public void EncodeSbyte()
         {
@@ -81,5 +87,6 @@ namespace BrightData.UnitTests
         {
             EncodeArray(new sbyte[] {1, 2, 3});
         }
+
     }
 }

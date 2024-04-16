@@ -7,29 +7,32 @@ namespace BrightData.Helper
     /// <summary>
     /// Writes progress notifications to the console
     /// </summary>
-    public class ConsoleProgressNotification : INotifyUser
+    public class ConsoleProgressNotification : INotifyOperationProgress
     {
+        const char PROGRESS_CHAR = '\u2588';
         int _progress = 0;
         readonly Stopwatch _stopWatch = new();
 
         /// <inheritdoc />
-        public void OnStartOperation(string operationId, string? msg)
+        public void OnStartOperation(Guid operationId, string? msg)
         {
-            if(msg is not null)
+            if (msg is not null) {
+                Console.WriteLine();
                 Console.WriteLine(msg);
+            }
 
             _progress = -1;
             _stopWatch.Restart();
         }
 
         /// <inheritdoc />
-        public void OnOperationProgress(string operationId, float progressPercent)
+        public void OnOperationProgress(Guid operationId, float progressPercent)
         {
             WriteProgress(progressPercent, ref _progress, _stopWatch);
         }
 
         /// <inheritdoc />
-        public void OnCompleteOperation(string operationId, bool wasCancelled)
+        public void OnCompleteOperation(Guid operationId, bool wasCancelled)
         {
             _stopWatch.Stop();
             //Console.WriteLine();
@@ -54,7 +57,7 @@ namespace BrightData.Helper
                 var sb = new StringBuilder();
                 sb.Append('\r');
                 for (var i = 0; i < max; i++)
-                    sb.Append(i < newProgress ? '█' : '_');
+                    sb.Append(i < newProgress ? PROGRESS_CHAR : '_');
                 sb.Append($" ({oldProgress = newProgress}%)");
                 Console.Write(sb.ToString());
                 return true;
@@ -78,17 +81,18 @@ namespace BrightData.Helper
                 sb.Append('\r');
                 var i = 0;
                 for (; i < curr; i++)
-                    sb.Append('█');
+                    sb.Append(PROGRESS_CHAR);
                 var fore = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write(sb.ToString());
 
                 sb.Clear();
                 for (; i < 100; i++)
-                    sb.Append('█');
-                sb.Append($" {progress:P0}");
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+                    sb.Append(PROGRESS_CHAR);
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.Write(sb.ToString());
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write($" {progress:P0}");
 
                 Console.ForegroundColor = fore;
                 Console.Write($" {sw.Elapsed.Minutes:00}:{sw.Elapsed.Seconds:00}:{sw.Elapsed.Milliseconds:0000}");

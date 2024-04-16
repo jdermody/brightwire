@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightData.Helper;
 
 namespace BrightData.Converter
 {
@@ -7,73 +8,55 @@ namespace BrightData.Converter
     /// </summary>
     public class StaticConverters
     {
-        /// <summary>
-        /// Creates a converter to decimals
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, decimal> GetConverterToDecimal<T>() where T: notnull => new ConvertToDecimal<T>();
-
-        /// <summary>
-        /// Creates a converter to doubles
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, double> GetConverterToDouble<T>() where T : notnull => new ConvertToDouble<T>();
-
-        /// <summary>
-        /// Creates a converter to floats
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, float> GetConverterToFloat<T>() where T : notnull => new ConvertToFloat<T>();
-
-        /// <summary>
-        /// Creates a converter to integers
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, int> GetConverterToInt<T>() where T : notnull => new ConvertToInt<T>();
-
-        /// <summary>
-        /// Creates a converter to longs (Int64)
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, long> GetConverterToLong<T>() where T : notnull => new ConvertToLong<T>();
-
-        /// <summary>
-        /// Creates a converter to shorts (Int16)
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, short> GetConverterToShort<T>() where T : notnull => new ConvertToShort<T>();
-
-        /// <summary>
-        /// Creates a convert to signed bytes
-        /// </summary>
-        /// <typeparam name="T">Type to convert from</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<T, sbyte> GetConverterToSignedByte<T>() where T : notnull => new ConvertToSignedByte<T>();
-
-        /// <summary>
-        /// Creates a converter from FT to TT
-        /// </summary>
-        /// <typeparam name="TF">Type to convert from</typeparam>
-        /// <typeparam name="TT">Type to convert to</typeparam>
-        /// <returns></returns>
-        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF: notnull where TT : notnull
+        internal static ICanConvert ConvertToBoolean(Type type, bool throwOnFailure = false)
         {
-            return Type.GetTypeCode(typeof(TT)) switch {
-                TypeCode.SByte   => (ICanConvert<TF, TT>) GetConverterToSignedByte<TF>(),
-                TypeCode.Int16   => (ICanConvert<TF, TT>) GetConverterToShort<TF>(),
-                TypeCode.Int32   => (ICanConvert<TF, TT>) GetConverterToInt<TF>(),
-                TypeCode.Int64   => (ICanConvert<TF, TT>) GetConverterToLong<TF>(),
-                TypeCode.Single  => (ICanConvert<TF, TT>) GetConverterToFloat<TF>(),
-                TypeCode.Double  => (ICanConvert<TF, TT>) GetConverterToDouble<TF>(),
-                TypeCode.Decimal => (ICanConvert<TF, TT>) GetConverterToDecimal<TF>(),
-                _                => throw new NotImplementedException()
+            var typeCode = Type.GetTypeCode(type);
+            if(typeCode == TypeCode.Boolean)
+                return new NopConverter<bool>();
+            if(typeCode == TypeCode.SByte)
+                return new ConvertToBoolean<sbyte>(throwOnFailure);
+            if(typeCode == TypeCode.Single)
+                return new ConvertToBoolean<float>(throwOnFailure);
+            if(typeCode == TypeCode.Double)
+                return new ConvertToBoolean<double>(throwOnFailure);
+            if(typeCode == TypeCode.Decimal)
+                return new ConvertToBoolean<decimal>(throwOnFailure);
+            if(typeCode == TypeCode.Int16)
+                return new ConvertToBoolean<short>(throwOnFailure);
+            if(typeCode == TypeCode.Int32)
+                return new ConvertToBoolean<int>(throwOnFailure);
+            if(typeCode == TypeCode.Int64)
+                return new ConvertToBoolean<long>(throwOnFailure);
+            throw new NotImplementedException($"Could not create ConvertToBoolean for type {type}");
+
+        }
+
+        /// <summary>
+        /// Creates a numeric converter from TF to TT
+        /// </summary>
+        /// <returns></returns>
+        public static ICanConvert GetConverter(Type typeFrom, Type typeTo)
+        {
+            return Type.GetTypeCode(typeTo) switch {
+                TypeCode.Boolean => ConvertToBoolean(typeFrom),
+                TypeCode.SByte   => GenericTypeMapping.ConvertToSignedByte(typeFrom),
+                TypeCode.Int16   => GenericTypeMapping.ConvertToShort(typeFrom),
+                TypeCode.Int32   => GenericTypeMapping.ConvertToInt(typeFrom),
+                TypeCode.Int64   => GenericTypeMapping.ConvertToLong(typeFrom),
+                TypeCode.Single  => GenericTypeMapping.ConvertToFloat(typeFrom),
+                TypeCode.Double  => GenericTypeMapping.ConvertToDouble(typeFrom),
+                TypeCode.Decimal => GenericTypeMapping.ConvertToDecimal(typeFrom),
+                _                => throw new NotImplementedException($"Could not create type mapping for {typeFrom} to {typeTo}")
             };
         }
+
+        /// <summary>
+        /// Creates a converter from TF to TT
+        /// </summary>
+        /// <typeparam name="TF"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static ICanConvert<TF, TT> GetConverter<TF, TT>() where TF : notnull where TT : notnull => (ICanConvert<TF, TT>)GetConverter(typeof(TF), typeof(TT));
     }
 }

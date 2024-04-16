@@ -1,15 +1,16 @@
 ﻿namespace BrightData.Distribution
 {
-    internal class BinomialDistribution : INonNegativeDiscreteDistribution
+    /// <summary>
+    /// Binomial distribution - https://en.wikipedia.org/wiki/Binomial_distribution
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="probability"></param>
+    /// <param name="numTrials"></param>
+    internal class BinomialDistribution(BrightDataContext context, float probability, uint numTrials)
+        : INonNegativeDiscreteDistribution
     {
-        public BinomialDistribution(BrightDataContext context, float probability, uint numTrials)
-        {
-            NumTrials = numTrials;
-            BaseDistribution = new BernoulliDistribution(context, probability);
-        }
-
-        public BernoulliDistribution BaseDistribution { get; }
-        public uint NumTrials { get; }
+        public BernoulliDistribution BaseDistribution { get; } = new(context, probability);
+        public uint NumTrials { get; } = numTrials;
 
         public uint Sample()
         {

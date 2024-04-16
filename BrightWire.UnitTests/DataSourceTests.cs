@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
@@ -17,29 +18,29 @@ namespace BrightWire.UnitTests
 		}
 
         [Fact]
-		public void DefaultDataSource()
+		public async Task DefaultDataSource()
 		{
 			var builder = _context.CreateTableBuilder();
-			builder.AddColumn(BrightDataType.Float, "val1");
-			builder.AddColumn(BrightDataType.Double, "val2");
-			builder.AddColumn(BrightDataType.String, "val3");
-			builder.AddColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
+			builder.CreateColumn(BrightDataType.Float, "val1");
+			builder.CreateColumn(BrightDataType.Double, "val2");
+			builder.CreateColumn(BrightDataType.String, "val3");
+			builder.CreateColumn(BrightDataType.String, "cls").MetaData.SetTarget(true);
 
 			builder.AddRow(0.5f, 1.1, "d", "a");
 			builder.AddRow(0.2f, 1.5, "c", "b");
 			builder.AddRow(0.7f, 0.5, "b", "c");
 			builder.AddRow(0.2f, 0.6, "a", "d");
 
-			var table = builder.BuildInMemory();
-            var dataSource = _factory.CreateDataSource(table);
-			var miniBatch = dataSource.Get(new uint[] { 1 });
-			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetRowAsReadOnly(0);
-			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetRowAsReadOnly(0);
+			var table = await builder.BuildInMemory();
+            var dataSource = await _factory.CreateDataSource(table);
+			var miniBatch = await dataSource.Get([1]);
+			var input = miniBatch.CurrentSequence.Input!.GetMatrix().GetRow(0);
+			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().GetRow(0);
 
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
             expectedOutput.Size.Should().Be(4);
-            dataSource.OutputVectoriser!.GetOutputLabel(expectedOutput.GetMaximumIndex()).Should().Be("b");
+            dataSource.OutputVectoriser!.Vectorisers[0].ReverseVectorise(expectedOutput.GetMaximumIndex()).Should().Be("b");
 		}
 
         static float[] GetArray(uint value, uint size)
@@ -51,42 +52,42 @@ namespace BrightWire.UnitTests
 		}
 
 		[Fact]
-		public void VectorDataSource()
+		public async Task VectorDataSource()
 		{
 			var vectors = 10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray();
 			var dataSource = _factory.CreateDataSource(vectors);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
-            batchMatrix.GetRowAsReadOnly(1)[0].Should().Be(1f);
+            batchMatrix.GetRow(0)[0].Should().Be(0f);
+            batchMatrix.GetRow(1)[0].Should().Be(1f);
         }
 
 		[Fact]
-		public void MatrixDataSource()
+		public async Task MatrixDataSource()
 		{
 			var matrices = Enumerable.Range(0, 10).Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(matrices);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
+            batchMatrix.GetRow(0)[0].Should().Be(0f);
         }
 
 		[Fact]
-		public void TensorDataSource()
+		public async Task TensorDataSource()
 		{
 			var tensors = Enumerable.Range(0, 10).Select(_ => _cpu.CreateTensor3DAndThenDisposeInput(10.AsRange().Select(_ => _cpu.CreateMatrixFromRows(10.AsRange().Select(i => _cpu.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(tensors);
-			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
+			var miniBatch = await dataSource.Get([0, 1, 2]);
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input!.GetMatrix();
@@ -94,7 +95,7 @@ namespace BrightWire.UnitTests
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(1000);
             batchMatrix.ColumnCount.Should().Be(3);
-            batchMatrix.GetRowAsReadOnly(0)[0].Should().Be(0f);
+            batchMatrix.GetRow(0)[0].Should().Be(0f);
         }
 	}
 }

@@ -1,14 +1,11 @@
-﻿using BrightWire;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
+﻿using System.Threading.Tasks;
+using BrightData;
+using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class BicyclesTrainer : DataTableTrainer
+    internal class BicyclesTrainer(IDataTable table) : DataTableTrainer(table)
     {
-        public BicyclesTrainer(BrightDataTable table) : base(table)
-        {
-        }
-
         //public void TrainLinearModel()
         //{
         //    var lap = _context.LinearAlgebraProvider2;
@@ -33,17 +30,17 @@ namespace ExampleCode.DataTableTrainers
         //    }
         //}
 
-        public void TrainNeuralNetwork()
+        public async Task TrainNeuralNetwork()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.1f, 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 32);
             graph.Connect(engine)
                 .AddFeedForward(16)
                 .Add(graph.SigmoidActivation())
@@ -52,7 +49,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagation()
             ;
 
-            engine.Train(100, testData);
+            await engine.Train(50, testData);
         }
     }
 }

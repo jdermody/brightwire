@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -40,7 +40,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static IReadOnlyMatrix Encode(BrightDataContext context, string sequence)
+        public static IReadOnlyMatrix<float> Encode(BrightDataContext context, string sequence)
         {
             return context.CreateReadOnlyMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[Ch.Count];
@@ -56,7 +56,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
-        public static BrightDataTable GetOneHot(BrightDataContext context, IEnumerable<string> strList)
+        public static Task<IDataTable> GetOneHot(BrightDataContext context, IEnumerable<string> strList)
         {
 	        var strList2 = strList.ToList();
 
@@ -70,7 +70,7 @@ namespace BrightWire.TrainingData.Artificial
                     var key = sb.ToString();
                     if (prev != null) {
                         if (!following.TryGetValue(prev, out var temp))
-                            following.Add(prev, temp = new HashSet<int>());
+                            following.Add(prev, temp = []);
                         temp.Add(Ch[ch]);
                     }
                     prev = key;
@@ -79,8 +79,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
-                var inputList = new IReadOnlyVector[str.Length];
-                var outputList = new IReadOnlyVector[str.Length];
+                var inputList = new IReadOnlyVector<float>[str.Length];
+                var outputList = new IReadOnlyVector<float>[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {

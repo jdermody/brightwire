@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.Models
 {
@@ -8,7 +9,7 @@ namespace BrightWire.Models
 	/// </summary>
 	public class ExecutionResult
 	{
-		readonly IMiniBatchSequence _miniBatch;
+		readonly MiniBatch.Sequence _miniBatch;
 
         /// <summary>
         /// Constructor
@@ -16,7 +17,7 @@ namespace BrightWire.Models
         /// <param name="miniBatch">The mini batch sequence</param>
         /// <param name="output">The mini batch output</param>
         /// <param name="wantInputInExecutionResults">True to save graph inputs in the execution results</param>
-        public ExecutionResult(IMiniBatchSequence miniBatch, IMatrix output, bool wantInputInExecutionResults)
+        public ExecutionResult(MiniBatch.Sequence miniBatch, IMatrix<float> output, bool wantInputInExecutionResults)
         {
             _miniBatch = miniBatch;
 
@@ -29,27 +30,27 @@ namespace BrightWire.Models
         /// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IReadOnlyVector[] Output { get; }
+		public IReadOnlyVector<float>[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IReadOnlyVector[]? Target { get; }
+		public IReadOnlyVector<float>[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IReadOnlyVector[]? Input { get; }
+		public IReadOnlyVector<float>[]? Input { get; }
 
         /// <summary>
         /// Optional list of errors
         /// </summary>
-        public IReadOnlyVector[]? Error { get; set; } = null;
+        public IReadOnlyVector<float>[]? Error { get; set; } = null;
 
 		/// <summary>
 		/// The mini batch
 		/// </summary>
-		public IMiniBatchSequence MiniBatchSequence => _miniBatch;
+		public MiniBatch.Sequence MiniBatchSequence => _miniBatch;
 
 		/// <summary>
 		/// Calculates the error of the output against the target

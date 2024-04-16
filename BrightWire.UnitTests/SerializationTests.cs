@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
@@ -18,14 +19,14 @@ namespace BrightWire.UnitTests
                 return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
             }
 
-            public IMatrix CalculateGradient(IGraphContext context, IMatrix output, IMatrix targetOutput)
+            public IMatrix<float> CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
 
-            public float Compute(IVectorData output, IVectorData targetOutput)
+            public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)
             {
-                return output.GetMaximumIndex() == targetOutput.GetMaximumIndex() ? 1 : 0;
+                return output.GetMinAndMaxValues().MaxIndex == targetOutput.GetMinAndMaxValues().MaxIndex ? 1 : 0;
             }
 
             public bool DisplayAsPercentage => true;
@@ -33,16 +34,16 @@ namespace BrightWire.UnitTests
 
         static GraphModel? _bestNetwork = null;
 
-        static (GraphFactory, IDataSource) MakeGraphAndData(BrightDataContext context)
+        static async Task<(GraphFactory, IDataSource)> MakeGraphAndData(BrightDataContext context)
         {
             var graph = new GraphFactory(context.LinearAlgebraProvider);
-            var data = graph.CreateDataSource(And.Get(context));
+            var data = await graph.CreateDataSource(await And.Get(context));
             return (graph, data);
         }
 
         public SerializationTests()
         {
-            var (graph, data) = MakeGraphAndData(_context);
+            var (graph, data) = MakeGraphAndData(_context).Result;
             var errorMetric = new CustomErrorMetric();
             var engine = graph.CreateTrainingEngine(data, errorMetric);
 
@@ -50,7 +51,7 @@ namespace BrightWire.UnitTests
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagation();
-            engine.Train(400, data, bn => _bestNetwork = bn);
+            var model = engine.Train(400, data, bn => _bestNetwork = bn).Result;
 
             var executionEngine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(executionEngine, data);
@@ -58,17 +59,17 @@ namespace BrightWire.UnitTests
 
         static void AssertEngineGetsGoodResults(IGraphExecutionEngine engine, IDataSource data)
         {
-            var results = engine.Execute(data).FirstOrDefault();
+            var results = engine.Execute(data).ToBlockingEnumerable().FirstOrDefault();
             results.Should().NotBeNull();
-            static bool Handle(IReadOnlyVector value) => value[0] > 0.5f;
+            static bool Handle(IReadOnlyVector<float> value) => value[0] > 0.5f;
             var zippedResults = results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target));
             zippedResults.All(x => x).Should().BeTrue();
         }
 
         [Fact]
-        public void CreateFromExecutionGraph()
+        public async Task CreateFromExecutionGraph()
         {
-            var (graph, data) = MakeGraphAndData(_context);
+            var (graph, data) = await MakeGraphAndData(_context);
             var engine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(engine, data);
         }

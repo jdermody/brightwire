@@ -8,17 +8,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// A feed forward layer with tied weights (from a previous feed forward layer)
     /// </summary>
-    internal class TiedFeedForward : NodeBase
+    internal class TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null)
+        : NodeBase(name)
     {
-        class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
+        class Backpropagation(TiedFeedForward source, IMatrix<float> input) : SingleBackpropagationBase<TiedFeedForward>(source)
         {
-            readonly IMatrix _input;
-
-            public Backpropagation(TiedFeedForward source, IMatrix input) : base(source)
-            {
-                _input = input;
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var es = errorSignal.GetMatrix();
@@ -27,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var ret = es.Multiply(_source._layer.Weight);
 
                 // calculate the update to the weights
-                var weightUpdate = _input.TransposeThisAndMultiply(es).Transpose();
+                var weightUpdate = input.TransposeThisAndMultiply(es).Transpose();
 
                 // store the updates
                 var learningContext = context.LearningContext!;
@@ -37,29 +31,22 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 return errorSignal.ReplaceWith(ret);
             }
         }
-        IFeedForward _layer;
-        IVector _bias;
-        string _layerId;
+        IFeedForward _layer = layer;
+        IVector<float> _bias = weightInit.CreateBias(layer.InputSize);
+        string _layerId = layer.Id;
 
-        public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null) : base(name)
-        {
-            _layer = layer;
-            _layerId = layer.Id;
-            _bias = weightInit.CreateBias(layer.InputSize);
-        }
-
-        public override void ApplyError(NodeErrorType type, ITensor delta, ILearningContext context)
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context)
         {
             if (type == NodeErrorType.Bias)
-                UpdateBias((IMatrix)delta, context);
+                UpdateBias((IMatrix<float>)delta, context);
             else if (type == NodeErrorType.Weight)
-                _layer.UpdateWeights((IMatrix)delta, context);
+                _layer.UpdateWeights((IMatrix<float>)delta, context);
             else {
                 throw new NotImplementedException();
             }
         }
 
-        public void UpdateBias(IMatrix delta, ILearningContext context)
+        public void UpdateBias(IMatrix<float> delta, ILearningContext context)
         {
             using var columnSums = delta.ColumnSums();
             columnSums.MultiplyInPlace(1f / columnSums.Size);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
@@ -12,13 +13,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class TrainingGraphSequenceContext : SequenceContextBase, IGraphContext
     {
-        readonly List<ExecutionHistory> _forward = new();
-        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new();
+        readonly List<ExecutionHistory> _forward = [];
+        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = [];
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
             GraphExecutionContext executionContext,
-            IMiniBatchSequence batchSequence) : base(batchSequence)
+            MiniBatch.Sequence batchSequence) : base(batchSequence)
         {
             LearningContext = learningContext;
             ExecutionContext = executionContext;
@@ -31,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public GraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
-        public LinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        public LinearAlgebraProvider<float> LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {

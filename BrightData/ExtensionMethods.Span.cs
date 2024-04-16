@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using CommunityToolkit.HighPerformance.Helpers;
@@ -33,110 +32,50 @@ namespace BrightData
         /// <param name="r">Result (output) vector</param>
         public delegate void ComputeVectorisedOne<T>(in Vector<T> a, out Vector<T> r) where T: unmanaged, INumber<T>;
 
-        readonly unsafe struct ZipAction<T> : IAction where T: unmanaged
+        readonly unsafe struct ZipAction<T>(T* segment, T* other, Func<T, T, T> action, T[] ret)
+            : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly T* _other;
-            readonly Func<T, T, T> _action;
-            readonly T[] _ret;
-
-            public ZipAction(T* segment, T* other, Func<T, T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _other = other;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i], _other[i]);
+            public void Invoke(int i) => ret[i] = action(segment[i], other[i]);
         }
-        readonly unsafe struct TransformAction<T> : IAction where T: unmanaged
+        readonly unsafe struct TransformAction<T>(T* segment, Func<T, T> action, T[] ret) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly Func<T, T> _action;
-            readonly T[] _ret;
-
-            public TransformAction(T* segment, Func<T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action(_segment[i]);
+            public void Invoke(int i) => ret[i] = action(segment[i]);
         }
-        readonly unsafe struct ZipInPlaceAction<T> : IAction where T: unmanaged
+        readonly unsafe struct ZipInPlaceAction<T>(T* segment, T* other, Func<T, T, T> action) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly T* _other;
-            readonly Func<T, T, T> _action;
-
-            public ZipInPlaceAction(T* segment, T* other, Func<T, T, T> action)
-            {
-                _segment = segment;
-                _other = other;
-                _action = action;
-            }
-
-            public void Invoke(int i) => _segment[i] = _action(_segment[i], _other[i]);
+            public void Invoke(int i) => segment[i] = action(segment[i], other[i]);
         }
-        readonly struct TransformIndexedAction<T> : IAction
+        readonly struct TransformIndexedAction<T>(Func<uint, T> action, T[] ret) : IAction
         {
-            readonly Func<uint, T> _action;
-            readonly T[] _ret;
-
-            public TransformIndexedAction(Func<uint, T> action, T[] ret)
-            {
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action((uint)i);
+            public void Invoke(int i) => ret[i] = action((uint)i);
         }
-        readonly unsafe struct TransformIndexedWithValueAction<T> : IAction where T: unmanaged
+        readonly unsafe struct TransformIndexedWithValueAction<T>(T* segment, Func<uint, T, T> action, T[] ret) : IAction
+            where T : unmanaged
         {
-            readonly T* _segment;
-            readonly Func<uint, T, T> _action;
-            readonly T[] _ret;
-
-            public TransformIndexedWithValueAction(T* segment, Func<uint, T, T> action, T[] ret)
-            {
-                _segment = segment;
-                _action = action;
-                _ret = ret;
-            }
-
-            public void Invoke(int i) => _ret[i] = _action((uint)i, _segment[i]);
+            public void Invoke(int i) => ret[i] = action((uint)i, segment[i]);
         }
-        readonly unsafe struct MutateAction<T> : IAction where T: unmanaged
+        readonly unsafe struct MutateAction<T>(Func<T, T> action, T* segment) : IAction
+            where T : unmanaged
         {
-            readonly Func<T, T> _action;
-            readonly T* _segment;
-
-            public MutateAction(Func<T, T> action, T* segment)
-            {
-                _action = action;
-                _segment = segment;
-            }
-
-            public void Invoke(int i) => _segment[i] = _action(_segment[i]);
+            public void Invoke(int i) => segment[i] = action(segment[i]);
         }
-        readonly unsafe struct AnalyseAction<T> : IAction where T: unmanaged
+        readonly unsafe struct MutateIndexedAction<T>(Func<uint, T, T> action, T* segment) : IAction
+            where T : unmanaged
         {
-            readonly Action<T, uint> _action;
-            readonly T* _segment;
-
-            public AnalyseAction(Action<T, uint> action, T* segment)
-            {
-                _action = action;
-                _segment = segment;
-            }
-
-            public void Invoke(int i) => _action(_segment[i], (uint)i);
+            public void Invoke(int i) => segment[i] = action((uint)i, segment[i]);
+        }
+        readonly unsafe struct AnalyseAction<T>(Action<T, uint> action, T* segment) : IAction
+            where T : unmanaged
+        {
+            public void Invoke(int i) => action(segment[i], (uint)i);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size);
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size, clear ? AllocationMode.Clear : AllocationMode.Default);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size, clear ? AllocationMode.Clear : AllocationMode.Default);
+
         /// <summary>
         /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
         /// </summary>
@@ -154,7 +93,7 @@ namespace BrightData
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
 
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
             fixed (T* xfp = span)
             fixed (T* yfp = other)
@@ -192,7 +131,7 @@ namespace BrightData
             if (size != other.Length)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var resultPtr = ret.Span;
             var nextIndex = 0;
             if (size >= Consts.MinimumSizeForVectorised) {
@@ -222,7 +161,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span)
@@ -252,7 +191,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span)
@@ -284,7 +223,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var resultPtr = ret.Span;
 
             var nextIndex = 0;
@@ -315,7 +254,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             if(size >= Consts.MinimumSizeForParallel)
@@ -339,7 +278,7 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            var ret = Allocate<T>(size);
+            var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
             fixed (T* xfp = span) {
@@ -434,13 +373,37 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             var size = span.Length;
-            fixed (T* xfp = &MemoryMarshal.GetReference(span)) {
+            fixed (T* xfp = span) {
                 if (size >= Consts.MinimumSizeForParallel)
                     ParallelHelper.For(0, size, new MutateAction<T>(mutator, xfp));
                 else {
                     var xp = xfp;
                     for (uint i = 0; i < size; i++) {
                         *xp = mutator(*xp);
+                        ++xp;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates a span in place by applying a mutation function (potentially called in parallel) to each element
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="mutator"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace<T>(
+            this Span<T> span, 
+            Func<uint, T, T> mutator
+        ) where T: unmanaged, INumber<T>
+        {
+            var size = span.Length;
+            fixed (T* xfp = span) {
+                if (size >= Consts.MinimumSizeForParallel)
+                    ParallelHelper.For(0, size, new MutateIndexedAction<T>(mutator, xfp));
+                else {
+                    var xp = xfp;
+                    for (uint i = 0; i < size; i++) {
+                        *xp = mutator(i, *xp);
                         ++xp;
                     }
                 }
@@ -484,7 +447,7 @@ namespace BrightData
         public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged
         {
             var size = span.Length;
-            fixed (T* fp = &MemoryMarshal.GetReference(span)) {
+            fixed (T* fp = span) {
                 if (size >= Consts.MinimumSizeForParallel)
                     ParallelHelper.For(0, size, new AnalyseAction<T>(analyser, fp));
                 else {
@@ -617,7 +580,7 @@ namespace BrightData
             span, 
             other, 
             (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = (a * coefficient1) + (b * coefficient2), 
-            (a,b) => (a * coefficient1) + (b * coefficient2)
+            (a, b) => (a * coefficient1) + (b * coefficient2)
         );
 
         /// <summary>
@@ -883,10 +846,13 @@ namespace BrightData
         ) where T: unmanaged, INumber<T>
         {
             MutateInPlace(span, value => {
-                if (minValue.HasValue && value.CompareTo(minValue.Value) < 0)
+                if (T.IsNaN(value))
+                    return T.Zero;
+                if (minValue.HasValue && (value.CompareTo(minValue.Value) < 0 || T.IsNegativeInfinity(value)))
                     return minValue.Value;
-                if (maxValue.HasValue && value.CompareTo(maxValue.Value) > 0)
+                if (maxValue.HasValue && (value.CompareTo(maxValue.Value) > 0 || T.IsPositiveInfinity(value)))
                     return maxValue.Value;
+                
                 return value;
             });
         }
@@ -1320,7 +1286,7 @@ namespace BrightData
         public static MemoryOwner<T> SoftmaxDerivative<T>(this ReadOnlySpan<T> segment, int rowCount)
             where T: unmanaged, INumber<T>
         {
-            var ret = Allocate<T>(segment.Length * segment.Length);
+            var ret = Allocate<T>(segment.Length * segment.Length, false);
             var span = ret.Span;
             for (int i = 0, len = ret.Length; i < len; i++) {
                 var x = i % rowCount;
@@ -1340,7 +1306,7 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="arrayIndices"></param>
         /// <returns></returns>
-        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, uint[] arrayIndices) where T: unmanaged, INumber<T>
+        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, params uint[] arrayIndices) where T: unmanaged, INumber<T>
         {
             var ret = MemoryOwner<T>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;
@@ -1384,13 +1350,16 @@ namespace BrightData
         /// <param name="distance">Distance metric</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance)where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch {
-            DistanceMetric.Cosine => vector.CosineDistance(other),
-            DistanceMetric.Euclidean => vector.EuclideanDistance(other),
-            DistanceMetric.Manhattan => vector.ManhattanDistance(other),
-            DistanceMetric.MeanSquared => vector.MeanSquaredDistance(other),
-            DistanceMetric.SquaredEuclidean => vector.SquaredEuclideanDistance(other),
-            _ => throw new NotImplementedException(distance.ToString())
+        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch 
+        {
+            DistanceMetric.Cosine            => vector.CosineDistance(other),
+            DistanceMetric.Angular           => vector.AngularDistance(other),
+            DistanceMetric.Euclidean         => vector.EuclideanDistance(other),
+            DistanceMetric.Manhattan         => vector.ManhattanDistance(other),
+            DistanceMetric.MeanSquared       => vector.MeanSquaredDistance(other),
+            DistanceMetric.SquaredEuclidean  => vector.SquaredEuclideanDistance(other),
+            DistanceMetric.InnerProductSpace => vector.InnerProductSpaceDistance(other),
+            _                                => throw new NotImplementedException(distance.ToString())
         };
 
         /// <summary>
@@ -1439,6 +1408,34 @@ namespace BrightData
                 }
                 return T.One - ab / (T.Sqrt(aa) * T.Sqrt(bb));
             }
+        }
+
+        /// <summary>
+        /// Angular distance between two vectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static T AngularDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            return (T.One - T.Acos(CosineDistance(v1, v2))) / T.Pi;
+        }
+
+        /// <summary>
+        /// Inner space distance between two vectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
+        public static T InnerProductSpaceDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            var dot = v1.DotProduct(v2);
+            var magnitude = v1.L1Norm() * v2.L1Norm();
+            return T.Acos(dot / magnitude);
         }
 
         /// <summary>
@@ -1575,7 +1572,7 @@ namespace BrightData
         {
             var results = new List<uint>();
             var spinLock = new SpinLock();
-            tolerance ??= T.CreateSaturating(FloatMath.AlmostZero);
+            tolerance ??= Math<T>.AlmostZero;
             Analyse(segment, (v, index) => {
                 if (T.Abs(value - v) < tolerance) {
                     using var l = spinLock.Enter();
@@ -1584,5 +1581,56 @@ namespace BrightData
             });
             return new(segment, CollectionsMarshal.AsSpan(results));
         }
+
+        /// <summary>
+        /// Calculate the matrix transpose
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="rowCount"></param>
+        /// <param name="columnCount"></param>
+        /// <returns></returns>
+        public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
+        {
+            var ret = Allocate<T>(columnCount * rowCount, false);
+            fixed (T* matrixPtr = matrix)
+            fixed (T* retPtr = ret.Span) {
+                CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
+            }
+            return (ret, columnCount, rowCount);
+        }
+
+        static unsafe void CacheTranspose<T>(T* from, uint rows, uint columns, uint rb, uint re, uint cb, uint ce, T* to) where T : unmanaged
+        {
+            uint r = re - rb, c = ce - cb;
+            if (r <= 16 && c <= 16) {
+                for (var i = rb; i < re; i++) {
+                    for (var j = cb; j < ce; j++) {
+                        to[i * columns + j] = from[j * rows + i];
+                    }
+                }
+            }
+            else if (r >= c) {
+                CacheTranspose(from, rows, columns, rb, rb + (r / 2), cb, ce, to);
+                CacheTranspose(from, rows, columns, rb + (r / 2), re, cb, ce, to);
+            }
+            else {
+                CacheTranspose(from, rows, columns, rb, re, cb, cb + (c / 2), to);
+                CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
+            }
+        }
+
+        /// <summary>
+        /// Creates a read only vector from the span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this ReadOnlySpan<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
+
+        /// <summary>
+        /// Creates a read only vector from the span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this Span<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
     }
 }

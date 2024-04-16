@@ -6,7 +6,7 @@ namespace BrightData.UnitTests.Helper
 {
     public class CpuBase : UnitTestBase
     {
-        protected readonly LinearAlgebraProvider _cpu;
+        protected readonly LinearAlgebraProvider<float> _cpu;
         protected readonly MklLinearAlgebraProvider _mkl;
 
         public CpuBase()

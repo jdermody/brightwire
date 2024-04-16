@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
-using BrightData.Serialisation;
+using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -134,8 +134,26 @@ namespace BrightData.UnitTests
             writer.Flush();
             buffer.Seek(0, SeekOrigin.Begin);
 
-            _context.Create<IVector>(reader).Should().BeEquivalentTo(vector);
-            _context.Create<IMatrix>(reader).Should().BeEquivalentTo(matrix);
+            _context.Create<IVector<float>>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix<float>>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
+        }
+
+        [Fact]
+        public void ReadOnlyTensorSerialisation()
+        {
+            using var buffer = new MemoryStream();
+            using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
+            using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
+
+            var vector = _context.CreateReadOnlyVector(1f, 2f, 3f);
+            var matrix = _context.CreateReadOnlyMatrix(2, 2, (i, j) => i + j);
+            vector.WriteTo(writer);
+            matrix.WriteTo(writer);
+            writer.Flush();
+            buffer.Seek(0, SeekOrigin.Begin);
+
+            _context.Create<IVector<float>>(reader).ToArray().Should().BeEquivalentTo(vector.ToArray());
+            _context.Create<IMatrix<float>>(reader).ToArray().Should().BeEquivalentTo(matrix.ToArray());
         }
 
         [Fact]
@@ -145,7 +163,7 @@ namespace BrightData.UnitTests
             using var writer = new BinaryWriter(buffer, Encoding.UTF8, true);
             using var reader = new BinaryReader(buffer, Encoding.UTF8, true);
             var array = new[] {
-                new[] { 1, 2, 3 },
+                [1, 2, 3],
                 new[] { 4, 5, 6 },
             };
 

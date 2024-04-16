@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class MnistVectorTrainer : DataTableTrainer
+    internal class MnistVectorTrainer(IDataTable training, IDataTable test) : DataTableTrainer(null, training, test)
     {
-        public MnistVectorTrainer(BrightDataTable training, BrightDataTable test) : base(null, training, test)
-        {
-
-        }
-
-        public ExecutionGraphModel? TrainingFeedForwardNeuralNetwork(
+        public async Task<ExecutionGraphModel?> TrainingFeedForwardNeuralNetwork(
             uint hiddenLayerSize, 
             uint numIterations, 
             float trainingRate,
             uint batchSize
         ) {
+            _context.LinearAlgebraProvider.BindThread();
             var graph = Training.Context.CreateGraphFactory();
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
@@ -48,11 +45,11 @@ namespace ExampleCode.DataTableTrainers
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
+            await engine.Train(numIterations, testData, model => bestGraph = model.Graph);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
-            var output = executionEngine.Execute(testData);
+            var output = await executionEngine.Execute(testData).ToListAsync();
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             return bestGraph;

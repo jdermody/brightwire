@@ -1,7 +1,7 @@
 ﻿using System.Collections;
+using System.Threading.Tasks;
 using BrightData;
 using BrightWire.TrainingData.Helper;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -31,7 +31,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="context"></param>
         /// <param name="sampleCount">How many samples to generate</param>
         /// <returns>A list of sequences</returns>
-        public static BrightDataTable Addition(BrightDataContext context, int sampleCount)
+        public static Task<IDataTable> Addition(BrightDataContext context, int sampleCount)
         {
             var rand = context.Random;
             var builder = context.CreateTwoColumnMatrixTableBuilder();
@@ -45,8 +45,8 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = GetBitArray(b);
                 var r2 = GetBitArray(a + b);
 
-                var inputList = new IReadOnlyVector[r2.Length];
-                var outputList = new IReadOnlyVector[r2.Length];
+                var inputList = new IReadOnlyVector<float>[r2.Length];
+                var outputList = new IReadOnlyVector<float>[r2.Length];
                 for (var j = 0; j < r2.Length; j++) {
                     inputList[j] = context.CreateReadOnlyVector(a2[j], b2[j]);
                     outputList[j] = context.CreateReadOnlyVector(r2[j]);

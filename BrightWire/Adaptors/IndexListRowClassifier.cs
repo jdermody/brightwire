@@ -1,26 +1,21 @@
 ﻿using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
+using BrightData.Types;
 
 namespace BrightWire.Adaptors
 {
-    internal class IndexListRowClassifier : IRowClassifier, IHaveStringIndexer
+    internal class IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null)
+        : IRowClassifier, IHaveStringIndexer
     {
-        public IIndexListClassifier Classifier { get; }
-        public uint ColumnIndex { get; }
+        public IIndexListClassifier Classifier { get; } = classifier;
+        public uint ColumnIndex { get; } = columnIndex;
 
-        public IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null)
-        {
-            Classifier = classifier;
-            ColumnIndex = columnIndex;
-            Indexer = indexer;
-        }
-
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             var indexList = row.Get<IndexList>(ColumnIndex);
             return Classifier.Classify(indexList);
         }
 
-        public IIndexStrings? Indexer { get; }
+        public IIndexStrings? Indexer { get; } = indexer;
     }
 }

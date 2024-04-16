@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Threading.Tasks;
+using BrightData;
 using BrightWire;
-using BrightDataTable = BrightData.DataTable.BrightDataTable;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class AdultTrainer : DataTableTrainer
+    class AdultTrainer(IDataTable? table, IDataTable training, IDataTable test) : DataTableTrainer(table, training, test)
     {
-        public AdultTrainer(BrightDataTable? table, BrightDataTable training, BrightDataTable test) : base(table, training, test)
-        {
-        }
-
-        public virtual void TrainNeuralNetwork()
+        public virtual async Task TrainNeuralNetwork()
         {
             // create a neural network graph factory
             var graph = _context.CreateGraphFactory();
@@ -24,11 +21,11 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
 
             // create the training and test data sources
-            var trainingData = graph.CreateDataSource(Training);
+            var trainingData = await graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // create a neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate:0.03f, batchSize:128);
             graph.Connect(engine)
                 .AddFeedForward(128)
                 .Add(graph.TanhActivation())
@@ -39,7 +36,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training neural network...");
-            engine.Train(20, testData);
+            await engine.Train(20, testData);
         }
     }
 }

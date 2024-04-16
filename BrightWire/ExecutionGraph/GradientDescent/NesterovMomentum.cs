@@ -5,13 +5,10 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// <summary>
     /// Gradient descent with nesterov momentum
     /// </summary>
-    internal class NesterovMomentum : Momentum
+    internal class NesterovMomentum(float momentum, IMatrix<float> cache, IGradientDescentOptimisation updater)
+        : Momentum(momentum, cache, updater)
     {
-        public NesterovMomentum(float momentum, IMatrix cache, IGradientDescentOptimisation updater) : base(momentum, cache, updater)
-        {
-        }
-
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             using var previousVelocity = _cache.Clone();
             _cache.AddInPlace(delta, _momentum, 1f);

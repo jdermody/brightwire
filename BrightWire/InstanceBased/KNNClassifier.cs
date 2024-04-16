@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 using BrightData.LinearAlgebra;
 using BrightWire.Models.InstanceBased;
 
@@ -13,24 +13,24 @@ namespace BrightWire.InstanceBased
     internal class KnnClassifier : IRowClassifier
     {
         readonly KNearestNeighbours _model;
-        readonly LinearAlgebraProvider _lap;
-        readonly IVector[] _instance;
+        readonly LinearAlgebraProvider<float> _lap;
+        readonly IVector<float>[] _instance;
         readonly DistanceMetric _distanceMetric;
         readonly uint _k;
 
-        public KnnClassifier(LinearAlgebraProvider lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public KnnClassifier(LinearAlgebraProvider<float> lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _lap = lap;
             _model = model;
             _distanceMetric = distanceMetric;
 
-            _instance = new IVector[model.Instance.Length];
+            _instance = new IVector<float>[model.Instance.Length];
             for (int i = 0, len = model.Instance.Length; i < len; i++)
                 _instance[i] = lap.CreateVector(model.Instance[i]);
         }
 
-        IEnumerable<(string Label, float Score)> ClassifyInternal(BrightDataTableRow row)
+        IEnumerable<(string Label, float Score)> ClassifyInternal(GenericTableRow row)
         {
             // encode the features into a vector
             var featureCount = _model.DataColumns.Length;
@@ -52,7 +52,7 @@ namespace BrightWire.InstanceBased
             ;
         }
 
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             return ClassifyInternal(row)
                 .Select(d => (d.Label, d.Score))

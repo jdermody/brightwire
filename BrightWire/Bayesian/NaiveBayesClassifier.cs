@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightData.DataTable;
+using BrightData.DataTable.Rows;
 
 namespace BrightWire.Bayesian
 {
@@ -13,46 +13,29 @@ namespace BrightWire.Bayesian
     {
         interface IProbabilityProvider
         {
-            double GetProbability(BrightDataTableRow row);
+            double GetProbability(GenericTableRow row);
         }
-        class CategoricalColumn : IProbabilityProvider
+        class CategoricalColumn(NaiveBayes.Column summary, double nullValue = 0) : IProbabilityProvider
         {
-            readonly uint _columnIndex;
-            readonly Dictionary<string, double> _probability;
-            readonly double _nullValue;
+            readonly uint _columnIndex = summary.ColumnIndex;
+            readonly Dictionary<string, double> _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
 
-            public CategoricalColumn(NaiveBayes.Column summary, double nullValue = 0)
-            {
-                _nullValue = nullValue;
-                _columnIndex = summary.ColumnIndex;
-                _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
-            }
-
-            public double GetProbability(BrightDataTableRow row)
+            public double GetProbability(GenericTableRow row)
             {
 	            var val = row.Get<string>(_columnIndex);
-                if (_probability.TryGetValue(val, out var ret))
-                    return ret;
-                return _nullValue;
+                return _probability.GetValueOrDefault(val, nullValue);
             }
         }
-        class ContinuousColumn : IProbabilityProvider
+        class ContinuousColumn(NaiveBayes.Column column) : IProbabilityProvider
         {
-            readonly NaiveBayes.Column _column;
-
-            public ContinuousColumn(NaiveBayes.Column column)
+            public double GetProbability(GenericTableRow row)
             {
-                _column = column;
-            }
-
-            public double GetProbability(BrightDataTableRow row)
-            {
-                var x = row.Get<double>(_column.ColumnIndex);
-                var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
-                return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
+                var x = row.Get<float>(column.ColumnIndex);
+                var exponent = Math.Exp(-1 * Math.Pow(x - column.Mean, 2) / (2 * column.Variance));
+                return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * column.Variance) * exponent);
             }
         }
-        readonly List<(string, double, List<IProbabilityProvider>)> _classProbability = new();
+        readonly List<(string, double, List<IProbabilityProvider>)> _classProbability = [];
 
         public NaiveBayesClassifier(NaiveBayes model)
         {
@@ -68,7 +51,7 @@ namespace BrightWire.Bayesian
             }
         }
 
-        IEnumerable<(string Classification, double Score)> GetClassificationScores(BrightDataTableRow row)
+        IEnumerable<(string Classification, double Score)> GetClassificationScores(GenericTableRow row)
         {
             foreach (var cls in _classProbability) {
                 var score = cls.Item2;
@@ -83,7 +66,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public (string Label, float Weight)[] Classify(BrightDataTableRow row)
+        public (string Label, float Weight)[] Classify(GenericTableRow row)
         {
             return GetClassificationScores(row)
                 .OrderByDescending(kv => kv.Score)
