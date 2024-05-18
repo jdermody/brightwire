@@ -1065,7 +1065,6 @@ namespace BrightData
         /// <summary>
         /// Converts the typed buffer to a buffer of objects
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
         /// <returns></returns>
         public static IReadOnlyBuffer<object> ToObjectBuffer(this IReadOnlyBuffer buffer)

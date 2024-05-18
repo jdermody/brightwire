@@ -1992,6 +1992,16 @@
             Base class for graph nodes
             </summary>
         </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.NodeBase.ForwardDelegate">
+            <summary>
+            Callback method when the node has executed
+            </summary>
+        </member>
+        <member name="E:BrightWire.ExecutionGraph.Node.NodeBase.OnForward">
+            <summary>
+            Called when the node is executed
+            </summary>
+        </member>
         <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.#ctor(System.String,System.String)">
             <summary>
             Constructor

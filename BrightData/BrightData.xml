@@ -2655,7 +2655,6 @@
             <summary>
             Converts the typed buffer to a buffer of objects
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="buffer"></param>
             <returns></returns>
         </member>
@@ -8447,12 +8446,12 @@
         </member>
         <member name="P:BrightData.ITensor.Shape">
             <summary>
-            Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
+            Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc.
             </summary>
         </member>
         <member name="T:BrightData.ITensor`1">
             <summary>
-            Typed tensor interface - vector, matrix, 3D tensor etc
+            Typed tensor interface - vector, matrix, 3D tensor etc.
             </summary>
         </member>
         <member name="M:BrightData.ITensor`1.Reshape">
@@ -8580,7 +8579,7 @@
         </member>
         <member name="T:BrightData.ITensorType`3">
             <summary>
-            Typed tensor interface - vector, matrix, 3D tensor etc
+            Typed tensor interface - vector, matrix, 3D tensor etc.
             </summary>
             <typeparam name="T"></typeparam>
             <typeparam name="TT"></typeparam>

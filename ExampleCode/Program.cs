@@ -8,7 +8,6 @@ using BrightData;
 using BrightData.Cuda;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
-using BrightData.Parquet;
 using BrightWire;
 using ExampleCode.DataSet;
 using ExampleCode.DataTableTrainers;
@@ -100,7 +99,7 @@ namespace ExampleCode
             Start(context, useMkl);
             using var iris = await context.Iris();
             await iris.TrainNaiveBayes();
-            iris.TrainDecisionTree();
+            await iris.TrainDecisionTree();
             await iris.TrainRandomForest(500, 7);
             await iris.TrainKNearestNeighbours(10);
             //iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);

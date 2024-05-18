@@ -20,7 +20,14 @@ namespace BrightWire.ExecutionGraph.Node
         string? _name;
         List<WireToNode> _output = [];
 
+        /// <summary>
+        /// Callback method when the node has executed
+        /// </summary>
         public delegate void ForwardDelegate(NodeBase previous, NodeBase current, IGraphData input, IGraphData? output);
+
+        /// <summary>
+        /// Called when the node is executed
+        /// </summary>
         public event ForwardDelegate? OnForward;
 
         /// <summary>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BrightWire.Models
+﻿namespace BrightWire.Models
 {
     /// <summary>
     /// An array of indexed strings

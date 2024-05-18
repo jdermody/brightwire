@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
@@ -24,8 +25,8 @@ namespace BrightData.LinearAlgebra
     /// <param name="columns">Number of columns</param>
     /// <param name="lap">Linear algebra provider</param>
     public class MutableMatrix<T, LAP>(INumericSegment<T> data, uint rows, uint columns, LAP lap) : MutableTensorBase<T, IReadOnlyMatrix<T>, IMatrix<T>, LAP>(data, lap), IMatrix<T>
-        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
-        where LAP: LinearAlgebraProvider<T>
+        where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        where LAP : LinearAlgebraProvider<T>
     {
         /// <inheritdoc />
         public uint RowCount { get; private set; } = rows;
@@ -79,7 +80,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public INumericSegment<T> GetRow(uint index)
         {
-            if(index > RowCount)
+            if (index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
             return new MutableTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
@@ -87,7 +88,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual INumericSegment<T> GetColumn(uint index)
         {
-            if(index > ColumnCount)
+            if (index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
             return new MutableTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
@@ -95,7 +96,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual IReadOnlyNumericSegment<T> GetReadOnlyRow(uint index)
         {
-            if(index > RowCount)
+            if (index > RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
             return new ReadOnlyTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
@@ -103,7 +104,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index)
         {
-            if(index > ColumnCount)
+            if (index > ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
             return new ReadOnlyTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
@@ -317,13 +318,14 @@ namespace BrightData.LinearAlgebra
                 fixed (T* matrixPtr = matrixSpan)
                 fixed (T* otherPtr = otherSpan)
                 fixed (T* retPtr = retSpan) {
-                    MatrixMultiplyChunked(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
+                    //MatrixMultiplyChunked(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
+                    MatrixMultiplyTiled2(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                 }
             }
             finally {
-                if(wasMatrixTempUsed)
+                if (wasMatrixTempUsed)
                     matrixTemp.Dispose();
-                if(wasOtherTempUsed)
+                if (wasOtherTempUsed)
                     otherTemp.Dispose();
             }
 
@@ -348,9 +350,9 @@ namespace BrightData.LinearAlgebra
 
             return;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]void Multiply(long startIndex)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)] void Multiply(long startIndex)
             {
-                for(long index = startIndex, len = Math.Min(startIndex + ChunkSize, totalSize); index < len; index++) {
+                for (long index = startIndex, len = Math.Min(startIndex + ChunkSize, totalSize); index < len; index++) {
                     var i = (uint)(index % rows);
                     var j = (uint)(index / rows);
 
@@ -367,6 +369,111 @@ namespace BrightData.LinearAlgebra
                     for (var z = ceiling; z < size; z++)
                         sum += xPtr[z] * yPtr[z];
                     ret[j * rows + i] = sum;
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static unsafe void MatrixMultiplyTiled(T* a, T* b, int size, uint rows, uint cols, T* ret)
+        {
+            const int TileSize = 32; // Size of the tile, should be adjusted based on hardware cache sizes.
+            var vectorSize = Vector<T>.Count;
+            var numVectors = size / vectorSize;
+            var ceiling = numVectors * vectorSize;
+            var totalSize = rows * cols;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void MultiplyTile(uint rowStart, uint colStart)
+            {
+                for (uint i = rowStart; i < rowStart + TileSize && i < rows; i++) {
+                    for (uint j = colStart; j < colStart + TileSize && j < cols; j++) {
+                        var xPtr = &a[i * size];
+                        var xSpan = new ReadOnlySpan<T>(xPtr, size);
+                        var xVectors = MemoryMarshal.Cast<T, Vector<T>>(xSpan);
+
+                        var yPtr = &b[j * size];
+                        var ySpan = new ReadOnlySpan<T>(yPtr, size);
+                        var yVectors = MemoryMarshal.Cast<T, Vector<T>>(ySpan);
+
+                        var vSum = Vector<T>.Zero;
+                        for (var z = 0; z < numVectors; z++)
+                            vSum += xVectors[z] * yVectors[z];
+
+                        var sum = Vector.Dot(vSum, Vector<T>.One);
+                        for (var z = ceiling; z < size; z++)
+                            sum += xPtr[z] * yPtr[z];
+                        ret[j * rows + i] = sum;
+                    }
+                }
+            }
+
+            if (totalSize >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, (int)Math.Ceiling((double)rows / TileSize), rowTile => {
+                    for (uint colTile = 0; colTile < cols; colTile += TileSize) {
+                        MultiplyTile((uint)rowTile * TileSize, colTile);
+                    }
+                });
+            }
+            else {
+                for (uint rowTile = 0; rowTile < rows; rowTile += TileSize) {
+                    for (uint colTile = 0; colTile < cols; colTile += TileSize) {
+                        MultiplyTile(rowTile, colTile);
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static unsafe void MatrixMultiplyTiled2(T* a, T* b, int size, uint rows, uint cols, T* ret)
+        {
+            const int L1BlockSize = 32;
+            const int L2BlockSize = 64;
+            var vectorSize = Vector<T>.Count;
+            var numVectors = size / vectorSize;
+            var ceiling = numVectors * vectorSize;
+            var totalSize = rows * cols;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void MultiplyBlock(uint rowStart, uint colStart, uint rowEnd, uint colEnd)
+            {
+                for (uint i = rowStart; i < rowEnd && i < rows; i += L1BlockSize) {
+                    for (uint j = colStart; j < colEnd && j < cols; j += L1BlockSize) {
+                        for (uint ii = i; ii < i + L1BlockSize && ii < rowEnd && ii < rows; ii++) {
+                            for (uint jj = j; jj < j + L1BlockSize && jj < colEnd && jj < cols; jj++) {
+                                var xPtr = &a[ii * size];
+                                var xSpan = new ReadOnlySpan<T>(xPtr, size);
+                                var xVectors = MemoryMarshal.Cast<T, Vector<T>>(xSpan);
+
+                                var yPtr = &b[jj * size];
+                                var ySpan = new ReadOnlySpan<T>(yPtr, size);
+                                var yVectors = MemoryMarshal.Cast<T, Vector<T>>(ySpan);
+
+                                var vSum = Vector<T>.Zero;
+                                for (var z = 0; z < numVectors; z++)
+                                    vSum += xVectors[z] * yVectors[z];
+
+                                var sum = Vector.Dot(vSum, Vector<T>.One);
+                                for (var z = ceiling; z < size; z++)
+                                    sum += xPtr[z] * yPtr[z];
+                                ret[jj * rows + ii] = sum;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (totalSize >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, (int)Math.Ceiling((double)rows / L2BlockSize), rowTile => {
+                    for (uint colTile = 0; colTile < cols; colTile += L2BlockSize) {
+                        MultiplyBlock((uint)rowTile * L2BlockSize, colTile, (uint)((rowTile + 1) * L2BlockSize), colTile + L2BlockSize);
+                    }
+                });
+            }
+            else {
+                for (uint rowTile = 0; rowTile < rows; rowTile += L2BlockSize) {
+                    for (uint colTile = 0; colTile < cols; colTile += L2BlockSize) {
+                        MultiplyBlock(rowTile, colTile, rowTile + L2BlockSize, colTile + L2BlockSize);
+                    }
                 }
             }
         }

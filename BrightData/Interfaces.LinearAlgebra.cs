@@ -799,13 +799,13 @@ namespace BrightData
         uint TotalSize { get; }
 
         /// <summary>
-        /// Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc
+        /// Tensor shape - for a vector the array will have a single element, for a matrix it will be [columns, rows], a 3D tensor will be [columns, rows, depth] etc.
         /// </summary>
         uint[] Shape { get; }
     }
 
     /// <summary>
-    /// Typed tensor interface - vector, matrix, 3D tensor etc
+    /// Typed tensor interface - vector, matrix, 3D tensor etc.
     /// </summary>
     public interface ITensor<T> : ITensor, IReadOnlyTensor<T>, IHaveLinearAlgebraProvider<T>, IHaveTensorSegment<T>
         where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
@@ -935,7 +935,7 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Typed tensor interface - vector, matrix, 3D tensor etc
+    /// Typed tensor interface - vector, matrix, 3D tensor etc.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TT"></typeparam>
