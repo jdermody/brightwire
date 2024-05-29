@@ -37,14 +37,16 @@ To install the cpu version (no CUDA support) use:
 ```
 Install-Package BrightWire
 ```
-
+### MKL
 To add MKL support use:
 
 ```
 Install-Package BrightWire
 Install-Package BrightData.MKL
 ```
+then install the MKL.NET nuget installation for your OS, for example `Install-Package MKL.NET.win-x64`
 
+### CUDA
 To add CUDA support use:
 
 ```

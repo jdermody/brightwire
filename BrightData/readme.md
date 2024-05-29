@@ -14,3 +14,5 @@ Tensor based linear algebra uses hardware acceleration when possible.
 # Related Libraries
 BrightData.MKL (MKL support)
 BrightData.Cuda (GPU support - via CUDA)
+
+If using MKL also install the MKL.NET nuget installation for your OS, for example `Install-Package MKL.NET.win-x64`
