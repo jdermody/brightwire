@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Converter
 {
@@ -13,17 +14,17 @@ namespace BrightData.Converter
         protected GenericConverter<float>? _genericConverter = null;
         protected readonly bool _throwOnFailure = throwOnFailure;
 
-        protected float GetSingle(T data)    => __refvalue(__makeref(data), float);
-        protected double GetDouble(T data)   => __refvalue(__makeref(data), double);
-        protected sbyte GetSByte(T data)     => __refvalue(__makeref(data), sbyte);
-        protected byte GetByte(T data)       => __refvalue(__makeref(data), byte);
-        protected short GetInt16(T data)     => __refvalue(__makeref(data), short);
-        protected ushort GetUInt16(T data)   => __refvalue(__makeref(data), ushort);
-        protected int GetInt32(T data)       => __refvalue(__makeref(data), int);
-        protected uint GetUInt32(T data)     => __refvalue(__makeref(data), uint);
-        protected long GetInt64(T data)      => __refvalue(__makeref(data), long);
-        protected ulong GetUInt64(T data)    => __refvalue(__makeref(data), ulong);
-        protected decimal GetDecimal(T data) => __refvalue(__makeref(data), decimal);
+        protected static float GetSingle(T data)    => Unsafe.As<T, float>(ref data);
+        protected static double GetDouble(T data)   => Unsafe.As<T, double>(ref data);
+        protected static sbyte GetSByte(T data)     => Unsafe.As<T, sbyte>(ref data);
+        protected static byte GetByte(T data)       => Unsafe.As<T, byte>(ref data);
+        protected static short GetInt16(T data)     => Unsafe.As<T, short>(ref data);
+        protected static ushort GetUInt16(T data)   => Unsafe.As<T, ushort>(ref data);
+        protected static int GetInt32(T data)       => Unsafe.As<T, int>(ref data);
+        protected static uint GetUInt32(T data)     => Unsafe.As<T, uint>(ref data);
+        protected static long GetInt64(T data)      => Unsafe.As<T, long>(ref data);
+        protected static ulong GetUInt64(T data)    => Unsafe.As<T, ulong>(ref data);
+        protected static decimal GetDecimal(T data) => Unsafe.As<T, decimal>(ref data);
 
         public Type From => typeof(T);
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.DataTable.Rows
 {
@@ -28,8 +29,8 @@ namespace BrightData.DataTable.Rows
             {
                 if (typeof(T) == typeof(string))
                 {
-                    var str = ret.ToString();
-                    return __refvalue(__makeref(str), T);
+                    var str = ret.ToString() ?? string.Empty;
+                    return Unsafe.As<string, T>(ref str);
                 }
 
                 // attempt to convert the type

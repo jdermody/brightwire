@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Converter
 {
@@ -32,17 +33,17 @@ namespace BrightData.Converter
             };
         }
 
-        static float FromString(T str) => float.Parse(__refvalue(__makeref(str), string));
-        float FromDouble(T data) => System.Convert.ToSingle(GetDouble(data));
-        float FromDecimal(T data) => System.Convert.ToSingle(GetDecimal(data));
-        float FromSByte(T data) => GetSByte(data);
-        float FromByte(T data) => GetByte(data);
-        float FromInt16(T data) => GetInt16(data);
-        float FromUInt16(T data) => GetUInt16(data);
-        float FromInt32(T data) => GetInt32(data);
-        float FromUInt32(T data) => GetUInt32(data);
-        float FromInt64(T data) => GetInt64(data);
-        float FromUInt64(T data) => GetUInt64(data);
+        static float FromString(T str) => float.Parse(Unsafe.As<T, string>(ref str));
+        static float FromDouble(T data) => System.Convert.ToSingle(GetDouble(data));
+        static float FromDecimal(T data) => System.Convert.ToSingle(GetDecimal(data));
+        static float FromSByte(T data) => GetSByte(data);
+        static float FromByte(T data) => GetByte(data);
+        static float FromInt16(T data) => GetInt16(data);
+        static float FromUInt16(T data) => GetUInt16(data);
+        static float FromInt32(T data) => GetInt32(data);
+        static float FromUInt32(T data) => GetUInt32(data);
+        static float FromInt64(T data) => GetInt64(data);
+        static float FromUInt64(T data) => GetUInt64(data);
         float ConvertGeneric(T data)
         {
             var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);

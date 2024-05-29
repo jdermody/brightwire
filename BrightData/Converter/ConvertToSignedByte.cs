@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Converter
 {
@@ -32,17 +33,17 @@ namespace BrightData.Converter
             };
         }
 
-        static sbyte FromString(T str) => sbyte.Parse(__refvalue(__makeref(str), string));
-        sbyte FromSingle(T data) => System.Convert.ToSByte(GetSingle(data));
-        sbyte FromDouble(T data) => System.Convert.ToSByte(GetDouble(data));
-        sbyte FromDecimal(T data) => System.Convert.ToSByte(GetDecimal(data));
-        sbyte FromByte(T data) => System.Convert.ToSByte(GetByte(data));
-        sbyte FromInt16(T data) => System.Convert.ToSByte(GetInt16(data));
-        sbyte FromUInt16(T data) => System.Convert.ToSByte(GetUInt16(data));
-        sbyte FromInt32(T data) => System.Convert.ToSByte(GetInt32(data));
-        sbyte FromUInt32(T data) => System.Convert.ToSByte(GetUInt32(data));
-        sbyte FromInt64(T data) => System.Convert.ToSByte(GetInt64(data));
-        sbyte FromUInt64(T data) => System.Convert.ToSByte(GetUInt64(data));
+        static sbyte FromString(T str) => sbyte.Parse(Unsafe.As<T, string>(ref str));
+        static sbyte FromSingle(T data) => System.Convert.ToSByte(GetSingle(data));
+        static sbyte FromDouble(T data) => System.Convert.ToSByte(GetDouble(data));
+        static sbyte FromDecimal(T data) => System.Convert.ToSByte(GetDecimal(data));
+        static sbyte FromByte(T data) => System.Convert.ToSByte(GetByte(data));
+        static sbyte FromInt16(T data) => System.Convert.ToSByte(GetInt16(data));
+        static sbyte FromUInt16(T data) => System.Convert.ToSByte(GetUInt16(data));
+        static sbyte FromInt32(T data) => System.Convert.ToSByte(GetInt32(data));
+        static sbyte FromUInt32(T data) => System.Convert.ToSByte(GetUInt32(data));
+        static sbyte FromInt64(T data) => System.Convert.ToSByte(GetInt64(data));
+        static sbyte FromUInt64(T data) => System.Convert.ToSByte(GetUInt64(data));
         sbyte ConvertGeneric(T data)
         {
             var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);

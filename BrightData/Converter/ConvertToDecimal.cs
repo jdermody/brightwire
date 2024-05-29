@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightData.Converter
 {
@@ -32,17 +34,17 @@ namespace BrightData.Converter
             };
         }
 
-        static decimal FromString(T str) => decimal.Parse(__refvalue(__makeref(str), string));
-        decimal FromSingle(T data)       => System.Convert.ToDecimal(GetSingle(data));
-        decimal FromDouble(T data)       => System.Convert.ToDecimal(GetDouble(data));
-        decimal FromSByte(T data)        => GetSByte(data);
-        decimal FromByte(T data)         => GetByte(data);
-        decimal FromInt16(T data)        => GetInt16(data);
-        decimal FromUInt16(T data)       => GetUInt16(data);
-        decimal FromInt32(T data)        => GetInt32(data);
-        decimal FromUInt32(T data)       => GetUInt32(data);
-        decimal FromInt64(T data)        => GetInt64(data);
-        decimal FromUInt64(T data)       => GetUInt64(data);
+        static decimal FromString(T str)  => decimal.Parse(Unsafe.As<T, string>(ref str));
+        static decimal FromSingle(T data) => System.Convert.ToDecimal(GetSingle(data));
+        static decimal FromDouble(T data) => System.Convert.ToDecimal(GetDouble(data));
+        static decimal FromSByte(T data)  => GetSByte(data);
+        static decimal FromByte(T data)   => GetByte(data);
+        static decimal FromInt16(T data)  => GetInt16(data);
+        static decimal FromUInt16(T data) => GetUInt16(data);
+        static decimal FromInt32(T data)  => GetInt32(data);
+        static decimal FromUInt32(T data) => GetUInt32(data);
+        static decimal FromInt64(T data)  => GetInt64(data);
+        static decimal FromUInt64(T data) => GetUInt64(data);
         decimal ConvertGeneric(T data)
         {
             var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);

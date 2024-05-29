@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Converter
 {
@@ -32,17 +33,17 @@ namespace BrightData.Converter
             };
         }
 
-        static long FromString(T str) => long.Parse(__refvalue(__makeref(str), string));
-        long FromSingle(T data) => System.Convert.ToInt64(GetSingle(data));
-        long FromDouble(T data) => System.Convert.ToInt64(GetDouble(data));
-        long FromDecimal(T data) => System.Convert.ToInt64(GetDecimal(data));
-        long FromSByte(T data) => GetSByte(data);
-        long FromByte(T data) => GetByte(data);
-        long FromInt16(T data) => GetInt16(data);
-        long FromUInt16(T data) => GetUInt16(data);
-        long FromInt32(T data) => GetInt32(data);
-        long FromUInt32(T data) => GetUInt32(data);
-        long FromUInt64(T data) => System.Convert.ToInt64(GetUInt64(data));
+        static long FromString(T str) => long.Parse(Unsafe.As<T, string>(ref str));
+        static long FromSingle(T data) => System.Convert.ToInt64(GetSingle(data));
+        static long FromDouble(T data) => System.Convert.ToInt64(GetDouble(data));
+        static long FromDecimal(T data) => System.Convert.ToInt64(GetDecimal(data));
+        static long FromSByte(T data) => GetSByte(data);
+        static long FromByte(T data) => GetByte(data);
+        static long FromInt16(T data) => GetInt16(data);
+        static long FromUInt16(T data) => GetUInt16(data);
+        static long FromInt32(T data) => GetInt32(data);
+        static long FromUInt32(T data) => GetUInt32(data);
+        static long FromUInt64(T data) => System.Convert.ToInt64(GetUInt64(data));
         long ConvertGeneric(T data)
         {
             var (ret, wasConverted) = (_genericConverter ??= new()).ConvertValue(data);
