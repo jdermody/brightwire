@@ -126,7 +126,7 @@ namespace BrightData.MKL
         {
             if (x is INumericSegment<float> x2 && y is INumericSegment<float> y2)
                 return Traverse(x2, y2, callback);
-            return x.ApplyReadOnlySpans(y, (a, b) => {
+            return x.ReduceReadOnlySpans(y, (a, b) => {
                 fixed(float* p1 = a)
                 fixed (float* p2 = b) {
                     return callback(a.Length, p1, 1, p2, 1);

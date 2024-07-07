@@ -1,0 +1,120 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BrightData
+{
+    /// <summary>
+    /// Represents how vectors should be indexed
+    /// </summary>
+    public enum VectorIndexStrategy
+    {
+        /// <summary>
+        /// Flat indexing
+        /// </summary>
+        Flat
+    }
+
+    /// <summary>
+    /// Determines how vectors are stored
+    /// </summary>
+    public enum VectorStorageType
+    {
+        /// <summary>
+        /// Vectors are stored in memory
+        /// </summary>
+        InMemory
+    }
+
+    /// <summary>
+    /// Responsible for storing vectors
+    /// </summary>
+    public interface IStoreVectors : IHaveSize
+    {
+        /// <summary>
+        /// Storage type
+        /// </summary>
+        VectorStorageType StorageType { get; }
+
+        /// <summary>
+        /// Size of each vector (fixed)
+        /// </summary>
+        uint VectorSize { get; }
+
+        /// <summary>
+        /// Removes a vector at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        void Remove(uint index);
+    }
+
+    /// <summary>
+    /// Stores typed vectors
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IStoreVectors<T> : IStoreVectors where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
+        /// <summary>
+        /// Adds a vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        uint Add(IReadOnlyVector<T> vector);
+
+        /// <summary>
+        /// Returns a segment at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        IReadOnlyNumericSegment<T> this[uint index] { get; }
+
+        /// <summary>
+        /// Passes each vector to the callback, possible in parallel
+        /// </summary>
+        /// <param name="callback"></param>
+        void ForEach(Action<IReadOnlyVector<T>, uint> callback);
+    }
+
+    /// <summary>
+    /// A vector set index
+    /// </summary>
+    public interface IVectorIndex<T> where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    {
+        /// <summary>
+        /// The vector storage for the index
+        /// </summary>
+        IStoreVectors<T> Storage { get; } 
+
+        /// <summary>
+        /// Adds a vector to the index
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        uint Add(IReadOnlyVector<T> vector);
+
+        /// <summary>
+        /// Removes a vector at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        void Remove(uint index);
+
+        /// <summary>
+        /// Returns a list of vector indices ranked by the distance between that vector and a comparison vector
+        /// </summary>
+        /// <param name="vector">Vector to compare</param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
+        IEnumerable<uint> Rank(IReadOnlyVector<T> vector, DistanceMetric distanceMetric);
+
+        /// <summary>
+        /// Returns the index of the closest vector in the set to each of the supplied vectors
+        /// </summary>
+        /// <param name="vector">Vectors to compare</param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
+        uint[] Closest(IReadOnlyVector<T>[] vector, DistanceMetric distanceMetric);
+    }
+}

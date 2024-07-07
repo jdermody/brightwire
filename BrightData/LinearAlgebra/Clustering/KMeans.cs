@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BrightData.Types;
+using BrightData.LinearAlgebra.VectorIndexing;
 
 namespace BrightData.LinearAlgebra.Clustering
 {

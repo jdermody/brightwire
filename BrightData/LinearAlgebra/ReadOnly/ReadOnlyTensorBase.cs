@@ -57,31 +57,31 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public T StdDev(T? mean) => ReadOnlySegment.ApplyReadOnlySpan(x => x.StdDev(mean));
 
         /// <inheritdoc />
-        public T CosineDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.CosineDistance(y));
+        public T CosineDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.CosineDistance(y));
 
         /// <inheritdoc />
-        public T EuclideanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.EuclideanDistance(y));
+        public T EuclideanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.EuclideanDistance(y));
 
         /// <inheritdoc />
-        public T ManhattanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.ManhattanDistance(y));
+        public T ManhattanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.ManhattanDistance(y));
 
         /// <inheritdoc />
-        public T MeanSquaredDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.MeanSquaredDistance(y));
+        public T MeanSquaredDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.MeanSquaredDistance(y));
 
         /// <inheritdoc />
-        public T SquaredEuclideanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.SquaredEuclideanDistance(y));
+        public T SquaredEuclideanDistance(IReadOnlyTensor<T> other) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.SquaredEuclideanDistance(y));
 
         /// <inheritdoc />
-        public T FindDistance(IReadOnlyTensor<T> other, DistanceMetric distance) => ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.FindDistance(y, distance));
+        public T FindDistance(IReadOnlyTensor<T> other, DistanceMetric distance) => ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.FindDistance(y, distance));
 
         /// <inheritdoc />
-        public T DotProduct(ITensor<T> tensor) => ReadOnlySegment.ApplyReadOnlySpans(tensor.ReadOnlySegment, (x, y) => x.DotProduct(y));
+        public T DotProduct(ITensor<T> tensor) => ReadOnlySegment.ReduceReadOnlySpans(tensor.ReadOnlySegment, (x, y) => x.DotProduct(y));
 
         /// <inheritdoc />
-        public TT Add(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Add(y)));
+        public TT Add(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Add(y)));
 
         /// <inheritdoc />
-        public TT Add(IReadOnlyTensor<T> other, T coefficient1, T coefficient2) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Add(y, coefficient1, coefficient2)));
+        public TT Add(IReadOnlyTensor<T> other, T coefficient1, T coefficient2) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Add(y, coefficient1, coefficient2)));
 
         /// <inheritdoc />
         public TT Add(T scalar) => Create(ReadOnlySegment.ApplyReadOnlySpan(x => x.Add(scalar)));
@@ -90,16 +90,16 @@ namespace BrightData.LinearAlgebra.ReadOnly
         public TT Multiply(T scalar) => Create(ReadOnlySegment.ApplyReadOnlySpan(x => x.Multiply(scalar)));
 
         /// <inheritdoc />
-        public TT Subtract(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Subtract(y)));
+        public TT Subtract(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Subtract(y)));
 
         /// <inheritdoc />
-        public TT Subtract(IReadOnlyTensor<T> other, T coefficient1, T coefficient2) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Subtract(y, coefficient1, coefficient2)));
+        public TT Subtract(IReadOnlyTensor<T> other, T coefficient1, T coefficient2) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.Subtract(y, coefficient1, coefficient2)));
 
         /// <inheritdoc />
-        public TT PointwiseMultiply(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.PointwiseMultiply(y)));
+        public TT PointwiseMultiply(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.PointwiseMultiply(y)));
 
         /// <inheritdoc />
-        public TT PointwiseDivide(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ApplyReadOnlySpans(other.ReadOnlySegment, (x, y) => x.PointwiseDivide(y)));
+        public TT PointwiseDivide(IReadOnlyTensor<T> other) => Create(ReadOnlySegment.ReduceReadOnlySpans(other.ReadOnlySegment, (x, y) => x.PointwiseDivide(y)));
 
         /// <inheritdoc />
         public TT Sqrt(T? adjustment = null) => Create(ReadOnlySegment.ApplyReadOnlySpan(x => x.Sqrt(adjustment ?? Math<T>.AlmostZero)));

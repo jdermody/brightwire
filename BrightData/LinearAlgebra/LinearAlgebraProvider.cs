@@ -790,7 +790,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor2"></param>
         /// <returns></returns>
         public virtual INumericSegment<T> Add(IReadOnlyNumericSegment<T> tensor, IReadOnlyNumericSegment<T> tensor2) => 
-            tensor.ApplyReadOnlySpans(tensor2, (x, y) => x.Add(y)).ToSegment();
+            tensor.ReduceReadOnlySpans(tensor2, (x, y) => x.Add(y)).ToSegment();
 
         /// <summary>
         /// Adds two tensors into a new tensor and applies coefficients to each element in the two tensors
@@ -801,7 +801,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="coefficient2"></param>
         /// <returns></returns>
         public virtual INumericSegment<T> Add(IReadOnlyNumericSegment<T> tensor, IReadOnlyNumericSegment<T> tensor2, T coefficient1, T coefficient2) =>
-            tensor.ApplyReadOnlySpans(tensor2, (x, y) => x.Add(y, coefficient1, coefficient2)).ToSegment();
+            tensor.ReduceReadOnlySpans(tensor2, (x, y) => x.Add(y, coefficient1, coefficient2)).ToSegment();
 
         /// <summary>
         /// Creates a new tensor from adding a scalar to each element in the tensor 
@@ -855,7 +855,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual INumericSegment<T> Subtract(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.Subtract(y)).ToSegment();
+        public virtual INumericSegment<T> Subtract(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.Subtract(y)).ToSegment();
 
         /// <summary>
         /// Subtracts the second tensor from the first tensor into a new tensor and applies coefficients to each value in each tensor
@@ -865,7 +865,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="coefficient1">Coefficient to apply to each element in the first tensor</param>
         /// <param name="coefficient2">Coefficient to apply to each element in the second tensor</param>
         /// <returns></returns>
-        public virtual INumericSegment<T> Subtract(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2, T coefficient1, T coefficient2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.Subtract(y, coefficient1, coefficient2)).ToSegment();
+        public virtual INumericSegment<T> Subtract(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2, T coefficient1, T coefficient2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.Subtract(y, coefficient1, coefficient2)).ToSegment();
 
         /// <summary>
         /// Subtracts the second tensor from the first tensor - first tensor modified in place
@@ -889,7 +889,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual INumericSegment<T> PointwiseMultiply(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.PointwiseMultiply(y)).ToSegment();
+        public virtual INumericSegment<T> PointwiseMultiply(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.PointwiseMultiply(y)).ToSegment();
 
         /// <summary>
         /// Multiplies each element in the first tensor with the corresponding value in the second tensor - first tensor modified in place
@@ -904,7 +904,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual INumericSegment<T> PointwiseDivide(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.PointwiseDivide(y)).ToSegment();
+        public virtual INumericSegment<T> PointwiseDivide(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.PointwiseDivide(y)).ToSegment();
 
         /// <summary>
         /// Dividing each element in the first tensor with the corresponding value in the second tensor - first tensor is modified in place
@@ -919,7 +919,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1"></param>
         /// <param name="tensor2"></param>
         /// <returns></returns>
-        public virtual T DotProduct(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.DotProduct(y));
+        public virtual T DotProduct(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.DotProduct(y));
 
         /// <summary>
         /// Creates a new tensor that contains the square root of each value in this tensor
@@ -1021,7 +1021,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual T CosineDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.CosineDistance(y));
+        public virtual T CosineDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.CosineDistance(y));
 
         /// <summary>
         /// Finds the euclidean distance between the first and second tensor
@@ -1029,7 +1029,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual T EuclideanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.EuclideanDistance(y));
+        public virtual T EuclideanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.EuclideanDistance(y));
 
         /// <summary>
         /// Finds the mean squared distance between the first and second tensor
@@ -1037,7 +1037,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual T MeanSquaredDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.MeanSquaredDistance(y));
+        public virtual T MeanSquaredDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.MeanSquaredDistance(y));
 
         /// <summary>
         /// Finds the squared euclidean distance between the first and second tensor
@@ -1045,7 +1045,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual T SquaredEuclideanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.SquaredEuclideanDistance(y));
+        public virtual T SquaredEuclideanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.SquaredEuclideanDistance(y));
 
         /// <summary>
         /// Finds the manhattan distance between the first and second tensor
@@ -1053,7 +1053,7 @@ namespace BrightData.LinearAlgebra
         /// <param name="tensor1">First tensor</param>
         /// <param name="tensor2">Second tensor</param>
         /// <returns></returns>
-        public virtual T ManhattanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ApplyReadOnlySpans(tensor2, (x, y) => x.ManhattanDistance(y));
+        public virtual T ManhattanDistance(IReadOnlyNumericSegment<T> tensor1, IReadOnlyNumericSegment<T> tensor2) => tensor1.ReduceReadOnlySpans(tensor2, (x, y) => x.ManhattanDistance(y));
 
         /// <summary>
         /// Creates a new tensor that contains the absolute value of each element in this tensor
