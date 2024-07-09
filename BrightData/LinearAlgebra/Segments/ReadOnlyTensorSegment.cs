@@ -6,7 +6,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace BrightData.LinearAlgebra.Segments
 {
     internal class ReadOnlyTensorSegment<T>(ReadOnlyMemory<T> data, uint offset = 0, uint? size = null)
-        : IReadOnlyNumericSegment<T>, IHaveReadOnlyContiguousSpan<T>
+        : IReadOnlyNumericSegment<T>, IHaveReadOnlyContiguousMemory<T>
         where T: unmanaged, INumber<T>
     {
         public int AddRef() => 1;
@@ -63,8 +63,9 @@ namespace BrightData.LinearAlgebra.Segments
             }
         }
 
-        public IHaveReadOnlyContiguousSpan<T> Contiguous => this;
+        public IHaveReadOnlyContiguousMemory<T> Contiguous => this;
         public bool IsWrapper => false;
         public ReadOnlySpan<T> ReadOnlySpan => data.Span.Slice((int)offset, (int)Size);
+        public ReadOnlyMemory<T> ContiguousMemory => data.Slice((int)offset, (int)Size);
     }
 }

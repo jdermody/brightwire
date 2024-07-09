@@ -43,13 +43,13 @@ namespace BrightData
         /// Size of each vector (fixed)
         /// </summary>
         uint VectorSize { get; }
-
-        /// <summary>
-        /// Removes a vector at the specified index
-        /// </summary>
-        /// <param name="index"></param>
-        void Remove(uint index);
     }
+
+    /// <summary>
+    /// Callback for indexed spans
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public delegate void IndexedSpanCallback<T>(ReadOnlySpan<T> span, uint index) where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>; 
 
     /// <summary>
     /// Stores typed vectors
@@ -62,20 +62,20 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        uint Add(IReadOnlyVector<T> vector);
+        uint Add(ReadOnlySpan<T> vector);
 
         /// <summary>
         /// Returns a segment at the specified index
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        IReadOnlyNumericSegment<T> this[uint index] { get; }
+        ReadOnlySpan<T> this[uint index] { get; }
 
         /// <summary>
         /// Passes each vector to the callback, possible in parallel
         /// </summary>
         /// <param name="callback"></param>
-        void ForEach(Action<IReadOnlyVector<T>, uint> callback);
+        void ForEach(IndexedSpanCallback<T> callback);
     }
 
     /// <summary>
@@ -93,13 +93,7 @@ namespace BrightData
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        uint Add(IReadOnlyVector<T> vector);
-
-        /// <summary>
-        /// Removes a vector at the specified index
-        /// </summary>
-        /// <param name="index"></param>
-        void Remove(uint index);
+        uint Add(ReadOnlySpan<T> vector);
 
         /// <summary>
         /// Returns a list of vector indices ranked by the distance between that vector and a comparison vector
@@ -107,7 +101,7 @@ namespace BrightData
         /// <param name="vector">Vector to compare</param>
         /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        IEnumerable<uint> Rank(IReadOnlyVector<T> vector, DistanceMetric distanceMetric);
+        IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric);
 
         /// <summary>
         /// Returns the index of the closest vector in the set to each of the supplied vectors
@@ -115,6 +109,6 @@ namespace BrightData
         /// <param name="vector">Vectors to compare</param>
         /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        uint[] Closest(IReadOnlyVector<T>[] vector, DistanceMetric distanceMetric);
+        uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric);
     }
 }

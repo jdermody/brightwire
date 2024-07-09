@@ -117,7 +117,7 @@ namespace BrightData.Cuda
             throw new NotImplementedException();
         }
 
-        public IHaveReadOnlyContiguousSpan<float>? Contiguous => null;
+        public IHaveReadOnlyContiguousMemory<float>? Contiguous => null;
 
         public void Clear()
         {

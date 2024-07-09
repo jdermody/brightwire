@@ -1420,7 +1420,7 @@ namespace BrightData
         public static T AngularDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
-            return (T.One - T.Acos(CosineDistance(v1, v2))) / T.Pi;
+            return T.Acos(T.One - CosineDistance(v1, v2)) / T.Pi;
         }
 
         /// <summary>

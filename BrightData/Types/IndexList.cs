@@ -20,7 +20,7 @@ namespace BrightData.Types
         IAmSerializable,
         IEquatable<IndexList>,
         IHaveDataAsReadOnlyByteSpan,
-        IHaveReadOnlyContiguousSpan<uint>,
+        IHaveReadOnlyContiguousMemory<uint>,
         IHaveSpanOf<uint>,
         IHaveSize,
         IHaveMemory<uint>
@@ -352,6 +352,9 @@ namespace BrightData.Types
 
         /// <inheritdoc />
         public ReadOnlySpan<uint> ReadOnlySpan => _indices.Span;
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<uint> ContiguousMemory => _indices;
 
         /// <summary>
         /// Converts to a weighted index list

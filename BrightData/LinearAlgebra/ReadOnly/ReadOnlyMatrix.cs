@@ -14,7 +14,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     /// <summary>
     /// Read only matrix
     /// </summary>
-    public class ReadOnlyMatrix<T> : ReadOnlyTensorBase<T, IReadOnlyMatrix<T>>, IReadOnlyMatrix<T>, IEquatable<ReadOnlyMatrix<T>>, IHaveReadOnlyContiguousSpan<T>, IHaveDataAsReadOnlyByteSpan
+    public class ReadOnlyMatrix<T> : ReadOnlyTensorBase<T, IReadOnlyMatrix<T>>, IReadOnlyMatrix<T>, IEquatable<ReadOnlyMatrix<T>>, IHaveReadOnlyContiguousMemory<T>, IHaveDataAsReadOnlyByteSpan
         where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         const int HeaderSize = 8;
@@ -127,6 +127,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 return ReadOnlySegment.ToNewArray();
             }
         }
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<T> ContiguousMemory => ReadOnlySegment.GetMemory();
 
         /// <inheritdoc />
         public uint RowCount { get; private set; }

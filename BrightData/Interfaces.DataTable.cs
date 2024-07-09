@@ -664,20 +664,35 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Indicates that the type has a constraint validator
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IHaveConstraintValidator<T> where T : notnull
+    {
+        /// <summary>
+        /// Typed constraint validator (optional)
+        /// </summary>
+        IConstraintValidator<T>? ConstraintValidator { get; set; }
+    }
+
+    /// <summary>
     /// Composite buffers add data in memory until a pre-specified limit is reached and then stores the remainder in a temp file
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBufferWithMetaData<T>, IAppendToBuffer<T> where T: notnull
+    public interface ICompositeBuffer<T> : ICompositeBuffer, IReadOnlyBufferWithMetaData<T>, IAppendableBuffer<T>, IHaveConstraintValidator<T> where T: notnull
     {
         /// <summary>
         /// The distinct (unique) set of items that have been added - null if the count exceeded the pre-defined limit
         /// </summary>
         IReadOnlySet<T>? DistinctSet { get; }
+    }
 
-        /// <summary>
-        /// Optional constraint validator on items that are added to the buffer
-        /// </summary>
-        IConstraintValidator<T>? ConstraintValidator { get; set; }
+    /// <summary>
+    /// A buffer that can be appended
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAppendableBuffer<T> : IReadOnlyBuffer<T>, IAppendToBuffer<T> where T : notnull
+    {
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
     internal class ReadOnlyTensor4DValueSemantics<T, TT>
         where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
-        where TT : IReadOnlyTensor4D<T>, IHaveReadOnlyContiguousSpan<T>
+        where TT : IReadOnlyTensor4D<T>, IHaveReadOnlyContiguousMemory<T>
     {
         readonly TT _obj;
         readonly Lazy<int> _hashCode;

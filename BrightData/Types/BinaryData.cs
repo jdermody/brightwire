@@ -17,7 +17,7 @@ namespace BrightData.Types
         IEquatable<BinaryData>,
         IHaveDataAsReadOnlyByteSpan,
         IHaveSize,
-        IHaveReadOnlyContiguousSpan<byte>,
+        IHaveReadOnlyContiguousMemory<byte>,
         IHaveMemory<byte>
     {
         readonly byte[] _data;
@@ -122,6 +122,9 @@ namespace BrightData.Types
 
         /// <inheritdoc />
         public ReadOnlySpan<byte> ReadOnlySpan => Data;
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<byte> ContiguousMemory => _data;
 
         /// <inheritdoc />
         public ReadOnlyMemory<byte> ReadOnlyMemory => _data;

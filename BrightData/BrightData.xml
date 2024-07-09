@@ -518,6 +518,22 @@
             Optional interface to provide user notification of long-running operations
             </summary>
         </member>
+        <member name="T:BrightData.Buffer.BlockBufferWriter`1">
+            <summary>
+            Adapts appendable buffers to buffer writers 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="defaultBufferSize"></param>
+        </member>
+        <member name="M:BrightData.Buffer.BlockBufferWriter`1.#ctor(BrightData.IAppendBlocks{`0},System.Int32)">
+            <summary>
+            Adapts appendable buffers to buffer writers 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="defaultBufferSize"></param>
+        </member>
         <member name="T:BrightData.Buffer.ByteBlockReaders.FileByteBlockReader">
             <summary>
             Reads from a file
@@ -555,22 +571,6 @@
             </summary>
             <typeparam name="T"></typeparam>
             <typeparam name="BT"></typeparam>
-        </member>
-        <member name="T:BrightData.Buffer.Composite.CompositeBufferWriter`1">
-            <summary>
-            Adapts composite buffers to buffer writers 
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="buffer"></param>
-            <param name="defaultBufferSize"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Composite.CompositeBufferWriter`1.#ctor(BrightData.IAppendBlocks{`0},System.Int32)">
-            <summary>
-            Adapts composite buffers to buffer writers 
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="buffer"></param>
-            <param name="defaultBufferSize"></param>
         </member>
         <member name="T:BrightData.Buffer.Composite.ManagedCompositeBuffer`1">
             <summary>
@@ -2241,6 +2241,14 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateBuffer``1(System.UInt32)">
+            <summary>
+            Creates an appendable in memory buffer
+            </summary>
+            <param name="blockSize"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetValues(BrightData.IReadOnlyBuffer)">
             <summary>
             Enumerates values in the buffer (blocking)
@@ -2368,16 +2376,16 @@
             <returns></returns>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsBufferWriter``1(BrightData.ICompositeBuffer{``0},System.Int32)">
+        <member name="M:BrightData.ExtensionMethods.AsBufferWriter``1(BrightData.IAppendBlocks{``0},System.Int32)">
             <summary>
-            Creates a buffer writer from a composite buffer
+            Creates a buffer writer from an appendable buffer
             </summary>
             <typeparam name="T"></typeparam>
             <param name="buffer"></param>
             <param name="bufferSize"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CanEncode``1(BrightData.ICompositeBuffer{``0})">
+        <member name="M:BrightData.ExtensionMethods.CanEncode``1(BrightData.IHaveDistinctItemCount)">
             <summary>
             Returns true of the buffer can be encoded (distinct items mapped to indices)
             </summary>
@@ -5290,35 +5298,35 @@
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues(BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.GetMinAndMaxValues``1(BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Returns the index with the minimum value from this tensor segment
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMinimumIndex(BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.GetMinimumIndex``1(BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Returns the index with the minimum value from this tensor segment
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetMaximumIndex(BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.GetMaximumIndex``1(BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Returns the index with the maximum value from this tensor segment
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Sum(BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Sum``1(BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Sums all values
             </summary>
             <param name="segment"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CosineDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CosineDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Finds cosine distance (0 for perpendicular, 1 for orthogonal, 2 for opposite) between this and another vector
             </summary>
@@ -5326,7 +5334,7 @@
             <param name="other"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.EuclideanDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.EuclideanDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Finds the euclidean distance between this and another vector
             </summary>
@@ -5334,7 +5342,7 @@
             <param name="other"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ManhattanDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.ManhattanDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Finds the manhattan distance between this and another vector
             </summary>
@@ -5342,7 +5350,7 @@
             <param name="other"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.MeanSquaredDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.MeanSquaredDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Finds the mean squared distance between this and another vector
             </summary>
@@ -5350,7 +5358,7 @@
             <param name="other"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SquaredEuclideanDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.SquaredEuclideanDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>
             Finds the squared euclidean distance between this and another vector
             </summary>
@@ -5358,7 +5366,7 @@
             <param name="other"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.FindDistance(BrightData.IReadOnlyNumericSegment{System.Single},BrightData.IReadOnlyNumericSegment{System.Single},BrightData.DistanceMetric)">
+        <member name="M:BrightData.ExtensionMethods.FindDistance``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0},BrightData.DistanceMetric)">
             <summary>
             Finds the distance between this and another vector
             </summary>
@@ -5541,7 +5549,7 @@
             <param name="callback"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ApplyReadOnlySpans``2(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0},BrightData.ExtensionMethods.TransformReadOnlySpans{``0,``1})">
+        <member name="M:BrightData.ExtensionMethods.ReduceReadOnlySpans``2(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0},BrightData.ExtensionMethods.TransformReadOnlySpans{``0,``1})">
             <summary>
             Passes the readonly spans from the supplied segments into a callback function
             </summary>
@@ -5622,6 +5630,14 @@
             <param name="segment"></param>
             <param name="rowCount"></param>
             <param name="columnCount"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMemory``1(BrightData.IReadOnlyNumericSegment{``0})">
+            <summary>
+            Returns contiguous memory from a numeric segment (will be a copy if the segment is not contiguous)
+            </summary>
+            <param name="segment"></param>
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
@@ -7387,6 +7403,17 @@
             <param name="item"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IHaveConstraintValidator`1">
+            <summary>
+            Indicates that the type has a constraint validator
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.IHaveConstraintValidator`1.ConstraintValidator">
+            <summary>
+            Typed constraint validator (optional)
+            </summary>
+        </member>
         <member name="T:BrightData.ICompositeBuffer`1">
             <summary>
             Composite buffers add data in memory until a pre-specified limit is reached and then stores the remainder in a temp file
@@ -7398,10 +7425,11 @@
             The distinct (unique) set of items that have been added - null if the count exceeded the pre-defined limit
             </summary>
         </member>
-        <member name="P:BrightData.ICompositeBuffer`1.ConstraintValidator">
+        <member name="T:BrightData.IAppendableBuffer`1">
             <summary>
-            Optional constraint validator on items that are added to the buffer
+            A buffer that can be appended
             </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:BrightData.IByteBlockReader">
             <summary>
@@ -7900,14 +7928,19 @@
             Underlying tensor segment
             </summary>
         </member>
-        <member name="T:BrightData.IHaveReadOnlyContiguousSpan`1">
+        <member name="T:BrightData.IHaveReadOnlyContiguousMemory`1">
             <summary>
-            Indicates that the type has a contiguous read only span
+            Indicates that the type has contiguous read only memory
             </summary>
         </member>
-        <member name="P:BrightData.IHaveReadOnlyContiguousSpan`1.ReadOnlySpan">
+        <member name="P:BrightData.IHaveReadOnlyContiguousMemory`1.ReadOnlySpan">
             <summary>
             A read only span
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveReadOnlyContiguousMemory`1.ContiguousMemory">
+            <summary>
+            Read only contiguous memory
             </summary>
         </member>
         <member name="T:BrightData.IReadOnlyTensor">
@@ -9340,6 +9373,106 @@
             </summary>
             <param name="predicted"></param>
             <param name="expected"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.VectorIndexStrategy">
+            <summary>
+            Represents how vectors should be indexed
+            </summary>
+        </member>
+        <member name="F:BrightData.VectorIndexStrategy.Flat">
+            <summary>
+            Flat indexing
+            </summary>
+        </member>
+        <member name="T:BrightData.VectorStorageType">
+            <summary>
+            Determines how vectors are stored
+            </summary>
+        </member>
+        <member name="F:BrightData.VectorStorageType.InMemory">
+            <summary>
+            Vectors are stored in memory
+            </summary>
+        </member>
+        <member name="T:BrightData.IStoreVectors">
+            <summary>
+            Responsible for storing vectors
+            </summary>
+        </member>
+        <member name="P:BrightData.IStoreVectors.StorageType">
+            <summary>
+            Storage type
+            </summary>
+        </member>
+        <member name="P:BrightData.IStoreVectors.VectorSize">
+            <summary>
+            Size of each vector (fixed)
+            </summary>
+        </member>
+        <member name="T:BrightData.IndexedSpanCallback`1">
+            <summary>
+            Callback for indexed spans
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.IStoreVectors`1">
+            <summary>
+            Stores typed vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IStoreVectors`1.Add(System.ReadOnlySpan{`0})">
+            <summary>
+            Adds a vector
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IStoreVectors`1.Item(System.UInt32)">
+            <summary>
+            Returns a segment at the specified index
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IStoreVectors`1.ForEach(BrightData.IndexedSpanCallback{`0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="callback"></param>
+        </member>
+        <member name="T:BrightData.IVectorIndex`1">
+            <summary>
+            A vector set index
+            </summary>
+        </member>
+        <member name="P:BrightData.IVectorIndex`1.Storage">
+            <summary>
+            The vector storage for the index
+            </summary>
+        </member>
+        <member name="M:BrightData.IVectorIndex`1.Add(System.ReadOnlySpan{`0})">
+            <summary>
+            Adds a vector to the index
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IVectorIndex`1.Rank(System.ReadOnlySpan{`0},BrightData.DistanceMetric)">
+            <summary>
+            Returns a list of vector indices ranked by the distance between that vector and a comparison vector
+            </summary>
+            <param name="vector">Vector to compare</param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IVectorIndex`1.Closest(System.ReadOnlyMemory{`0}[],BrightData.DistanceMetric)">
+            <summary>
+            Returns the index of the closest vector in the set to each of the supplied vectors
+            </summary>
+            <param name="vector">Vectors to compare</param>
+            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.Clustering.Hierarchical">
@@ -11088,6 +11221,9 @@
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.ReadOnlySpan">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.ContiguousMemory">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyMatrix`1.RowCount">
             <inheritdoc />
         </member>
@@ -11181,6 +11317,9 @@
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D`1.ReadOnlySpan">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D`1.ContiguousMemory">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor3D`1.Depth">
             <inheritdoc />
         </member>
@@ -11268,6 +11407,9 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D`1.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D`1.ContiguousMemory">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.ReadOnly.ReadOnlyTensor4D`1.Count">
@@ -11689,6 +11831,9 @@
         <member name="P:BrightData.LinearAlgebra.Segments.MutableTensorSegment`1.ReadOnlySpan">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.LinearAlgebra.Segments.MutableTensorSegment`1.ContiguousMemory">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.LinearAlgebra.Segments.MutableTensorSegmentWrapper`1">
             <summary>
             A tensor segment that wraps another tensor segment
@@ -11818,6 +11963,94 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper`1.ToString">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1">
+            <summary>
+            Represents a set of vectors
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.#ctor(System.UInt32,BrightData.VectorIndexStrategy,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+            <summary>
+            Creates a vector set
+            </summary>
+            <param name="vectorSize">Size of each vector in the set</param>
+            <param name="indexType">Indexing strategy</param>
+            <param name="storageType">Storage type</param>
+            <param name="capacity">The expected number of vectors (optional)</param>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.VectorSize">
+            <summary>
+            Size of each vector
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(BrightData.IReadOnlyVector{`0})">
+            <summary>
+            Adds a vector to the set
+            </summary>
+            <param name="vector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Adds a segment to the set
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(System.ReadOnlySpan{`0})">
+            <summary>
+            Adds a vector span to the set
+            </summary>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(System.ReadOnlyMemory{`0})">
+            <summary>
+            Adds a vector as memory to the set
+            </summary>
+            <param name="memory"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyVector{`0}})">
+            <summary>
+            Adds a collection of vectors to the set
+            </summary>
+            <param name="vectors"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Get(System.UInt32)">
+            <summary>
+            Returns a specified vector
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(BrightData.IReadOnlyVector{`0},BrightData.DistanceMetric)">
+            <summary>
+            Returns a list of vector indices ranked by the distance between that vector and a comparison vector
+            </summary>
+            <param name="vector"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[],BrightData.DistanceMetric)">
+            <summary>
+            Returns the index of the closest vector in the set to each of the supplied vectors
+            </summary>
+            <param name="vector"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.GetAverage(System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Creates an average vector from the specified vectors
+            </summary>
+            <param name="vectorIndices">Indices of the vectors to combine</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Size">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.BinaryData">
             <summary>
             Blob of binary data
@@ -11887,6 +12120,9 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.Types.BinaryData.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BinaryData.ContiguousMemory">
             <inheritdoc />
         </member>
         <member name="P:BrightData.Types.BinaryData.ReadOnlyMemory">
@@ -12085,6 +12321,9 @@
         <member name="P:BrightData.Types.IndexList.ReadOnlySpan">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.IndexList.ContiguousMemory">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.IndexList.AsWeightedIndexList">
             <summary>
             Converts to a weighted index list
@@ -12219,84 +12458,6 @@
             <summary>
             Creates a clone of the current metadata
             </summary>
-        </member>
-        <member name="T:BrightData.Types.VectorSet`1">
-            <summary>
-            Represents a set of vectors
-            </summary>
-        </member>
-        <member name="T:BrightData.Types.VectorSet`1.StorageType">
-            <summary>
-            Represents how the vectors should be stored
-            </summary>
-        </member>
-        <member name="F:BrightData.Types.VectorSet`1.StorageType.Flat">
-            <summary>
-            Flat storage
-            </summary>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.#ctor(System.UInt32,BrightData.Types.VectorSet{`0}.StorageType)">
-            <summary>
-            Creates a vector set
-            </summary>
-            <param name="vectorSize"></param>
-            <param name="type"></param>
-            <exception cref="T:System.NotSupportedException"></exception>
-        </member>
-        <member name="P:BrightData.Types.VectorSet`1.VectorSize">
-            <summary>
-            Size of each vector
-            </summary>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Add(BrightData.IReadOnlyVector{`0})">
-            <summary>
-            Adds a vector to the set
-            </summary>
-            <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Add(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyVector{`0}})">
-            <summary>
-            Adds a collection of vectors to the set
-            </summary>
-            <param name="vectors"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Remove(System.UInt32)">
-            <summary>
-            Removes a vector
-            </summary>
-            <param name="index"></param>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Get(System.UInt32)">
-            <summary>
-            Returns a specified vector
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Rank(BrightData.IReadOnlyVector{`0},BrightData.DistanceMetric)">
-            <summary>
-            Returns the ranking (based on distance) between a vector and every vector in this set
-            </summary>
-            <param name="vector"></param>
-            <param name="distanceMetric"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[],BrightData.DistanceMetric)">
-            <summary>
-            Returns the index of the closest vector in the set to each of the supplied vectors
-            </summary>
-            <param name="vector"></param>
-            <param name="distanceMetric"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.VectorSet`1.GetAverage(System.Collections.Generic.IEnumerable{System.UInt32})">
-            <summary>
-            Creates an average vector from the specified vectors
-            </summary>
-            <param name="keys"></param>
-            <returns></returns>
         </member>
         <member name="T:BrightData.Types.WeightedIndexList">
             <summary>
@@ -12576,6 +12737,9 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.Types.WeightedIndexList.ReadOnlySpan">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.WeightedIndexList.ContiguousMemory">
             <inheritdoc />
         </member>
     </members>

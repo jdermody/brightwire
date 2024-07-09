@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Buffer;
 using BrightData.Buffer.Composite;
 using BrightData.Buffer.Operations;
 using BrightData.Buffer.Operations.Conversion;
@@ -15,12 +16,19 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
-using static BrightData.DataTable.ColumnOrientedDataTable;
 
 namespace BrightData
 {
     public partial class ExtensionMethods
     {
+        /// <summary>
+        /// Creates an appendable in memory buffer
+        /// </summary>
+        /// <param name="blockSize"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IAppendableBuffer<T> CreateBuffer<T>(this uint blockSize) where T : notnull => new InMemoryBuffer<T>(blockSize);
+
         /// <summary>
         /// Enumerates values in the buffer (blocking)
         /// </summary>
@@ -366,13 +374,13 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a buffer writer from a composite buffer
+        /// Creates a buffer writer from an appendable buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
-        public static IBufferWriter<T> AsBufferWriter<T>(this ICompositeBuffer<T> buffer, int bufferSize = 256) where T : notnull => new CompositeBufferWriter<T>(buffer, bufferSize);
+        public static IBufferWriter<T> AsBufferWriter<T>(this IAppendBlocks<T> buffer, int bufferSize = 256) where T : notnull => new BlockBufferWriter<T>(buffer, bufferSize);
 
         /// <summary>
         /// Returns true of the buffer can be encoded (distinct items mapped to indices)
@@ -380,7 +388,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static bool CanEncode<T>(this ICompositeBuffer<T> buffer) where T : notnull => buffer.DistinctItems.HasValue;
+        public static bool CanEncode<T>(this IHaveDistinctItemCount buffer) where T : notnull => buffer.DistinctItems.HasValue;
 
         /// <summary>
         /// Encoding a composite buffer maps each item to an index and returns both the mapping table and a new composite buffer of the indices

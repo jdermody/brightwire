@@ -2,6 +2,7 @@
 using System;
 using System.Buffers.Binary;
 using System.IO;
+using BrightData.Buffer.MutableBlocks;
 
 namespace BrightData.Buffer.ReadOnly
 {
@@ -18,7 +19,7 @@ namespace BrightData.Buffer.ReadOnly
         {
             var span = byteData.Span;
             var count = BinaryPrimitives.ReadUInt32LittleEndian(span);
-            span = span[ManagedCompositeBuffer<T>.HeaderSize..];
+            span = span[MutableManagedBufferBlock<T>.HeaderSize..];
             var ret = new T[count];
             var index = 0;
 

@@ -10,7 +10,7 @@ namespace BrightData.LinearAlgebra.Segments
     /// <summary>
     /// A tensor segment based on a float array
     /// </summary>
-    public class MutableTensorSegment<T> : INumericSegment<T>, IHaveReadOnlyContiguousSpan<T> where T: unmanaged, INumber<T>
+    public class MutableTensorSegment<T> : INumericSegment<T>, IHaveReadOnlyContiguousMemory<T> where T: unmanaged, INumber<T>
     {
         /// <summary>
         /// Underlying array
@@ -85,7 +85,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public IHaveReadOnlyContiguousSpan<T> Contiguous => this;
+        public IHaveReadOnlyContiguousMemory<T> Contiguous => this;
 
         /// <inheritdoc />
         public virtual void CopyFrom(ReadOnlySpan<T> span, uint targetOffset)
@@ -153,6 +153,9 @@ namespace BrightData.LinearAlgebra.Segments
         public (T[] Array, uint Offset, uint Stride) GetUnderlyingArray() => (_data, 0, 1);
 
         /// <inheritdoc />
-        public virtual ReadOnlySpan<T> ReadOnlySpan => new(_data);
+        public virtual ReadOnlySpan<T> ReadOnlySpan => new(_data, 0, (int)Size);
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<T> ContiguousMemory => new(_data, 0, (int)Size);
     }
 }

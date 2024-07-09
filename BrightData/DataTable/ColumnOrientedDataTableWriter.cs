@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Buffer.Composite;
+using BrightData.Buffer.MutableBlocks;
 using BrightData.DataTable.Columns;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
@@ -92,7 +93,7 @@ namespace BrightData.DataTable
                 header.StringOffset = (uint)output.Position;
                 await stringWriter.Value.ForEachBlock(block => {
                     foreach (var str in block) {
-                        StringCompositeBuffer.Encode(str, bytes => {
+                        MutableStringBufferBlock.Encode(str, bytes => {
                             output.Write(bytes);
                             totalSize += (uint)bytes.Length;
                         });
@@ -271,7 +272,7 @@ namespace BrightData.DataTable
         }
 
         static Task WriteContiguousDataRange<T, IT>(IReadOnlyBuffer<T> buffer, ICompositeBuffer<IT> indices, Stream stream)
-            where T : IHaveSize, IHaveReadOnlyContiguousSpan<IT>
+            where T : IHaveSize, IHaveReadOnlyContiguousMemory<IT>
             where IT : unmanaged
         {
             return Convert(buffer, stream, (in T from, ref DataRangeColumnType to) => {

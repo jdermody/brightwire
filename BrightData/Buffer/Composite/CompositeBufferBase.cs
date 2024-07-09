@@ -17,7 +17,7 @@ namespace BrightData.Buffer.Composite
     /// <typeparam name="BT"></typeparam>
     internal abstract class CompositeBufferBase<T, BT> : TypedBufferBase<T>, ICompositeBuffer<T>
         where T : notnull
-        where BT : ICompositeBufferBlock<T>
+        where BT : IMutableBufferBlock<T>
     {
         protected readonly int        _blockSize;
         protected readonly uint?      _maxInMemoryBlocks, _maxDistinctItems;

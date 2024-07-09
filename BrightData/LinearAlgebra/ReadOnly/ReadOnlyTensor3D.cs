@@ -14,7 +14,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     /// <summary>
     /// Read only tensor
     /// </summary>
-    public class ReadOnlyTensor3D<T> : ReadOnlyTensorBase<T, IReadOnlyTensor3D<T>>, IReadOnlyTensor3D<T>, IEquatable<ReadOnlyTensor3D<T>>, IHaveReadOnlyContiguousSpan<T>, IHaveDataAsReadOnlyByteSpan
+    public class ReadOnlyTensor3D<T> : ReadOnlyTensorBase<T, IReadOnlyTensor3D<T>>, IReadOnlyTensor3D<T>, IEquatable<ReadOnlyTensor3D<T>>, IHaveReadOnlyContiguousMemory<T>, IHaveDataAsReadOnlyByteSpan
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         const int HeaderSize = 12;
@@ -140,6 +140,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 return ReadOnlySegment.ToNewArray();
             }
         }
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<T> ContiguousMemory => ReadOnlySegment.GetMemory();
 
         /// <inheritdoc />
         public uint Depth { get; private set; }

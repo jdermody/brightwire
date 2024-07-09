@@ -600,5 +600,21 @@ namespace BrightData
                 buffer.Dispose();
             }
         }
+
+        /// <summary>
+        /// Returns contiguous memory from a numeric segment (will be a copy if the segment is not contiguous)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ReadOnlyMemory<T> GetMemory<T>(this IReadOnlyNumericSegment<T> segment) 
+            where T : unmanaged, INumber<T>
+        {
+            IHaveReadOnlyContiguousMemory<T>? contiguous = null;
+            return (contiguous = segment.Contiguous) != null 
+                ? contiguous.ContiguousMemory 
+                : segment.ToNewArray()
+            ;
+        }
     }
 }

@@ -22,7 +22,7 @@ namespace BrightData.Types
         IHaveDataAsReadOnlyByteSpan,
         IHaveSize,
         IHaveSpanOf<WeightedIndexList.Item>,
-        IHaveReadOnlyContiguousSpan<WeightedIndexList.Item>,
+        IHaveReadOnlyContiguousMemory<WeightedIndexList.Item>,
         IHaveMemory<WeightedIndexList.Item>
     {
         readonly ReadOnlyMemory<Item> _indices;
@@ -490,5 +490,8 @@ namespace BrightData.Types
 
         /// <inheritdoc />
         public ReadOnlySpan<Item> ReadOnlySpan => _indices.Span;
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<Item> ContiguousMemory => _indices;
     }
 }

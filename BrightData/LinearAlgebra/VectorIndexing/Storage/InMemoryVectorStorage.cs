@@ -1,37 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Buffers;
 using System.Numerics;
 using System.Threading.Tasks;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.Storage
 {
-    internal class InMemoryVectorStorage<T>(uint vectorSize) : IStoreVectors<T>
+    internal class InMemoryVectorStorage<T> : IStoreVectors<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly List<IReadOnlyVector<T>> _data = [];
+        readonly ArrayBufferWriter<T> _data;
+
+        public InMemoryVectorStorage(uint vectorSize, uint? capacity)
+        {
+            VectorSize = vectorSize;
+            if (capacity.HasValue)
+                _data = new((int)capacity.Value);
+            else
+                _data = new();
+        }
 
         public VectorStorageType StorageType => VectorStorageType.InMemory;
-        public uint VectorSize { get; } = vectorSize;
-        public uint Size => (uint)_data.Count;
-        public IReadOnlyNumericSegment<T> this[uint index] => _data[(int)index].ReadOnlySegment;
+        public uint VectorSize { get; }
+        public uint Size => (uint)(_data.WrittenCount / VectorSize);
+        public ReadOnlySpan<T> this[uint index] => _data.WrittenSpan.Slice((int)(index * VectorSize), (int)VectorSize);
 
-        public uint Add(IReadOnlyVector<T> vector)
+        public uint Add(ReadOnlySpan<T> vector)
         {
-            if (vector.Size != VectorSize)
-                throw new ArgumentException($"Expected vector to be size {VectorSize} but received {vector.Size}", nameof(vector));
-            var index = (uint)_data.Count;
-            _data.Add(vector);
+            if (vector.Length != VectorSize)
+                throw new ArgumentException($"Expected vector to be size {VectorSize} but received {vector.Length}", nameof(vector));
+            var index = Size;
+            var span = _data.GetSpan((int)VectorSize);
+            vector.CopyTo(span);
+            _data.Advance((int)VectorSize);
             return index;
         }
 
-        public void Remove(uint index)
+        public void ForEach(IndexedSpanCallback<T> callback)
         {
-            _data.RemoveAt((int)index);
-        }
-
-        public void ForEach(Action<IReadOnlyVector<T>, uint> callback)
-        {
-            Parallel.ForEach(_data, (x, _, i) => callback(x, (uint)i));
+            Parallel.For(0, Size, i => callback(_data.WrittenSpan.Slice((int)(i * VectorSize), (int)VectorSize), (uint)i));
         }
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Buffers;
 
-namespace BrightData.Buffer.Composite
+namespace BrightData.Buffer
 {
     /// <summary>
-    /// Adapts composite buffers to buffer writers 
+    /// Adapts appendable buffers to buffer writers 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="buffer"></param>
     /// <param name="defaultBufferSize"></param>
-    internal class CompositeBufferWriter<T>(IAppendBlocks<T> buffer, int defaultBufferSize = 256) : IBufferWriter<T>
+    internal class BlockBufferWriter<T>(IAppendBlocks<T> buffer, int defaultBufferSize = 256) : IBufferWriter<T>
         where T : notnull
     {
         int _pos = 0;

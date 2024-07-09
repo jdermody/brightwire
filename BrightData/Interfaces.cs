@@ -522,7 +522,7 @@ namespace BrightData
         uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric);
     }
 
-    internal interface ICompositeBufferBlock<T>
+    internal interface IMutableBufferBlock<T>
     {
         uint Size { get; }
         Task<uint> WriteTo(IByteBlockSource file);

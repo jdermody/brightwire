@@ -14,7 +14,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
     /// <summary>
     /// Read only 4D tensor
     /// </summary>
-    public class ReadOnlyTensor4D<T> : ReadOnlyTensorBase<T, IReadOnlyTensor4D<T>>, IReadOnlyTensor4D<T>, IEquatable<ReadOnlyTensor4D<T>>, IHaveReadOnlyContiguousSpan<T>, IHaveDataAsReadOnlyByteSpan
+    public class ReadOnlyTensor4D<T> : ReadOnlyTensorBase<T, IReadOnlyTensor4D<T>>, IReadOnlyTensor4D<T>, IEquatable<ReadOnlyTensor4D<T>>, IHaveReadOnlyContiguousMemory<T>, IHaveDataAsReadOnlyByteSpan
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         const int HeaderSize = 16;
@@ -154,6 +154,9 @@ namespace BrightData.LinearAlgebra.ReadOnly
                 return ReadOnlySegment.ToNewArray();
             }
         }
+
+        /// <inheritdoc />
+        public ReadOnlyMemory<T> ContiguousMemory => ReadOnlySegment.GetMemory();
 
         /// <inheritdoc />
         public uint Count { get; private set; }

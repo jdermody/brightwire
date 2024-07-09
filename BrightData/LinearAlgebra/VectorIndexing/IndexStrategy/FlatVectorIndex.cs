@@ -11,13 +11,17 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         public IStoreVectors<T> Storage { get; } = storage;
-        public uint Add(IReadOnlyVector<T> vector) => Storage.Add(vector);
-        public void Remove(uint index) => Storage.Remove(index);
+        public uint Add(ReadOnlySpan<T> vector) => Storage.Add(vector);
 
-        public IEnumerable<uint> Rank(IReadOnlyVector<T> vector, DistanceMetric distanceMetric)
+        public unsafe IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric)
         {
             var results = new T[Storage.Size];
-            Storage.ForEach((x, i) => results[i] = x.FindDistance(vector, distanceMetric));
+            fixed (T* ptr = vector) {
+                var tempPtr = ptr;
+                var len = vector.Length;
+                Storage.ForEach((x, i) => results[i] = x.FindDistance(new ReadOnlySpan<T>(tempPtr, len), distanceMetric));
+            }
+
             return results
                 .Select((x, i) => (Distance: x, Index: (uint)i))
                 .OrderBy(x => x.Distance)
@@ -25,7 +29,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             ;
         }
 
-        public uint[] Closest(IReadOnlyVector<T>[] vector, DistanceMetric distanceMetric)
+        public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
         {
             // find distance between each vector in the set and each input vector
             var size = Storage.Size;
@@ -34,7 +38,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             {
                 var dataIndex = (uint)i % size;
                 var vectorIndex = (uint)i / size;
-                distance[dataIndex, vectorIndex] = Storage[dataIndex].FindDistance(vector[vectorIndex].ReadOnlySegment, distanceMetric);
+                distance[dataIndex, vectorIndex] = Storage[dataIndex].FindDistance(vector[vectorIndex].Span, distanceMetric);
             });
 
             // find the closest input vector index for each vector in the set

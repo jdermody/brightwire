@@ -6,7 +6,7 @@ namespace BrightData.LinearAlgebra.ReadOnlyTensorValueSemantics
 {
     internal class ReadOnlyMatrixValueSemantics<T, TT>
         where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
-        where TT : IReadOnlyMatrix<T>, IHaveReadOnlyContiguousSpan<T>
+        where TT : IReadOnlyMatrix<T>, IHaveReadOnlyContiguousMemory<T>
     {
         readonly TT _obj;
         readonly Lazy<int> _hashCode;

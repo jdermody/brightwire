@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using BrightData.Buffer.MutableBlocks;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -15,37 +16,9 @@ namespace BrightData.Buffer.Composite
         int blockSize = Consts.DefaultBlockSize,
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null)
-        : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<T, MutableUnmanagedBufferBlock<T>>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
         where T : unmanaged
     {
-        internal record Block(T[] Data) : ICompositeBufferBlock<T>
-        {
-            public Block(T[] data, bool existing) : this(data)
-            {
-                if (existing)
-                    Size = (uint)data.Length;
-            }
-
-            public uint Size { get; private set; }
-            public ref T GetNext() => ref Data[Size++];
-            public bool HasFreeCapacity => Size < Data.Length;
-            public uint AvailableCapacity => (uint)Data.Length - Size;
-            public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
-            public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
-
-            public async Task<uint> WriteTo(IByteBlockSource file)
-            {
-                var bytes = WrittenMemory.Cast<T, byte>();
-                await file.WriteAsync(bytes, file.Size);
-                return (uint)bytes.Length;
-            }
-
-            public void Write(ReadOnlySpan<T> data)
-            {
-                data.CopyTo(Data.AsSpan((int)Size, (int)AvailableCapacity));
-                Size += (uint)data.Length;
-            }
-        }
         readonly int _sizeOfT = Unsafe.SizeOf<T>();
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)

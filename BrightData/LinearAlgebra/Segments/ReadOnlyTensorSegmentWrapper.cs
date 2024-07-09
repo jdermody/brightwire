@@ -126,7 +126,7 @@ namespace BrightData.LinearAlgebra.Segments
         }
 
         /// <inheritdoc />
-        public IHaveReadOnlyContiguousSpan<T>? Contiguous => null;
+        public IHaveReadOnlyContiguousMemory<T>? Contiguous => null;
 
         /// <inheritdoc />
         public ReadOnlySpan<T> GetSpan(ref SpanOwner<T> temp, out bool wasTempUsed)
