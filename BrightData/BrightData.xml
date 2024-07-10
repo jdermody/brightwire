@@ -9382,7 +9382,12 @@
         </member>
         <member name="F:BrightData.VectorIndexStrategy.Flat">
             <summary>
-            Flat indexing
+            Flat indexing (naive, brute force approach)
+            </summary>
+        </member>
+        <member name="F:BrightData.VectorIndexStrategy.RandomProjection">
+            <summary>
+            Vectors are projected into a random lower dimensional space
             </summary>
         </member>
         <member name="T:BrightData.VectorStorageType">
@@ -9630,7 +9635,7 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateVector(`0[])">
             <summary>
-            Creates a vector from an array of floats
+            Creates a vector from an array of values
             </summary>
             <param name="data">T array</param>
             <returns></returns>
@@ -9645,9 +9650,16 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateVector(System.ReadOnlySpan{`0})">
             <summary>
-            Creates a vector from a span of floats
+            Creates a vector from a span of values
             </summary>
             <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateVector(System.ReadOnlyMemory{`0})">
+            <summary>
+            Creates a vector from a memory block of values
+            </summary>
+            <param name="memory"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateVector(System.UInt32,System.Func{System.UInt32,`0})">
@@ -11977,6 +11989,9 @@
             <param name="storageType">Storage type</param>
             <param name="capacity">The expected number of vectors (optional)</param>
             <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Dispose">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.VectorSize">
             <summary>

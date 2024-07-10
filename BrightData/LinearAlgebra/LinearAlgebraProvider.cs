@@ -183,7 +183,7 @@ namespace BrightData.LinearAlgebra
         public IVector<T> CreateVector(uint size, bool initialiseToZero) => CreateVector(CreateSegment(size, initialiseToZero));
 
         /// <summary>
-        /// Creates a vector from an array of floats
+        /// Creates a vector from an array of values
         /// </summary>
         /// <param name="data">T array</param>
         /// <returns></returns>
@@ -198,7 +198,7 @@ namespace BrightData.LinearAlgebra
         public IVector<T> CreateVector(uint size, T value) => CreateVector(size, _ => value);
 
         /// <summary>
-        /// Creates a vector from a span of floats
+        /// Creates a vector from a span of values
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
@@ -206,6 +206,18 @@ namespace BrightData.LinearAlgebra
         {
             var segment = CreateSegment((uint)span.Length, false);
             segment.CopyFrom(span);
+            return CreateVector(segment);
+        }
+
+        /// <summary>
+        /// Creates a vector from a memory block of values
+        /// </summary>
+        /// <param name="memory"></param>
+        /// <returns></returns>
+        public IVector<T> CreateVector(ReadOnlyMemory<T> memory)
+        {
+            var segment = CreateSegment((uint)memory.Length, false);
+            segment.CopyFrom(memory.Span);
             return CreateVector(segment);
         }
 

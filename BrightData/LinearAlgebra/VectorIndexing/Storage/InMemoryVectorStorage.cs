@@ -14,9 +14,14 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
         {
             VectorSize = vectorSize;
             if (capacity.HasValue)
-                _data = new((int)capacity.Value);
+                _data = new((int)(capacity.Value * vectorSize));
             else
                 _data = new();
+        }
+
+        public void Dispose()
+        {
+            // nop
         }
 
         public VectorStorageType StorageType => VectorStorageType.InMemory;
@@ -37,7 +42,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
 
         public void ForEach(IndexedSpanCallback<T> callback)
         {
-            Parallel.For(0, Size, i => callback(_data.WrittenSpan.Slice((int)(i * VectorSize), (int)VectorSize), (uint)i));
+            Parallel.For(0, Size, i => callback(this[(uint)i], (uint)i));
         }
     }
 }

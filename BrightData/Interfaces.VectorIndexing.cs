@@ -13,9 +13,14 @@ namespace BrightData
     public enum VectorIndexStrategy
     {
         /// <summary>
-        /// Flat indexing
+        /// Flat indexing (naive, brute force approach)
         /// </summary>
-        Flat
+        Flat,
+
+        /// <summary>
+        /// Vectors are projected into a random lower dimensional space
+        /// </summary>
+        RandomProjection
     }
 
     /// <summary>
@@ -55,7 +60,8 @@ namespace BrightData
     /// Stores typed vectors
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IStoreVectors<T> : IStoreVectors where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    public interface IStoreVectors<T> : IStoreVectors, IDisposable 
+        where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Adds a vector
@@ -81,7 +87,8 @@ namespace BrightData
     /// <summary>
     /// A vector set index
     /// </summary>
-    public interface IVectorIndex<T> where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+    public interface IVectorIndex<T> : IDisposable 
+        where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// The vector storage for the index

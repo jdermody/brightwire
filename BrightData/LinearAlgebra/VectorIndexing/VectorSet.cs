@@ -13,7 +13,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
     /// <summary>
     /// Represents a set of vectors
     /// </summary>
-    public class VectorSet<T> : IHaveSize
+    public class VectorSet<T> : IHaveSize, IDisposable
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         readonly IVectorIndex<T> _index;
@@ -28,11 +28,32 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// <exception cref="NotSupportedException"></exception>
         public VectorSet(uint vectorSize, VectorIndexStrategy indexType = VectorIndexStrategy.Flat, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
-            var storage = new InMemoryVectorStorage<T>(vectorSize, capacity);
+            IStoreVectors<T> storage = storageType switch {
+                VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
+                _ => throw new NotSupportedException()
+            };
             if (indexType == VectorIndexStrategy.Flat)
                 _index = new FlatVectorIndex<T>(storage);
             else
                 throw new NotSupportedException();
+        }
+
+        public VectorSet(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, VectorIndexStrategy indexType = VectorIndexStrategy.RandomProjection, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
+        {
+            IStoreVectors<T> storage = storageType switch {
+                VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
+                _ => throw new NotSupportedException()
+            };
+            if (indexType == VectorIndexStrategy.RandomProjection)
+                _index = new RandomProjectionIndex<T>(lap, storage, projectionSize, capacity, s);
+            else
+                throw new NotSupportedException();
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _index.Dispose();
         }
 
         /// <summary>

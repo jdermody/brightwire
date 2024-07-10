@@ -13,6 +13,11 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         public IStoreVectors<T> Storage { get; } = storage;
         public uint Add(ReadOnlySpan<T> vector) => Storage.Add(vector);
 
+        public void Dispose()
+        {
+            Storage.Dispose();
+        }
+
         public unsafe IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric)
         {
             var results = new T[Storage.Size];
