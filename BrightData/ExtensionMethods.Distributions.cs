@@ -79,5 +79,13 @@ namespace BrightData
         /// <param name="stdDev">Standard deviation</param>
         /// <returns></returns>
         public static IContinuousDistribution CreateNormalDistribution(this BrightDataContext context, float mean = 0f, float stdDev = 1f) => new NormalDistribution(context, mean, stdDev);
+
+        /// <summary>
+        /// Create an exponential distribution
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="lambda"></param>
+        /// <returns></returns>
+        public static IContinuousDistribution CreateExponentialDistribution(this BrightDataContext context, float lambda = 1f) => new ExponentialDistribution(context, lambda);
     }
 }

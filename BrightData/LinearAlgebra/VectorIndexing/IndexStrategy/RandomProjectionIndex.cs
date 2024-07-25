@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.Intrinsics;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
@@ -50,12 +51,15 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 
         public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
         {
-            var vectors = vector.Select(x => {
+            return _projectionIndex.Closest(Project(vector), distanceMetric);
+        }
+
+        ReadOnlyMemory<T>[] Project(ReadOnlyMemory<T>[] vectors) =>
+            vectors.Select(x => {
                 using var vector2 = _lap.CreateVector(x);
                 using var projection = _randomProjection.Multiply(vector2);
                 return new ReadOnlyMemory<T>(projection.ReadOnlySegment.ToNewArray());
-            }).ToArray();
-            return _projectionIndex.Closest(vectors, distanceMetric);
-        }
+            }).ToArray()
+        ;
     }
 }

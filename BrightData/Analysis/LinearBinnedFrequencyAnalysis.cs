@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace BrightData.Analysis
 {
     /// <summary>
     /// Binned frequency analysis
     /// </summary>
-    internal class LinearBinnedFrequencyAnalysis(double min, double max, uint numBins)
+    internal class LinearBinnedFrequencyAnalysis<T>(T min, T max, uint numBins)
+        where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>
     {
-        readonly double _step = (max - min) / numBins;
+        readonly T _step = (max - min) / T.CreateTruncating(numBins);
         readonly ulong[] _bins = new ulong[numBins];
         ulong _belowRange = 0, _aboveRange = 0;
 
-        public void Add(double val)
+        public void Add(T val)
         {
-            if (double.IsNaN(val))
+            if (T.IsNaN(val))
                 return;
 
             if (val < min)
@@ -29,23 +31,24 @@ namespace BrightData.Analysis
             }
         }
 
-        public IEnumerable<(double Start, double End, ulong Count)> ContinuousFrequency
+        public IEnumerable<(T Start, T End, ulong Count)> ContinuousFrequency
         {
             get 
             {
                 if (_belowRange > 0)
-                    yield return (double.NegativeInfinity, min, _belowRange);
+                    yield return (T.NegativeInfinity, min, _belowRange);
                 var index = 0;
                 foreach (var c in _bins) {
+                    var val = T.CreateTruncating(index);
                     yield return (
-                        min + (index * _step),
-                        min + (index + 1) * _step,
+                        min + (val * _step),
+                        min + (val + T.One) * _step,
                         c
                     );
                     ++index;
                 }
                 if(_aboveRange > 0)
-                    yield return (max, double.PositiveInfinity, _aboveRange);
+                    yield return (max, T.PositiveInfinity, _aboveRange);
             }
         }
     }

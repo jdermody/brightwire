@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -43,6 +44,20 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
         public void ForEach(IndexedSpanCallback<T> callback)
         {
             Parallel.For(0, Size, i => callback(this[(uint)i], (uint)i));
+        }
+
+        public void ForEach(IEnumerable<uint> indices, IndexedSpanCallback<T> callback)
+        {
+            Parallel.ForEach(indices, i => callback(this[i], i));
+        }
+
+        public ReadOnlyMemory<T>[] GetAll()
+        {
+            var size = Size;
+            var ret = new ReadOnlyMemory<T>[size];
+            for(var i = 0U; i < size; i++)
+                ret[i] = this[i].ToArray();
+            return ret;
         }
     }
 }

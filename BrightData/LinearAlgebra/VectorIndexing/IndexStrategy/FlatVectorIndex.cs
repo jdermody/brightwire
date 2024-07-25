@@ -36,19 +36,31 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 
         public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
         {
-            // find distance between each vector in the set and each input vector
             var size = Storage.Size;
-            var distance = new T[size, vector.Length];
-            Parallel.For(0, size * vector.Length, i =>
-            {
-                var dataIndex = (uint)i % size;
-                var vectorIndex = (uint)i / size;
-                distance[dataIndex, vectorIndex] = Storage[dataIndex].FindDistance(vector[vectorIndex].Span, distanceMetric);
-            });
+            var distance = GetDistance(vector, distanceMetric);
 
             // find the closest input vector index for each vector in the set
             var ret = new uint[size];
             Parallel.For(0, size, i => ret[i] = ((ReadOnlySpan<T>)distance.AsSpan2D().GetRowSpan((int)i)).MinimumIndex());
+            return ret;
+        }
+
+        /// <summary>
+        /// Find distance between each vector in the set and each input vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
+        T[,] GetDistance(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
+        {
+            var size = Storage.Size;
+            var ret = new T[size, vector.Length];
+            Parallel.For(0, size * vector.Length, i =>
+            {
+                var dataIndex = (uint)i % size;
+                var vectorIndex = (uint)i / size;
+                ret[dataIndex, vectorIndex] = Storage[dataIndex].FindDistance(vector[vectorIndex].Span, distanceMetric);
+            });
             return ret;
         }
     }

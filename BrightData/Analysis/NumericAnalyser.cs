@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using BrightData.Types;
 
 namespace BrightData.Analysis
@@ -8,27 +10,22 @@ namespace BrightData.Analysis
     /// <summary>
     /// Numeric analysis
     /// </summary>
-    internal class NumericAnalyser(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<double>
+    internal class NumericAnalyser<T>(uint writeCount = Consts.MaxWriteCount) : OnlineStandardDeviationAnalysis<T>, IDataAnalyser<T>, INumericAnalysis<T>
+        where T: unmanaged, INumber<T>, IMinMaxValue<T>, IBinaryFloatingPointIeee754<T>, IConvertible
     {
-        readonly SortedDictionary<double, ulong> _distinct = [];
-		double _mean, _m2, _min = double.MaxValue, _max = double.MinValue, _mode, _l1, _l2;
-		ulong _total, _highestCount;
+        readonly SortedDictionary<T, ulong> _distinct = [];
+		T _mode, _l2;
+		ulong _highestCount;
 
-        public virtual void Add(double val)
+        public override void Add(T val)
 		{
-			++_total;
-
-			// online std deviation and mean 
-			// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-			var delta = val - _mean;
-			_mean += (delta / _total);
-			_m2 += delta * (val - _mean);
+			base.Add(val);
 
 			// find the min and the max
-			if (val < _min)
-				_min = val;
-			if (val > _max)
-				_max = val;
+			if (val < Min)
+				Min = val;
+			if (val > Max)
+				Max = val;
 
 			// add to distinct values
             if (_distinct.TryGetValue(val, out var count))
@@ -42,61 +39,48 @@ namespace BrightData.Analysis
             }
 
 			// calculate norms
-			_l1 += Math.Abs(val);
+			L1Norm += T.Abs(val);
 			_l2 += val * val;
 		}
 
-        public void Append(ReadOnlySpan<double> span)
+        public void Append(ReadOnlySpan<T> span)
         {
             foreach(var item in span)
                 Add(item);
         }
 
-		public double L1Norm => _l1;
-	    public double L2Norm => Math.Sqrt(_l2);
-	    public double Min => _min;
-	    public double Max => _max;
-	    public double Mean => _mean;
-	    public double? SampleVariance => _total > 1 ? _m2 / (_total - 1) : null;
-        public double? PopulationVariance => _total > 0 ? _m2 / _total : null;
+		public T L1Norm { get; private set; }
+        public T L2Norm => T.Sqrt(_l2);
+	    public T Min { get; private set; } = T.MaxValue;
+        public T Max { get; private set; } = T.MinValue;
         public uint NumDistinct => (uint)_distinct.Count;
 
-	    public double? SampleStdDev {
-            get
-            {
-                var variance = SampleVariance;
-                if (variance.HasValue)
-                    return Math.Sqrt(variance.Value);
-                return null;
-            }
-        }
-
-        public double? PopulationStdDev
+        public T? Median
         {
             get
             {
-                var variance = PopulationVariance;
-                if (variance.HasValue)
-                    return Math.Sqrt(variance.Value);
-                return null;
-            }
-        }
-
-        public double? Median
-        {
-            get
-            {
-                double? ret = null;
+                T? ret = null;
                 if (_distinct.Count > 0) {
-                    if (_total % 2 == 1)
-                        return SortedValues.Skip((int) (_total / 2)).First();
-                    return SortedValues.Skip((int) (_total / 2 - 1)).Take(2).Average();
+                    if (Count % 2 == 1)
+                        return SortedValues.Skip((int) (Count / 2)).First();
+                    return CalculateAverage(SortedValues.Skip((int)(Count / 2 - 1)).Take(2));
                 }
                 return ret;
             }
         }
 
-        IEnumerable<double> SortedValues
+        static T CalculateAverage(IEnumerable<T> values)
+        {
+            var ret = T.Zero;
+            var count = 0;
+            foreach (var value in values) {
+                ret += value;
+                ++count;
+            }
+            return ret / T.CreateTruncating(count);
+        }
+
+        IEnumerable<T> SortedValues
         {
             get
             {
@@ -107,7 +91,7 @@ namespace BrightData.Analysis
             }
         }
 
-        public double? Mode
+        public T? Mode
         {
             get
             {
@@ -121,47 +105,55 @@ namespace BrightData.Analysis
         {
             var str = obj.ToString();
             if (str != null) {
-                var val = double.Parse(str);
+                var val = T.Parse(str, null);
                 Add(val);
             }
+        }
+
+        static double? CreateNullable(T? value)
+        {
+            if (value.HasValue)
+                return double.CreateChecked(value.Value);
+            return null;
         }
 
         public void WriteTo(MetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.IsNumeric, true);
-            metadata.Set(Consts.L1Norm, L1Norm);
-			metadata.Set(Consts.L2Norm, L2Norm);
-			metadata.Set(Consts.Min, Min);
-			metadata.Set(Consts.Max, Max);
-			metadata.Set(Consts.Mean, Mean);
-            metadata.Set(Consts.Total, _total);
-			metadata.SetIfNotNull(Consts.SampleVariance, SampleVariance);
-			metadata.SetIfNotNull(Consts.SampleStdDev, SampleStdDev);
-            metadata.SetIfNotNull(Consts.PopulationVariance, PopulationVariance);
-            metadata.SetIfNotNull(Consts.PopulationStdDev, PopulationStdDev);
-            metadata.SetIfNotNull(Consts.Median, Median);
-			metadata.SetIfNotNull(Consts.Mode, Mode);
+            metadata.Set(Consts.L1Norm, double.CreateChecked(L1Norm));
+			metadata.Set(Consts.L2Norm, double.CreateChecked(L2Norm));
+			metadata.Set(Consts.Min, double.CreateChecked(Min));
+			metadata.Set(Consts.Max, double.CreateChecked(Max));
+			metadata.Set(Consts.Mean, double.CreateChecked(Mean));
+            metadata.Set(Consts.Total, Count);
+			metadata.SetIfNotNull(Consts.SampleVariance, CreateNullable(SampleVariance));
+			metadata.SetIfNotNull(Consts.SampleStdDev, CreateNullable(SampleStdDev));
+            metadata.SetIfNotNull(Consts.PopulationVariance, CreateNullable(PopulationVariance));
+            metadata.SetIfNotNull(Consts.PopulationStdDev, CreateNullable(PopulationStdDev));
+            metadata.SetIfNotNull(Consts.Median, CreateNullable(Median));
+			metadata.SetIfNotNull(Consts.Mode, CreateNullable(Mode));
             metadata.Set(Consts.NumDistinct, NumDistinct);
 
-			var total = (double) _total;
+			var total = T.CreateTruncating(Count);
             var range = Max - Min;
-            if (range > 0) {
-                var bin = new LinearBinnedFrequencyAnalysis(Min, Max, 10);
+            if (range > T.Zero) {
+                var bin = new LinearBinnedFrequencyAnalysis<T>(Min, Max, 10);
                 var index = 0U;
                 foreach (var item in _distinct.OrderByDescending(kv => kv.Value)) {
                     if (index++ < writeCount)
-                        metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
+                        metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", double.CreateChecked(T.CreateTruncating(item.Value) / total));
                     for (ulong i = 0; i < item.Value; i++)
                         bin.Add(item.Key);
                 }
 
+                var formatProvider = CultureInfo.InvariantCulture.NumberFormat;
                 foreach (var (s, e, c) in bin.ContinuousFrequency) {
-                    if (c == 0 && (double.IsNegativeInfinity(s) || double.IsPositiveInfinity(e)))
+                    if (c == 0 && (T.IsNegativeInfinity(s) || T.IsPositiveInfinity(e)))
                         continue;
-                    var start = double.IsNegativeInfinity(s) ? "-∞" : s.ToString("G17");
-                    var end = double.IsPositiveInfinity(e) ? "∞" : e.ToString("G17");
-                    metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", c / total);
+                    var start = T.IsNegativeInfinity(s) ? "-∞" : s.ToString("G17", formatProvider);
+                    var end = T.IsPositiveInfinity(e) ? "∞" : e.ToString("G17", formatProvider);
+                    metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", double.CreateChecked(T.CreateTruncating(c) / total));
                 }
             }
 		}

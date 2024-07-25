@@ -163,7 +163,29 @@ namespace BrightData
         void Add(T obj);
     }
 
-/// <summary>
+    public interface IStandardDeviationAnalysis<T> where T : unmanaged
+    {
+        T Mean { get; }
+        T? SampleVariance { get; }
+        T? PopulationVariance { get; }
+        T? SampleStdDev { get; }
+        T? PopulationStdDev { get; }
+        ulong Count { get; }
+    }
+
+    public interface INumericAnalysis<T> : IStandardDeviationAnalysis<T>
+        where T: unmanaged
+    {
+        T L1Norm { get; }
+        T L2Norm { get; }
+        T Min { get; }
+        T Max { get; }
+        uint NumDistinct { get; }
+        T? Median { get; }
+        T? Mode { get; }
+    }
+
+    /// <summary>
     /// Types of data normalization
     /// </summary>
     public enum NormalizationType : byte

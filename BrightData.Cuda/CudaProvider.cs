@@ -662,7 +662,7 @@ namespace BrightData.Cuda
 				if (ptr != a)
 					ptr.Release();
 
-				return Convert.ToSingle(System.Math.Sqrt(total.Sum() / inputSize));
+				return MathF.Sqrt(total.Sum() / inputSize);
 			}
 			return 0f;
 		}
@@ -701,7 +701,7 @@ namespace BrightData.Cuda
 		{
 			var ret = Allocate(size, stream);
 			Invoke(_euclideanDistance, stream, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size, ai, bi, ci);
-			return Convert.ToSingle(System.Math.Sqrt(SumValues(ret, size)));
+			return MathF.Sqrt(SumValues(ret, size));
 		}
 
 		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, uint ai = 1, uint bi = 1, uint ci = 1, CuStream* stream = null)
@@ -730,7 +730,7 @@ namespace BrightData.Cuda
 				else if (bb.Equals(0f))
 					return 0.0f;
 				else
-					return 1f - (ab / (float)System.Math.Sqrt(aa) / (float)System.Math.Sqrt(bb));
+					return 1f - (ab / MathF.Sqrt(aa) / MathF.Sqrt(bb));
 			}
 			finally {
                 buffer.Release();

@@ -60,12 +60,12 @@
             Index based type analysis
             </summary>
         </member>
-        <member name="T:BrightData.Analysis.LinearBinnedFrequencyAnalysis">
+        <member name="T:BrightData.Analysis.LinearBinnedFrequencyAnalysis`1">
             <summary>
             Binned frequency analysis
             </summary>
         </member>
-        <member name="M:BrightData.Analysis.LinearBinnedFrequencyAnalysis.#ctor(System.Double,System.Double,System.UInt32)">
+        <member name="M:BrightData.Analysis.LinearBinnedFrequencyAnalysis`1.#ctor(`0,`0,System.UInt32)">
             <summary>
             Binned frequency analysis
             </summary>
@@ -117,12 +117,12 @@
             <param name="val"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.Analysis.NumericAnalyser">
+        <member name="T:BrightData.Analysis.NumericAnalyser`1">
             <summary>
             Numeric analysis
             </summary>
         </member>
-        <member name="M:BrightData.Analysis.NumericAnalyser.#ctor(System.UInt32)">
+        <member name="M:BrightData.Analysis.NumericAnalyser`1.#ctor(System.UInt32)">
             <summary>
             Numeric analysis
             </summary>
@@ -2205,6 +2205,14 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.AnalyzeAsDoubles``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Analyzes numbers in a sequence
+            </summary>
+            <param name="data"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{System.DateTime})">
             <summary>
             Analyzes dates in a sequence
@@ -2799,6 +2807,13 @@
             Generates a range of positive integers
             </summary>
             <param name="count">Upper bound</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsRange(System.Range)">
+            <summary>
+            Generates a range of positive integers
+            </summary>
+            <param name="range"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AsRange(System.UInt32,System.UInt32)">
@@ -4043,6 +4058,14 @@
             <param name="stdDev">Standard deviation</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateExponentialDistribution(BrightData.BrightDataContext,System.Single)">
+            <summary>
+            Create an exponential distribution
+            </summary>
+            <param name="context"></param>
+            <param name="lambda"></param>
+            <returns></returns>
+        </member>
         <member name="F:BrightData.ExtensionMethods.NumericsVectorSize">
             <summary>
             Hardware dependent size of a numeric vector of floats
@@ -5268,6 +5291,22 @@
             <param name="matrix"></param>
             <param name="rowCount"></param>
             <param name="columnCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRankedIndices``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Returns the index of each element of span, ordered from lowest to highest
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetRankedIndices``1(System.Span{``0})">
+            <summary>
+            Returns the index of each element of span, ordered from lowest to highest
+            </summary>
+            <param name="span"></param>
+            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
@@ -9387,7 +9426,12 @@
         </member>
         <member name="F:BrightData.VectorIndexStrategy.RandomProjection">
             <summary>
-            Vectors are projected into a random lower dimensional space
+            Vectors are randomly projected into a random lower dimensional space
+            </summary>
+        </member>
+        <member name="F:BrightData.VectorIndexStrategy.NearestNeighbours">
+            <summary>
+            A nearest neighbour graph is created to improve index performance
             </summary>
         </member>
         <member name="T:BrightData.VectorStorageType">
@@ -9446,6 +9490,19 @@
             Passes each vector to the callback, possible in parallel
             </summary>
             <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.IStoreVectors`1.ForEach(System.Collections.Generic.IEnumerable{System.UInt32},BrightData.IndexedSpanCallback{`0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="indices"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.IStoreVectors`1.GetAll">
+            <summary>
+            Returns all vectors
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.IVectorIndex`1">
             <summary>
@@ -11974,6 +12031,133 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper`1.ToString">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1">
+            <summary>
+            Fixed size indexed graph node that maintains weighted list of neighbours as a max heap
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Index"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.#ctor(System.UInt32)">
+            <summary>
+            Fixed size indexed graph node that maintains weighted list of neighbours as a max heap
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="Index"></param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.Index">
+            <summary></summary>
+        </member>
+        <member name="F:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MaxNeighbours">
+            <summary>
+            Max number of neighbours
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.NeighbourCount">
+            <summary>
+            Current number of neighbours
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MinDistance">
+            <summary>
+            The smallest neighbour weight
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MaxDistance">
+            <summary>
+            The largest neighbour weight
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MinNeighbourIndex">
+            <summary>
+            The index of the neighbour with the smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MaxNeighbourIndex">
+            <summary>
+            The index of the neighbour with the largest weight
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.TryAddNeighbour2(System.UInt32,`0)">
+            <summary>
+            Tries to add a new neighbour - will succeed if there aren't already max neighbours with a smaller weight
+            </summary>
+            <param name="neighbourIndex"></param>
+            <param name="neighbourWeight"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.NeighbourIndices">
+            <summary>
+            Sorted list of neighbour indices
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.NeighbourWeights">
+            <summary>
+            Sorted list of neighbour weights
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.Item(System.Byte)">
+            <summary>
+            Returns a neighbour weight
+            </summary>
+            <param name="index"></param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.WeightedNeighbours">
+            <summary>
+            Enumerates the weighted neighbours
+            </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1">
+            <summary>
+            Creates a graph of vectors with a fixed size set of neighbours
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbours(System.UInt32)">
+            <summary>
+            Gets the neighbours for a node, sorted by distance
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbourWeights(System.UInt32)">
+            <summary>
+            Gets the weights for the node's neighbours
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.Build(BrightData.IStoreVectors{`0},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
+            <summary>
+            Creates 
+            </summary>
+            <param name="vectors"></param>
+            <param name="distanceMetric"></param>
+            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
+            <param name="onNode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.WriteToDisk(System.String)">
+            <summary>
+            Writes the graph to disk
+            </summary>
+            <param name="filePath"></param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.LoadFromDisk(System.String)">
+            <summary>
+            Loads a vector graph from disk
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.IndexStrategy.FlatVectorIndex`1.GetDistance(System.ReadOnlyMemory{`0}[],BrightData.DistanceMetric)">
+            <summary>
+            Find distance between each vector in the set and each input vector
+            </summary>
+            <param name="vector"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1">
             <summary>

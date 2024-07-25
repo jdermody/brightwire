@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -1618,6 +1619,40 @@ namespace BrightData
                 CacheTranspose(from, rows, columns, rb, re, cb + (c / 2), ce, to);
             }
         }
+
+        /// <summary>
+        /// Returns the index of each element of span, ordered from lowest to highest
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public static uint[] GetRankedIndices<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T>
+        {
+            var len = span.Length;
+            using var temp = SpanOwner<T>.Allocate(len);
+            var copy = temp.Span;
+            span.CopyTo(copy);
+
+            using var indices = SpanOwner<uint>.Allocate(len);
+            var indicesSpan = indices.Span;
+            for (var i = 0; i < len; i++)
+                indicesSpan[i] = (uint)i;
+            
+            copy.Sort(indicesSpan);
+
+            var ret = len.AsRange().ToArray();
+            for(var i = 0; i < len; i++)
+                ret[indicesSpan[i]] = (uint)i;
+            return ret;
+        }
+
+        /// <summary>
+        /// Returns the index of each element of span, ordered from lowest to highest
+        /// </summary>
+        /// <param name="span"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static uint[] GetRankedIndices<T>(this Span<T> span) where T : unmanaged, INumber<T> => GetRankedIndices((ReadOnlySpan<T>)span);
 
         /// <summary>
         /// Creates a read only vector from the span

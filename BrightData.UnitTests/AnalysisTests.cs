@@ -39,25 +39,25 @@ namespace BrightData.UnitTests
         [Fact]
         public void IntegerAnalysis()
         {
-            var analysis = new[] { 1, 2, 3 }.Analyze();
+            var analysis = new[] { 1, 2, 3 }.AnalyzeAsDoubles();
             analysis.Min.Should().Be(1);
             analysis.Max.Should().Be(3);
             analysis.Median.Should().Be(2);
             analysis.NumDistinct.Should().Be(3);
-            analysis.Total.Should().Be(3);
+            analysis.Count.Should().Be(3);
             analysis.SampleStdDev.Should().Be(1);
         }
 
         [Fact]
         public void IntegerAnalysis2()
         {
-            var analysis = new[] { 1, 2, 2, 3 }.Analyze();
+            var analysis = new[] { 1, 2, 2, 3 }.AnalyzeAsDoubles();
             analysis.Min.Should().Be(1);
             analysis.Max.Should().Be(3);
             analysis.Median.Should().Be(2);
             analysis.NumDistinct.Should().Be(3);
             analysis.Mode.Should().Be(2);
-            analysis.Total.Should().Be(4);
+            analysis.Count.Should().Be(4);
         }
 
         [Fact]

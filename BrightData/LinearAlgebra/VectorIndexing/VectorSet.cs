@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.Intrinsics;
+using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.VectorIndexing.IndexStrategy;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
@@ -28,10 +29,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// <exception cref="NotSupportedException"></exception>
         public VectorSet(uint vectorSize, VectorIndexStrategy indexType = VectorIndexStrategy.Flat, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
-            IStoreVectors<T> storage = storageType switch {
-                VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
-                _ => throw new NotSupportedException()
-            };
+            var storage = GetStorage(storageType, vectorSize, capacity);
             if (indexType == VectorIndexStrategy.Flat)
                 _index = new FlatVectorIndex<T>(storage);
             else
@@ -40,15 +38,17 @@ namespace BrightData.LinearAlgebra.VectorIndexing
 
         public VectorSet(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, VectorIndexStrategy indexType = VectorIndexStrategy.RandomProjection, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
         {
-            IStoreVectors<T> storage = storageType switch {
-                VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
-                _ => throw new NotSupportedException()
-            };
+            var storage = GetStorage(storageType, vectorSize, capacity);
             if (indexType == VectorIndexStrategy.RandomProjection)
                 _index = new RandomProjectionIndex<T>(lap, storage, projectionSize, capacity, s);
             else
                 throw new NotSupportedException();
         }
+
+        public static IStoreVectors<T> GetStorage(VectorStorageType storageType, uint vectorSize, uint? capacity) => storageType switch {
+            VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
+            _ => throw new NotSupportedException()
+        };
 
         /// <inheritdoc />
         public void Dispose()

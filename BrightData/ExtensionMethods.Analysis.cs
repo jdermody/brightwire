@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
 using BrightData.Types;
@@ -81,13 +82,28 @@ namespace BrightData
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static NumericAnalysis Analyze<T>(this IEnumerable<T> data)
-            where T : struct
+        public static INumericAnalysis<T> Analyze<T>(this IEnumerable<T> data)
+            where T : unmanaged, INumber<T>, IMinMaxValue<T>, IBinaryFloatingPointIeee754<T>, IConvertible
+        {
+            var analysis = new NumericAnalyser<T>();
+            foreach (var item in data)
+                analysis.Add(item);
+            return analysis;
+        }
+
+        /// <summary>
+        /// Analyzes numbers in a sequence
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static INumericAnalysis<T> AnalyzeAsDoubles<T>(this IEnumerable<T> data)
+            where T : unmanaged, INumber<T>
         {
             var analysis = new CastToDoubleNumericAnalysis<T>();
             foreach (var item in data)
                 analysis.Add(item);
-            return analysis.GetMetaData().GetNumericAnalysis();
+            return analysis;
         }
 
         /// <summary>

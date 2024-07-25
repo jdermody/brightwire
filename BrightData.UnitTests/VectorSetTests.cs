@@ -1,14 +1,24 @@
-﻿using BrightData.UnitTests.Helper;
+﻿using System;
+using BrightData.UnitTests.Helper;
 using System.Linq;
 using BrightData.LinearAlgebra.VectorIndexing;
+using BrightData.LinearAlgebra.VectorIndexing.Helper;
 using BrightData.Types;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace BrightData.UnitTests
 {
     public class VectorSetTests : UnitTestBase
     {
+        readonly ITestOutputHelper _testOutputHelper;
+
+        public VectorSetTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void Average()
         {
@@ -52,6 +62,31 @@ namespace BrightData.UnitTests
             ], DistanceMetric.Euclidean);
             score[0].Should().Be(2);
             score[1].Should().Be(1);
+        }
+
+        [Fact]
+        public void TestVectorGraphNode()
+        {
+            var node = new IndexedFixedSizeGraphNode<float>(1);
+            node.Index.Should().Be(1);
+            node.NeighbourIndices.Length.Should().Be(0);
+
+            node.TryAddNeighbour(2, 0.9f);
+            node.NeighbourIndices[0].Should().Be(2);
+            node.NeighbourWeights[0].Should().Be(0.9f);
+
+            node.TryAddNeighbour(3, 0.8f);
+            node.NeighbourIndices[0].Should().Be(3);
+            node.NeighbourWeights[0].Should().Be(0.8f);
+
+            for(var i = 4U; i <= 10; i++)
+                node.TryAddNeighbour(i, 1f - 0.1f * i);
+            node.NeighbourIndices.Length.Should().Be(8);
+            node.NeighbourIndices[0].Should().Be(10);
+            node.NeighbourIndices[1].Should().Be(9);
+
+            node.TryAddNeighbour(20, 0.5f).Should().BeTrue();
+            node.TryAddNeighbour(20, 0.5f).Should().BeFalse();
         }
     }
 }

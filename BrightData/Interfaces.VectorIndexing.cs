@@ -18,9 +18,14 @@ namespace BrightData
         Flat,
 
         /// <summary>
-        /// Vectors are projected into a random lower dimensional space
+        /// Vectors are randomly projected into a random lower dimensional space
         /// </summary>
-        RandomProjection
+        RandomProjection,
+
+        /// <summary>
+        /// A nearest neighbour graph is created to improve index performance
+        /// </summary>
+        NearestNeighbours 
     }
 
     /// <summary>
@@ -82,6 +87,19 @@ namespace BrightData
         /// </summary>
         /// <param name="callback"></param>
         void ForEach(IndexedSpanCallback<T> callback);
+
+        /// <summary>
+        /// Passes each vector to the callback, possible in parallel
+        /// </summary>
+        /// <param name="indices"></param>
+        /// <param name="callback"></param>
+        void ForEach(IEnumerable<uint> indices, IndexedSpanCallback<T> callback);
+
+        /// <summary>
+        /// Returns all vectors
+        /// </summary>
+        /// <returns></returns>
+        ReadOnlyMemory<T>[] GetAll();
     }
 
     /// <summary>

@@ -239,6 +239,13 @@ namespace BrightData
         /// <summary>
         /// Generates a range of positive integers
         /// </summary>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public static IEnumerable<uint> AsRange(this Range range) => Enumerable.Range(range.Start.Value, (range.End.Value - range.Start.Value)).Select(i => (uint)i);
+
+        /// <summary>
+        /// Generates a range of positive integers
+        /// </summary>
         /// <param name="count"></param>
         /// <param name="start"></param>
         /// <returns></returns>
