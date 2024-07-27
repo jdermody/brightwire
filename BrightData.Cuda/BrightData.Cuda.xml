@@ -55,6 +55,9 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(System.Single[])">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(BrightData.IReadOnlyNumericSegment{System.Single})">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateSegment(System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
@@ -247,7 +250,7 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.CreateMatrix(System.UInt32,System.UInt32,System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(BrightData.IVector{System.Single}[],System.Collections.Generic.IReadOnlyList{BrightData.IVector{System.Single}},BrightData.DistanceMetric)">
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{System.Single}},System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{System.Single}},BrightData.DistanceMetric)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.BindThread">

@@ -864,7 +864,7 @@ extern "C"
         }
 	}
 
-    __global__ void CalculateDistances(
+    __global__ void CalculateMultiDistances(
         const float** __restrict a,
         const float** __restrict b,
         float* __restrict c,
@@ -883,8 +883,6 @@ extern "C"
                     if(distanceMetric == 0) { // euclidean
                         float diff = aVal - bVal;
                         output = diff * diff;
-                    }else if(distanceMetric == 1) { // cosine
-                        output = aVal * bVal;
                     }else if(distanceMetric == 2) { // manhattan
                         output = abs(aVal - bVal);
                     }
@@ -895,7 +893,32 @@ extern "C"
         }
 	}
 
-	__global__ void MultiCosineDistance(
+    __global__ void CalculateDistances(
+        const float* __restrict a,
+        const float** __restrict b,
+        float* __restrict c,
+        uint numVectors,
+        uint size,
+        uint distanceMetric
+    ) {
+        for (uint i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
+            for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < numVectors; j += blockDim.y * gridDim.y) {
+                float aVal = a[i];
+                float bVal = b[j][i];
+                float output = 0;
+
+                if(distanceMetric == 0) { // euclidean
+                    float diff = aVal - bVal;
+                    output = diff * diff;
+                }else if(distanceMetric == 2) { // manhattan
+                    output = abs(aVal - bVal);
+                }
+                atomicAdd(c + j, output);
+            }
+        }
+	}
+
+	__global__ void CosineMultiDistance(
 		const float** __restrict a, 
 		const float** __restrict b, 
 		float* __restrict aa, 
@@ -915,6 +938,26 @@ extern "C"
 					atomicAdd(ab + offset, aVal * bVal);
 					atomicAdd(bb + offset, bVal * bVal);
 				}
+            }
+        }
+	}
+
+    __global__ void CosineDistances(
+		const float* __restrict a, 
+		const float** __restrict b, 
+		float* __restrict aa, 
+		float* __restrict ab, 
+		float* __restrict bb, 
+		uint numVectors,
+        uint size
+	) {
+        for (uint i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
+            for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < numVectors; j += blockDim.y * gridDim.y) {
+				float aVal = a[i];
+				float bVal = b[j][i];
+				atomicAdd(aa + j, aVal * aVal);
+				atomicAdd(ab + j, aVal * bVal);
+				atomicAdd(bb + j, bVal * bVal);
             }
         }
 	}

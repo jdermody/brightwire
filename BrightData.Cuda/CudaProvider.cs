@@ -135,7 +135,9 @@ namespace BrightData.Cuda
 			_tensorReverseMaxPool,
 			_tensorReverseIm2Col,
 			_isFinite,
-			_calculateDistance,
+            _calculateMultiDistances,
+            _calculateDistances,
+			_cosineDistances,
 			_roundInPlace,
 			_scale
 		;
@@ -197,66 +199,68 @@ namespace BrightData.Cuda
             });
             _cuda.SetCurrent();
 
-            _pointwiseMultiply      = _kernel.LoadFunction("PointwiseMultiply");
-			_addInPlace             = _kernel.LoadFunction("AddInPlace");
-			_subtractInPlace        = _kernel.LoadFunction("SubtractInPlace");
-			_addToEachRow           = _kernel.LoadFunction("AddToEachRow");
-			_addToEachColumn        = _kernel.LoadFunction("AddToEachColumn");
-            _multiplyByEachRow      = _kernel.LoadFunction("MultiplyByEachRow");
-            _multiplyByEachColumn   = _kernel.LoadFunction("MultiplyByEachColumn");
-			_tanh                   = _kernel.LoadFunction("TanH");
-			_tanhDerivative         = _kernel.LoadFunction("TanHDerivative");
-			_sigmoid                = _kernel.LoadFunction("Sigmoid");
-			_sigmoidDerivative      = _kernel.LoadFunction("SigmoidDerivative");
-			_sumRows                = _kernel.LoadFunction("SumRows");
-			_relu                   = _kernel.LoadFunction("RELU");
-			_reluDerivative         = _kernel.LoadFunction("RELUDerivative");
-			_memSet                 = _kernel.LoadFunction("MemSet");
-            _memCpy                 = _kernel.LoadFunction("MemCpy");
-			_sumColumns             = _kernel.LoadFunction("SumColumns");
-			_pointwiseDivide        = _kernel.LoadFunction("PointwiseDivide");
-			_sqrt                   = _kernel.LoadFunction("Sqrt");
-			_findMinAndMax          = _kernel.LoadFunction("FindMinAndMax");
-            _sumValues              = _kernel.LoadFunction("SumValues");
-            _findStdDev             = _kernel.LoadFunction("FindStdDev");
-			_constrain              = _kernel.LoadFunction("Constrain");
-			_pow                    = _kernel.LoadFunction("Pow");
-			_diagonal               = _kernel.LoadFunction("Diagonal");
-			_l1Regularisation       = _kernel.LoadFunction("L1Regularisation");
-			_leakyRelu              = _kernel.LoadFunction("LeakyRELU");
-			_leakyReluDerivative    = _kernel.LoadFunction("LeakyRELUDerivative");
-			_pointwiseDivideRows    = _kernel.LoadFunction("PointwiseDivideRows");
-			_pointwiseDivideColumns = _kernel.LoadFunction("PointwiseDivideColumns");
-			_splitRows              = _kernel.LoadFunction("SplitRows");
-			_splitColumns           = _kernel.LoadFunction("SplitColumns");
-			_concatRows             = _kernel.LoadFunction("ConcatRows");
-			_concatColumns          = _kernel.LoadFunction("ConcatColumns");
-			_euclideanDistance      = _kernel.LoadFunction("EuclideanDistance");
-			_manhattanDistance      = _kernel.LoadFunction("ManhattanDistance");
-			_cosineDistance         = _kernel.LoadFunction("CosineDistance");
-			_abs                    = _kernel.LoadFunction("Abs");
-			_normalise              = _kernel.LoadFunction("Normalise");
-			_softmaxVector          = _kernel.LoadFunction("SoftmaxVector");
-            _multiCosine            = _kernel.LoadFunction("MultiCosineDistance");
-			_log                    = _kernel.LoadFunction("Log");
-            _exp                    = _kernel.LoadFunction("Exp");
-			_vectorAddInPlace       = _kernel.LoadFunction("VectorAddInPlace");
-			_vectorCopyRandom       = _kernel.LoadFunction("VectorCopyRandom");
-			_copyToMatrixColumns    = _kernel.LoadFunction("CopyToMatrixColumns");
-			_copyToMatrixRows       = _kernel.LoadFunction("CopyToMatrixRows");
-			_tensorAddPadding       = _kernel.LoadFunction("TensorAddPadding");
-			_tensorRemovePadding    = _kernel.LoadFunction("TensorRemovePadding");
-			_tensorIm2Col           = _kernel.LoadFunction("TensorIm2Col");
-			_softmaxDerivative      = _kernel.LoadFunction("SoftmaxDerivative");
-			_reverse                = _kernel.LoadFunction("Reverse");
-			_rotateInPlace          = _kernel.LoadFunction("RotateInPlace");
-			_tensorMaxPool          = _kernel.LoadFunction("TensorMaxPool");
-			_tensorReverseMaxPool   = _kernel.LoadFunction("TensorReverseMaxPool");
-			_tensorReverseIm2Col    = _kernel.LoadFunction("TensorReverseIm2Col");
-			_isFinite               = _kernel.LoadFunction("IsFinite");
-			_calculateDistance      = _kernel.LoadFunction("CalculateDistances");
-            _roundInPlace           = _kernel.LoadFunction("RoundInPlace");
-            _scale                  = _kernel.LoadFunction("Scale");
+            _pointwiseMultiply       = _kernel.LoadFunction("PointwiseMultiply");
+			_addInPlace              = _kernel.LoadFunction("AddInPlace");
+			_subtractInPlace         = _kernel.LoadFunction("SubtractInPlace");
+			_addToEachRow            = _kernel.LoadFunction("AddToEachRow");
+			_addToEachColumn         = _kernel.LoadFunction("AddToEachColumn");
+            _multiplyByEachRow       = _kernel.LoadFunction("MultiplyByEachRow");
+            _multiplyByEachColumn    = _kernel.LoadFunction("MultiplyByEachColumn");
+			_tanh                    = _kernel.LoadFunction("TanH");
+			_tanhDerivative          = _kernel.LoadFunction("TanHDerivative");
+			_sigmoid                 = _kernel.LoadFunction("Sigmoid");
+			_sigmoidDerivative       = _kernel.LoadFunction("SigmoidDerivative");
+			_sumRows                 = _kernel.LoadFunction("SumRows");
+			_relu                    = _kernel.LoadFunction("RELU");
+			_reluDerivative          = _kernel.LoadFunction("RELUDerivative");
+			_memSet                  = _kernel.LoadFunction("MemSet");
+            _memCpy                  = _kernel.LoadFunction("MemCpy");
+			_sumColumns              = _kernel.LoadFunction("SumColumns");
+			_pointwiseDivide         = _kernel.LoadFunction("PointwiseDivide");
+			_sqrt                    = _kernel.LoadFunction("Sqrt");
+			_findMinAndMax           = _kernel.LoadFunction("FindMinAndMax");
+            _sumValues               = _kernel.LoadFunction("SumValues");
+            _findStdDev              = _kernel.LoadFunction("FindStdDev");
+			_constrain               = _kernel.LoadFunction("Constrain");
+			_pow                     = _kernel.LoadFunction("Pow");
+			_diagonal                = _kernel.LoadFunction("Diagonal");
+			_l1Regularisation        = _kernel.LoadFunction("L1Regularisation");
+			_leakyRelu               = _kernel.LoadFunction("LeakyRELU");
+			_leakyReluDerivative     = _kernel.LoadFunction("LeakyRELUDerivative");
+			_pointwiseDivideRows     = _kernel.LoadFunction("PointwiseDivideRows");
+			_pointwiseDivideColumns  = _kernel.LoadFunction("PointwiseDivideColumns");
+			_splitRows               = _kernel.LoadFunction("SplitRows");
+			_splitColumns            = _kernel.LoadFunction("SplitColumns");
+			_concatRows              = _kernel.LoadFunction("ConcatRows");
+			_concatColumns           = _kernel.LoadFunction("ConcatColumns");
+			_euclideanDistance       = _kernel.LoadFunction("EuclideanDistance");
+			_manhattanDistance       = _kernel.LoadFunction("ManhattanDistance");
+			_cosineDistance          = _kernel.LoadFunction("CosineDistance");
+            _cosineDistances         = _kernel.LoadFunction("CosineDistances");
+			_abs                     = _kernel.LoadFunction("Abs");
+			_normalise               = _kernel.LoadFunction("Normalise");
+			_softmaxVector           = _kernel.LoadFunction("SoftmaxVector");
+            _multiCosine             = _kernel.LoadFunction("CosineMultiDistance");
+			_log                     = _kernel.LoadFunction("Log");
+            _exp                     = _kernel.LoadFunction("Exp");
+			_vectorAddInPlace        = _kernel.LoadFunction("VectorAddInPlace");
+			_vectorCopyRandom        = _kernel.LoadFunction("VectorCopyRandom");
+			_copyToMatrixColumns     = _kernel.LoadFunction("CopyToMatrixColumns");
+			_copyToMatrixRows        = _kernel.LoadFunction("CopyToMatrixRows");
+			_tensorAddPadding        = _kernel.LoadFunction("TensorAddPadding");
+			_tensorRemovePadding     = _kernel.LoadFunction("TensorRemovePadding");
+			_tensorIm2Col            = _kernel.LoadFunction("TensorIm2Col");
+			_softmaxDerivative       = _kernel.LoadFunction("SoftmaxDerivative");
+			_reverse                 = _kernel.LoadFunction("Reverse");
+			_rotateInPlace           = _kernel.LoadFunction("RotateInPlace");
+			_tensorMaxPool           = _kernel.LoadFunction("TensorMaxPool");
+			_tensorReverseMaxPool    = _kernel.LoadFunction("TensorReverseMaxPool");
+			_tensorReverseIm2Col     = _kernel.LoadFunction("TensorReverseIm2Col");
+			_isFinite                = _kernel.LoadFunction("IsFinite");
+			_calculateMultiDistances = _kernel.LoadFunction("CalculateMultiDistances");
+            _calculateDistances      = _kernel.LoadFunction("CalculateDistances");
+            _roundInPlace            = _kernel.LoadFunction("RoundInPlace");
+            _scale                   = _kernel.LoadFunction("Scale");
         }
 
 		/// <summary>
@@ -1058,14 +1062,39 @@ namespace BrightData.Cuda
             );
         }
 
-        internal void CalculateDistances(uint size, uint columns, uint rows, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr ret, DistanceMetric distanceMetric)
+        internal void CosineDistances(uint size, uint numVectors, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr aa, CuDevicePtr ret, CuDevicePtr bb)
         {
-            InvokeTensor(_calculateDistance, null, size, columns, rows,
+            InvokeMatrix(_cosineDistances, null, size, numVectors,
+                vectorPtr,
+                compareToPtr,
+                aa,
+                ret,
+                bb,
+                numVectors,
+                size
+            );
+        }
+
+        internal void CalculateMultiDistances(uint size, uint columns, uint rows, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr ret, DistanceMetric distanceMetric)
+        {
+            InvokeTensor(_calculateMultiDistances, null, size, columns, rows,
                 vectorPtr,
                 compareToPtr,
                 ret,
                 rows,
                 columns,
+                size,
+                (uint)distanceMetric
+            );
+        }
+
+        internal void CalculateDistances(uint size, uint numVectors, CuDevicePtr vectorPtr, CuDevicePtr compareToPtr, CuDevicePtr ret, DistanceMetric distanceMetric)
+        {
+            InvokeMatrix(_calculateDistances, null, size, numVectors,
+                vectorPtr,
+                compareToPtr,
+                ret,
+                numVectors,
                 size,
                 (uint)distanceMetric
             );

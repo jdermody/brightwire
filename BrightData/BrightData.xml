@@ -9637,6 +9637,13 @@
             <param name="data"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateSegment(BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Creates a tensor segment from an existing segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateSegment(System.UInt32,System.Boolean)">
             <summary>
             Creates a tensor segment
@@ -10515,7 +10522,7 @@
             <param name="segment"></param>
             <param name="coefficient"></param>
         </member>
-        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.FindDistances(BrightData.IVector{`0}[],System.Collections.Generic.IReadOnlyList{BrightData.IVector{`0}},BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.FindDistances(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{`0}},System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{`0}},BrightData.DistanceMetric)">
             <summary>
             Finds the distance between each pair of vectors
             </summary>
@@ -10523,6 +10530,24 @@
             <param name="compareTo">Second set of vectors</param>
             <param name="distanceMetric">Distance metric</param>
             <returns>Matrix with the rows corresponding to the first set and columns corresponding to the second set and each element containing the distance</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.FindDistances(System.Collections.Generic.IReadOnlyList{BrightData.IVector{`0}},System.Collections.Generic.IReadOnlyList{BrightData.IVector{`0}},BrightData.DistanceMetric)">
+            <summary>
+            Finds the distance between each pair of vectors
+            </summary>
+            <param name="vectors"></param>
+            <param name="compareTo"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.FindDistances(BrightData.IReadOnlyNumericSegment{`0},System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{`0}},BrightData.DistanceMetric)">
+            <summary>
+            Finds the distance between a vector and list of vectors
+            </summary>
+            <param name="vector"></param>
+            <param name="compareTo"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.BindThread">
             <summary>
@@ -12059,12 +12084,12 @@
             Current number of neighbours
             </summary>
         </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MinDistance">
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MinWeight">
             <summary>
             The smallest neighbour weight
             </summary>
         </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MaxDistance">
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.MaxWeight">
             <summary>
             The largest neighbour weight
             </summary>
@@ -12079,7 +12104,7 @@
             The index of the neighbour with the largest weight
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.TryAddNeighbour2(System.UInt32,`0)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`1.TryAddNeighbour(System.UInt32,`0)">
             <summary>
             Tries to add a new neighbour - will succeed if there aren't already max neighbours with a smaller weight
             </summary>
@@ -12114,6 +12139,17 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.#ctor(BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode{`0}[])">
+            <summary>
+            Creates a vector graph from an array of nodes
+            </summary>
+            <param name="nodes"></param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.Size">
+            <summary>
+            Number of nodes in the graph
+            </summary>
+        </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbours(System.UInt32)">
             <summary>
             Gets the neighbours for a node, sorted by distance
@@ -12124,6 +12160,13 @@
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbourWeights(System.UInt32)">
             <summary>
             Gets the weights for the node's neighbours
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetWeightedNeighbours(System.UInt32)">
+            <summary>
+            Enumerates the neighbour indices and their weights in ascending order
             </summary>
             <param name="vectorIndex"></param>
             <returns></returns>

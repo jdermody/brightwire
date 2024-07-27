@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -11,15 +12,24 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
     /// Creates a graph of vectors with a fixed size set of neighbours
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class VectorGraph<T>
+    public class VectorGraph<T> : IHaveSize
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         readonly IndexedFixedSizeGraphNode<T>[] _nodes;
 
-        VectorGraph(IndexedFixedSizeGraphNode<T>[] nodes)
+        /// <summary>
+        /// Creates a vector graph from an array of nodes
+        /// </summary>
+        /// <param name="nodes"></param>
+        public VectorGraph(IndexedFixedSizeGraphNode<T>[] nodes)
         {
             _nodes = nodes;
         }
+
+        /// <summary>
+        /// Number of nodes in the graph
+        /// </summary>
+        public uint Size => (uint)_nodes.Length;
 
         /// <summary>
         /// Gets the neighbours for a node, sorted by distance
@@ -34,6 +44,13 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
         /// <param name="vectorIndex"></param>
         /// <returns></returns>
         public ReadOnlySpan<T> GetNeighbourWeights(uint vectorIndex) => _nodes[vectorIndex].NeighbourWeights;
+
+        /// <summary>
+        /// Enumerates the neighbour indices and their weights in ascending order
+        /// </summary>
+        /// <param name="vectorIndex"></param>
+        /// <returns></returns>
+        public IEnumerable<(uint NeighbourIndex, T NeighbourWeight)> GetWeightedNeighbours(uint vectorIndex) => _nodes[vectorIndex].WeightedNeighbours;
 
         /// <summary>
         /// Creates 

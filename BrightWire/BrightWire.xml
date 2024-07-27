@@ -2981,59 +2981,6 @@
             Calculate vector based statistics
             </summary>
         </member>
-        <member name="T:BrightWire.Helper.VectorDistanceHelper">
-            <summary>
-            Calculates the distance between a list of vectors and a list of vectors to compare against
-            </summary>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.#ctor(BrightData.IVector{System.Single}[],BrightData.DistanceMetric)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="data">List of vectors to compare</param>
-            <param name="distanceMetric">Distance metric for comparison</param>
-        </member>
-        <member name="P:BrightWire.Helper.VectorDistanceHelper.CompareTo">
-            <summary>
-            The list of vectors to compare against
-            </summary>
-        </member>
-        <member name="P:BrightWire.Helper.VectorDistanceHelper.Metric">
-            <summary>
-            Distance metric
-            </summary>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.AddComparison(BrightData.IVector{System.Single})">
-            <summary>
-            Adds a comparison vector (will be owned and disposed by the helper class)
-            </summary>
-            <param name="comparison">Vector to compare against</param>
-            <returns>Index of the comparison vector</returns>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.UpdateComparisonVector(System.Int32,BrightData.IVector{System.Single})">
-            <summary>
-            Updates the comparison vector at this index (disposes the old vector)
-            </summary>
-            <param name="index">Index to update</param>
-            <param name="newVector">Vector to replace with</param>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.SetComparisonVectors(System.Collections.Generic.IEnumerable{BrightData.IVector{System.Single}})">
-            <summary>
-            Updates the entire list of comparison vectors
-            </summary>
-            <param name="comparisonVectors">List of vectors to compare against</param>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.GetClosest">
-            <summary>
-            Returns the index of the closest comparison vector for each vector
-            </summary>
-        </member>
-        <member name="M:BrightWire.Helper.VectorDistanceHelper.GetAverageFromData(System.UInt32[])">
-            <summary>
-            Returns a vector averaged from the data vectors
-            </summary>
-            <param name="indices">Indices of the data vectors to use in the averaged vector</param>
-        </member>
         <member name="T:BrightWire.InstanceBased.KnnClassifier">
             <summary>
             K Nearest Neighbour classifier

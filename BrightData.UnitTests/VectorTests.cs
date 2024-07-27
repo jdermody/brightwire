@@ -77,20 +77,17 @@ namespace BrightData.UnitTests
         void TestDistances(DistanceMetric distanceMetric)
         {
             var distribution = _context.CreateNormalDistribution(0, 5);
-            var vectors = Enumerable.Range(0, 10).Select(_ => _cpu.CreateVector(100, _ => distribution.Sample())).ToArray();
-            var compareTo = Enumerable.Range(0, 20).Select(_ => _cpu.CreateVector(100, _ => distribution.Sample())).ToArray();
+            var vectors = Enumerable.Range(0, 10).Select(_ => (IReadOnlyNumericSegment<float>)_cpu.CreateSegment(100, _ => distribution.Sample())).ToArray();
+            var compareTo = Enumerable.Range(0, 20).Select(_ => (IReadOnlyNumericSegment<float>)_cpu.CreateSegment(100, _ => distribution.Sample())).ToArray();
 
-            var gpuVectors = vectors.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
-            var gpuCompareTo = compareTo.Select(v => _cuda.CreateVector(v.Segment)).ToArray();
-
-            var mklVectors = vectors.Select(v => _mkl.CreateVector(v.Segment)).ToArray();
-            var mklCompareTo = compareTo.Select(v => _mkl.CreateVector(v.Segment)).ToArray();
+            var gpuVectors = vectors.Select(_cuda.CreateSegment).ToArray();
+            var gpuCompareTo = compareTo.Select(_cuda.CreateSegment).ToArray();
 
             try {
                 AssertSameAndThenDispose(
                     _cpu.FindDistances(vectors, compareTo, distanceMetric), 
                     _cuda.FindDistances(gpuVectors, gpuCompareTo, distanceMetric), 
-                    _mkl.FindDistances(mklVectors, mklCompareTo, distanceMetric)
+                    _mkl.FindDistances(vectors, compareTo, distanceMetric)
                 );
             }
             finally {
@@ -98,8 +95,6 @@ namespace BrightData.UnitTests
                 compareTo.DisposeAll();
                 gpuVectors.DisposeAll();
                 gpuCompareTo.DisposeAll();
-                mklVectors.DisposeAll();
-                mklCompareTo.DisposeAll();
             }
         }
 

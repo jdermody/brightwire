@@ -1,5 +1,6 @@
 ﻿using BrightData.Helper;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -615,6 +616,32 @@ namespace BrightData
                 ? contiguous.ContiguousMemory 
                 : segment.ToNewArray()
             ;
+        }
+
+        class MaxComparer<T> : IComparer<T>
+            where T : unmanaged, INumber<T>, IComparable<T>
+        {
+            public int Compare(T x, T y) => y.CompareTo(x);
+        }
+        class MinComparer<T> : IComparer<T>
+            where T : unmanaged, INumber<T>, IComparable<T>
+        {
+            public int Compare(T x, T y) => x.CompareTo(y);
+        }
+
+        public static PriorityQueue<uint, T> RankedIndices<T>(this IReadOnlyNumericSegment<T> segment, uint count, bool ascending = true)
+            where T : unmanaged, INumber<T>
+        {
+            var ret = new PriorityQueue<uint, T>(ascending ? new MaxComparer<T>() : new MinComparer<T>());
+            segment.ApplyReadOnlySpan(x => {
+                for (int i = 0, len = x.Length; i < len; i++) {
+                    if (ret.Count < count)
+                        ret.Enqueue((uint)i, x[i]);
+                    else
+                        ret.EnqueueDequeue((uint)i, x[i]);
+                }
+            });
+            return ret;
         }
     }
 }

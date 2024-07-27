@@ -9,6 +9,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
+using static BrightData.DataTable.ColumnOrientedDataTable;
 
 namespace BrightData.LinearAlgebra
 {
@@ -116,6 +117,13 @@ namespace BrightData.LinearAlgebra
         /// <param name="data"></param>
         /// <returns></returns>
         public virtual INumericSegment<T> CreateSegment(params T[] data) => new MutableTensorSegment<T>(data);
+
+        /// <summary>
+        /// Creates a tensor segment from an existing segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public virtual INumericSegment<T> CreateSegment(IReadOnlyNumericSegment<T> segment) => new MutableTensorSegment<T>(segment.ToNewArray());
 
         /// <summary>
         /// Creates a tensor segment
@@ -1219,10 +1227,10 @@ namespace BrightData.LinearAlgebra
         /// <param name="compareTo">Second set of vectors</param>
         /// <param name="distanceMetric">Distance metric</param>
         /// <returns>Matrix with the rows corresponding to the first set and columns corresponding to the second set and each element containing the distance</returns>
-        public virtual IMatrix<T> FindDistances(IVector<T>[] vectors, IReadOnlyList<IVector<T>> compareTo, DistanceMetric distanceMetric)
+        public virtual IMatrix<T> FindDistances(IReadOnlyList<IReadOnlyNumericSegment<T>> vectors, IReadOnlyList<IReadOnlyNumericSegment<T>> compareTo, DistanceMetric distanceMetric)
         {
             var rows = (uint)compareTo.Count;
-            var columns = (uint)vectors.Length;
+            var columns = (uint)vectors.Count;
             var ret = CreateMatrix(rows, columns, false);
             var totalSize = rows * columns;
 
@@ -1230,17 +1238,56 @@ namespace BrightData.LinearAlgebra
                 Parallel.For(0, rows * columns, ind => {
                     var i = (uint)(ind % rows);
                     var j = (uint)(ind / rows);
-                    ret[i, j] = compareTo[(int)i].FindDistance(vectors[j], distanceMetric);
+                    ret[i, j] = compareTo[(int)i].FindDistance(vectors[(int)j], distanceMetric);
                 });
             }
             else {
                 for (uint i = 0; i < rows; i++) {
                     for (uint j = 0; j < columns; j++) {
-                        ret[i, j] = compareTo[(int)i].FindDistance(vectors[j], distanceMetric);
+                        ret[i, j] = compareTo[(int)i].FindDistance(vectors[(int)j], distanceMetric);
                     }
                 }
             }
 
+            return ret;
+        }
+
+        /// <summary>
+        /// Finds the distance between each pair of vectors
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="compareTo"></param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
+        public virtual IMatrix<T> FindDistances(IReadOnlyList<IVector<T>> vectors, IReadOnlyList<IVector<T>> compareTo, DistanceMetric distanceMetric)
+        {
+            return FindDistances(
+                vectors.Select(x => x.Segment).ToArray(), 
+                compareTo.Select(x => x.Segment).ToArray(), 
+                distanceMetric
+            );
+        }
+
+        /// <summary>
+        /// Finds the distance between a vector and list of vectors
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="compareTo"></param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
+        public virtual IVector<T> FindDistances(IReadOnlyNumericSegment<T> vector, IReadOnlyList<IReadOnlyNumericSegment<T>> compareTo, DistanceMetric distanceMetric)
+        {
+            var size = (uint)compareTo.Count;
+            var ret = CreateVector(size, false);
+            if (size >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, ret.Size, i => {
+                    ret[i] = vector.FindDistance(compareTo[(int)i], distanceMetric);
+                });
+            }
+            else {
+                for (uint i = 0; i < size; i++)
+                    ret[i] = vector.FindDistance(compareTo[(int)i], distanceMetric);
+            }
             return ret;
         }
 

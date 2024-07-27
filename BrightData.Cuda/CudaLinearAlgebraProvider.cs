@@ -9,6 +9,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightData.Cuda
 {
@@ -72,6 +73,23 @@ namespace BrightData.Cuda
         {
             var deviceMemory = Provider.Allocate((uint)data.Length);
             deviceMemory.CopyToDevice(data);
+            return new CudaTensorSegment(deviceMemory, Provider);
+        }
+
+        /// <inheritdoc />
+        public override INumericSegment<float> CreateSegment(IReadOnlyNumericSegment<float> segment)
+        {
+            var deviceMemory = Provider.Allocate(segment.Size);
+            var temp = SpanOwner<float>.Empty;
+            var wasTempUsed = false;
+            try {
+                var span = segment.GetSpan(ref temp, out wasTempUsed);
+                deviceMemory.CopyToDevice(span, 0);
+            }
+            finally {
+                if (wasTempUsed)
+                    temp.Dispose();
+            }
             return new CudaTensorSegment(deviceMemory, Provider);
         }
 
@@ -713,14 +731,14 @@ namespace BrightData.Cuda
         }
 
         /// <inheritdoc />
-        public override IMatrix<float> FindDistances(IVector<float>[] vectors, IReadOnlyList<IVector<float>> compareTo, DistanceMetric distanceMetric)
+        public override IMatrix<float> FindDistances(IReadOnlyList<IReadOnlyNumericSegment<float>> vectors, IReadOnlyList<IReadOnlyNumericSegment<float>> compareTo, DistanceMetric distanceMetric)
         {
             if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))
                 throw new NotImplementedException();
 
             var size = vectors[0].Size;
             var rows = (uint)compareTo.Count;
-            var columns = (uint)vectors.Length;
+            var columns = (uint)vectors.Count;
             var ret = Provider.Allocate(rows * columns, null, true);
 
             using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToArray()))
@@ -746,7 +764,7 @@ namespace BrightData.Cuda
                     return ones.Subtract(distance);
                 }
 
-                Provider.CalculateDistances(size, columns, rows,
+                Provider.CalculateMultiDistances(size, columns, rows,
                     vectorPtr.DevicePointer,
                     compareToPtr.DevicePointer,
                     ret.DevicePointer,
@@ -755,6 +773,56 @@ namespace BrightData.Cuda
             }
 
             IMatrix<float> matrix = new CudaMatrix(CreateCudaTensorSegment(ret), rows, columns, this);
+            if (distanceMetric == DistanceMetric.Euclidean) {
+                var sqrt = matrix.Sqrt();
+                matrix.Dispose();
+                matrix = sqrt;
+            }
+
+            return matrix;
+        }
+
+        public override IVector<float> FindDistances(IReadOnlyNumericSegment<float> vector, IReadOnlyList<IReadOnlyNumericSegment<float>> compareTo, DistanceMetric distanceMetric)
+        {
+            if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))
+                throw new NotImplementedException();
+
+            var size = vector.Size;
+            var numVectors = (uint)compareTo.Count;
+            var ret = Provider.Allocate(numVectors, null, true);
+
+            var vectorPtr = (IHaveDeviceMemory)vector;
+            using (var compareToPtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToArray())) {
+                if (distanceMetric == DistanceMetric.Cosine) {
+                    var aa = Provider.Allocate(numVectors, null, true);
+                    var bb = Provider.Allocate(numVectors, null, true);
+                    Provider.CosineDistances(size, numVectors,
+                        vectorPtr.Memory.DevicePointer,
+                        compareToPtr.DevicePointer,
+                        aa.DevicePointer,
+                        ret.DevicePointer,
+                        bb.DevicePointer
+                    );
+                    using var ones = CreateVector(numVectors, _ => 1f);
+                    using var vectorMagnitude = new CudaVector(CreateCudaTensorSegment(aa), this);
+                    using var vectorSqrt = vectorMagnitude.Sqrt();
+                    using var compareToMagnitude = new CudaVector(CreateCudaTensorSegment(bb), this);
+                    using var compareToSqrt = compareToMagnitude.Sqrt();
+                    using var norms = vectorSqrt.PointwiseMultiply(compareToSqrt);
+                    using var result = new CudaVector(CreateCudaTensorSegment(ret), this);
+                    using var distance = result.PointwiseDivide(norms);
+                    return ones.Subtract(distance);
+                }
+                
+                Provider.CalculateDistances(size, numVectors,
+                    vectorPtr.Memory.DevicePointer,
+                    compareToPtr.DevicePointer,
+                    ret.DevicePointer,
+                    distanceMetric
+                );
+            }
+
+            IVector<float> matrix = new CudaVector(CreateCudaTensorSegment(ret), this);
             if (distanceMetric == DistanceMetric.Euclidean) {
                 var sqrt = matrix.Sqrt();
                 matrix.Dispose();

@@ -24,12 +24,12 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
             public uint _element0;
         }
         [InlineArray(MaxNeighbours)]
-        internal struct DistanceFixedSize
+        internal struct WeightFixedSize
         {
             public T _element0;
         }
         readonly IndexFixedSize _neighbourIndices = new();
-        readonly DistanceFixedSize _neighbourWeights = new();
+        readonly WeightFixedSize _neighbourWeights = new();
 
         /// <summary>
         /// Current number of neighbours
@@ -39,12 +39,12 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
         /// <summary>
         /// The smallest neighbour weight
         /// </summary>
-        public readonly T MinDistance => NeighbourCount > 0 ? NeighbourWeights[0] : T.MaxValue;
+        public readonly T MinWeight => NeighbourCount > 0 ? NeighbourWeights[0] : T.MaxValue;
 
         /// <summary>
         /// The largest neighbour weight
         /// </summary>
-        public readonly T MaxDistance => NeighbourCount > 0 ? NeighbourWeights[NeighbourCount - 1] : T.MinValue;
+        public readonly T MaxWeight => NeighbourCount > 0 ? NeighbourWeights[NeighbourCount - 1] : T.MinValue;
 
         /// <summary>
         /// The index of the neighbour with the smallest weight
@@ -62,60 +62,11 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
         /// <param name="neighbourIndex"></param>
         /// <param name="neighbourWeight"></param>
         /// <returns></returns>
-        public unsafe bool TryAddNeighbour2(uint neighbourIndex, T neighbourWeight)
-        {
-            var isFull = NeighbourCount == MaxNeighbours;
-            fixed (uint* indices = &_neighbourIndices._element0)
-            fixed (T* weights = &_neighbourWeights._element0) {
-                // check to see if it should be inserted
-                if (isFull && weights[NeighbourCount - 1] <= neighbourWeight)
-                    return false;
-
-                byte insertPosition = 0;
-                var foundInsertPosition = false;
-                for (byte i = 0; i < NeighbourCount; i++) {
-                    // check that the neighbour has not already been added
-                    if (indices[i] == neighbourIndex)
-                        return false;
-
-                    // see if we should insert here
-                    if (weights[i] > neighbourWeight) {
-                        insertPosition = i;
-                        foundInsertPosition = true;
-                        break;
-                    }
-                }
-
-                if (!foundInsertPosition) {
-                    // there is no room left
-                    if (isFull)
-                        return false;
-
-                    // insert at end
-                    insertPosition = NeighbourCount;
-                }
-                else {
-                    // shuffle to make room
-                    for (var i = NeighbourCount - (isFull ? 2 : 1); i >= insertPosition; i--) {
-                        indices[i + 1] = indices[i];
-                        weights[i + 1] = weights[i];
-                    }
-                }
-
-                // insert the item
-                indices[insertPosition] = neighbourIndex;
-                weights[insertPosition] = neighbourWeight;
-                if (!isFull)
-                    ++NeighbourCount;
-            }
-            return true;
-        }
-
         public bool TryAddNeighbour(uint neighbourIndex, T neighbourWeight)
         {
             var isFull = NeighbourCount == MaxNeighbours;
             var indices = MemoryMarshal.CreateSpan(ref Unsafe.As<IndexFixedSize, uint>(ref Unsafe.AsRef(in _neighbourIndices)), MaxNeighbours);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<DistanceFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), MaxNeighbours);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), MaxNeighbours);
 
             // check to see if it should be inserted
             if (isFull && weights[NeighbourCount - 1] <= neighbourWeight)
@@ -181,7 +132,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
         /// <summary>
         /// Sorted list of neighbour weights
         /// </summary>
-        public readonly ReadOnlySpan<T> NeighbourWeights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<DistanceFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), NeighbourCount);
+        public readonly ReadOnlySpan<T> NeighbourWeights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), NeighbourCount);
 
         /// <summary>
         /// Returns a neighbour weight
