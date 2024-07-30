@@ -3,161 +3,80 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BrightData.Types;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.Helper
 {
     /// <summary>
     /// Fixed size indexed graph node that maintains weighted list of neighbours as a max heap
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Weight type</typeparam>
+    /// <typeparam name="AT">Array type</typeparam>
     /// <param name="Index"></param>
-    public record struct IndexedFixedSizeGraphNode<T>(uint Index)
+    public record struct IndexedFixedSizeGraphNode<T, AT>(uint Index)
         where T : unmanaged, INumber<T>, IMinMaxValue<T>
+        where AT: struct, IFixedSizeSortedArray<uint, T>
     {
+        AT _neighbours = new();
+
         /// <summary>
         /// Max number of neighbours
         /// </summary>
-        public const int MaxNeighbours = 8;
-        [InlineArray(MaxNeighbours)]
-        internal struct IndexFixedSize
-        {
-            public uint _element0;
-        }
-        [InlineArray(MaxNeighbours)]
-        internal struct WeightFixedSize
-        {
-            public T _element0;
-        }
-        readonly IndexFixedSize _neighbourIndices = new();
-        readonly WeightFixedSize _neighbourWeights = new();
+        public int MaxNeighbours => _neighbours.MaxSize;
 
         /// <summary>
         /// Current number of neighbours
         /// </summary>
-        public byte NeighbourCount { get; private set; } = 0;
+        public byte NeighbourCount => _neighbours.Size;
 
         /// <summary>
         /// The smallest neighbour weight
         /// </summary>
-        public readonly T MinWeight => NeighbourCount > 0 ? NeighbourWeights[0] : T.MaxValue;
+        public T MinWeight => _neighbours.MinWeight;
 
         /// <summary>
         /// The largest neighbour weight
         /// </summary>
-        public readonly T MaxWeight => NeighbourCount > 0 ? NeighbourWeights[NeighbourCount - 1] : T.MinValue;
+        public T MaxWeight => _neighbours.MaxWeight;
 
         /// <summary>
         /// The index of the neighbour with the smallest weight
         /// </summary>
-        public readonly uint MinNeighbourIndex => NeighbourCount > 0 ? NeighbourIndices[0] : uint.MaxValue;
+        public uint MinNeighbourIndex => _neighbours.MinValue;
 
         /// <summary>
         /// The index of the neighbour with the largest weight
         /// </summary>
-        public readonly uint MaxNeighbourIndex => NeighbourCount > 0 ? NeighbourIndices[NeighbourCount - 1] : uint.MaxValue;
+        public uint MaxNeighbourIndex => _neighbours.MaxValue;
 
         /// <summary>
         /// Tries to add a new neighbour - will succeed if there aren't already max neighbours with a smaller weight
         /// </summary>
         /// <param name="neighbourIndex"></param>
         /// <param name="neighbourWeight"></param>
+        /// <param name="enforceUnique"></param>
         /// <returns></returns>
-        public bool TryAddNeighbour(uint neighbourIndex, T neighbourWeight)
-        {
-            var isFull = NeighbourCount == MaxNeighbours;
-            var indices = MemoryMarshal.CreateSpan(ref Unsafe.As<IndexFixedSize, uint>(ref Unsafe.AsRef(in _neighbourIndices)), MaxNeighbours);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), MaxNeighbours);
-
-            // check to see if it should be inserted
-            if (isFull && weights[NeighbourCount - 1] <= neighbourWeight)
-                return false;
-
-            // Use binary search to find the insertion position
-            int left = 0, 
-                right = NeighbourCount - 1, 
-                insertPosition = NeighbourCount
-            ;
-            while (left <= right) {
-                var mid = left + (right - left) / 2;
-                if (weights[mid] > neighbourWeight) {
-                    insertPosition = mid;
-                    right = mid - 1;
-                }
-                else if (weights[mid] < neighbourWeight) {
-                    left = mid + 1;
-                }
-                else {
-                    // Check if the neighbour already exists
-                    if (indices[mid] == neighbourIndex)
-                        return false;
-
-                    left = mid + 1;
-                }
-            }
-
-            // Check if the neighbour already exists in the left partition
-            for (var i = insertPosition-1; i >= 0; i--) {
-                if (weights[i] < neighbourWeight)
-                    break;
-                if (indices[i] == neighbourIndex)
-                    return false;
-            }
-
-            if (insertPosition == NeighbourCount) {
-                // there is no room left
-                if (isFull)
-                    return false;
-            }
-            else {
-                // shuffle to make room
-                for (var i = NeighbourCount - (isFull ? 2 : 1); i >= insertPosition; i--) {
-                    indices[i + 1] = indices[i];
-                    weights[i + 1] = weights[i];
-                }
-            }
-
-            // insert the item
-            indices[insertPosition] = neighbourIndex;
-            weights[insertPosition] = neighbourWeight;
-            if (!isFull)
-                ++NeighbourCount;
-            return true;
-        }
+        public bool TryAddNeighbour(uint neighbourIndex, T neighbourWeight, bool enforceUnique = true) => _neighbours.TryAdd(neighbourIndex, neighbourWeight, enforceUnique);
 
         /// <summary>
         /// Sorted list of neighbour indices
         /// </summary>
-        public readonly ReadOnlySpan<uint> NeighbourIndices => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<IndexFixedSize, uint>(ref Unsafe.AsRef(in _neighbourIndices)), NeighbourCount);
+        public ReadOnlySpan<uint> NeighbourIndices => _neighbours.Values;
 
         /// <summary>
         /// Sorted list of neighbour weights
         /// </summary>
-        public readonly ReadOnlySpan<T> NeighbourWeights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightFixedSize, T>(ref Unsafe.AsRef(in _neighbourWeights)), NeighbourCount);
+        public ReadOnlySpan<T> NeighbourWeights => _neighbours.Weights;
 
         /// <summary>
         /// Returns a neighbour weight
         /// </summary>
         /// <param name="index"></param>
-        public readonly (uint NeighbourIndex, T NeighbourWeight) this[byte index]
-        {
-            get
-            {
-                if (index < NeighbourCount)
-                    return (NeighbourIndices[index], NeighbourWeights[index]);
-                return (uint.MaxValue, T.MinValue);
-            }
-        }
+        public (uint NeighbourIndex, T NeighbourWeight) this[byte index] => _neighbours[index];
 
         /// <summary>
         /// Enumerates the weighted neighbours
         /// </summary>
-        public readonly IEnumerable<(uint NeighbourIndex, T NeighbourWeight)> WeightedNeighbours
-        {
-            get
-            {
-                for (byte i = 0; i < NeighbourCount; i++)
-                    yield return this[i];
-            }
-        }
+        public IEnumerable<(uint NeighbourIndex, T NeighbourWeight)> WeightedNeighbours => _neighbours.Elements;
     }
 }

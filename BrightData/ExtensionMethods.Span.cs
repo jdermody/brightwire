@@ -1654,6 +1654,39 @@ namespace BrightData
         /// <returns></returns>
         public static uint[] GetRankedIndices<T>(this Span<T> span) where T : unmanaged, INumber<T> => GetRankedIndices((ReadOnlySpan<T>)span);
 
+        public static AT NIndices<T, AT>(this ReadOnlySpan<T> span)
+            where AT: IFixedSizeSortedArray<uint, T>, new()
+        {
+            var ret = new AT();
+            for (int i = 0, len = span.Length; i < len; i++)
+                ret.TryAdd((uint)i, span[i]);
+            return ret;
+        }
+
+        public static MemoryOwner<T> EuclideanNormalize<T>(this ReadOnlySpan<T> span)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            var magnitude = span.L2Norm();
+            if (magnitude == T.Zero) {
+                var ret = Allocate<T>((uint)span.Length, false);
+                span.CopyTo(ret.Span);
+                return ret;
+            }
+            return span.Multiply(T.One / magnitude);
+        }
+
+        public static MemoryOwner<T> ManhattanNormalize<T>(this ReadOnlySpan<T> span)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
+        {
+            var magnitude = span.L1Norm();
+            if (magnitude == T.Zero) {
+                var ret = Allocate<T>((uint)span.Length, false);
+                span.CopyTo(ret.Span);
+                return ret;
+            }
+            return span.Multiply(T.One / magnitude);
+        }
+
         /// <summary>
         /// Creates a read only vector from the span
         /// </summary>

@@ -562,4 +562,80 @@ namespace BrightData
         public double MinValue { get; }
         public double MaxValue { get; }
     }
+
+    /// <summary>
+    /// Fixed size sorted array of values and weights
+    /// </summary>
+    /// <typeparam name="V">Type of value to store</typeparam>
+    /// <typeparam name="W">Type of weight that will be used to sort</typeparam>
+    public interface IFixedSizeSortedArray<V, W> : IHaveSize
+    {
+        /// <summary>
+        /// Maximum number of elements that can fit in the array
+        /// </summary>
+        byte MaxSize { get; }
+
+        /// <summary>
+        /// Current number of elements
+        /// </summary>
+        new byte Size { get; }
+        uint IHaveSize.Size => Size;
+
+        /// <summary>
+        /// Sorted list of values
+        /// </summary>
+        ReadOnlySpan<V> Values { get; }
+
+        /// <summary>
+        /// Sorted list of weights
+        /// </summary>
+        ReadOnlySpan<W> Weights { get; }
+
+        /// <summary>
+        /// The smallest weight
+        /// </summary>
+        W MinWeight { get; }
+
+        /// <summary>
+        /// The largest weight
+        /// </summary>
+        W MaxWeight { get; }
+
+        /// <summary>
+        /// The value with the smallest weight
+        /// </summary>
+        V? MinValue { get; }
+
+        /// <summary>
+        /// The value with the largest weight
+        /// </summary>
+        V? MaxValue { get; }
+
+        /// <summary>
+        /// Returns a value and weight
+        /// </summary>
+        /// <param name="index">Index to return</param>
+        (V Value, W Weight) this[byte index] { get; }
+
+        /// <summary>
+        /// Enumerates the values and weights
+        /// </summary>
+        IEnumerable<(V Value, W Weight)> Elements { get; }
+
+        /// <summary>
+        /// Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+        /// </summary>
+        /// <param name="value">Value to add</param>
+        /// <param name="weight">Weight to add</param>
+        /// <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+        /// <returns>True if the element was added</returns>
+        bool TryAdd(V value, W weight, bool enforceUnique = true);
+
+        /// <summary>
+        /// Removes an element from the array
+        /// </summary>
+        /// <param name="index">Index of element to remove</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        void RemoveAt(byte index);
+    }
 }

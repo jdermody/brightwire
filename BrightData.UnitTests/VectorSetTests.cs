@@ -67,7 +67,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestVectorGraphNode()
         {
-            var node = new IndexedFixedSizeGraphNode<float>(1);
+            var node = new IndexedFixedSizeGraphNode<float, FixedSizeSortedAscending8Array<uint, float>>(1);
             node.Index.Should().Be(1);
             node.NeighbourIndices.Length.Should().Be(0);
 

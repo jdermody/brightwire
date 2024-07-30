@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.Helper
@@ -15,13 +16,13 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
     public class VectorGraph<T> : IHaveSize
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly IndexedFixedSizeGraphNode<T>[] _nodes;
+        readonly IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>[] _nodes;
 
         /// <summary>
         /// Creates a vector graph from an array of nodes
         /// </summary>
         /// <param name="nodes"></param>
-        public VectorGraph(IndexedFixedSizeGraphNode<T>[] nodes)
+        public VectorGraph(IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>[] nodes)
         {
             _nodes = nodes;
         }
@@ -72,13 +73,13 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
                 ? stackalloc T[(int)size] 
                 : new T[size];
 
-            var ret = GC.AllocateUninitializedArray<IndexedFixedSizeGraphNode<T>>((int)size);
+            var ret = GC.AllocateUninitializedArray<IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>>((int)size);
             for (var i = 0U; i < size; i++)
                 ret[i] = new(i);
 
             for (var i = 0U; i < size; i++)
             {
-                if (shortCircuitIfNodeNeighboursAreFull && ret[i].NeighbourCount == IndexedFixedSizeGraphNode<T>.MaxNeighbours)
+                if (shortCircuitIfNodeNeighboursAreFull && ret[i].NeighbourCount == FixedSizeSortedAscending8Array<uint, T>.MaxSize)
                     continue;
 
                 // find the distance between this node and each of its neighbours
@@ -94,7 +95,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
                 }
 
                 // find top N closest neighbours
-                var maxHeap = new IndexedFixedSizeGraphNode<T>();
+                var maxHeap = new IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>();
                 for (var j = 0; j < size; j++) {
                     if (i == j)
                         continue;
@@ -132,7 +133,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Helper
         public static async Task<VectorGraph<T>> LoadFromDisk(string filePath)
         {
             using var fileHandle = File.OpenHandle(filePath);
-            var ret = GC.AllocateUninitializedArray<IndexedFixedSizeGraphNode<T>>((int)(RandomAccess.GetLength(fileHandle) / Unsafe.SizeOf<IndexedFixedSizeGraphNode<T>>()));
+            var ret = GC.AllocateUninitializedArray<IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>>((int)(RandomAccess.GetLength(fileHandle) / Unsafe.SizeOf<IndexedFixedSizeGraphNode<T, FixedSizeSortedAscending8Array<uint, T>>>()));
             await RandomAccess.ReadAsync(fileHandle, ret.AsMemory().AsBytes(), 0);
             return new(ret);
         }
