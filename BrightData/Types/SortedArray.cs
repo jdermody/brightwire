@@ -18,13 +18,13 @@ namespace BrightData.Types
         public Span<W> Weights => CollectionsMarshal.AsSpan(_weights);
         public uint Size => (uint)Values.Length;
 
-        public bool Add(in V item, W weight)
+        public bool Add(W weight, in V item)
         {
             _values.Add(item);
             _weights.Add(weight);
             return isAscending
-                ? SortedArrayHelper.InsertIntoAscending(false, uint.MaxValue, item, weight, Values, Weights)
-                : SortedArrayHelper.InsertIntoDescending(false, uint.MaxValue, item, weight, Values, Weights)
+                ? SortedArrayHelper.InsertIntoAscending(false, Size-1, uint.MaxValue, item, weight, Values, Weights)
+                : SortedArrayHelper.InsertIntoDescending(false, Size-1, uint.MaxValue, item, weight, Values, Weights)
             ;
         }
 

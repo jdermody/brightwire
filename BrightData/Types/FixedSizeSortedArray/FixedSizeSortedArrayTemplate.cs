@@ -110,7 +110,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -238,7 +238,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -366,7 +366,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -494,7 +494,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -622,7 +622,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -750,7 +750,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -878,7 +878,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1006,7 +1006,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1134,7 +1134,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1262,7 +1262,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1390,7 +1390,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1518,7 +1518,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1646,7 +1646,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1774,7 +1774,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -1902,7 +1902,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2030,7 +2030,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2158,7 +2158,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2286,7 +2286,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2414,7 +2414,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2542,7 +2542,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2670,7 +2670,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2798,7 +2798,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -2926,7 +2926,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3054,7 +3054,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3182,7 +3182,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3310,7 +3310,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3438,7 +3438,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3566,7 +3566,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3694,7 +3694,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3822,7 +3822,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -3950,7 +3950,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4078,7 +4078,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4206,7 +4206,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4334,7 +4334,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4462,7 +4462,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4590,7 +4590,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4718,7 +4718,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4846,7 +4846,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -4974,7 +4974,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5102,7 +5102,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5230,7 +5230,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5358,7 +5358,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5486,7 +5486,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5614,7 +5614,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5742,7 +5742,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5870,7 +5870,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -5998,7 +5998,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6126,7 +6126,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6254,7 +6254,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6382,7 +6382,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6510,7 +6510,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6638,7 +6638,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6766,7 +6766,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -6894,7 +6894,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7022,7 +7022,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7150,7 +7150,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7278,7 +7278,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7406,7 +7406,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7534,7 +7534,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7662,7 +7662,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7790,7 +7790,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -7918,7 +7918,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -8046,7 +8046,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;
@@ -8174,7 +8174,7 @@ namespace BrightData.Types
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
             return ret;

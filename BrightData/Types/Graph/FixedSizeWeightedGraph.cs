@@ -19,7 +19,7 @@ namespace BrightData.Types.Graph
         where AT : struct, IFixedSizeSortedArray<uint, W>
 
     {
-        readonly Dictionary<uint, FixedSizeWeightedGraphNode<T, W, AT>> _nodes = [];
+        readonly SortedArray<FixedSizeWeightedGraphNode<T, W, AT>, uint> _nodes = new();
 
         /// <inheritdoc />
         public IWeightedGraphNode<T, W> Create(T value, bool addToGraph = true)
@@ -44,10 +44,10 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public uint Size => (uint)_nodes.Count;
+        public uint Size => _nodes.Size;
 
         /// <inheritdoc />
-        public IWeightedGraphNode<T, W> Get(uint index) => _nodes[index];
+        public IWeightedGraphNode<T, W> Get(uint index) => _nodes.TryGet(index, out var ret) ? ret : throw new ArgumentException("Index not found");
 
         /// <inheritdoc />
         public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
@@ -67,7 +67,7 @@ namespace BrightData.Types.Graph
                 if (distanceCalculator.GetWeight(c, q) > distanceCalculator.GetWeight(f, q))
                     break;
 
-                foreach (var neighbour in _nodes[c].NeighbourSpan) {
+                foreach (var neighbour in Get(c).NeighbourSpan) {
                     if(!visited.Add(neighbour))
                         continue;
 

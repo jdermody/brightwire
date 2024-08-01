@@ -8,11 +8,11 @@ namespace BrightData.Types.Helper
     /// </summary>
     public class SortedArrayHelper
     {
-        internal static bool InsertIntoAscending<V, W>(bool enforceUnique, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
+        internal static bool InsertIntoAscending<V, W>(bool enforceUnique, uint currSize, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
             where V : IComparable<V>
             where W : unmanaged, INumber<W>, IMinMaxValue<W>
         {
-            var size = values.Length;
+            var size = (int)currSize;
             var isFull = size == maxSize;
 
             // check to see if it should be inserted
@@ -84,11 +84,11 @@ namespace BrightData.Types.Helper
             return true;
         }
 
-        internal static bool InsertIntoDescending<V, W>(bool enforceUnique, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
+        internal static bool InsertIntoDescending<V, W>(bool enforceUnique, uint currSize, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
             where V : IComparable<V>
             where W : unmanaged, INumber<W>, IMinMaxValue<W>
         {
-            var size = values.Length;
+            var size = (int)currSize;
             var isFull = size == maxSize;
 
             // check to see if it should be inserted
