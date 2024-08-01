@@ -4031,7 +4031,7 @@
             <param name="categoricalValues"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateContinuousDistribution(BrightData.BrightDataContext,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateContinuousDistribution``1(BrightData.BrightDataContext,System.Nullable{``0},System.Nullable{``0})">
             <summary>
             Create a continuous distribution
             </summary>
@@ -4049,7 +4049,7 @@
             <param name="exclusiveUpperBound"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateNormalDistribution(BrightData.BrightDataContext,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateNormalDistribution``1(BrightData.BrightDataContext,System.Nullable{``0},System.Nullable{``0})">
             <summary>
             Create a normal distribution
             </summary>
@@ -4058,7 +4058,7 @@
             <param name="stdDev">Standard deviation</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateExponentialDistribution(BrightData.BrightDataContext,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.CreateExponentialDistribution``1(BrightData.BrightDataContext,System.Nullable{``0})">
             <summary>
             Create an exponential distribution
             </summary>
@@ -5741,7 +5741,7 @@
             Categorical distribution - https://en.wikipedia.org/wiki/Categorical_distribution
             </summary>
         </member>
-        <member name="T:BrightData.Distribution.ContinuousDistribution">
+        <member name="T:BrightData.Distribution.ContinuousDistribution`1">
             <summary>
             Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
             </summary>
@@ -5751,7 +5751,7 @@
             Discrete uniform distribution - https://en.wikipedia.org/wiki/Discrete_uniform_distribution
             </summary>
         </member>
-        <member name="T:BrightData.Distribution.NormalDistribution">
+        <member name="T:BrightData.Distribution.NormalDistribution`1">
             <summary>
             Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
             </summary>
@@ -5759,7 +5759,7 @@
             <param name="mean"></param>
             <param name="stdDev"></param>
         </member>
-        <member name="M:BrightData.Distribution.NormalDistribution.#ctor(BrightData.BrightDataContext,System.Single,System.Single)">
+        <member name="M:BrightData.Distribution.NormalDistribution`1.#ctor(BrightData.BrightDataContext,System.Nullable{`0},System.Nullable{`0})">
             <summary>
             Normal distribution - https://en.wikipedia.org/wiki/Normal_distribution
             </summary>
@@ -6570,7 +6570,7 @@
             Positive discrete data distribution
             </summary>
         </member>
-        <member name="T:BrightData.IContinuousDistribution">
+        <member name="T:BrightData.IContinuousDistribution`1">
             <summary>
             Continuous data distribution
             </summary>
@@ -12447,6 +12447,172 @@
         <member name="P:BrightData.Types.BinaryData.ReadOnlyMemory">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Types.FixedSizeSortedAscending1Array`2">
+            <summary>
+            Fixed size sorted array of values and weights (max 1 elements)
+            that is sorted in ascending order based on each weight
+            </summary>
+            <typeparam name="V">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight that will be used to sort</typeparam>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.#ctor">
+            <summary>
+            Fixed size sorted array of values and weights (max 1 elements)
+            that is sorted in ascending order based on each weight
+            </summary>
+            <typeparam name="V">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight that will be used to sort</typeparam>
+        </member>
+        <member name="F:BrightData.Types.FixedSizeSortedAscending1Array`2.MaxSize">
+            <summary>
+            Max size of the array
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Size">
+            <summary>
+            Current number of elements
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Values">
+            <summary>
+            Sorted list of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Weights">
+            <summary>
+            Sorted list of weights
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.MinWeight">
+            <summary>
+            The smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.MaxWeight">
+            <summary>
+            The largest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.MinValue">
+            <summary>
+            The value with the smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.MaxValue">
+            <summary>
+            The value with the largest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Item(System.Byte)">
+            <summary>
+            Returns a value and weight
+            </summary>
+            <param name="index">Index to return</param>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Elements">
+            <summary>
+            Enumerates the values and weights
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.TryAdd(`0,`1,System.Boolean)">
+            <summary>
+            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            </summary>
+            <param name="value">Value to add</param>
+            <param name="weight">Weight to add</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
+            <returns>True if the element was added</returns>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.RemoveAt(System.Byte)">
+            <summary>
+            Removes an element from the array
+            </summary>
+            <param name="index">Index of element to remove</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:BrightData.Types.FixedSizeSortedDescending1Array`2">
+            <summary>
+            Fixed size sorted array of values and weights (max 1 elements)
+            that is sorted in descending order based on each weight
+            </summary>
+            <typeparam name="V">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight that will be used to sort</typeparam>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.#ctor">
+            <summary>
+            Fixed size sorted array of values and weights (max 1 elements)
+            that is sorted in descending order based on each weight
+            </summary>
+            <typeparam name="V">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight that will be used to sort</typeparam>
+        </member>
+        <member name="F:BrightData.Types.FixedSizeSortedDescending1Array`2.MaxSize">
+            <summary>
+            Max size of the array
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Size">
+            <summary>
+            Current number of elements
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Values">
+            <summary>
+            Sorted list of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Weights">
+            <summary>
+            Sorted list of weights
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.MinWeight">
+            <summary>
+            The smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.MaxWeight">
+            <summary>
+            The largest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.MinValue">
+            <summary>
+            The value with the smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.MaxValue">
+            <summary>
+            The value with the largest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Item(System.Byte)">
+            <summary>
+            Returns a value and weight
+            </summary>
+            <param name="index">Index to return</param>
+        </member>
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Elements">
+            <summary>
+            Enumerates the values and weights
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.TryAdd(`0,`1,System.Boolean)">
+            <summary>
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
+            </summary>
+            <param name="value">Value to add</param>
+            <param name="weight">Weight to add</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
+            <returns>True if the element was added</returns>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.RemoveAt(System.Byte)">
+            <summary>
+            Removes an element from the array
+            </summary>
+            <param name="index">Index of element to remove</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending2Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 2 elements)
@@ -12520,7 +12686,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending2Array`2.RemoveAt(System.Byte)">
@@ -12599,11 +12765,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.RemoveAt(System.Byte)">
@@ -12686,7 +12852,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending3Array`2.RemoveAt(System.Byte)">
@@ -12765,11 +12931,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.RemoveAt(System.Byte)">
@@ -12852,7 +13018,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending4Array`2.RemoveAt(System.Byte)">
@@ -12931,11 +13097,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.RemoveAt(System.Byte)">
@@ -13018,7 +13184,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending5Array`2.RemoveAt(System.Byte)">
@@ -13097,11 +13263,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.RemoveAt(System.Byte)">
@@ -13184,7 +13350,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending6Array`2.RemoveAt(System.Byte)">
@@ -13263,11 +13429,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.RemoveAt(System.Byte)">
@@ -13350,7 +13516,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending7Array`2.RemoveAt(System.Byte)">
@@ -13429,11 +13595,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.RemoveAt(System.Byte)">
@@ -13516,7 +13682,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending8Array`2.RemoveAt(System.Byte)">
@@ -13595,11 +13761,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.RemoveAt(System.Byte)">
@@ -13682,7 +13848,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending9Array`2.RemoveAt(System.Byte)">
@@ -13761,11 +13927,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.RemoveAt(System.Byte)">
@@ -13848,7 +14014,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending10Array`2.RemoveAt(System.Byte)">
@@ -13927,11 +14093,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.RemoveAt(System.Byte)">
@@ -14014,7 +14180,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending11Array`2.RemoveAt(System.Byte)">
@@ -14093,11 +14259,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.RemoveAt(System.Byte)">
@@ -14180,7 +14346,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending12Array`2.RemoveAt(System.Byte)">
@@ -14259,11 +14425,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.RemoveAt(System.Byte)">
@@ -14346,7 +14512,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending13Array`2.RemoveAt(System.Byte)">
@@ -14425,11 +14591,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.RemoveAt(System.Byte)">
@@ -14512,7 +14678,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending14Array`2.RemoveAt(System.Byte)">
@@ -14591,11 +14757,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.RemoveAt(System.Byte)">
@@ -14678,7 +14844,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending15Array`2.RemoveAt(System.Byte)">
@@ -14757,11 +14923,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.RemoveAt(System.Byte)">
@@ -14844,7 +15010,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending16Array`2.RemoveAt(System.Byte)">
@@ -14923,11 +15089,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.RemoveAt(System.Byte)">
@@ -15010,7 +15176,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending17Array`2.RemoveAt(System.Byte)">
@@ -15089,11 +15255,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.RemoveAt(System.Byte)">
@@ -15176,7 +15342,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending18Array`2.RemoveAt(System.Byte)">
@@ -15255,11 +15421,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.RemoveAt(System.Byte)">
@@ -15342,7 +15508,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending19Array`2.RemoveAt(System.Byte)">
@@ -15421,11 +15587,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.RemoveAt(System.Byte)">
@@ -15508,7 +15674,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending20Array`2.RemoveAt(System.Byte)">
@@ -15587,11 +15753,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.RemoveAt(System.Byte)">
@@ -15674,7 +15840,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending21Array`2.RemoveAt(System.Byte)">
@@ -15753,11 +15919,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.RemoveAt(System.Byte)">
@@ -15840,7 +16006,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending22Array`2.RemoveAt(System.Byte)">
@@ -15919,11 +16085,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.RemoveAt(System.Byte)">
@@ -16006,7 +16172,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending23Array`2.RemoveAt(System.Byte)">
@@ -16085,11 +16251,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.RemoveAt(System.Byte)">
@@ -16172,7 +16338,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending24Array`2.RemoveAt(System.Byte)">
@@ -16251,11 +16417,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.RemoveAt(System.Byte)">
@@ -16338,7 +16504,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending25Array`2.RemoveAt(System.Byte)">
@@ -16417,11 +16583,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.RemoveAt(System.Byte)">
@@ -16504,7 +16670,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending26Array`2.RemoveAt(System.Byte)">
@@ -16583,11 +16749,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.RemoveAt(System.Byte)">
@@ -16670,7 +16836,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending27Array`2.RemoveAt(System.Byte)">
@@ -16749,11 +16915,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.RemoveAt(System.Byte)">
@@ -16836,7 +17002,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending28Array`2.RemoveAt(System.Byte)">
@@ -16915,11 +17081,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.RemoveAt(System.Byte)">
@@ -17002,7 +17168,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending29Array`2.RemoveAt(System.Byte)">
@@ -17081,11 +17247,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.RemoveAt(System.Byte)">
@@ -17168,7 +17334,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending30Array`2.RemoveAt(System.Byte)">
@@ -17247,11 +17413,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.RemoveAt(System.Byte)">
@@ -17334,7 +17500,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending31Array`2.RemoveAt(System.Byte)">
@@ -17413,11 +17579,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.RemoveAt(System.Byte)">
@@ -17500,7 +17666,7 @@
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending32Array`2.RemoveAt(System.Byte)">
@@ -17579,11 +17745,11 @@
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.TryAdd(`0,`1,System.Boolean)">
             <summary>
-            Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+            Tries to add a new element - will succeed if there aren't already max elements with a higher weight
             </summary>
             <param name="value">Value to add</param>
             <param name="weight">Weight to add</param>
-            <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+            <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
             <returns>True if the element was added</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.RemoveAt(System.Byte)">
@@ -17592,6 +17758,94 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraph`3">
+            <summary>
+            A fixed size graph weighted graph
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+            <typeparam name="AT"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Create(`0,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(BrightData.IWeightedGraphNode{`0,`1})">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3">
+            <summary>
+            A graph node with a (fixed size) maximum number of neighbours
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.#ctor(`0)">
+            <summary>
+            A graph node with a (fixed size) maximum number of neighbours
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Index">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.AddNeighbour(System.UInt32,`1)">
+            <summary>
+            Tries to add a new neighbour
+            </summary>
+            <param name="index">Index of neighbour</param>
+            <param name="weight">Neighbour weight</param>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.WeightedNeighbours">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourSpan">
+            <summary>
+            Ordered span of neighbours by weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Neighbours">
+            <summary>
+            Enumerates the neighbours by weight
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.CompareTo(BrightData.Types.Graph.FixedSizeWeightedGraphNode{`0,`1,`2})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Graph.GraphNodeIndex">
+            <summary>
+            Index only graph node value
+            </summary>
+            <param name="Index"></param>
+        </member>
+        <member name="M:BrightData.Types.Graph.GraphNodeIndex.#ctor(System.UInt32)">
+            <summary>
+            Index only graph node value
+            </summary>
+            <param name="Index"></param>
+        </member>
+        <member name="P:BrightData.Types.Graph.GraphNodeIndex.Index">
+            <summary></summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.GraphNodeIndex.CompareTo(BrightData.Types.Graph.GraphNodeIndex)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.GraphNodeIndex.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Helper.SortedArrayHelper">
+            <summary>
+            Fixed size array helper methods
+            </summary>
         </member>
         <member name="T:BrightData.Types.IndexList">
             <summary>

@@ -40,5 +40,18 @@ namespace BrightData.UnitTests
             array.Size.Should().Be(1);
             array.MaxValue.Should().Be(1);
         }
+
+        [Fact]
+        public void TestSingle()
+        {
+            var array = new FixedSizeSortedAscending1Array<uint, float>();
+            array.TryAdd(1, 0.2f).Should().BeTrue();
+            array.TryAdd(2, 0.3f).Should().BeFalse();
+            array.TryAdd(3, 0.1f).Should().BeTrue();
+            array.MaxValue.Should().Be(array.MinValue);
+            array.MaxWeight.Should().Be(array.MinWeight);
+            array.RemoveAt(0);
+            array.Size.Should().Be(0);
+        }
     }
 }

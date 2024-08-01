@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using BrightData.Distribution;
 
 namespace BrightData
@@ -11,6 +12,8 @@ namespace BrightData
         /// <param name="context"></param>
         /// <returns></returns>
         public static float NextRandomFloat(this BrightDataContext context) => (float)context.Random.NextDouble();
+
+        public static T NextRandom<T>(this BrightDataContext context) where T: unmanaged, INumber<T> => T.CreateSaturating(context.Random.NextDouble());
 
         /// <summary>
         /// Returns a randomly initialized positive number
@@ -60,7 +63,7 @@ namespace BrightData
         /// <param name="inclusiveLowerBound"></param>
         /// <param name="exclusiveUpperBound"></param>
         /// <returns></returns>
-        public static IContinuousDistribution CreateContinuousDistribution(this BrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f) => new ContinuousDistribution(context, inclusiveLowerBound, exclusiveUpperBound);
+        public static IContinuousDistribution<T> CreateContinuousDistribution<T>(this BrightDataContext context, T? inclusiveLowerBound = null, T? exclusiveUpperBound = null) where T: unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T> => new ContinuousDistribution<T>(context, inclusiveLowerBound, exclusiveUpperBound);
 
         /// <summary>
         /// Create a discrete uniform distribution
@@ -78,7 +81,7 @@ namespace BrightData
         /// <param name="mean"></param>
         /// <param name="stdDev">Standard deviation</param>
         /// <returns></returns>
-        public static IContinuousDistribution CreateNormalDistribution(this BrightDataContext context, float mean = 0f, float stdDev = 1f) => new NormalDistribution(context, mean, stdDev);
+        public static IContinuousDistribution<T> CreateNormalDistribution<T>(this BrightDataContext context, T? mean = null, T? stdDev = null) where T: unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T> => new NormalDistribution<T>(context, mean, stdDev);
 
         /// <summary>
         /// Create an exponential distribution
@@ -86,6 +89,6 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="lambda"></param>
         /// <returns></returns>
-        public static IContinuousDistribution CreateExponentialDistribution(this BrightDataContext context, float lambda = 1f) => new ExponentialDistribution(context, lambda);
+        public static IContinuousDistribution<T> CreateExponentialDistribution<T>(this BrightDataContext context, T? lambda = null) where T: unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T> => new ExponentialDistribution<T>(context, lambda);
     }
 }

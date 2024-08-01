@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using BrightData.Helper;
 
 namespace BrightData.Distribution
@@ -9,34 +10,35 @@ namespace BrightData.Distribution
     /// <param name="context"></param>
     /// <param name="mean"></param>
     /// <param name="stdDev"></param>
-    internal class NormalDistribution(BrightDataContext context, float mean = 0f, float stdDev = 1f)
-        : IContinuousDistribution
+    internal class NormalDistribution<T>(BrightDataContext context, T? mean = null, T? stdDev = null) : IContinuousDistribution<T>
+        where T: unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>
     {
-        public float Mean { get; } = mean;
-        public float StdDev { get; } = stdDev;
+        public T Mean { get; } = mean ?? T.Zero;
+        public T StdDev { get; } = stdDev ?? T.One;
 
-        public float Sample()
+        public T Sample()
         {
-            float x;
-            while (!PolarTransform(context.NextRandomFloat(), context.NextRandomFloat(), out x, out _)) {
+            T x;
+            while (!PolarTransform(context.NextRandom<T>(), context.NextRandom<T>(), out x, out _)) {
                 // nop
             }
 
             return Mean + StdDev * x;
         }
 
-        static bool PolarTransform(float a, float b, out float x, out float y)
+        static bool PolarTransform(T a, T b, out T x, out T y)
         {
-            var v1 = (2.0f * a) - 1.0f;
-            var v2 = (2.0f * b) - 1.0f;
+            var two = T.One + T.One;
+            var v1 = (two * a) - T.One;
+            var v2 = (two * b) - T.One;
             var r = (v1 * v1) + (v2 * v2);
-            if (r >= 1.0 || MathF.Abs(r) < Math<float>.AlmostZero) {
-                x = 0;
-                y = 0;
+            if (r >= T.One || T.Abs(r) < Math<T>.AlmostZero) {
+                x = T.Zero;
+                y = T.Zero;
                 return false;
             }
 
-            var fac = MathF.Sqrt(-2.0f * MathF.Log(r) / r);
+            var fac = T.Sqrt(-two * T.Log(r) / r);
             x = v1 * fac;
             y = v2 * fac;
             return true;

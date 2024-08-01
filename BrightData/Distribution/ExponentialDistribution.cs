@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BrightData.Distribution
 {
-    internal class ExponentialDistribution(BrightDataContext context, float lambda) : IContinuousDistribution
+    internal class ExponentialDistribution<T>(BrightDataContext context, T? lambda) : IContinuousDistribution<T>
+        where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>
     {
-        public float Sample()
+        public T Lambda { get; } = lambda ?? T.One;
+
+        public T Sample()
         {
-            float r;
+            T r;
             do {
-                r = context.NextRandomFloat();
-            } while (r == 0f);
-            return -MathF.Log(r) / lambda;
+                r = context.NextRandom<T>();
+            } while (r == T.Zero);
+            return -T.Log(r) * Lambda;
         }
     }
 }

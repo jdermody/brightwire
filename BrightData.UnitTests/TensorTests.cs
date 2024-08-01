@@ -119,7 +119,7 @@ namespace BrightData.UnitTests
 
         void CheckTensorIm2Col(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomData)
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var cpuTensor = _cpu.CreateTensor3D(depth.AsRange().Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomData
                 ? Convert.ToSingle(normalDistribution.Sample())
                 : Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
@@ -318,7 +318,7 @@ namespace BrightData.UnitTests
 
         void CheckTensorMaxPool(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomInit, bool calculateIndices)
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var cpuTensor = _cpu.CreateTensor3D(depth.AsRange().Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomInit
                 ? Convert.ToSingle(normalDistribution.Sample())
                 : Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
@@ -359,7 +359,7 @@ namespace BrightData.UnitTests
 
         void CheckTensorReverseIm2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride, uint depth, uint filterCount, uint inputWidth, uint inputHeight)
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var cpuTensor = _cpu.CreateTensor3D(depth.AsRange().Select(_ => _cpu.CreateMatrix(inputHeight, inputWidth, (_, _) => Convert.ToSingle(normalDistribution.Sample()))).ToArray());
             using var im2Col = cpuTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
             using var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (_, _) => normalDistribution.Sample());
@@ -793,7 +793,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Tensor3DTransposeThisAndMultiply()
         {
-            var normalDistribution = _context.CreateNormalDistribution();
+            var normalDistribution = _context.CreateNormalDistribution<float>();
             var tensor1 = CheckCreateTensor(9, 3, 3, (_, _, _) => normalDistribution.Sample());
             var data = 3.AsRange().Select(_ => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
@@ -814,7 +814,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Tensor3DMultiply()
         {
-            var normalDistribution = _context.CreateNormalDistribution();
+            var normalDistribution = _context.CreateNormalDistribution<float>();
             var tensor1 = CheckCreateTensor(3, 9, 3, (_, _, _) => normalDistribution.Sample());
             var data = 3.AsRange().Select(_ => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
@@ -900,7 +900,7 @@ namespace BrightData.UnitTests
         {
             const int rows = 4, columns = 4, depth = 1, count = 1, filterWidth = 2, filterHeight = 2, filterCount = 1, xStride = 2, yStride = 2;
 
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             var data = Enumerable.Range(0, count)
                 .Select(_ => CheckCreateTensor(rows, columns, depth, (_, _, _) => normalDistribution.Sample())).ToArray();
             using var cpuTensor = _cpu.CreateTensor4D(data);

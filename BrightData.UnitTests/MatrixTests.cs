@@ -539,7 +539,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSigmoidActivation()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.Sigmoid();
             using var gpu = Apply(_cuda, a, (a) => a.Sigmoid());
@@ -550,7 +550,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSigmoidDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.SigmoidDerivative();
             using var gpu = Apply(_cuda, a, (a) => a.SigmoidDerivative());
@@ -561,7 +561,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTanhActivation()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.Tanh();
             using var gpu = Apply(_cuda, a, a => a.Tanh());
@@ -572,7 +572,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTanhDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.TanhDerivative();
             using var gpu = Apply(_cuda, a, a => a.TanhDerivative());
@@ -583,7 +583,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixReluActivation()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.Relu();
             using var gpu = Apply(_cuda, a, a => a.Relu());
@@ -594,7 +594,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixReluDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.ReluDerivative();
             using var gpu = Apply(_cuda, a, a => a.ReluDerivative());
@@ -605,7 +605,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixLeakyReluActivation()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.LeakyRelu();
             using var gpu = Apply(_cuda, a, a => a.LeakyRelu());
@@ -616,7 +616,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixLeakyReluDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.LeakyReluDerivative();
             using var gpu = Apply(_cuda, a, a => a.LeakyReluDerivative());
@@ -627,7 +627,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSoftmaxActivation()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var cpu = a.Softmax();
             using var gpu = Apply(_cuda, a, a => a.Softmax());
@@ -638,7 +638,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSoftmaxPerRow()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             var cpu = a.SoftmaxPerRow().Select(x => _cpu.CreateVector(x)).ToArray();
             var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow().Select(x => _cuda.CreateVector(x)).ToArray());
@@ -649,7 +649,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixRowVector2()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             var cpu = 3.AsRange().Select(a.GetRowVector).ToArray();
             var gpu = Apply(_cuda, a, a => 3.AsRange().Select(a.GetRowVector).ToArray());
@@ -660,7 +660,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixRowVectorsTransposed()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             using var aT = a.Transpose();
             var cpu = 3.AsRange().Select(aT.GetColumnVector).ToArray();
@@ -672,7 +672,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSoftmaxDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             var cpu = _cpu.SoftmaxDerivative(a.Segment);
             var gpu = Apply(_cuda, a, a => _cuda.SoftmaxDerivative(a.Segment));
@@ -683,7 +683,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixSoftmaxPerRowDerivative()
         {
-            var normalDistribution = _context.CreateNormalDistribution(0, 1);
+            var normalDistribution = _context.CreateNormalDistribution<float>(0, 1);
             using var a = _cpu.CreateMatrix(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample()));
             var cpu = a.SoftmaxPerRow();
             var gpu = Apply(_cuda, a, a => a.SoftmaxPerRow());
@@ -961,7 +961,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixConstrain()
         {
-            var distribution = _context.CreateNormalDistribution(0, 5);
+            var distribution = _context.CreateNormalDistribution<float>(0, 5);
             using var cpu = _cpu.CreateMatrix(100, 100, (x, y) => Convert.ToSingle(distribution.Sample()));
             using var gpu = Apply(_cuda, cpu, a => a.ConstrainInPlace(-2f, 2f));
             using var mkl = Apply(_mkl, cpu, a => a.ConstrainInPlace(-2f, 2f));

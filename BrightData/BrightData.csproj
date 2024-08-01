@@ -63,11 +63,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>GenericTypeMapping.tt</DependentUpon>
     </None>
-    <None Include="Types\FixedSizeSortedArray\FixedSizeSortedArray.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>FixedSizeSortedArray.tt</DependentUpon>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -86,6 +81,10 @@
     <None Update="readme.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Types\FixedSizeSortedArray\FixedSizeSortedArrayTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FixedSizeSortedArrayTemplate.cs</LastGenOutput>
     </None>
     <None Update="Types\FixedSizeSortedArray\FixedSizeSortedArray.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -113,10 +112,14 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>GenericTypeMapping.tt</DependentUpon>
     </Compile>
-    <Compile Update="Types\FixedSizeSortedArray\FixedSizeSortedArray.cs">
+    <Compile Update="Types\Helper\SortedArrayHelper.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>FixedSizeSortedArray.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Types\FixedSizeSortedArray\FixedSizeSortedArrayTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FixedSizeSortedArrayTemplate.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

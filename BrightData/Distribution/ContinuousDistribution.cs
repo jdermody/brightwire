@@ -1,27 +1,29 @@
 ﻿using System;
+using System.Numerics;
 
 namespace BrightData.Distribution
 {
     /// <summary>
     /// Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
     /// </summary>
-    internal class ContinuousDistribution : IContinuousDistribution
+    internal class ContinuousDistribution<T> : IContinuousDistribution<T>
+        where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>
     {
         readonly BrightDataContext _context;
 
-        public ContinuousDistribution(BrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f)
+        public ContinuousDistribution(BrightDataContext context, T? inclusiveLowerBound = null, T? exclusiveUpperBound = null)
         {
             if (inclusiveLowerBound > exclusiveUpperBound)
                 throw new ArgumentException("Lower bound was higher than upper bound");
 
             _context = context;
-            From = inclusiveLowerBound;
-            Size = exclusiveUpperBound - inclusiveLowerBound;
+            From = inclusiveLowerBound ?? T.Zero;
+            Size = (exclusiveUpperBound ?? T.One) - From;
         }
 
-        public float From { get; }
-        public float Size { get; }
+        public T From { get; }
+        public T Size { get; }
 
-        public float Sample() => From + _context.NextRandomFloat() * Size;
+        public T Sample() => From + _context.NextRandom<T>() * Size;
     }
 }

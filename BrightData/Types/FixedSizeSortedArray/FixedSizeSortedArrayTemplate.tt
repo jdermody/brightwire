@@ -9,11 +9,12 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using BrightData.Types.FixedSizeSortedArray;
+using BrightData.Types.Helper;
+using System.Linq;
 
 namespace BrightData.Types
 {
-<# for(var i = 2; i <= 32; i++) { #>
+<# for(var i = 1; i <= 32; i++) { #>
     /// <summary>
     /// Fixed size sorted array of values and weights (max <#= i #> elements)
     /// that is sorted in ascending order based on each weight
@@ -110,13 +111,16 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="value">Value to add</param>
         /// <param name="weight">Weight to add</param>
-        /// <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+        /// <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            return FixedSizeSortedArrayHelper.InsertIntoAscending(enforceUnique, ref _size, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, MaxSize, value, weight, values, weights);
+            if(ret && _size < MaxSize)
+                ++_size;
+            return ret;
         }
 
         /// <summary>
@@ -124,15 +128,19 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="index">Index of element to remove</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public void RemoveAt(byte index)
+        public V RemoveAt(byte index)
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
-            FixedSizeSortedArrayHelper.RemoveAt(index, values, weights);
+            var ret = values[index];
+            SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
+            return ret;
         }
+
+        public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
     /// <summary>
@@ -141,7 +149,7 @@ namespace BrightData.Types
     /// </summary>
     /// <typeparam name="V">Type of value to store</typeparam>
     /// <typeparam name="W">Type of weight that will be used to sort</typeparam>
-    public record struct FixedSizeSortedDescending<#= i #>Array<V, W>()
+    public record struct FixedSizeSortedDescending<#= i #>Array<V, W>() : IFixedSizeSortedArray<V, W>
         where V : IComparable<V>
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
@@ -149,6 +157,7 @@ namespace BrightData.Types
         /// Max size of the array
         /// </summary>
         public const int MaxSize = <#= i #>;
+        byte IFixedSizeSortedArray<V, W>.MaxSize => MaxSize;
 
         [InlineArray(MaxSize)]
         internal struct ValueArray
@@ -226,17 +235,20 @@ namespace BrightData.Types
         }
 
         /// <summary>
-        /// Tries to add a new element - will succeed if there aren't already max elements with a smaller weight
+        /// Tries to add a new element - will succeed if there aren't already max elements with a higher weight
         /// </summary>
         /// <param name="value">Value to add</param>
         /// <param name="weight">Weight to add</param>
-        /// <param name="enforceUnique">True if values should be unique - will return false if the value already exists</param>
+        /// <param name="enforceUnique">True if elements should be unique - will return false if the value and weight already exists</param>
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
-            return FixedSizeSortedArrayHelper.InsertIntoDescending(enforceUnique, ref _size, MaxSize, value, weight, values, weights);
+            var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, MaxSize, value, weight, values, weights);
+            if(ret && _size < MaxSize)
+                ++_size;
+            return ret;
         }
 
         /// <summary>
@@ -244,15 +256,19 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="index">Index of element to remove</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public void RemoveAt(byte index)
+        public V RemoveAt(byte index)
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
-            FixedSizeSortedArrayHelper.RemoveAt(index, values, weights);
+            var ret = values[index];
+            SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
+            return ret;
         }
+
+        public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
 <# } #>

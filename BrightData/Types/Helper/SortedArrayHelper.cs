@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BrightData.Types.FixedSizeSortedArray
+namespace BrightData.Types.Helper
 {
-    internal class FixedSizeSortedArrayHelper
+    /// <summary>
+    /// Fixed size array helper methods
+    /// </summary>
+    public class SortedArrayHelper
     {
-        public static bool InsertIntoAscending<V, W>(bool enforceUnique, ref byte size, byte maxSize, V value, W weight, Span<V> values, Span<W> weights)
+        internal static bool InsertIntoAscending<V, W>(bool enforceUnique, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
             where V : IComparable<V>
             where W : unmanaged, INumber<W>, IMinMaxValue<W>
         {
+            var size = values.Length;
             var isFull = size == maxSize;
 
             // check to see if it should be inserted
@@ -20,17 +20,20 @@ namespace BrightData.Types.FixedSizeSortedArray
                 return false;
 
             // use binary search to find the insertion position
-            int left = 0, 
-                right = size - 1, 
+            int left = 0,
+                right = size - 1,
                 insertPosition = size
             ;
-            while (left <= right) {
+            while (left <= right)
+            {
                 var mid = left + (right - left) / 2;
-                if (weights[mid] > weight) {
+                if (weights[mid] > weight)
+                {
                     insertPosition = mid;
                     right = mid - 1;
                 }
-                else {
+                else
+                {
                     // check for an existing weight/value
                     if (enforceUnique && weights[mid] == weight && values[mid].CompareTo(value) == 0)
                         return false;
@@ -38,9 +41,11 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
             }
 
-            if (enforceUnique) {
+            if (enforceUnique)
+            {
                 // check if the same element already exists in the left partition
-                for (var i = insertPosition - 1; i >= 0; i--) {
+                for (var i = insertPosition - 1; i >= 0; i--)
+                {
                     if (weights[i] < weight)
                         break;
                     if (values[i].CompareTo(value) == 0)
@@ -48,7 +53,8 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
 
                 // check if the same element already exists in the right partition
-                for (var i = insertPosition; i < size; i++) {
+                for (var i = insertPosition; i < size; i++)
+                {
                     if (weights[i] > weight)
                         break;
                     if (values[i].CompareTo(value) == 0)
@@ -56,14 +62,17 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
             }
 
-            if (insertPosition == size) {
+            if (insertPosition == size)
+            {
                 // there is no room left
                 if (isFull)
                     return false;
             }
-            else {
+            else
+            {
                 // shuffle to make room
-                for (var i = size - (isFull ? 2 : 1); i >= insertPosition; i--) {
+                for (var i = size - (isFull ? 2 : 1); i >= insertPosition; i--)
+                {
                     values[i + 1] = values[i];
                     weights[i + 1] = weights[i];
                 }
@@ -72,15 +81,14 @@ namespace BrightData.Types.FixedSizeSortedArray
             // insert the item
             values[insertPosition] = value;
             weights[insertPosition] = weight;
-            if (!isFull)
-                ++size;
             return true;
         }
 
-        public static bool InsertIntoDescending<V, W>(bool enforceUnique, ref byte size, byte maxSize, V value, W weight, Span<V> values, Span<W> weights)
+        internal static bool InsertIntoDescending<V, W>(bool enforceUnique, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
             where V : IComparable<V>
             where W : unmanaged, INumber<W>, IMinMaxValue<W>
         {
+            var size = values.Length;
             var isFull = size == maxSize;
 
             // check to see if it should be inserted
@@ -88,17 +96,20 @@ namespace BrightData.Types.FixedSizeSortedArray
                 return false;
 
             // use binary search to find the insertion position
-            int left = 0, 
-                right = size - 1, 
+            int left = 0,
+                right = size - 1,
                 insertPosition = size
             ;
-            while (left <= right) {
+            while (left <= right)
+            {
                 var mid = left + (right - left) / 2;
-                if (weights[mid] < weight) {
+                if (weights[mid] < weight)
+                {
                     insertPosition = mid;
                     right = mid - 1;
                 }
-                else {
+                else
+                {
                     // check for an existing weight/value
                     if (enforceUnique && weights[mid] == weight && values[mid].CompareTo(value) == 0)
                         return false;
@@ -106,9 +117,11 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
             }
 
-            if (enforceUnique) {
+            if (enforceUnique)
+            {
                 // check if the same element already exists in the left partition
-                for (var i = insertPosition - 1; i >= 0; i--) {
+                for (var i = insertPosition - 1; i >= 0; i--)
+                {
                     if (weights[i] > weight)
                         break;
                     if (values[i].CompareTo(value) == 0)
@@ -116,7 +129,8 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
 
                 // check if the same element already exists in the right partition
-                for (var i = insertPosition; i < size; i++) {
+                for (var i = insertPosition; i < size; i++)
+                {
                     if (weights[i] < weight)
                         break;
                     if (values[i].CompareTo(value) == 0)
@@ -124,14 +138,17 @@ namespace BrightData.Types.FixedSizeSortedArray
                 }
             }
 
-            if (insertPosition == size) {
+            if (insertPosition == size)
+            {
                 // there is no room left
                 if (isFull)
                     return false;
             }
-            else {
+            else
+            {
                 // shuffle to make room
-                for (var i = size - (isFull ? 2 : 1); i >= insertPosition; i--) {
+                for (var i = size - (isFull ? 2 : 1); i >= insertPosition; i--)
+                {
                     values[i + 1] = values[i];
                     weights[i + 1] = weights[i];
                 }
@@ -140,15 +157,13 @@ namespace BrightData.Types.FixedSizeSortedArray
             // insert the item
             values[insertPosition] = value;
             weights[insertPosition] = weight;
-            if (!isFull)
-                ++size;
             return true;
         }
 
-        public static void RemoveAt<V, W>(byte index, Span<V> values, Span<W> weights)
+        internal static void RemoveAt<V, W>(int index, Span<V> values, Span<W> weights)
         {
-            values[(index+1)..].CopyTo(values[index..]);
-            weights[(index+1)..].CopyTo(weights[index..]);
+            values[(index + 1)..].CopyTo(values[index..]);
+            weights[(index + 1)..].CopyTo(weights[index..]);
         }
     }
 }

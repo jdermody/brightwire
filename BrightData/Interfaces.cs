@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Types;
@@ -301,7 +302,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IDistribution<out T>
-        where T : struct
+        where T : unmanaged, INumber<T>
     {
         /// <summary>
         /// Samples a value from the distribution
@@ -323,7 +324,7 @@ namespace BrightData
     /// <summary>
     /// Continuous data distribution
     /// </summary>
-    public interface IContinuousDistribution : IDistribution<float>;
+    public interface IContinuousDistribution<out T> : IDistribution<T> where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>;
 
     /// <summary>
     /// Indicates that the type has a size
@@ -636,6 +637,45 @@ namespace BrightData
         /// </summary>
         /// <param name="index">Index of element to remove</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        void RemoveAt(byte index);
+        V RemoveAt(byte index);
+    }
+
+    public interface IGraphNode : IHaveSingleIndex
+    {
+        ReadOnlySpan<uint> NeighbourSpan { get; }
+        IEnumerable<uint> Neighbours { get; }
+    }
+
+    public interface IWeightedGraphNode<out T, W> : IGraphNode
+        where T: IHaveSingleIndex
+        where W : unmanaged, INumber<W>, IMinMaxValue<W>
+    {
+        public T Value { get; }
+
+        bool AddNeighbour(uint index, W weight);
+
+        IEnumerable<(uint Index, W Weight)> WeightedNeighbours { get; }
+    }
+
+    public interface ICalculateNodeWeights<out W>
+        where W : unmanaged, INumber<W>, IMinMaxValue<W>
+    {
+        W GetWeight(uint fromIndex, uint toIndex);
+    }
+
+    public interface IWeightedGraph<T, W> : IHaveSize
+        where T: IHaveSingleIndex
+        where W : unmanaged, INumber<W>, IMinMaxValue<W>
+    {
+        IWeightedGraphNode<T, W> Create(T value, bool addToGraph = true);
+
+        void Add(IWeightedGraphNode<T, W> node);
+
+        IWeightedGraphNode<T, W> Get(uint index);
+
+        RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
+            where RAT : struct, IFixedSizeSortedArray<uint, W>
+            where CAT : struct, IFixedSizeSortedArray<uint, W>
+        ;
     }
 }

@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     internal class Xavier(LinearAlgebraProvider<float> lap, float parameter = 6) : IWeightInitialisation
     {
         readonly float _parameter = MathF.Sqrt(parameter);
-        readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new();
+        readonly Dictionary<(uint, uint), IContinuousDistribution<float>> _distributionTable = [];
 
         public IVector<float> CreateBias(uint size)
         {
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             var key = (inputSize, outputSize);
             if (!_distributionTable.TryGetValue(key, out var distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
-                _distributionTable.Add(key, distribution = lap.Context.CreateContinuousDistribution(0, stdDev));
+                _distributionTable.Add(key, distribution = lap.Context.CreateContinuousDistribution<float>(0, stdDev));
             }
             return distribution.Sample();
         }
