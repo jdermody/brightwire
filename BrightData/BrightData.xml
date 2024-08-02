@@ -17767,16 +17767,22 @@
             <typeparam name="W"></typeparam>
             <typeparam name="AT"></typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Create(`0,System.Boolean)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(BrightData.IWeightedGraphNode{`0,`1})">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Size">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetNeighbours(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Size">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">

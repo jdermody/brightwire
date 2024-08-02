@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrightData.Types.Helper;
 
 namespace BrightData.Types
 {
-    public class SortedArray<V, W>(int? capacity = null, bool isAscending = true) : IHaveSize
-        where V : IComparable<V>
+    public class SortedArray<V, W>(int? capacity = null) : 
+        IHaveSize
+        where V : unmanaged, IComparable<V>
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
         readonly List<V> _values = capacity.HasValue ? new(capacity.Value) : new();
@@ -22,16 +24,15 @@ namespace BrightData.Types
         {
             _values.Add(item);
             _weights.Add(weight);
-            return isAscending
-                ? SortedArrayHelper.InsertIntoAscending(false, Size-1, uint.MaxValue, item, weight, Values, Weights)
-                : SortedArrayHelper.InsertIntoDescending(false, Size-1, uint.MaxValue, item, weight, Values, Weights)
-            ;
+            return SortedArrayHelper.InsertIntoAscending(false, Size-1, uint.MaxValue, item, weight, Values, Weights);
         }
 
-        public void RemoveAt(uint index)
+        public ref V Get(W weight)
         {
-            _values.RemoveAt((int)index);
-            _weights.RemoveAt((int)index);
+            var index = Weights.BinarySearch(weight);
+            if (index >= 0)
+                return ref Values[index];
+            return ref Unsafe.NullRef<V>();
         }
 
         public bool TryGet(W weight, [NotNullWhen(true)]out V? value)

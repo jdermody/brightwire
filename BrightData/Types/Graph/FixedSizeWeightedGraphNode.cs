@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightData.Types.Graph
 {
     /// <summary>
     /// A graph node with a (fixed size) maximum number of neighbours
     /// </summary>
-    public record FixedSizeWeightedGraphNode<T, W, AT>(T Value) : IWeightedGraphNode<T, W>, IComparable<FixedSizeWeightedGraphNode<T, W, AT>>
-        where T : IHaveSingleIndex
+    public record struct FixedSizeWeightedGraphNode<T, W, AT>(T Value) : IWeightedGraphNode<T, W>, IComparable<FixedSizeWeightedGraphNode<T, W, AT>>, IHaveSingleIndex
+        where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
-        where AT : struct, IFixedSizeSortedArray<uint, W>
+        where AT : unmanaged, IFixedSizeSortedArray<uint, W>
     {
         AT _neighbours = new();
 
@@ -54,7 +51,8 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public int CompareTo(FixedSizeWeightedGraphNode<T, W, AT>? other) => Value.Index.CompareTo(other?.Value.Index);
+        //public int CompareTo(FixedSizeWeightedGraphNode<T, W, AT>? other) => Value.Index.CompareTo(other?.Value.Index);
+        public int CompareTo(FixedSizeWeightedGraphNode<T, W, AT> other) => Value.Index.CompareTo(other.Value.Index);
 
         /// <inheritdoc />
         public override string ToString() => $"{Value}: {_neighbours}";

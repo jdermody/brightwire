@@ -9,12 +9,12 @@ using BrightData.Distribution;
 namespace BrightData.Types.Graph
 {
     public class HierarchicalNavigationSmallWorldGraph<T, W, AT, BLAT>(BrightDataContext context, int maxLayers)
-        where T : IHaveSingleIndex
+        where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>, IBinaryFloatingPointIeee754<W>
-        where AT : struct, IFixedSizeSortedArray<uint, W>
-        where BLAT : struct, IFixedSizeSortedArray<uint, W>
+        where AT : unmanaged, IFixedSizeSortedArray<uint, W>
+        where BLAT : unmanaged, IFixedSizeSortedArray<uint, W>
     {
-        public record NodeIndex(T Value, uint LayerIndex) : IHaveSingleIndex
+        public record struct NodeIndex(T Value, uint LayerIndex) : IHaveSingleIndex
         {
             public uint Index => Value.Index;
         }
@@ -23,10 +23,12 @@ namespace BrightData.Types.Graph
             .Select(i => (IWeightedGraph<NodeIndex, W>)(i == 0 ? new FixedSizeWeightedGraph<NodeIndex, W, BLAT>() : new FixedSizeWeightedGraph<NodeIndex, W, AT>()))
             .ToArray()
         ;
-        IWeightedGraphNode<NodeIndex, W>? _entryPoint = null;
+        NodeIndex? _entryPoint = null;
 
         public void Add(IEnumerable<T> values, ICalculateNodeWeights<W> distanceCalculator)
         {
+            Span<(uint, W)> newNodeNeighbours = stackalloc (uint, W)[32];
+
             foreach (var value in values) {
                 var entryPoint = _entryPoint;
                 var level = GetRandomLevel();
@@ -37,26 +39,26 @@ namespace BrightData.Types.Graph
                     entryPointLevel = entryPoint.Value.LayerIndex;
                     for (var i = entryPointLevel.Value; i > level; i--) {
                         var layer = _layers[i];
-                        var w = layer.Search<FixedSizeSortedAscending1Array<uint, W>, AT>(value.Index, entryPoint.Index, distanceCalculator);
+                        var w = layer.Search<FixedSizeSortedAscending1Array<uint, W>, AT>(value.Index, entryPoint.Value.Index, distanceCalculator);
                         entryPoint = layer.Get(w.MinValue);
                     }
                 }
 
                 // add to levels
-                var from = Math.Min(level, entryPoint?.Value.LayerIndex ?? int.MaxValue);
+                var from = Math.Min(level, entryPoint?.LayerIndex ?? int.MaxValue);
                 for(var i = level; i > from; i--)
-                    _layers[i].Create(new NodeIndex(value, (uint)i));
+                    _layers[i].Add(new NodeIndex(value, (uint)i));
                 for (var i = from; i >= 0; i--) {
                     var layer = _layers[i];
-                    var newNode = layer.Create(new NodeIndex(value, (uint)i), false);
+                    var newNodeIndex = 0;
                     if (entryPoint is not null) {
-                        var w = layer.Search<AT, BLAT>(value.Index, entryPoint.Index, distanceCalculator);
+                        var w = layer.Search<AT, BLAT>(value.Index, entryPoint.Value.Index, distanceCalculator);
                         foreach (var (ni, nw) in w.Elements) {
-                            layer.Get(ni).AddNeighbour(value.Index, nw);
-                            newNode.AddNeighbour(ni, nw);
+                            layer.AddNeighbour(ni, value.Index, nw);
+                            newNodeNeighbours[newNodeIndex++] = (ni, nw);
                         }
                     }
-                    layer.Add(newNode);
+                    layer.Add(new NodeIndex(value, (uint)i), newNodeNeighbours[..newNodeIndex]);
                 }
 
                 if(!entryPointLevel.HasValue || level > entryPointLevel.Value)
@@ -67,7 +69,7 @@ namespace BrightData.Types.Graph
         public AT KnnSearch(uint q, ICalculateNodeWeights<W> distanceCalculator)
         {
             var entryPoint = _entryPoint ?? throw new Exception("No nodes in graph");
-            for (var i = (int)entryPoint.Value.LayerIndex; i > 0; i--) {
+            for (var i = (int)entryPoint.LayerIndex; i > 0; i--) {
                 var layer = _layers[i];
                 var w = layer.Search<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
                 entryPoint = layer.Get(w.MinValue);
@@ -83,8 +85,7 @@ namespace BrightData.Types.Graph
             queue.Enqueue(index);
 
             while (queue.Count > 0) {
-                var node = layer.Get(queue.Dequeue());
-                foreach (var neighbour in node.Neighbours) {
+                foreach (var neighbour in layer.GetNeighbours(queue.Dequeue()).ToArray()) {
                     if(!visited.Add(neighbour))
                         continue;
                     yield return neighbour;

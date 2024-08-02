@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,40 +15,59 @@ namespace BrightData.Types.Graph
     /// <typeparam name="W"></typeparam>
     /// <typeparam name="AT"></typeparam>
     public class FixedSizeWeightedGraph<T, W, AT> : IWeightedGraph<T, W>
-        where T : IHaveSingleIndex
+        where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
-        where AT : struct, IFixedSizeSortedArray<uint, W>
+        where AT : unmanaged, IFixedSizeSortedArray<uint, W>
 
     {
-        readonly SortedArray<FixedSizeWeightedGraphNode<T, W, AT>, uint> _nodes = new();
+        readonly IndexedSortedArray<FixedSizeWeightedGraphNode<T, W, AT>> _nodes = new();
 
         /// <inheritdoc />
-        public IWeightedGraphNode<T, W> Create(T value, bool addToGraph = true)
+        public void Add(T value)
         {
-            var ret = new FixedSizeWeightedGraphNode<T, W, AT>(value);
-            if(addToGraph)
-                _nodes.Add(value.Index, ret);
-            return ret;
+            _nodes.Add(new FixedSizeWeightedGraphNode<T, W, AT>(value));
         }
 
         /// <inheritdoc />
-        public void Add(IWeightedGraphNode<T, W> node)
+        public void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours)
         {
-            if(node is FixedSizeWeightedGraphNode<T, W, AT> same)
-                _nodes.Add(same.Index, same);
-            else {
-                var ret = new FixedSizeWeightedGraphNode<T, W, AT>(node.Value);
-                foreach (var (neighbour, weight) in node.WeightedNeighbours)
-                    ret.AddNeighbour(neighbour, weight);
-                _nodes.Add(ret.Index, ret);
+            var node = new FixedSizeWeightedGraphNode<T, W, AT>(value);
+            foreach (var (index, weight) in neighbours)
+                node.AddNeighbour(index, weight);
+            _nodes.Add(node);
+        }
+
+        /// <inheritdoc />
+        public T Get(uint nodeIndex)
+        {
+            ref var node = ref _nodes.Get(nodeIndex);
+            if (!Unsafe.IsNullRef(ref node))
+                return node.Value;
+            throw new ArgumentException($"Node with index {nodeIndex} was not found");
+        }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<uint> GetNeighbours(uint nodeIndex)
+        {
+            ref var node = ref _nodes.Get(nodeIndex);
+            if (!Unsafe.IsNullRef(ref node))
+                return node.NeighbourSpan;
+            return ReadOnlySpan<uint>.Empty;
+        }
+
+        /// <inheritdoc />
+        public bool AddNeighbour(uint nodeIndex, uint neighbourIndex, W weight)
+        {
+            ref var node = ref _nodes.Get(nodeIndex);
+            if (!Unsafe.IsNullRef(ref node)) {
+                return node.AddNeighbour(neighbourIndex, weight);
             }
+
+            return false;
         }
 
         /// <inheritdoc />
         public uint Size => _nodes.Size;
-
-        /// <inheritdoc />
-        public IWeightedGraphNode<T, W> Get(uint index) => _nodes.TryGet(index, out var ret) ? ret : throw new ArgumentException("Index not found");
 
         /// <inheritdoc />
         public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
@@ -67,7 +87,7 @@ namespace BrightData.Types.Graph
                 if (distanceCalculator.GetWeight(c, q) > distanceCalculator.GetWeight(f, q))
                     break;
 
-                foreach (var neighbour in Get(c).NeighbourSpan) {
+                foreach (var neighbour in GetNeighbours(c)) {
                     if(!visited.Add(neighbour))
                         continue;
 

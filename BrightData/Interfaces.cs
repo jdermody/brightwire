@@ -667,15 +667,18 @@ namespace BrightData
         where T: IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
-        IWeightedGraphNode<T, W> Create(T value, bool addToGraph = true);
+        void Add(T value);
+        void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours);
 
-        void Add(IWeightedGraphNode<T, W> node);
-
-        IWeightedGraphNode<T, W> Get(uint index);
+        T Get(uint index);
 
         RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
             where RAT : struct, IFixedSizeSortedArray<uint, W>
             where CAT : struct, IFixedSizeSortedArray<uint, W>
         ;
+
+        ReadOnlySpan<uint> GetNeighbours(uint nodeIndex);
+
+        bool AddNeighbour(uint nodeIndex, uint neighbourIndex, W weight);
     }
 }

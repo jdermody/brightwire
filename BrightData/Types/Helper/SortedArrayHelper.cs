@@ -8,6 +8,45 @@ namespace BrightData.Types.Helper
     /// </summary>
     public class SortedArrayHelper
     {
+        internal static bool InsertIndexed<V>(uint currSize, V value, Span<V> values)
+            where V : unmanaged, IHaveSingleIndex
+        {
+            var size = (int)currSize;
+            var index = value.Index;
+
+            // use binary search to find the insertion position
+            int left = 0,
+                right = size - 1,
+                insertPosition = size
+            ;
+            while (left <= right)
+            {
+                var mid = left + (right - left) / 2;
+                if (values[mid].Index > index)
+                {
+                    insertPosition = mid;
+                    right = mid - 1;
+                }
+                else
+                {
+                    left = mid + 1;
+                }
+            }
+
+            if (insertPosition != size)
+            {
+                // shuffle to make room
+                for (var i = size - 1; i >= insertPosition; i--)
+                {
+                    values[i + 1] = values[i];
+                }
+            }
+
+            // insert the item
+            values[insertPosition] = value;
+            return true;
+        }
+
         internal static bool InsertIntoAscending<V, W>(bool enforceUnique, uint currSize, uint maxSize, V value, W weight, Span<V> values, Span<W> weights)
             where V : IComparable<V>
             where W : unmanaged, INumber<W>, IMinMaxValue<W>
