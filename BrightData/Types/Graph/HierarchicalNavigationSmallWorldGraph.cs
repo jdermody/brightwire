@@ -19,8 +19,8 @@ namespace BrightData.Types.Graph
             public uint Index => Value.Index;
         }
         readonly IContinuousDistribution<W> _distribution = context.CreateExponentialDistribution<W>(W.CreateSaturating(maxLayers));
-        readonly IWeightedGraph<NodeIndex, W>[] _layers = Enumerable.Range(0, maxLayers)
-            .Select(i => (IWeightedGraph<NodeIndex, W>)(i == 0 ? new FixedSizeWeightedGraph<NodeIndex, W, BLAT>() : new FixedSizeWeightedGraph<NodeIndex, W, AT>()))
+        readonly IWeightedDynamicGraph<NodeIndex, W>[] _layers = Enumerable.Range(0, maxLayers)
+            .Select(i => (IWeightedDynamicGraph<NodeIndex, W>)(i == 0 ? new FixedSizeWeightedDynamicGraph<NodeIndex, W, BLAT>() : new FixedSizeWeightedDynamicGraph<NodeIndex, W, AT>()))
             .ToArray()
         ;
         NodeIndex? _entryPoint = null;
@@ -40,7 +40,7 @@ namespace BrightData.Types.Graph
                     for (var i = entryPointLevel.Value; i > level; i--) {
                         var layer = _layers[i];
                         var w = layer.Search<FixedSizeSortedAscending1Array<uint, W>, AT>(value.Index, entryPoint.Value.Index, distanceCalculator);
-                        entryPoint = layer.Get(w.MinValue);
+                        entryPoint = layer.Find(w.MinValue);
                     }
                 }
 
@@ -62,7 +62,7 @@ namespace BrightData.Types.Graph
                 }
 
                 if(!entryPointLevel.HasValue || level > entryPointLevel.Value)
-                    _entryPoint = _layers[level].Get(value.Index);
+                    _entryPoint = _layers[level].Find(value.Index);
             }
         }
 
@@ -72,7 +72,7 @@ namespace BrightData.Types.Graph
             for (var i = (int)entryPoint.LayerIndex; i > 0; i--) {
                 var layer = _layers[i];
                 var w = layer.Search<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
-                entryPoint = layer.Get(w.MinValue);
+                entryPoint = layer.Find(w.MinValue);
             }
             return _layers[0].Search<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
         }

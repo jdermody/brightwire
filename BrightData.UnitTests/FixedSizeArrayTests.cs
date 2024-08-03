@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Types;
+using BrightData.Types.Graph;
 using FluentAssertions;
 using Xunit;
 

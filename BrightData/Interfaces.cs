@@ -616,7 +616,7 @@ namespace BrightData
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        (V Value, W Weight) this[byte index] { get; }
+        (V Value, W Weight) this[uint index] { get; }
 
         /// <summary>
         /// Enumerates the values and weights
@@ -652,7 +652,7 @@ namespace BrightData
     {
         public T Value { get; }
 
-        bool AddNeighbour(uint index, W weight);
+        bool TryAddNeighbour(uint index, W weight);
 
         IEnumerable<(uint Index, W Weight)> WeightedNeighbours { get; }
     }
@@ -663,14 +663,13 @@ namespace BrightData
         W GetWeight(uint fromIndex, uint toIndex);
     }
 
-    public interface IWeightedGraph<T, W> : IHaveSize
+    public interface IWeightedGraph<out T, W> : IHaveSize
         where T: IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
-        void Add(T value);
-        void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours);
+        T Find(uint nodeIndex);
 
-        T Get(uint index);
+        T this[uint nodePosition] { get; }
 
         RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
             where RAT : struct, IFixedSizeSortedArray<uint, W>
@@ -680,5 +679,13 @@ namespace BrightData
         ReadOnlySpan<uint> GetNeighbours(uint nodeIndex);
 
         bool AddNeighbour(uint nodeIndex, uint neighbourIndex, W weight);
+    }
+
+    public interface IWeightedDynamicGraph<T, W> : IWeightedGraph<T, W>
+        where T: IHaveSingleIndex
+        where W : unmanaged, INumber<W>, IMinMaxValue<W>
+    {
+        void Add(T value);
+        void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours);
     }
 }

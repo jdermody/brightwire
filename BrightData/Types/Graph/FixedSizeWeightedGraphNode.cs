@@ -18,16 +18,62 @@ namespace BrightData.Types.Graph
         public uint Index => Value.Index;
 
         /// <summary>
+        /// Max number of neighbours
+        /// </summary>
+        public int MaxNeighbours => _neighbours.MaxSize;
+
+        /// <summary>
+        /// Current number of neighbours
+        /// </summary>
+        public byte NeighbourCount => _neighbours.Size;
+
+        /// <summary>
+        /// The smallest neighbour weight
+        /// </summary>
+        public W MinWeight => _neighbours.MinWeight;
+
+        /// <summary>
+        /// The largest neighbour weight
+        /// </summary>
+        public W MaxWeight => _neighbours.MaxWeight;
+
+        /// <summary>
+        /// The index of the neighbour with the smallest weight
+        /// </summary>
+        public uint MinNeighbourIndex => _neighbours.MinValue;
+
+        /// <summary>
+        /// The index of the neighbour with the largest weight
+        /// </summary>
+        public uint MaxNeighbourIndex => _neighbours.MaxValue;
+
+        /// <summary>
+        /// Sorted list of neighbour indices
+        /// </summary>
+        public ReadOnlySpan<uint> NeighbourIndices => _neighbours.Values;
+
+        /// <summary>
+        /// Sorted list of neighbour weights
+        /// </summary>
+        public ReadOnlySpan<W> NeighbourWeights => _neighbours.Weights;
+
+        /// <summary>
         /// Tries to add a new neighbour
         /// </summary>
         /// <param name="index">Index of neighbour</param>
         /// <param name="weight">Neighbour weight</param>
-        public bool AddNeighbour(uint index, W weight)
+        public bool TryAddNeighbour(uint index, W weight)
         {
             if(index != Value.Index)
                 return _neighbours.TryAdd(index, weight);
             return false;
         }
+
+        /// <summary>
+        /// Returns a neighbour weight
+        /// </summary>
+        /// <param name="position">Position of neighbour to return</param>
+        public (uint NeighbourIndex, W NeighbourWeight) this[uint position] => _neighbours[position];
 
         /// <inheritdoc />
         public IEnumerable<(uint Index, W Weight)> WeightedNeighbours => _neighbours.Elements;

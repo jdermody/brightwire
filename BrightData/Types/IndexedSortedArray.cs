@@ -19,13 +19,17 @@ namespace BrightData.Types
         public Span<T> Values => CollectionsMarshal.AsSpan(_values);
         public uint Size => (uint)Values.Length;
 
-        public bool Add(T value)
+        public T this[int position] => _values[position];
+        public T this[uint position] => _values[(int)position];
+
+        public void Add(T value)
         {
             _values.Add(value);
-            return SortedArrayHelper.InsertIndexed(Size - 1, value, Values);
+            if(_values.Count > 1)
+                SortedArrayHelper.InsertIndexed(Size - 1, value, Values);
         }
 
-        public ref T Get(uint itemIndex)
+        public ref T Find(uint itemIndex)
         {
             var arrayIndex = Values.BinarySearch(new Comparer(itemIndex));
             if (arrayIndex >= 0)
@@ -33,7 +37,7 @@ namespace BrightData.Types
             return ref Unsafe.NullRef<T>();
         }
 
-        public bool TryGet(uint itemIndex, [NotNullWhen(true)]out T? value)
+        public bool TryFind(uint itemIndex, [NotNullWhen(true)]out T? value)
         {
             var arrayIndex = Values.BinarySearch(new Comparer(itemIndex));
             if (arrayIndex >= 0) {

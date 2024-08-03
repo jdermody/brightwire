@@ -18,16 +18,20 @@ namespace BrightData.Types
 
         public Span<V> Values => CollectionsMarshal.AsSpan(_values);
         public Span<W> Weights => CollectionsMarshal.AsSpan(_weights);
-        public uint Size => (uint)Values.Length;
+        public uint Size => (uint)_values.Count;
 
-        public bool Add(W weight, in V item)
+        public (V Value, W Weight) this[int position] => (_values[position], _weights[position]);
+        public (V Value, W Weight) this[uint position] => (_values[(int)position], _weights[(int)position]);
+
+        public void Add(in V item, W weight)
         {
             _values.Add(item);
             _weights.Add(weight);
-            return SortedArrayHelper.InsertIntoAscending(false, Size-1, uint.MaxValue, item, weight, Values, Weights);
+            if(_values.Count > 1)
+                SortedArrayHelper.InsertIntoAscending(false, Size-1, uint.MaxValue, item, weight, Values, Weights);
         }
 
-        public ref V Get(W weight)
+        public ref V Find(W weight)
         {
             var index = Weights.BinarySearch(weight);
             if (index >= 0)
@@ -35,7 +39,7 @@ namespace BrightData.Types
             return ref Unsafe.NullRef<V>();
         }
 
-        public bool TryGet(W weight, [NotNullWhen(true)]out V? value)
+        public bool TryFind(W weight, [NotNullWhen(true)]out V? value)
         {
             var index = Weights.BinarySearch(weight);
             if (index >= 0) {

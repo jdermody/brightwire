@@ -1,104 +1,167 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
+using CommunityToolkit.HighPerformance;
 using System.Threading.Tasks;
+using BrightData.Types.Helper;
 
 namespace BrightData.Types.Graph
 {
-    /// <summary>
-    /// A fixed size graph weighted graph
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="W"></typeparam>
-    /// <typeparam name="AT"></typeparam>
-    public class FixedSizeWeightedGraph<T, W, AT> : IWeightedGraph<T, W>
-        where T : unmanaged, IHaveSingleIndex
-        where W : unmanaged, INumber<W>, IMinMaxValue<W>
+    public class FixedSizeWeightedGraph<W, AT> : IWeightedGraph<GraphNodeIndex, W>
+        where W : unmanaged, IBinaryFloatingPointIeee754<W>, IMinMaxValue<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>
-
     {
-        readonly IndexedSortedArray<FixedSizeWeightedGraphNode<T, W, AT>> _nodes = new();
+        readonly FixedSizeWeightedGraphNode<GraphNodeIndex, W, AT>[] _nodes;
 
-        /// <inheritdoc />
-        public void Add(T value)
+        /// <summary>
+        /// Creates a vector graph from an array of nodes
+        /// </summary>
+        /// <param name="nodes"></param>
+        public FixedSizeWeightedGraph(FixedSizeWeightedGraphNode<GraphNodeIndex, W, AT>[] nodes)
         {
-            _nodes.Add(new FixedSizeWeightedGraphNode<T, W, AT>(value));
+            _nodes = nodes;
         }
 
-        /// <inheritdoc />
-        public void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours)
-        {
-            var node = new FixedSizeWeightedGraphNode<T, W, AT>(value);
-            foreach (var (index, weight) in neighbours)
-                node.AddNeighbour(index, weight);
-            _nodes.Add(node);
-        }
+        /// <summary>
+        /// Number of nodes in the graph
+        /// </summary>
+        public uint Size => (uint)_nodes.Length;
 
         /// <inheritdoc />
-        public T Get(uint nodeIndex)
+        public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator) where RAT : struct, IFixedSizeSortedArray<uint, W> where CAT : struct, IFixedSizeSortedArray<uint, W>
         {
-            ref var node = ref _nodes.Get(nodeIndex);
-            if (!Unsafe.IsNullRef(ref node))
-                return node.Value;
-            throw new ArgumentException($"Node with index {nodeIndex} was not found");
+            return WeightedGraphHelper.SearchFixedSize<W, RAT, CAT>(q, entryPoint, distanceCalculator, GetNeighbours);
         }
 
-        /// <inheritdoc />
-        public ReadOnlySpan<uint> GetNeighbours(uint nodeIndex)
-        {
-            ref var node = ref _nodes.Get(nodeIndex);
-            if (!Unsafe.IsNullRef(ref node))
-                return node.NeighbourSpan;
-            return ReadOnlySpan<uint>.Empty;
-        }
+        /// <summary>
+        /// Gets the neighbours for a node, sorted by distance
+        /// </summary>
+        /// <param name="vectorIndex"></param>
+        /// <returns></returns>
+        public ReadOnlySpan<uint> GetNeighbours(uint vectorIndex) => _nodes[vectorIndex].NeighbourIndices;
+
+        /// <summary>
+        /// Gets the weights for the node's neighbours
+        /// </summary>
+        /// <param name="vectorIndex"></param>
+        /// <returns></returns>
+        public ReadOnlySpan<W> GetNeighbourWeights(uint vectorIndex) => _nodes[vectorIndex].NeighbourWeights;
+
+        /// <summary>
+        /// Enumerates the neighbour indices and their weights in ascending order
+        /// </summary>
+        /// <param name="vectorIndex"></param>
+        /// <returns></returns>
+        public IEnumerable<(uint NeighbourIndex, W NeighbourWeight)> GetWeightedNeighbours(uint vectorIndex) => _nodes[vectorIndex].WeightedNeighbours;
 
         /// <inheritdoc />
         public bool AddNeighbour(uint nodeIndex, uint neighbourIndex, W weight)
         {
-            ref var node = ref _nodes.Get(nodeIndex);
+            ref var node = ref _nodes[nodeIndex];
             if (!Unsafe.IsNullRef(ref node)) {
-                return node.AddNeighbour(neighbourIndex, weight);
+                return node.TryAddNeighbour(neighbourIndex, weight);
             }
 
             return false;
         }
 
         /// <inheritdoc />
-        public uint Size => _nodes.Size;
+        public GraphNodeIndex Find(uint nodeIndex)
+        {
+            ref var node = ref _nodes[nodeIndex];
+            if (!Unsafe.IsNullRef(ref node))
+                return node.Value;
+            throw new ArgumentException($"Node with index {nodeIndex} was not found");
+        }
 
         /// <inheritdoc />
-        public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
-            where RAT : struct, IFixedSizeSortedArray<uint, W>
-            where CAT : struct, IFixedSizeSortedArray<uint, W>
+        public GraphNodeIndex this[uint nodePosition] => _nodes[nodePosition].Value;
+
+        /// <summary>
+        /// Creates 
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="distanceMetric"></param>
+        /// <param name="shortCircuitIfNodeNeighboursAreFull"></param>
+        /// <param name="onNode"></param>
+        /// <returns></returns>
+        [SkipLocalsInit]
+        public static unsafe FixedSizeWeightedGraph<W, AT> Build(
+            IStoreVectors<W> vectors, 
+            DistanceMetric distanceMetric, 
+            bool shortCircuitIfNodeNeighboursAreFull = true,
+            Action<uint>? onNode = null)
         {
-            var visited = new HashSet<uint> { entryPoint };
-            var candidates = new CAT();
-            var distanceEQ = distanceCalculator.GetWeight(q, entryPoint);
-            candidates.TryAdd(entryPoint, distanceEQ);
-            var ret = new RAT();
-            ret.TryAdd(entryPoint, distanceEQ);
+            var size = vectors.Size;
+            var distance = size <= 1024 
+                ? stackalloc W[(int)size] 
+                : new W[size];
 
-            while (candidates.Size > 0) {
-                var c = candidates.RemoveAt(0);
-                var f = ret.MaxValue;
-                if (distanceCalculator.GetWeight(c, q) > distanceCalculator.GetWeight(f, q))
-                    break;
+            var ret = GC.AllocateUninitializedArray<FixedSizeWeightedGraphNode<GraphNodeIndex, W, AT>>((int)size);
+            for (var i = 0U; i < size; i++)
+                ret[i] = new(new(i));
 
-                foreach (var neighbour in GetNeighbours(c)) {
-                    if(!visited.Add(neighbour))
-                        continue;
+            for (var i = 0U; i < size; i++)
+            {
+                if (shortCircuitIfNodeNeighboursAreFull && ret[i].NeighbourCount == FixedSizeSortedAscending8Array<uint, W>.MaxSize)
+                    continue;
 
-                    f = ret.MaxValue;
-                    if ((distanceEQ = distanceCalculator.GetWeight(neighbour, q)) < distanceCalculator.GetWeight(f, q)) {
-                        candidates.TryAdd(neighbour, distanceEQ);
-                        ret.TryAdd(neighbour, distanceEQ);
-                    }
+                // find the distance between this node and each of its neighbours
+                fixed (W* dest = distance)
+                {
+                    var destPtr = dest;
+                    var currentIndex = i;
+                    vectors.ForEach((x, j) =>
+                    {
+                        if(currentIndex != j)
+                            destPtr[j] = W.Abs(x.FindDistance(vectors[currentIndex], distanceMetric));
+                    });
                 }
+
+                // find top N closest neighbours
+                var maxHeap = new FixedSizeWeightedGraphNode<GraphNodeIndex, W, FixedSizeSortedAscending8Array<uint, W>>();
+                for (var j = 0; j < size; j++) {
+                    if (i == j)
+                        continue;
+                    var d = distance[j];
+                    maxHeap.TryAddNeighbour((uint)j, d);
+                }
+
+                // connect the closest nodes
+                foreach (var (index, d) in maxHeap.WeightedNeighbours)
+                {
+                    ret[index].TryAddNeighbour(i, d);
+                    ret[i].TryAddNeighbour(index, d);
+                }
+                onNode?.Invoke(i);
             }
-            return ret;
+
+            return new(ret);
+        }
+
+        /// <summary>
+        /// Writes the graph to disk
+        /// </summary>
+        /// <param name="filePath"></param>
+        public async Task WriteToDisk(string filePath)
+        {
+            using var fileHandle = File.OpenHandle(filePath, FileMode.Create, FileAccess.Write, FileShare.None, FileOptions.Asynchronous);
+            await RandomAccess.WriteAsync(fileHandle, _nodes.AsMemory().AsBytes(), 0);
+        }
+
+        /// <summary>
+        /// Loads a vector graph from disk
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static async Task<FixedSizeWeightedGraph<W, AT>> LoadFromDisk(string filePath)
+        {
+            using var fileHandle = File.OpenHandle(filePath);
+            var ret = GC.AllocateUninitializedArray<FixedSizeWeightedGraphNode<GraphNodeIndex, W, AT>>((int)(RandomAccess.GetLength(fileHandle) / Unsafe.SizeOf<FixedSizeWeightedGraphNode<GraphNodeIndex, W, AT>>()));
+            await RandomAccess.ReadAsync(fileHandle, ret.AsMemory().AsBytes(), 0);
+            return new(ret);
         }
     }
 }

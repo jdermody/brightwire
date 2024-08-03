@@ -77,12 +77,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -205,12 +205,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -333,12 +333,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -461,12 +461,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -589,12 +589,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -717,12 +717,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -845,12 +845,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -973,12 +973,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1101,12 +1101,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1229,12 +1229,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1357,12 +1357,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1485,12 +1485,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1613,12 +1613,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1741,12 +1741,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1869,12 +1869,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -1997,12 +1997,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2125,12 +2125,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2253,12 +2253,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2381,12 +2381,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2509,12 +2509,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2637,12 +2637,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2765,12 +2765,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -2893,12 +2893,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3021,12 +3021,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3149,12 +3149,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3277,12 +3277,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3405,12 +3405,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3533,12 +3533,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3661,12 +3661,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3789,12 +3789,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -3917,12 +3917,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4045,12 +4045,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4173,12 +4173,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4301,12 +4301,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4429,12 +4429,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4557,12 +4557,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4685,12 +4685,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4813,12 +4813,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -4941,12 +4941,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5069,12 +5069,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5197,12 +5197,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5325,12 +5325,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5453,12 +5453,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5581,12 +5581,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5709,12 +5709,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5837,12 +5837,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -5965,12 +5965,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6093,12 +6093,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6221,12 +6221,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6349,12 +6349,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6477,12 +6477,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6605,12 +6605,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6733,12 +6733,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6861,12 +6861,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -6989,12 +6989,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7117,12 +7117,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7245,12 +7245,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7373,12 +7373,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7501,12 +7501,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7629,12 +7629,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7757,12 +7757,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -7885,12 +7885,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -8013,12 +8013,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -8141,12 +8141,12 @@ namespace BrightData.Types
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[byte index]
+        public readonly (V Value, W Weight) this[uint index]
         {
             get
             {
                 if (index < Size)
-                    return (Values[index], Weights[index]);
+                    return (Values[(int)index], Weights[(int)index]);
                 throw new ArgumentOutOfRangeException();
             }
         }
