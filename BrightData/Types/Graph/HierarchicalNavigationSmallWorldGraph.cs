@@ -2,19 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.Distribution;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Types.Graph
 {
+    /// <summary>
+    /// A graph that uses multiple sub graphs as a skip list
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="maxLayers"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="W"></typeparam>
+    /// <typeparam name="AT"></typeparam>
+    /// <typeparam name="BLAT"></typeparam>
     public class HierarchicalNavigationSmallWorldGraph<T, W, AT, BLAT>(BrightDataContext context, int maxLayers)
         where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>, IBinaryFloatingPointIeee754<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>
         where BLAT : unmanaged, IFixedSizeSortedArray<uint, W>
     {
-        public record struct NodeIndex(T Value, uint LayerIndex) : IHaveSingleIndex
+        readonly record struct NodeIndex(T Value, uint LayerIndex) : IHaveSingleIndex
         {
             public uint Index => Value.Index;
         }
@@ -25,7 +32,13 @@ namespace BrightData.Types.Graph
         ;
         NodeIndex? _entryPoint = null;
 
-        public void Add(IEnumerable<T> values, ICalculateNodeWeights<W> distanceCalculator)
+        /// <summary>
+        /// Adds new nodes to the graph
+        /// </summary>
+        /// <param name="distanceCalculator"></param>
+        /// <param name="values">New nodes</param>
+        [SkipLocalsInit]
+        public void Add(ICalculateNodeWeights<W> distanceCalculator, params T[] values)
         {
             Span<(uint, W)> newNodeNeighbours = stackalloc (uint, W)[32];
 
@@ -39,7 +52,7 @@ namespace BrightData.Types.Graph
                     entryPointLevel = entryPoint.Value.LayerIndex;
                     for (var i = entryPointLevel.Value; i > level; i--) {
                         var layer = _layers[i];
-                        var w = layer.Search<FixedSizeSortedAscending1Array<uint, W>, AT>(value.Index, entryPoint.Value.Index, distanceCalculator);
+                        var w = layer.ProbabilisticSearch<FixedSizeSortedAscending1Array<uint, W>, AT>(value.Index, entryPoint.Value.Index, distanceCalculator);
                         entryPoint = layer.Find(w.MinValue);
                     }
                 }
@@ -52,7 +65,7 @@ namespace BrightData.Types.Graph
                     var layer = _layers[i];
                     var newNodeIndex = 0;
                     if (entryPoint is not null) {
-                        var w = layer.Search<AT, BLAT>(value.Index, entryPoint.Value.Index, distanceCalculator);
+                        var w = layer.ProbabilisticSearch<AT, BLAT>(value.Index, entryPoint.Value.Index, distanceCalculator);
                         foreach (var (ni, nw) in w.Elements) {
                             layer.AddNeighbour(ni, value.Index, nw);
                             newNodeNeighbours[newNodeIndex++] = (ni, nw);
@@ -66,18 +79,30 @@ namespace BrightData.Types.Graph
             }
         }
 
+        /// <summary>
+        /// K nearest neighbour search (probabilistic)
+        /// </summary>
+        /// <param name="q">Node to query</param>
+        /// <param name="distanceCalculator"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public AT KnnSearch(uint q, ICalculateNodeWeights<W> distanceCalculator)
         {
             var entryPoint = _entryPoint ?? throw new Exception("No nodes in graph");
             for (var i = (int)entryPoint.LayerIndex; i > 0; i--) {
                 var layer = _layers[i];
-                var w = layer.Search<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
+                var w = layer.ProbabilisticSearch<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
                 entryPoint = layer.Find(w.MinValue);
             }
-            return _layers[0].Search<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
+            return _layers[0].ProbabilisticSearch<AT, BLAT>(q, entryPoint.Index, distanceCalculator);
         }
 
-        public IEnumerable<uint> BreadthFirstSearch(uint index)
+        /// <summary>
+        /// Breadth first search
+        /// </summary>
+        /// <param name="index">Start node index</param>
+        /// <returns></returns>
+        public IEnumerable<(uint NeighbourIndex, W Weight)> BreadthFirstSearch(uint index)
         {
             var queue = new Queue<uint>();
             var visited = new HashSet<uint> { index};
@@ -85,8 +110,8 @@ namespace BrightData.Types.Graph
             queue.Enqueue(index);
 
             while (queue.Count > 0) {
-                foreach (var neighbour in layer.GetNeighbours(queue.Dequeue()).ToArray()) {
-                    if(!visited.Add(neighbour))
+                foreach (var neighbour in layer.EnumerateNeighbours(queue.Dequeue())) {
+                    if(!visited.Add(neighbour.NeighbourIndex))
                         continue;
                     yield return neighbour;
                 }

@@ -6859,7 +6859,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.IFixedSizeSortedArray`2.Item(System.Byte)">
+        <member name="P:BrightData.IFixedSizeSortedArray`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -9503,7 +9503,7 @@
             Vectors are randomly projected into a random lower dimensional space
             </summary>
         </member>
-        <member name="F:BrightData.VectorIndexStrategy.NearestNeighbours">
+        <member name="F:BrightData.VectorIndexStrategy.HierarchicalNavigableSmallWorld">
             <summary>
             A nearest neighbour graph is created to improve index performance
             </summary>
@@ -12131,146 +12131,6 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper`1.ToString">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2">
-            <summary>
-            Fixed size indexed graph node that maintains weighted list of neighbours as a max heap
-            </summary>
-            <typeparam name="T">Weight type</typeparam>
-            <typeparam name="AT">Array type</typeparam>
-            <param name="Index"></param>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.#ctor(System.UInt32)">
-            <summary>
-            Fixed size indexed graph node that maintains weighted list of neighbours as a max heap
-            </summary>
-            <typeparam name="T">Weight type</typeparam>
-            <typeparam name="AT">Array type</typeparam>
-            <param name="Index"></param>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.Index">
-            <summary></summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.MaxNeighbours">
-            <summary>
-            Max number of neighbours
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.NeighbourCount">
-            <summary>
-            Current number of neighbours
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.MinWeight">
-            <summary>
-            The smallest neighbour weight
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.MaxWeight">
-            <summary>
-            The largest neighbour weight
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.MinNeighbourIndex">
-            <summary>
-            The index of the neighbour with the smallest weight
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.MaxNeighbourIndex">
-            <summary>
-            The index of the neighbour with the largest weight
-            </summary>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.TryAddNeighbour(System.UInt32,`0,System.Boolean)">
-            <summary>
-            Tries to add a new neighbour - will succeed if there aren't already max neighbours with a smaller weight
-            </summary>
-            <param name="neighbourIndex"></param>
-            <param name="neighbourWeight"></param>
-            <param name="enforceUnique"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.NeighbourIndices">
-            <summary>
-            Sorted list of neighbour indices
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.NeighbourWeights">
-            <summary>
-            Sorted list of neighbour weights
-            </summary>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.Item(System.Byte)">
-            <summary>
-            Returns a neighbour weight
-            </summary>
-            <param name="index"></param>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode`2.WeightedNeighbours">
-            <summary>
-            Enumerates the weighted neighbours
-            </summary>
-        </member>
-        <member name="T:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1">
-            <summary>
-            Creates a graph of vectors with a fixed size set of neighbours
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.#ctor(BrightData.LinearAlgebra.VectorIndexing.Helper.IndexedFixedSizeGraphNode{`0,BrightData.Types.FixedSizeSortedAscending8Array{System.UInt32,`0}}[])">
-            <summary>
-            Creates a vector graph from an array of nodes
-            </summary>
-            <param name="nodes"></param>
-        </member>
-        <member name="P:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.Size">
-            <summary>
-            Number of nodes in the graph
-            </summary>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbours(System.UInt32)">
-            <summary>
-            Gets the neighbours for a node, sorted by distance
-            </summary>
-            <param name="vectorIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetNeighbourWeights(System.UInt32)">
-            <summary>
-            Gets the weights for the node's neighbours
-            </summary>
-            <param name="vectorIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.GetWeightedNeighbours(System.UInt32)">
-            <summary>
-            Enumerates the neighbour indices and their weights in ascending order
-            </summary>
-            <param name="vectorIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.Build(BrightData.IStoreVectors{`0},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
-            <summary>
-            Creates 
-            </summary>
-            <param name="vectors"></param>
-            <param name="distanceMetric"></param>
-            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
-            <param name="onNode"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.WriteToDisk(System.String)">
-            <summary>
-            Writes the graph to disk
-            </summary>
-            <param name="filePath"></param>
-        </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.Helper.VectorGraph`1.LoadFromDisk(System.String)">
-            <summary>
-            Loads a vector graph from disk
-            </summary>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.IndexStrategy.FlatVectorIndex`1.GetDistance(System.ReadOnlyMemory{`0}[],BrightData.DistanceMetric)">
             <summary>
             Find distance between each vector in the set and each input vector
@@ -12284,12 +12144,11 @@
             Represents a set of vectors
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.#ctor(System.UInt32,BrightData.VectorIndexStrategy,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateFlat(System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
             <summary>
-            Creates a vector set
+            Creates a vector set with flat indexing (simplest approach for small data sets)
             </summary>
             <param name="vectorSize">Size of each vector in the set</param>
-            <param name="indexType">Indexing strategy</param>
             <param name="storageType">Storage type</param>
             <param name="capacity">The expected number of vectors (optional)</param>
             <exception cref="T:System.NotSupportedException"></exception>
@@ -12503,7 +12362,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending1Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -12586,7 +12445,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending1Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -12669,7 +12528,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending2Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending2Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -12752,7 +12611,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending2Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending2Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -12835,7 +12694,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending3Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending3Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -12918,7 +12777,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending3Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending3Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13001,7 +12860,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending4Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending4Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13084,7 +12943,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending4Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending4Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13167,7 +13026,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending5Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending5Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13250,7 +13109,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending5Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending5Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13333,7 +13192,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending6Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending6Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13416,7 +13275,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending6Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending6Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13499,7 +13358,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending7Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending7Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13582,7 +13441,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending7Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending7Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13665,7 +13524,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending8Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending8Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13748,7 +13607,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending8Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending8Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13831,7 +13690,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending9Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending9Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13914,7 +13773,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending9Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending9Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -13997,7 +13856,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending10Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending10Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14080,7 +13939,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending10Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending10Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14163,7 +14022,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending11Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending11Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14246,7 +14105,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending11Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending11Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14329,7 +14188,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending12Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending12Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14412,7 +14271,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending12Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending12Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14495,7 +14354,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending13Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending13Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14578,7 +14437,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending13Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending13Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14661,7 +14520,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending14Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending14Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14744,7 +14603,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending14Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending14Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14827,7 +14686,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending15Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending15Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14910,7 +14769,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending15Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending15Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -14993,7 +14852,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending16Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending16Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15076,7 +14935,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending16Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending16Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15159,7 +15018,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending17Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending17Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15242,7 +15101,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending17Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending17Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15325,7 +15184,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending18Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending18Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15408,7 +15267,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending18Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending18Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15491,7 +15350,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending19Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending19Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15574,7 +15433,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending19Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending19Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15657,7 +15516,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending20Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending20Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15740,7 +15599,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending20Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending20Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15823,7 +15682,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending21Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending21Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15906,7 +15765,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending21Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending21Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -15989,7 +15848,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending22Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending22Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16072,7 +15931,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending22Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending22Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16155,7 +16014,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending23Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending23Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16238,7 +16097,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending23Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending23Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16321,7 +16180,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending24Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending24Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16404,7 +16263,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending24Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending24Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16487,7 +16346,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending25Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending25Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16570,7 +16429,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending25Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending25Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16653,7 +16512,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending26Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending26Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16736,7 +16595,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending26Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending26Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16819,7 +16678,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending27Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending27Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16902,7 +16761,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending27Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending27Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -16985,7 +16844,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending28Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending28Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17068,7 +16927,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending28Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending28Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17151,7 +17010,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending29Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending29Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17234,7 +17093,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending29Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending29Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17317,7 +17176,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending30Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending30Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17400,7 +17259,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending30Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending30Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17483,7 +17342,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending31Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending31Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17566,7 +17425,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending31Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending31Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17649,7 +17508,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedAscending32Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedAscending32Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17732,7 +17591,7 @@
             The value with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.FixedSizeSortedDescending32Array`2.Item(System.Byte)">
+        <member name="P:BrightData.Types.FixedSizeSortedDescending32Array`2.Item(System.UInt32)">
             <summary>
             Returns a value and weight
             </summary>
@@ -17759,34 +17618,107 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraph`3">
+        <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
             <summary>
-            A fixed size graph weighted graph
+            A fixed size weighted graph
             </summary>
-            <typeparam name="T"></typeparam>
-            <typeparam name="W"></typeparam>
-            <typeparam name="AT"></typeparam>
+            <typeparam name="T">Type to store in each node</typeparam>
+            <typeparam name="W">Type to describe weights</typeparam>
+            <typeparam name="AT">Array type (fixed size)</typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Add(`0)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Get(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Find(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetNeighbours(System.UInt32)">
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Item(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.GetNeighbours(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Size">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Size">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.#ctor(BrightData.Types.Graph.FixedSizeWeightedGraphNode{BrightData.Types.Graph.GraphNodeIndex,`0,`1}[])">
+            <summary>
+            Creates a vector graph from an array of nodes
+            </summary>
+            <param name="nodes"></param>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Size">
+            <summary>
+            Number of nodes in the graph
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetNeighbours(System.UInt32)">
+            <summary>
+            Gets the neighbours for a node, sorted by distance
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.EnumerateNeighbours(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetNeighbourWeights(System.UInt32)">
+            <summary>
+            Gets the weights for the node's neighbours
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetWeightedNeighbours(System.UInt32)">
+            <summary>
+            Enumerates the neighbour indices and their weights in ascending order
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.AddNeighbour(System.UInt32,System.UInt32,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Find(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Item(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Build(BrightData.IStoreVectors{`0},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
+            <summary>
+            Creates 
+            </summary>
+            <param name="vectors"></param>
+            <param name="distanceMetric"></param>
+            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
+            <param name="onNode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.WriteToDisk(System.String)">
+            <summary>
+            Writes the graph to disk
+            </summary>
+            <param name="filePath"></param>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.LoadFromDisk(System.String)">
+            <summary>
+            Loads a vector graph from disk
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3">
             <summary>
@@ -17801,12 +17733,58 @@
         <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Index">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.AddNeighbour(System.UInt32,`1)">
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxNeighbours">
+            <summary>
+            Max number of neighbours
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourCount">
+            <summary>
+            Current number of neighbours
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MinWeight">
+            <summary>
+            The smallest neighbour weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxWeight">
+            <summary>
+            The largest neighbour weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MinNeighbourIndex">
+            <summary>
+            The index of the neighbour with the smallest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxNeighbourIndex">
+            <summary>
+            The index of the neighbour with the largest weight
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourIndices">
+            <summary>
+            Sorted list of neighbour indices
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourWeights">
+            <summary>
+            Sorted list of neighbour weights
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.TryAddNeighbour(System.UInt32,`1)">
             <summary>
             Tries to add a new neighbour
             </summary>
             <param name="index">Index of neighbour</param>
             <param name="weight">Neighbour weight</param>
+        </member>
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Item(System.UInt32)">
+            <summary>
+            Returns a neighbour weight
+            </summary>
+            <param name="position">Position of neighbour to return</param>
         </member>
         <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.WeightedNeighbours">
             <inheritdoc />

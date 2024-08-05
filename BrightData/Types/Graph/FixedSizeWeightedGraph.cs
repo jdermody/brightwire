@@ -9,6 +9,11 @@ using BrightData.Types.Helper;
 
 namespace BrightData.Types.Graph
 {
+    /// <summary>
+    /// Fixed size weighted graph
+    /// </summary>
+    /// <typeparam name="W"></typeparam>
+    /// <typeparam name="AT"></typeparam>
     public class FixedSizeWeightedGraph<W, AT> : IWeightedGraph<GraphNodeIndex, W>
         where W : unmanaged, IBinaryFloatingPointIeee754<W>, IMinMaxValue<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>
@@ -30,7 +35,7 @@ namespace BrightData.Types.Graph
         public uint Size => (uint)_nodes.Length;
 
         /// <inheritdoc />
-        public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator) where RAT : struct, IFixedSizeSortedArray<uint, W> where CAT : struct, IFixedSizeSortedArray<uint, W>
+        public RAT ProbabilisticSearch<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator) where RAT : struct, IFixedSizeSortedArray<uint, W> where CAT : struct, IFixedSizeSortedArray<uint, W>
         {
             return WeightedGraphHelper.SearchFixedSize<W, RAT, CAT>(q, entryPoint, distanceCalculator, GetNeighbours);
         }
@@ -41,6 +46,9 @@ namespace BrightData.Types.Graph
         /// <param name="vectorIndex"></param>
         /// <returns></returns>
         public ReadOnlySpan<uint> GetNeighbours(uint vectorIndex) => _nodes[vectorIndex].NeighbourIndices;
+
+        /// <inheritdoc />
+        public IEnumerable<(uint NeighbourIndex, W Weight)> EnumerateNeighbours(uint vectorIndex) => _nodes[vectorIndex].WeightedNeighbours;
 
         /// <summary>
         /// Gets the weights for the node's neighbours

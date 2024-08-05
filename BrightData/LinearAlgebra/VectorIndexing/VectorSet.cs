@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Threading.Tasks;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.VectorIndexing.IndexStrategy;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
@@ -19,32 +17,61 @@ namespace BrightData.LinearAlgebra.VectorIndexing
     {
         readonly IVectorIndex<T> _index;
 
+        private VectorSet(IVectorIndex<T> index) => _index = index;
+
         /// <summary>
-        /// Creates a vector set
+        /// Creates a vector set with flat indexing (simplest approach for small data sets)
         /// </summary>
         /// <param name="vectorSize">Size of each vector in the set</param>
-        /// <param name="indexType">Indexing strategy</param>
         /// <param name="storageType">Storage type</param>
         /// <param name="capacity">The expected number of vectors (optional)</param>
         /// <exception cref="NotSupportedException"></exception>
-        public VectorSet(uint vectorSize, VectorIndexStrategy indexType = VectorIndexStrategy.Flat, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        public static VectorSet<T> CreateFlat(uint vectorSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
-            if (indexType == VectorIndexStrategy.Flat)
-                _index = new FlatVectorIndex<T>(storage);
-            else
-                throw new NotSupportedException();
+            return new(new FlatVectorIndex<T>(storage));
         }
 
-        public VectorSet(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, VectorIndexStrategy indexType = VectorIndexStrategy.RandomProjection, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
+        /// <summary>
+        /// Creates a vector set with random projection indexing (reduced dimensionality)
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="vectorSize">Input vector size</param>
+        /// <param name="projectionSize">Projection vector size</param>
+        /// <param name="storageType">Vector storage type</param>
+        /// <param name="capacity">The expected number of vectors (optional)</param>
+        /// <param name="s">Density parameter (random projection)</param>
+        /// <returns></returns>
+        public static VectorSet<T> CreateRandomProjection(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
-            if (indexType == VectorIndexStrategy.RandomProjection)
-                _index = new RandomProjectionIndex<T>(lap, storage, projectionSize, capacity, s);
-            else
-                throw new NotSupportedException();
+            return new(new RandomProjectionVectorIndex<T>(lap, storage, projectionSize, capacity, s));
         }
 
+        /// <summary>
+        /// Creates a vector index that uses a Hierarchical Navigation Small World Graph
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="vectorSize">Size of each input vector</param>
+        /// <param name="storageType">Vector storage type</param>
+        /// <param name="capacity">The expected number of vectors (optional)</param>
+        /// <param name="layers">Number of layers in the HNSW graph</param>
+        /// <param name="distanceMetric">Distance metric</param>
+        /// <returns></returns>
+        public static VectorSet<T> CreateHNSW(BrightDataContext context, uint vectorSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int layers = 5, DistanceMetric distanceMetric = DistanceMetric.Cosine)
+        {
+            var storage = GetStorage(storageType, vectorSize, capacity);
+            return new(new HNSWVectorIndex<T>(context, storage, layers, distanceMetric));
+        }
+
+        /// <summary>
+        /// Creates vector storage
+        /// </summary>
+        /// <param name="storageType">Storage type</param>
+        /// <param name="vectorSize">Size of each input vector</param>
+        /// <param name="capacity">The expected number of vectors (optional)</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public static IStoreVectors<T> GetStorage(VectorStorageType storageType, uint vectorSize, uint? capacity) => storageType switch {
             VectorStorageType.InMemory => new InMemoryVectorStorage<T>(vectorSize, capacity),
             _ => throw new NotSupportedException()
@@ -60,6 +87,11 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// Size of each vector
         /// </summary>
         public uint VectorSize => _index.Storage.VectorSize;
+
+        /// <summary>
+        /// Vector storage
+        /// </summary>
+        public IStoreVectors<T> Storage => _index.Storage;
 
         /// <summary>
         /// Adds a vector to the set
@@ -153,6 +185,12 @@ namespace BrightData.LinearAlgebra.VectorIndexing
             }
         }
 
+        /// <summary>
+        /// Ranks the input vector and returns the closest vectors in the set
+        /// </summary>
+        /// <param name="span">Input vector</param>
+        /// <param name="distanceMetric">Distance metric</param>
+        /// <returns></returns>
         public IEnumerable<uint> Rank(ReadOnlySpan<T> span, DistanceMetric distanceMetric = DistanceMetric.Euclidean) => _index.Rank(span, distanceMetric);
 
         /// <summary>

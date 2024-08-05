@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightData
 {
@@ -25,7 +22,7 @@ namespace BrightData
         /// <summary>
         /// A nearest neighbour graph is created to improve index performance
         /// </summary>
-        NearestNeighbours 
+        HierarchicalNavigableSmallWorld 
     }
 
     /// <summary>
@@ -65,7 +62,7 @@ namespace BrightData
     /// Stores typed vectors
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IStoreVectors<T> : IStoreVectors, IDisposable 
+    public interface IStoreVectors<T> : IStoreVectors, IDisposable
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>

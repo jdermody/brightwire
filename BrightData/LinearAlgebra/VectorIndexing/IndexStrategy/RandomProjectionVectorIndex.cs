@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 {
-    internal class RandomProjectionIndex<T> : IVectorIndex<T>
+    internal class RandomProjectionVectorIndex<T> : IVectorIndex<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         readonly LinearAlgebraProvider<T> _lap;
         readonly IMatrix<T> _randomProjection;
         readonly FlatVectorIndex<T> _projectionIndex;
 
-        public RandomProjectionIndex(LinearAlgebraProvider<T> lap, IStoreVectors<T> storage, uint projectionSize, uint? capacity, int s)
+        public RandomProjectionVectorIndex(LinearAlgebraProvider<T> lap, IStoreVectors<T> storage, uint projectionSize, uint? capacity, int s)
         {
             _lap = lap;
             Storage = storage;

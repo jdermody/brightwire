@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData.Types.Helper;
 
 namespace BrightData.Types.Graph
@@ -59,6 +56,15 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
+        public IEnumerable<(uint NeighbourIndex, W Weight)> EnumerateNeighbours(uint nodeIndex)
+        {
+            ref var node = ref _nodes.Find(nodeIndex);
+            if (!Unsafe.IsNullRef(ref node))
+                return node.WeightedNeighbours;
+            return [];
+        }
+
+        /// <inheritdoc />
         public bool AddNeighbour(uint nodeIndex, uint neighbourIndex, W weight)
         {
             ref var node = ref _nodes.Find(nodeIndex);
@@ -73,7 +79,7 @@ namespace BrightData.Types.Graph
         public uint Size => _nodes.Size;
 
         /// <inheritdoc />
-        public RAT Search<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
+        public RAT ProbabilisticSearch<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
             where RAT : struct, IFixedSizeSortedArray<uint, W>
             where CAT : struct, IFixedSizeSortedArray<uint, W>
         {

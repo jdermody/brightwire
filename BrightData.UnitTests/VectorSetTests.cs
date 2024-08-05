@@ -1,28 +1,20 @@
-﻿using System;
-using BrightData.UnitTests.Helper;
+﻿using BrightData.UnitTests.Helper;
 using System.Linq;
 using BrightData.LinearAlgebra.VectorIndexing;
 using BrightData.Types;
 using BrightData.Types.Graph;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace BrightData.UnitTests
 {
     public class VectorSetTests : UnitTestBase
     {
-        readonly ITestOutputHelper _testOutputHelper;
-
-        public VectorSetTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
 
         [Fact]
         public void Average()
         {
-            using var set = new VectorSet<float>(4);
+            using var set = VectorSet<float>.CreateFlat(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var average = set.GetAverage([0U, 1U]);
@@ -32,7 +24,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank1()
         {
-            using var set = new VectorSet<float>(4);
+            using var set = VectorSet<float>.CreateFlat(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.8f, 0.8f, 0.8f, 0.8f));
@@ -42,7 +34,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank2()
         {
-            using var set = new VectorSet<float>(4);
+            using var set = VectorSet<float>.CreateFlat(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.45f, 0.45f, 0.45f, 0.45f));
@@ -52,7 +44,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Closest()
         {
-            using var set = new VectorSet<float>(4);
+            using var set = VectorSet<float>.CreateFlat(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var score = set.Closest([
