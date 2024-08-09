@@ -6301,6 +6301,85 @@
             <param name="ret">Item that was removed</param>
             <returns>True if there was an item to remove</returns>
         </member>
+        <member name="T:BrightData.Helper.VectorKDTree`1">
+            <summary>
+            KD Tree for vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Helper.VectorKDTree`1.ReadOnlyNode">
+            <summary>
+            Node in the tree
+            </summary>
+            <param name="indices">Span that contains the node data</param>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.#ctor(System.ReadOnlySpan{System.UInt32})">
+            <summary>
+            Node in the tree
+            </summary>
+            <param name="indices">Span that contains the node data</param>
+        </member>
+        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.VectorIndex">
+            <summary>
+            Vector index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.LeftNodeIndex">
+            <summary>
+            Left node index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.RightNodeIndex">
+            <summary>
+            Right node index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.HasLeftBranch">
+            <summary>
+            True if the node has a left branch
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.HasRightBranch">
+            <summary>
+            True if the node has a right branch
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.#ctor(BrightData.IStoreVectors{`0})">
+            <summary>
+            Creates a vector kd tree from all vectors in the vector storage
+            </summary>
+            <param name="storage"></param>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.GetNodeByIndex(System.UInt32)">
+            <summary>
+            Returns a node by index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.GetNodeByVectorIndex(System.UInt32)">
+            <summary>
+            Finds a node by vector index
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.Search(System.ReadOnlySpan{`0})">
+            <summary>
+            Finds the closest node relative to the query vector
+            </summary>
+            <param name="query">Query vector</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.VectorKDTree`1.KnnSearch``1(System.ReadOnlySpan{`0})">
+            <summary>
+            Finds the closest N nodes relative to the query vector
+            </summary>
+            <typeparam name="AT"></typeparam>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IHaveBrightDataContext">
             <summary>
             Indicates that the type has a data context
@@ -6443,6 +6522,83 @@
             Adds a typed object
             </summary>
             <param name="obj"></param>
+        </member>
+        <member name="T:BrightData.IStandardDeviationAnalysis`1">
+            <summary>
+            Standard deviation analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.Mean">
+            <summary>
+            Numerical mean
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleVariance">
+            <summary>
+            Sample variance
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationVariance">
+            <summary>
+            Population variance
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleStdDev">
+            <summary>
+            Sample standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationStdDev">
+            <summary>
+            Population standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.Count">
+            <summary>
+            Count of items that were analysed
+            </summary>
+        </member>
+        <member name="T:BrightData.INumericAnalysis`1">
+            <summary>
+            Numerical analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.L1Norm">
+            <summary>
+            L1 norm
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.L2Norm">
+            <summary>
+            L2 norm
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Min">
+            <summary>
+            Minimum number
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Max">
+            <summary>
+            Maximum number
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.NumDistinct">
+            <summary>
+            Number of unique numbers
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Median">
+            <summary>
+            Median
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Mode">
+            <summary>
+            Mode
+            </summary>
         </member>
         <member name="T:BrightData.NormalizationType">
             <summary>
@@ -6885,6 +7041,135 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:BrightData.IGraphNode">
+            <summary>
+            A graph node
+            </summary>
+        </member>
+        <member name="P:BrightData.IGraphNode.NeighbourSpan">
+            <summary>
+            Span of neighbour indices
+            </summary>
+        </member>
+        <member name="P:BrightData.IGraphNode.Neighbours">
+            <summary>
+            Enumerable of neighbour indices
+            </summary>
+        </member>
+        <member name="T:BrightData.IWeightedGraphNode`2">
+            <summary>
+            A graph node with weighted neighbours
+            </summary>
+            <typeparam name="T">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight</typeparam>
+        </member>
+        <member name="P:BrightData.IWeightedGraphNode`2.Value">
+            <summary>
+            Graph node value
+            </summary>
+        </member>
+        <member name="M:BrightData.IWeightedGraphNode`2.TryAddNeighbour(System.UInt32,`1)">
+            <summary>
+            Tries to add a neighbour to this node
+            </summary>
+            <param name="index"></param>
+            <param name="weight"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IWeightedGraphNode`2.WeightedNeighbours">
+            <summary>
+            Enumerates the neighbour indices and their weights
+            </summary>
+        </member>
+        <member name="T:BrightData.ICalculateNodeWeights`1">
+            <summary>
+            Calculates the weights between two indexed graph nodes
+            </summary>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.ICalculateNodeWeights`1.GetWeight(System.UInt32,System.UInt32)">
+            <summary>
+            Returns the weight between any two graph nodes
+            </summary>
+            <param name="fromIndex">First node</param>
+            <param name="toIndex">Second index</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IWeightedGraph`2">
+            <summary>
+            A graph with weighted connections
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.Find(System.UInt32)">
+            <summary>
+            Finds the value of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IWeightedGraph`2.Item(System.UInt32)">
+            <summary>
+            Finds the value based on node position within the graph
+            </summary>
+            <param name="nodePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <summary>
+            Performs a probabilistic search between two nodes
+            </summary>
+            <typeparam name="RAT">Return array type</typeparam>
+            <typeparam name="CAT">Candidate array type</typeparam>
+            <param name="q">Node index to query</param>
+            <param name="entryPoint">Node index from which to start the search</param>
+            <param name="distanceCalculator">Weigh calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.GetNeighbours(System.UInt32)">
+            <summary>
+            Returns the neighbour indices of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.EnumerateNeighbours(System.UInt32)">
+            <summary>
+            Enumerates the neighbours and their weights of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.AddNeighbour(System.UInt32,System.UInt32,`1)">
+            <summary>
+            Adds a new neighbour to a node
+            </summary>
+            <param name="toNodeIndex">Node index to add to</param>
+            <param name="neighbourIndex">Index of the neighbour node</param>
+            <param name="weight">Weight of the connection</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IWeightedDynamicGraph`2">
+            <summary>
+            A graph with weighted connections that can be dynamically extended
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0)">
+            <summary>
+            Adds a new node
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
+            <summary>
+            Adds a new node and its neighbours
+            </summary>
+            <param name="value"></param>
+            <param name="neighbours"></param>
         </member>
         <member name="T:BrightData.IHaveSingleIndex">
             <summary>
@@ -12153,12 +12438,51 @@
             <param name="capacity">The expected number of vectors (optional)</param>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider{`0},System.UInt32,System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32)">
+            <summary>
+            Creates a vector set with random projection indexing (reduced dimensionality)
+            </summary>
+            <param name="lap">Linear algebra provider</param>
+            <param name="vectorSize">Input vector size</param>
+            <param name="projectionSize">Projection vector size</param>
+            <param name="storageType">Vector storage type</param>
+            <param name="capacity">The expected number of vectors (optional)</param>
+            <param name="s">Density parameter (random projection)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateHNSW(BrightData.BrightDataContext,System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32,BrightData.DistanceMetric)">
+            <summary>
+            Creates a vector index that uses a Hierarchical Navigation Small World Graph
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="vectorSize">Size of each input vector</param>
+            <param name="storageType">Vector storage type</param>
+            <param name="capacity">The expected number of vectors (optional)</param>
+            <param name="layers">Number of layers in the HNSW graph</param>
+            <param name="distanceMetric">Distance metric</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.GetStorage(BrightData.VectorStorageType,System.UInt32,System.Nullable{System.UInt32})">
+            <summary>
+            Creates vector storage
+            </summary>
+            <param name="storageType">Storage type</param>
+            <param name="vectorSize">Size of each input vector</param>
+            <param name="capacity">The expected number of vectors (optional)</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Dispose">
             <inheritdoc />
         </member>
         <member name="P:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.VectorSize">
             <summary>
             Size of each vector
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Storage">
+            <summary>
+            Vector storage
             </summary>
         </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(BrightData.IReadOnlyVector{`0})">
@@ -12209,6 +12533,14 @@
             </summary>
             <param name="vector"></param>
             <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(System.ReadOnlySpan{`0},BrightData.DistanceMetric)">
+            <summary>
+            Ranks the input vector and returns the closest vectors in the set
+            </summary>
+            <param name="span">Input vector</param>
+            <param name="distanceMetric">Distance metric</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[],BrightData.DistanceMetric)">
@@ -17641,14 +17973,24 @@
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.GetNeighbours(System.UInt32)">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.EnumerateNeighbours(System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
             <inheritdoc />
         </member>
         <member name="P:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Size">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraph`2">
+            <summary>
+            Fixed size weighted graph
+            </summary>
+            <typeparam name="W"></typeparam>
+            <typeparam name="AT"></typeparam>
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.#ctor(BrightData.Types.Graph.FixedSizeWeightedGraphNode{BrightData.Types.Graph.GraphNodeIndex,`0,`1}[])">
             <summary>
@@ -17661,7 +18003,7 @@
             Number of nodes in the graph
             </summary>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Search``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`0})">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`0})">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetNeighbours(System.UInt32)">
@@ -17825,6 +18167,51 @@
         </member>
         <member name="M:BrightData.Types.Graph.GraphNodeIndex.ToString">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4">
+            <summary>
+            A graph that uses multiple sub graphs as a skip list
+            </summary>
+            <param name="context"></param>
+            <param name="maxLayers"></param>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <typeparam name="BLAT"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.#ctor(BrightData.BrightDataContext,System.Int32)">
+            <summary>
+            A graph that uses multiple sub graphs as a skip list
+            </summary>
+            <param name="context"></param>
+            <param name="maxLayers"></param>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <typeparam name="BLAT"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.Add(BrightData.ICalculateNodeWeights{`1},`0[])">
+            <summary>
+            Adds new nodes to the graph
+            </summary>
+            <param name="distanceCalculator"></param>
+            <param name="values">New nodes</param>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.KnnSearch(System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <summary>
+            K nearest neighbour search (probabilistic)
+            </summary>
+            <param name="q">Node to query</param>
+            <param name="distanceCalculator"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.BreadthFirstSearch(System.UInt32)">
+            <summary>
+            Breadth first search
+            </summary>
+            <param name="index">Start node index</param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Types.Helper.SortedArrayHelper">
             <summary>

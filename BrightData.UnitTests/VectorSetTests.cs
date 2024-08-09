@@ -1,5 +1,6 @@
 ﻿using BrightData.UnitTests.Helper;
 using System.Linq;
+using BrightData.Helper;
 using BrightData.LinearAlgebra.VectorIndexing;
 using BrightData.Types;
 using BrightData.Types.Graph;
@@ -10,7 +11,6 @@ namespace BrightData.UnitTests
 {
     public class VectorSetTests : UnitTestBase
     {
-
         [Fact]
         public void Average()
         {
@@ -79,6 +79,24 @@ namespace BrightData.UnitTests
 
             node.TryAddNeighbour(20, 0.5f).Should().BeTrue();
             node.TryAddNeighbour(20, 0.5f).Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestKDTree()
+        {
+            var vectors = VectorSet<float>.GetStorage(VectorStorageType.InMemory, 4, 5);
+            vectors.Add([0.1f, 0.1f, 0.1f, 0.1f]);
+            vectors.Add([0.2f, 0.2f, 0.2f, 0.2f]);
+            vectors.Add([0.3f, 0.3f, 0.3f, 0.3f]);
+            vectors.Add([0.4f, 0.4f, 0.4f, 0.4f]);
+            vectors.Add([0.5f, 0.5f, 0.5f, 0.5f]);
+            var tree = new VectorKDTree<float>(vectors);
+
+            for (var i = 0U; i < 5; i++) {
+                tree.GetNodeByVectorIndex(i).VectorIndex.Should().Be(i);
+                tree.Search(vectors[i]).BestVectorIndex.Should().Be(i);
+                tree.KnnSearch<FixedSizeSortedAscending5Array<uint, float>>(vectors[i])[0].Value.Should().Be(i);
+            }
         }
     }
 }

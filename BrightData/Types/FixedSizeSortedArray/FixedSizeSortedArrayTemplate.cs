@@ -34,50 +34,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -90,7 +90,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -108,8 +108,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -125,8 +125,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -162,50 +162,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -218,7 +218,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -236,8 +236,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -253,8 +253,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -290,50 +290,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -346,7 +346,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -364,8 +364,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -381,8 +381,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -418,50 +418,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -474,7 +474,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -492,8 +492,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -509,8 +509,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -546,50 +546,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -602,7 +602,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -620,8 +620,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -637,8 +637,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -674,50 +674,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -730,7 +730,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -748,8 +748,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -765,8 +765,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -802,50 +802,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -858,7 +858,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -876,8 +876,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -893,8 +893,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -930,50 +930,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -986,7 +986,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1004,8 +1004,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1021,8 +1021,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1058,50 +1058,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1114,7 +1114,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1132,8 +1132,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1149,8 +1149,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1186,50 +1186,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1242,7 +1242,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1260,8 +1260,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1277,8 +1277,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1314,50 +1314,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1370,7 +1370,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1388,8 +1388,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1405,8 +1405,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1442,50 +1442,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1498,7 +1498,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1516,8 +1516,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1533,8 +1533,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1570,50 +1570,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1626,7 +1626,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1644,8 +1644,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1661,8 +1661,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1698,50 +1698,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1754,7 +1754,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1772,8 +1772,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1789,8 +1789,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1826,50 +1826,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -1882,7 +1882,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -1900,8 +1900,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -1917,8 +1917,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -1954,50 +1954,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2010,7 +2010,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2028,8 +2028,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2045,8 +2045,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2082,50 +2082,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2138,7 +2138,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2156,8 +2156,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2173,8 +2173,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2210,50 +2210,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2266,7 +2266,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2284,8 +2284,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2301,8 +2301,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2338,50 +2338,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2394,7 +2394,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2412,8 +2412,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2429,8 +2429,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2466,50 +2466,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2522,7 +2522,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2540,8 +2540,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2557,8 +2557,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2594,50 +2594,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2650,7 +2650,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2668,8 +2668,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2685,8 +2685,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2722,50 +2722,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2778,7 +2778,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2796,8 +2796,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2813,8 +2813,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2850,50 +2850,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -2906,7 +2906,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -2924,8 +2924,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -2941,8 +2941,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -2978,50 +2978,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3034,7 +3034,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3052,8 +3052,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3069,8 +3069,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3106,50 +3106,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3162,7 +3162,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3180,8 +3180,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3197,8 +3197,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3234,50 +3234,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3290,7 +3290,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3308,8 +3308,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3325,8 +3325,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3362,50 +3362,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3418,7 +3418,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3436,8 +3436,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3453,8 +3453,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3490,50 +3490,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3546,7 +3546,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3564,8 +3564,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3581,8 +3581,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3618,50 +3618,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3674,7 +3674,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3692,8 +3692,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3709,8 +3709,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3746,50 +3746,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3802,7 +3802,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3820,8 +3820,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3837,8 +3837,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -3874,50 +3874,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -3930,7 +3930,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -3948,8 +3948,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -3965,8 +3965,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4002,50 +4002,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4058,7 +4058,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4076,8 +4076,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4093,8 +4093,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4130,50 +4130,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4186,7 +4186,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4204,8 +4204,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4221,8 +4221,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4258,50 +4258,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4314,7 +4314,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4332,8 +4332,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4349,8 +4349,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4386,50 +4386,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4442,7 +4442,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4460,8 +4460,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4477,8 +4477,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4514,50 +4514,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4570,7 +4570,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4588,8 +4588,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4605,8 +4605,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4642,50 +4642,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4698,7 +4698,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4716,8 +4716,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4733,8 +4733,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4770,50 +4770,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4826,7 +4826,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4844,8 +4844,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4861,8 +4861,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -4898,50 +4898,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -4954,7 +4954,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -4972,8 +4972,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -4989,8 +4989,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5026,50 +5026,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5082,7 +5082,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5100,8 +5100,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5117,8 +5117,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5154,50 +5154,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5210,7 +5210,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5228,8 +5228,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5245,8 +5245,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5282,50 +5282,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5338,7 +5338,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5356,8 +5356,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5373,8 +5373,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5410,50 +5410,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5466,7 +5466,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5484,8 +5484,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5501,8 +5501,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5538,50 +5538,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5594,7 +5594,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5612,8 +5612,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5629,8 +5629,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5666,50 +5666,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5722,7 +5722,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5740,8 +5740,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5757,8 +5757,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5794,50 +5794,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5850,7 +5850,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5868,8 +5868,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -5885,8 +5885,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -5922,50 +5922,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -5978,7 +5978,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -5996,8 +5996,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6013,8 +6013,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6050,50 +6050,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6106,7 +6106,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6124,8 +6124,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6141,8 +6141,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6178,50 +6178,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6234,7 +6234,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6252,8 +6252,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6269,8 +6269,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6306,50 +6306,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6362,7 +6362,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6380,8 +6380,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6397,8 +6397,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6434,50 +6434,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6490,7 +6490,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6508,8 +6508,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6525,8 +6525,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6562,50 +6562,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6618,7 +6618,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6636,8 +6636,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6653,8 +6653,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6690,50 +6690,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6746,7 +6746,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6764,8 +6764,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6781,8 +6781,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6818,50 +6818,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -6874,7 +6874,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -6892,8 +6892,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -6909,8 +6909,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -6946,50 +6946,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7002,7 +7002,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7020,8 +7020,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7037,8 +7037,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7074,50 +7074,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7130,7 +7130,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7148,8 +7148,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7165,8 +7165,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7202,50 +7202,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7258,7 +7258,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7276,8 +7276,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7293,8 +7293,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7330,50 +7330,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7386,7 +7386,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7404,8 +7404,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7421,8 +7421,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7458,50 +7458,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7514,7 +7514,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7532,8 +7532,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7549,8 +7549,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7586,50 +7586,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7642,7 +7642,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7660,8 +7660,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7677,8 +7677,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7714,50 +7714,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7770,7 +7770,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7788,8 +7788,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7805,8 +7805,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7842,50 +7842,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -7898,7 +7898,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -7916,8 +7916,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -7933,8 +7933,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -7970,50 +7970,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[0] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[_size - 1] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[0] : default;
+        public V? MinValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MaxValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -8026,7 +8026,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -8044,8 +8044,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoAscending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -8061,8 +8061,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
@@ -8098,50 +8098,50 @@ namespace BrightData.Types
         {
             public W _element0;
         }
-        readonly ValueArray _values = new();
-        readonly WeightArray _weights = new();
+        ValueArray _values = new();
+        WeightArray _weights = new();
         byte _size = 0;
 
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public readonly byte Size => _size;
+        public byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
         /// </summary>
-        public readonly ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
+        public ReadOnlySpan<V> Values => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
 
         /// <summary>
         /// Sorted list of weights
         /// </summary>
-        public readonly ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+        public ReadOnlySpan<W> Weights => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
 
         /// <summary>
         /// The smallest weight
         /// </summary>
-        public readonly W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
+        public W MinWeight => _size > 0 ? Weights[_size - 1] : W.MaxValue;
 
         /// <summary>
         /// The largest weight
         /// </summary>
-        public readonly W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
+        public W MaxWeight => _size > 0 ? Weights[0] : W.MinValue;
 
         /// <summary>
         /// The value with the smallest weight
         /// </summary>
-        public readonly V? MinValue => _size > 0 ? Values[_size - 1] : default;
+        public V? MinValue => _size > 0 ? Values[_size - 1] : default;
 
         /// <summary>
         /// The value with the largest weight
         /// </summary>
-        public readonly V? MaxValue => _size > 0 ? Values[0] : default;
+        public V? MaxValue => _size > 0 ? Values[0] : default;
 
         /// <summary>
         /// Returns a value and weight
         /// </summary>
         /// <param name="index">Index to return</param>
-        public readonly (V Value, W Weight) this[uint index]
+        public (V Value, W Weight) this[uint index]
         {
             get
             {
@@ -8154,7 +8154,7 @@ namespace BrightData.Types
         /// <summary>
         /// Enumerates the values and weights
         /// </summary>
-        public readonly IEnumerable<(V Value, W Weight)> Elements
+        public IEnumerable<(V Value, W Weight)> Elements
         {
             get
             {
@@ -8172,8 +8172,8 @@ namespace BrightData.Types
         /// <returns>True if the element was added</returns>
         public bool TryAdd(V value, W weight, bool enforceUnique = true)
         {
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), MaxSize);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), MaxSize);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), MaxSize);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), MaxSize);
             var ret = SortedArrayHelper.InsertIntoDescending(enforceUnique, _size, MaxSize, value, weight, values, weights);
             if(ret && _size < MaxSize)
                 ++_size;
@@ -8189,8 +8189,8 @@ namespace BrightData.Types
         {
             if(index >= _size)
                 throw new ArgumentOutOfRangeException();
-            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(in _values)), _size);
-            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(in _weights)), _size);
+            var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
+            var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;

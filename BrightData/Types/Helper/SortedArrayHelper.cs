@@ -55,6 +55,13 @@ namespace BrightData.Types.Helper
             if (isFull && weights[size - 1] <= weight)
                 return false;
 
+            // special case for size 1
+            if (maxSize == 1) {
+                weights[0] = weight;
+                values[0] = value;
+                return true;
+            }
+
             // use binary search to find the insertion position
             int left = 0,
                 right = size - 1,
@@ -122,6 +129,13 @@ namespace BrightData.Types.Helper
             // check to see if it should be inserted
             if (isFull && weights[size - 1] >= weight)
                 return false;
+
+            // special case for size 1
+            if (maxSize == 1) {
+                weights[0] = weight;
+                values[0] = value;
+                return true;
+            }
 
             // use binary search to find the insertion position
             int left = 0,
