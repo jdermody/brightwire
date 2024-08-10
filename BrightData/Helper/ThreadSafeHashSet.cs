@@ -7,15 +7,14 @@ using System.Threading;
 namespace BrightData.Helper
 {
     /// <summary>
-    /// A hash set that can be accessed by more than one thread at the same time
+    /// A hash set that can be used by more than one thread
     /// </summary>
     /// <typeparam name="T">The wrapped type</typeparam>
-    public sealed class ThreadSafeHashSet<T> : IDisposable
+    public sealed class ThreadSafeHashSet<T>(int? capacity = null) : IDisposable
     {
         readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
-        readonly HashSet<T> _hashSet = [];
+        readonly HashSet<T> _hashSet = capacity.HasValue ? new(capacity.Value) : new();
 
-        /// <summary>Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.</summary>
         ~ThreadSafeHashSet()
         {
             DisposeInternal();
@@ -144,7 +143,7 @@ namespace BrightData.Helper
         {
             _lock.EnterWriteLock();
             try {
-                if (_hashSet.Any()) {
+                if (_hashSet.Count != 0) {
                     ret = _hashSet.First();
                     return _hashSet.Remove(ret);
                 }

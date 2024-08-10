@@ -3169,6 +3169,32 @@
             <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ForEach``1(BrightData.IReadOnlyVectorStore{``0},System.ReadOnlySpan{System.UInt32},BrightData.IndexedSpanCallbackWithVectorIndex{``0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="vectors"></param>
+            <param name="indices"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ForEach``1(BrightData.IReadOnlyVectorStore{``0},System.ReadOnlySpan{System.UInt32},BrightData.IndexedSpanCallback{``0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="vectors"></param>
+            <param name="indices"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.EnumerateValues``3(``1)">
+            <summary>
+            Enumerates all values in the array, in sorted order
+            </summary>
+            <param name="array"></param>
+            <typeparam name="T"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <typeparam name="WT"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
             <summary>
             Converts from a column type to a Type
@@ -4602,6 +4628,13 @@
             <param name="vector"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.AsReadOnly``1(System.Span{``0})">
+            <summary>
+            Converts the span to a read only span
+            </summary>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.ExtensionMethods.ComputeVectorisedTwo`1">
             <summary>
             Callback to calculate a new vector of Ts from two existing vectors
@@ -4727,13 +4760,6 @@
             <typeparam name="T"></typeparam>
             <param name="span"></param>
             <param name="analyser">Callback that receives each value and its index</param>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.AsReadOnly``1(System.Span{``0})">
-            <summary>
-            Calculates the sum of all values in this span
-            </summary>
-            <param name="span"></param>
-            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Sum``1(System.ReadOnlySpan{``0})">
             <summary>
@@ -5161,7 +5187,7 @@
             <param name="rowCount"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CherryPickIndices``1(System.ReadOnlySpan{``0},System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.CherryPickIndices``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{System.UInt32})">
             <summary>
             Creates a new buffer from the specified indices
             </summary>
@@ -5299,14 +5325,6 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="span"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetRankedIndices``1(System.Span{``0})">
-            <summary>
-            Returns the index of each element of span, ordered from lowest to highest
-            </summary>
-            <param name="span"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
@@ -6247,12 +6265,15 @@
         </member>
         <member name="T:BrightData.Helper.ThreadSafeHashSet`1">
             <summary>
-            A hash set that can be accessed by more than one thread at the same time
+            A hash set that can be used by more than one thread
             </summary>
             <typeparam name="T">The wrapped type</typeparam>
         </member>
-        <member name="M:BrightData.Helper.ThreadSafeHashSet`1.Finalize">
-            <summary>Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.</summary>
+        <member name="M:BrightData.Helper.ThreadSafeHashSet`1.#ctor(System.Nullable{System.Int32})">
+            <summary>
+            A hash set that can be used by more than one thread
+            </summary>
+            <typeparam name="T">The wrapped type</typeparam>
         </member>
         <member name="M:BrightData.Helper.ThreadSafeHashSet`1.Dispose">
             <inheritdoc />
@@ -6301,63 +6322,208 @@
             <param name="ret">Item that was removed</param>
             <returns>True if there was an item to remove</returns>
         </member>
-        <member name="T:BrightData.Helper.VectorKDTree`1">
+        <member name="T:BrightData.Helper.Vectors.VectorBallTree`1">
+            <summary>
+            Creates a ball tree for vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode">
+            <summary>
+            Node within tree
+            </summary>
+            <param name="data"></param>
+            <param name="node"></param>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.#ctor(System.ReadOnlySpan{`0},BrightData.Helper.Vectors.VectorKDTree{`0}.ReadOnlyNode)">
+            <summary>
+            Node within tree
+            </summary>
+            <param name="data"></param>
+            <param name="node"></param>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.VectorIndex">
+            <summary>
+            Vector index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.Radius">
+            <summary>
+            Ball radius
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.Centroid">
+            <summary>
+            Ball centroid
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.LeftNodeIndex">
+            <summary>
+            Left node index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.RightNodeIndex">
+            <summary>
+            Right node index
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.HasLeftBranch">
+            <summary>
+            True if the node has a left branch
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.HasRightBranch">
+            <summary>
+            True if the node has a right branch
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.Deconstruct(System.UInt32@,`0@,System.ReadOnlySpan{`0}@,System.Nullable{System.UInt32}@,System.Nullable{System.UInt32}@)">
+            <summary>
+            Deconstructs the node
+            </summary>
+            <param name="left"></param>
+            <param name="right"></param>
+            <param name="vectorIndex"></param>
+            <param name="radius"></param>
+            <param name="centroid"></param>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.#ctor(BrightData.IReadOnlyVectorStore{`0},BrightData.DistanceMetric)">
+            <summary>
+            Creates a ball tree from a store of vectors
+            </summary>
+            <param name="vectors"></param>
+            <param name="distanceMetric"></param>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.#ctor(BrightData.Helper.Vectors.VectorKDTree{`0},BrightData.DistanceMetric)">
+            <summary>
+            Creates a ball tree from a KD tree
+            </summary>
+            <param name="kdTree"></param>
+            <param name="distanceMetric"></param>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.DistanceMetric">
+            <summary>
+            Distance metric
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.Vectors">
+            <summary>
+            Vector store
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.RootNodeIndex">
+            <summary>
+            The node index of the root node
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.KDTree">
+            <summary>
+            Underlying KD tree
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.GetNodeByIndex(System.UInt32)">
+            <summary>
+            Returns a node from a node index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.Search(System.ReadOnlySpan{`0})">
+            <summary>
+            Searches for the best vector index relative to a query vector
+            </summary>
+            <param name="query">Query vector</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.KnnSearch``1(System.ReadOnlySpan{`0})">
+            <summary>
+            Searches for N best results relative to a query vector
+            </summary>
+            <typeparam name="AT"></typeparam>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Helper.Vectors.VectorKDTree`1">
             <summary>
             KD Tree for vectors
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="T:BrightData.Helper.VectorKDTree`1.ReadOnlyNode">
+        <member name="T:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode">
             <summary>
             Node in the tree
             </summary>
             <param name="indices">Span that contains the node data</param>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.#ctor(System.ReadOnlySpan{System.UInt32})">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.#ctor(System.ReadOnlySpan{System.UInt32})">
             <summary>
             Node in the tree
             </summary>
             <param name="indices">Span that contains the node data</param>
         </member>
-        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.VectorIndex">
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.VectorIndex">
             <summary>
             Vector index
             </summary>
         </member>
-        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.LeftNodeIndex">
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.LeftNodeIndex">
             <summary>
             Left node index
             </summary>
         </member>
-        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.RightNodeIndex">
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.RightNodeIndex">
             <summary>
             Right node index
             </summary>
         </member>
-        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.HasLeftBranch">
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.HasLeftBranch">
             <summary>
             True if the node has a left branch
             </summary>
         </member>
-        <member name="P:BrightData.Helper.VectorKDTree`1.ReadOnlyNode.HasRightBranch">
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.HasRightBranch">
             <summary>
             True if the node has a right branch
             </summary>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.#ctor(BrightData.IStoreVectors{`0})">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.ReadOnlyNode.Deconstruct(System.UInt32@,System.Nullable{System.UInt32}@,System.Nullable{System.UInt32}@)">
             <summary>
-            Creates a vector kd tree from all vectors in the vector storage
+            Deconstructs the node
             </summary>
-            <param name="storage"></param>
+            <param name="vectorIndex"></param>
+            <param name="left"></param>
+            <param name="right"></param>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.GetNodeByIndex(System.UInt32)">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.#ctor(BrightData.IReadOnlyVectorStore{`0})">
+            <summary>
+            Creates a vector kd tree from all vectors in the vector store
+            </summary>
+            <param name="vectors"></param>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.Vectors">
+            <summary>
+            Vector store
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.RootNodeIndex">
+            <summary>
+            The node index of the root node
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.GetNodeByIndex(System.UInt32)">
             <summary>
             Returns a node by index
             </summary>
             <param name="nodeIndex"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.GetNodeByVectorIndex(System.UInt32)">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.GetNodeByVectorIndex(System.UInt32)">
             <summary>
             Finds a node by vector index
             </summary>
@@ -6365,19 +6531,26 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.Search(System.ReadOnlySpan{`0})">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.Search(System.ReadOnlySpan{`0})">
             <summary>
             Finds the closest node relative to the query vector
             </summary>
             <param name="query">Query vector</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Helper.VectorKDTree`1.KnnSearch``1(System.ReadOnlySpan{`0})">
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.KnnSearch``1(System.ReadOnlySpan{`0})">
             <summary>
             Finds the closest N nodes relative to the query vector
             </summary>
             <typeparam name="AT"></typeparam>
             <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.GetAllVectorIndices(System.UInt32)">
+            <summary>
+            Returns all vector indices at or as children of the specified node index
+            </summary>
+            <param name="nodeIndex">Node index to query</param>
             <returns></returns>
         </member>
         <member name="T:BrightData.IHaveBrightDataContext">
@@ -9824,6 +9997,50 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="T:BrightData.IndexedSpanCallbackWithVectorIndex`1">
+            <summary>
+            Callback for indexed spans
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.IndexedSpanCallbackWithVectorIndexAndRelativeIndex`1">
+            <summary>
+            Callback for indexed spans
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.IReadOnlyVectorStore`1">
+            <summary>
+            Stores typed vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.IReadOnlyVectorStore`1.Item(System.UInt32)">
+            <summary>
+            Returns a segment at the specified index
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IReadOnlyVectorStore`1.ForEach(BrightData.IndexedSpanCallbackWithVectorIndex{`0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.IReadOnlyVectorStore`1.ForEach(System.ReadOnlySpan{System.UInt32},BrightData.IndexedSpanCallbackWithVectorIndexAndRelativeIndex{`0})">
+            <summary>
+            Passes each vector to the callback, possible in parallel
+            </summary>
+            <param name="indices"></param>
+            <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.IReadOnlyVectorStore`1.GetAll">
+            <summary>
+            Returns all vectors
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IStoreVectors`1">
             <summary>
             Stores typed vectors
@@ -9835,32 +10052,6 @@
             Adds a vector
             </summary>
             <param name="vector"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IStoreVectors`1.Item(System.UInt32)">
-            <summary>
-            Returns a segment at the specified index
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IStoreVectors`1.ForEach(BrightData.IndexedSpanCallback{`0})">
-            <summary>
-            Passes each vector to the callback, possible in parallel
-            </summary>
-            <param name="callback"></param>
-        </member>
-        <member name="M:BrightData.IStoreVectors`1.ForEach(System.Collections.Generic.IEnumerable{System.UInt32},BrightData.IndexedSpanCallback{`0})">
-            <summary>
-            Passes each vector to the callback, possible in parallel
-            </summary>
-            <param name="indices"></param>
-            <param name="callback"></param>
-        </member>
-        <member name="M:BrightData.IStoreVectors`1.GetAll">
-            <summary>
-            Returns all vectors
-            </summary>
             <returns></returns>
         </member>
         <member name="T:BrightData.IVectorIndex`1">
@@ -9880,7 +10071,7 @@
             <param name="vector"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IVectorIndex`1.Rank(System.ReadOnlySpan{`0},BrightData.DistanceMetric)">
+        <member name="M:BrightData.IVectorIndex`1.Rank(System.ReadOnlySpan{`0})">
             <summary>
             Returns a list of vector indices ranked by the distance between that vector and a comparison vector
             </summary>
@@ -9888,12 +10079,26 @@
             <param name="distanceMetric"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IVectorIndex`1.Closest(System.ReadOnlyMemory{`0}[],BrightData.DistanceMetric)">
+        <member name="M:BrightData.IVectorIndex`1.Closest(System.ReadOnlyMemory{`0}[])">
             <summary>
             Returns the index of the closest vector in the set to each of the supplied vectors
             </summary>
             <param name="vector">Vectors to compare</param>
             <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.ISupportKnnSearch`1">
+            <summary>
+            Indicates that the type supports K Nearest Neighbour Search
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.ISupportKnnSearch`1.KnnSearch``1(System.ReadOnlySpan{`0})">
+            <summary>
+            Searches for N best results relative to a query vector
+            </summary>
+            <param name="query">Query vector</param>
+            <typeparam name="AT"></typeparam>
             <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.Clustering.Hierarchical">
@@ -12416,7 +12621,7 @@
         <member name="M:BrightData.LinearAlgebra.Segments.ReadOnlyTensorSegmentWrapper`1.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.IndexStrategy.FlatVectorIndex`1.GetDistance(System.ReadOnlyMemory{`0}[],BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.IndexStrategy.FlatVectorIndex`1.GetDistance(System.ReadOnlyMemory{`0}[])">
             <summary>
             Find distance between each vector in the set and each input vector
             </summary>
@@ -12429,28 +12634,30 @@
             Represents a set of vectors
             </summary>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateFlat(System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateFlat(System.UInt32,BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
             <summary>
             Creates a vector set with flat indexing (simplest approach for small data sets)
             </summary>
             <param name="vectorSize">Size of each vector in the set</param>
+            <param name="distanceMetric">Distance metric for vector comparison</param>
             <param name="storageType">Storage type</param>
             <param name="capacity">The expected number of vectors (optional)</param>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider{`0},System.UInt32,System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateRandomProjection(BrightData.LinearAlgebra.LinearAlgebraProvider{`0},System.UInt32,System.UInt32,BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32)">
             <summary>
             Creates a vector set with random projection indexing (reduced dimensionality)
             </summary>
             <param name="lap">Linear algebra provider</param>
             <param name="vectorSize">Input vector size</param>
+            <param name="distanceMetric">Distance metric for vector comparison</param>
             <param name="projectionSize">Projection vector size</param>
             <param name="storageType">Vector storage type</param>
             <param name="capacity">The expected number of vectors (optional)</param>
             <param name="s">Density parameter (random projection)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateHNSW(BrightData.BrightDataContext,System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32,BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateHNSW(BrightData.BrightDataContext,System.UInt32,BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32},System.Int32)">
             <summary>
             Creates a vector index that uses a Hierarchical Navigation Small World Graph
             </summary>
@@ -12460,6 +12667,17 @@
             <param name="capacity">The expected number of vectors (optional)</param>
             <param name="layers">Number of layers in the HNSW graph</param>
             <param name="distanceMetric">Distance metric</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Create(System.Func{BrightData.IReadOnlyVectorStore{`0},BrightData.ISupportKnnSearch{`0}},System.UInt32,BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+            <summary>
+            Creates a vector set that uses a KNN search provider
+            </summary>
+            <param name="creator"></param>
+            <param name="vectorSize"></param>
+            <param name="distanceMetric"></param>
+            <param name="storageType"></param>
+            <param name="capacity"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.GetStorage(BrightData.VectorStorageType,System.UInt32,System.Nullable{System.UInt32})">
@@ -12527,23 +12745,21 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(BrightData.IReadOnlyVector{`0},BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(BrightData.IReadOnlyVector{`0})">
             <summary>
             Returns a list of vector indices ranked by the distance between that vector and a comparison vector
             </summary>
             <param name="vector"></param>
-            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(System.ReadOnlySpan{`0},BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Rank(System.ReadOnlySpan{`0})">
             <summary>
             Ranks the input vector and returns the closest vectors in the set
             </summary>
             <param name="span">Input vector</param>
-            <param name="distanceMetric">Distance metric</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[],BrightData.DistanceMetric)">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[])">
             <summary>
             Returns the index of the closest vector in the set to each of the supplied vectors
             </summary>

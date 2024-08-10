@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using BrightData;
 using BrightData.Types;
 
-namespace BrightData.Helper
+namespace BrightData.Helper.Vectors
 {
     /// <summary>
     /// KD Tree for vectors
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class VectorKDTree<T>
+    public class VectorKDTree<T> : IHaveSize, ISupportKnnSearch<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly ref struct Node(uint nodeIndex, Span<uint> indices)
+        readonly ref struct TempNode(uint nodeIndex, Span<uint> indices)
         {
             readonly Span<uint> _indices = indices;
 
@@ -63,21 +65,46 @@ namespace BrightData.Helper
             /// True if the node has a right branch
             /// </summary>
             public bool HasRightBranch => _indices[2] != uint.MaxValue;
+
+            /// <summary>
+            /// Deconstructs the node
+            /// </summary>
+            /// <param name="vectorIndex"></param>
+            /// <param name="left"></param>
+            /// <param name="right"></param>
+            public void Deconstruct(out uint vectorIndex, out uint? left, out uint? right)
+            {
+                vectorIndex = VectorIndex;
+                left = LeftNodeIndex;
+                right = RightNodeIndex;
+            }
         }
 
-        readonly IStoreVectors<T> _storage;
         readonly ArrayBufferWriter<uint> _indexBuffer;
 
         /// <summary>
-        /// Creates a vector kd tree from all vectors in the vector storage
+        /// Creates a vector kd tree from all vectors in the vector store
         /// </summary>
-        /// <param name="storage"></param>
-        public VectorKDTree(IStoreVectors<T> storage)
+        /// <param name="vectors"></param>
+        public VectorKDTree(IReadOnlyVectorStore<T> vectors)
         {
-            _storage = storage;
-            _indexBuffer = new((int)storage.Size * 3);
-            BuildTree(storage.Size.AsRange().ToArray(), 0);
+            Vectors = vectors;
+            _indexBuffer = new((int)vectors.Size * 3);
+            BuildTree(vectors.Size.AsRange().ToArray(), 0);
         }
+
+        /// <inheritdoc />
+        public uint Size => Vectors.Size;
+
+        /// <summary>
+        /// Vector store
+        /// </summary>
+        public IReadOnlyVectorStore<T> Vectors { get; }
+
+        /// <summary>
+        /// The node index of the root node
+        /// </summary>
+        public uint RootNodeIndex => 0U;
 
         uint? BuildTree(Span<uint> vectorIndices, int depth)
         {
@@ -86,8 +113,8 @@ namespace BrightData.Helper
             if (vectorIndices.Length == 1)
                 return CreateNode(vectorIndices[0]).NodeIndex;
 
-            var axis = depth % (int)_storage.VectorSize;
-            vectorIndices.Sort((x, y) => _storage[x][axis].CompareTo(_storage[y][axis]));
+            var axis = depth % (int)Vectors.VectorSize;
+            vectorIndices.Sort((x, y) => Vectors[x][axis].CompareTo(Vectors[y][axis]));
 
             var medianIndex = vectorIndices.Length / 2;
             var vectorIndex = vectorIndices[medianIndex];
@@ -99,15 +126,15 @@ namespace BrightData.Helper
             return ret.NodeIndex;
         }
 
-        [SkipLocalsInit]
-        Node CreateNode(uint vectorIndex)
+        TempNode CreateNode(uint vectorIndex)
         {
-            Span<uint> nodeData = stackalloc uint[] {vectorIndex, uint.MaxValue, uint.MaxValue};
             var nodeIndex = (uint)_indexBuffer.WrittenCount;
             var ret = _indexBuffer.GetSpan(3);
-            nodeData.CopyTo(ret);
+            ret[0] = vectorIndex;
+            ret[1] = uint.MaxValue;
+            ret[2] = uint.MaxValue;
             _indexBuffer.Advance(3);
-            return new Node(nodeIndex, ret);
+            return new TempNode(nodeIndex, ret);
         }
 
         /// <summary>
@@ -126,11 +153,12 @@ namespace BrightData.Helper
         public ReadOnlyNode GetNodeByVectorIndex(uint vectorIndex)
         {
             var stack = new Stack<uint>();
-            stack.Push(0);
+            stack.Push(RootNodeIndex);
 
-            while (stack.Count > 0) {
+            while (stack.Count > 0)
+            {
                 var node = GetNodeByIndex(stack.Pop());
-                if(node.VectorIndex == vectorIndex)
+                if (node.VectorIndex == vectorIndex)
                     return node;
                 var left = node.LeftNodeIndex;
                 var right = node.RightNodeIndex;
@@ -151,7 +179,7 @@ namespace BrightData.Helper
         public (uint BestVectorIndex, T Distance) Search(ReadOnlySpan<T> query)
         {
             var temp = new FixedSizeSortedAscending1Array<uint, T>();
-            KnnSearch(query, 0, 0, ref temp);
+            KnnSearch(query, RootNodeIndex, depth:0, ref temp);
             return (temp.MinValue, temp.MinWeight);
         }
 
@@ -162,27 +190,29 @@ namespace BrightData.Helper
         /// <param name="query"></param>
         /// <returns></returns>
         public AT KnnSearch<AT>(ReadOnlySpan<T> query)
-            where AT: IFixedSizeSortedArray<uint, T>, new()
+            where AT : IFixedSizeSortedArray<uint, T>, new()
         {
             var ret = new AT();
-            KnnSearch(query, 0, 0, ref ret);
+            KnnSearch(query, RootNodeIndex, depth:0, ref ret);
             return ret;
         }
 
-        void KnnSearch<AT>(ReadOnlySpan<T> query, uint nodeIndex, int depth, ref AT results) 
+        void KnnSearch<AT>(ReadOnlySpan<T> query, uint nodeIndex, int depth, ref AT results)
             where AT : IFixedSizeSortedArray<uint, T>
         {
-            while (true) {
+            while (true)
+            {
                 var node = GetNodeByIndex(nodeIndex);
-                var nodeVector = _storage[node.VectorIndex];
+                var nodeVector = Vectors[node.VectorIndex];
                 bool hasLeft = node.HasLeftBranch, hasRight = node.HasRightBranch;
 
                 // compare to node vector
                 results.TryAdd(node.VectorIndex, query.EuclideanDistance(nodeVector));
 
                 // two branches
-                if (hasLeft && hasRight) {
-                    var axis = depth % (int)_storage.VectorSize;
+                if (hasLeft && hasRight)
+                {
+                    var axis = depth % (int)Vectors.VectorSize;
                     var qv = query[axis];
                     var nv = nodeVector[axis];
                     var (bestBranch, otherBranch) = qv.CompareTo(nv) >= 0
@@ -193,7 +223,8 @@ namespace BrightData.Helper
                     KnnSearch(query, bestBranch!.Value, depth + 1, ref results);
 
                     // optionally check the other branch
-                    if (T.Abs(qv - nv) <= results.MaxWeight) {
+                    if (T.Abs(qv - nv) <= results.MaxWeight)
+                    {
                         nodeIndex = otherBranch!.Value;
                         depth += 1;
                         continue;
@@ -201,9 +232,35 @@ namespace BrightData.Helper
                 }
 
                 // single branch
-                else if (hasLeft || hasRight) {
+                else if (hasLeft || hasRight)
+                {
                     nodeIndex = hasLeft ? node.LeftNodeIndex!.Value : node.RightNodeIndex!.Value;
                     depth += 1;
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        /// <summary>
+        /// Returns all vector indices at or as children of the specified node index
+        /// </summary>
+        /// <param name="nodeIndex">Node index to query</param>
+        /// <returns></returns>
+        public IEnumerable<uint> GetAllVectorIndices(uint nodeIndex)
+        {
+            while (true) {
+                var (vectorIndex, left, right) = GetNodeByIndex(nodeIndex);
+                if (left.HasValue) {
+                    foreach (var otherIndex in GetAllVectorIndices(left.Value)) 
+                        yield return otherIndex;
+                }
+
+                yield return vectorIndex;
+
+                if (right.HasValue) {
+                    nodeIndex = right.Value;
                     continue;
                 }
 

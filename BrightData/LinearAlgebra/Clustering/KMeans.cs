@@ -59,21 +59,21 @@ namespace BrightData.LinearAlgebra.Clustering
             }
 
             // add the vectors
-            using var vectorSet = VectorSet<float>.CreateFlat(vectors.First().Size);
+            using var vectorSet = VectorSet<float>.CreateFlat(vectors.First().Size, metric);
             vectorSet.Add(vectors);
 
             for (uint i = 0; i < maxIterations; i++) {
-                if (!Cluster(vectorSet, ref centroids, centroidVectors, metric))
+                if (!Cluster(vectorSet, ref centroids, centroidVectors))
                     break;
             }
 
             return centroids;
         }
 
-        static bool Cluster(VectorSet<float> vectors, ref uint[][] centroids, IReadOnlyVector<float>[] centroidVectors, DistanceMetric metric)
+        static bool Cluster(VectorSet<float> vectors, ref uint[][] centroids, IReadOnlyVector<float>[] centroidVectors)
         {
             // cluster the data
-            var closest = vectors.Closest(centroidVectors, metric);
+            var closest = vectors.Closest(centroidVectors);
             var clusters = closest
                 .Select((ci, i) => (ClusterIndex: ci, VectorIndex: (uint)i))
                 .GroupBy(d => d.ClusterIndex)

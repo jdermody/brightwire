@@ -62,7 +62,7 @@ namespace BrightData.UnitTests
             Span<float> span = stackalloc float[32];
             for (var i = 0; i < 32; i++)
                 span[i] = 16 - i;
-            var indices = span.GetRankedIndices();
+            var indices = span.AsReadOnly().GetRankedIndices();
             indices.Length.Should().Be(32);
             indices.Should().ContainInConsecutiveOrder(32.AsRange().Select(i => 31 - i));
         }

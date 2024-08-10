@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using BrightData.Helper;
+using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
 using BrightData.Types;
 using BrightData.Types.Graph;
@@ -30,13 +30,14 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             return index;
         }
 
-        public IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric)
+        public IEnumerable<uint> Rank(ReadOnlySpan<T> vector)
         {
             using var inMemoryStorage = new InMemoryVectorStorage<T>(_distanceCache.VectorSize, 1);
             var distanceCache = new VectorDistanceCache<T>(inMemoryStorage, distanceMetric, _distanceCache);
             var q = distanceCache.Add(vector);
             var w = _graph.KnnSearch(q, distanceCache);
             var ret = new FixedSizeSortedAscending32Array<uint, T>();
+
             for (var i = 0U; i < w.Size; i++) {
                 var (index, weight) = w[i];
                 ret.TryAdd(index, weight);
@@ -46,7 +47,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             return ret.Values.ToArray();
         }
 
-        public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
+        public uint[] Closest(ReadOnlyMemory<T>[] vector)
         {
             var ret = new uint[vector.Length];
             var vectorIndices = new uint[vector.Length];

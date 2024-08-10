@@ -41,14 +41,33 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
             return index;
         }
 
-        public void ForEach(IndexedSpanCallback<T> callback)
+        public void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback)
         {
-            Parallel.For(0, Size, i => callback(this[(uint)i], (uint)i));
+            if (Size < Consts.MinimumSizeForParallel) {
+                for (uint i = 0U, size = Size; i < size; i++)
+                    callback(this[i], i);
+            }else
+                Parallel.For(0, Size, i => callback(this[(uint)i], (uint)i));
         }
 
-        public void ForEach(IEnumerable<uint> indices, IndexedSpanCallback<T> callback)
+        public unsafe void ForEach(ReadOnlySpan<uint> indices, IndexedSpanCallbackWithVectorIndexAndRelativeIndex<T> callback)
         {
-            Parallel.ForEach(indices, i => callback(this[i], i));
+            var len = indices.Length;
+            if (len < Consts.MinimumSizeForParallel) {
+                for (var i = 0U; i < len; i++) {
+                    var vectorIndex = indices[(int)i];
+                    callback(this[vectorIndex], vectorIndex, i);
+                }
+            }
+            else {
+                fixed (uint* indexPtr = indices) {
+                    var index = indexPtr;
+                    Parallel.For(0, len, i => {
+                        var vectorIndex = index[i];
+                        callback(this[vectorIndex], vectorIndex, (uint)i);
+                    });
+                }
+            }
         }
 
         public ReadOnlyMemory<T>[] GetAll()

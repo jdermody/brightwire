@@ -19,6 +19,13 @@ namespace BrightData
     public partial class ExtensionMethods
     {
         /// <summary>
+        /// Converts the span to a read only span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ReadOnlySpan<T> AsReadOnly<T>(this Span<T> span) => span;
+
+        /// <summary>
         /// Callback to calculate a new vector of Ts from two existing vectors
         /// </summary>
         /// <param name="a">First input vector</param>
@@ -458,13 +465,6 @@ namespace BrightData
                 }
             }
         }
-
-        /// <summary>
-        /// Calculates the sum of all values in this span
-        /// </summary>
-        /// <param name="span"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ReadOnlySpan<T> AsReadOnly<T>(this Span<T> span) => span;
 
         /// <summary>
         /// Calculates the sum of all values in this span
@@ -1307,7 +1307,7 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="arrayIndices"></param>
         /// <returns></returns>
-        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, params uint[] arrayIndices) where T: unmanaged, INumber<T>
+        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, ReadOnlySpan<uint> arrayIndices) where T: unmanaged, INumber<T>
         {
             var ret = MemoryOwner<T>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;
@@ -1645,14 +1645,6 @@ namespace BrightData
                 ret[indicesSpan[i]] = (uint)i;
             return ret;
         }
-
-        /// <summary>
-        /// Returns the index of each element of span, ordered from lowest to highest
-        /// </summary>
-        /// <param name="span"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static uint[] GetRankedIndices<T>(this Span<T> span) where T : unmanaged, INumber<T> => GetRankedIndices((ReadOnlySpan<T>)span);
 
         public static AT NIndices<T, AT>(this ReadOnlySpan<T> span)
             where AT: IFixedSizeSortedArray<uint, T>, new()

@@ -13,11 +13,11 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         readonly IMatrix<T> _randomProjection;
         readonly FlatVectorIndex<T> _projectionIndex;
 
-        public RandomProjectionVectorIndex(LinearAlgebraProvider<T> lap, IStoreVectors<T> storage, uint projectionSize, uint? capacity, int s)
+        public RandomProjectionVectorIndex(LinearAlgebraProvider<T> lap, IStoreVectors<T> storage, uint projectionSize, DistanceMetric distanceMetric, uint? capacity, int s)
         {
             _lap = lap;
             Storage = storage;
-            _projectionIndex = new(new InMemoryVectorStorage<T>(projectionSize, capacity));
+            _projectionIndex = new(new InMemoryVectorStorage<T>(projectionSize, capacity), distanceMetric);
 
             var c1 = MathF.Sqrt(3);
             var distribution = lap.Context.CreateCategoricalDistribution([1.0f / (2f * s), 1f - (1.0f / s), 1.0f / (2f * s)]);
@@ -39,16 +39,16 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             return Storage.Add(vector);
         }
 
-        public IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric)
+        public IEnumerable<uint> Rank(ReadOnlySpan<T> vector)
         {
             using var vector2 = _lap.CreateVector(vector);
             using var projection = _randomProjection.Multiply(vector2);
-            return _projectionIndex.Rank(projection.ReadOnlySegment.Contiguous!.ReadOnlySpan, distanceMetric);
+            return _projectionIndex.Rank(projection.ReadOnlySegment.Contiguous!.ReadOnlySpan);
         }
 
-        public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
+        public uint[] Closest(ReadOnlyMemory<T>[] vector)
         {
-            return _projectionIndex.Closest(Project(vector), distanceMetric);
+            return _projectionIndex.Closest(Project(vector));
         }
 
         ReadOnlyMemory<T>[] Project(ReadOnlyMemory<T>[] vectors) =>

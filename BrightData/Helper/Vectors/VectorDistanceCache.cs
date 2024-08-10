@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 
-namespace BrightData.Helper
+namespace BrightData.Helper.Vectors
 {
     internal class VectorDistanceCache<T>(IStoreVectors<T> storage, DistanceMetric distanceMetric, VectorDistanceCache<T>? extensionOf = null) : IHaveSize, ICalculateNodeWeights<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
@@ -16,7 +16,7 @@ namespace BrightData.Helper
         public void Clear(bool recursive = true)
         {
             _distanceCache.Clear();
-            if(recursive && extensionOf != null)
+            if (recursive && extensionOf != null)
                 extensionOf.Clear();
         }
 
@@ -29,7 +29,8 @@ namespace BrightData.Helper
 
         public ReadOnlySpan<T> Get(uint index)
         {
-            if (extensionOf != null) {
+            if (extensionOf != null)
+            {
                 if (index < extensionOf.Size)
                     return extensionOf.Get(index);
                 return storage[index - extensionOf.Size];
@@ -42,10 +43,10 @@ namespace BrightData.Helper
             if (index1 == index2)
                 return T.Zero;
 
-            var key = index1 < index2 
+            var key = index1 < index2
                 ? new Key(index1, index2)
                 : new Key(index2, index1);
-            if(_distanceCache.TryGetValue(key, out var ret))
+            if (_distanceCache.TryGetValue(key, out var ret))
                 return ret;
 
             var v1 = Get(index1);

@@ -14,7 +14,7 @@ namespace BrightData.Buffer.Operations.Conversion
         where FT : notnull
         where T : notnull
     {
-        protected Action?                _onComplete;
+        //protected Action?                _onComplete;
         readonly OneToOneMutation<FT, T> _operation;
 
         protected ConversionBase(IReadOnlyBuffer<FT> input, IAppendToBuffer<T> output)
@@ -37,8 +37,8 @@ namespace BrightData.Buffer.Operations.Conversion
         public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
             var ret = _operation.Execute(notify, msg, ct);
-            if (_onComplete != null)
-                return ret.ContinueWith(_ => _onComplete(), ct);
+            //if (_onComplete != null)
+            //    return ret.ContinueWith(_ => _onComplete(), ct);
             return ret;
         }
     }

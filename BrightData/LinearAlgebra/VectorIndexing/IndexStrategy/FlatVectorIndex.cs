@@ -7,7 +7,7 @@ using CommunityToolkit.HighPerformance;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 {
-    internal class FlatVectorIndex<T>(IStoreVectors<T> storage) : IVectorIndex<T>
+    internal class FlatVectorIndex<T>(IStoreVectors<T> storage, DistanceMetric distanceMetric) : IVectorIndex<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         public IStoreVectors<T> Storage { get; } = storage;
@@ -18,7 +18,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             Storage.Dispose();
         }
 
-        public unsafe IEnumerable<uint> Rank(ReadOnlySpan<T> vector, DistanceMetric distanceMetric)
+        public unsafe IEnumerable<uint> Rank(ReadOnlySpan<T> vector)
         {
             var results = new T[Storage.Size];
             fixed (T* ptr = vector) {
@@ -34,10 +34,10 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             ;
         }
 
-        public uint[] Closest(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
+        public uint[] Closest(ReadOnlyMemory<T>[] vector)
         {
             var size = Storage.Size;
-            var distance = GetDistance(vector, distanceMetric);
+            var distance = GetDistance(vector);
 
             // find the closest input vector index for each vector in the set
             var ret = new uint[size];
@@ -51,7 +51,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         /// <param name="vector"></param>
         /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        T[,] GetDistance(ReadOnlyMemory<T>[] vector, DistanceMetric distanceMetric)
+        T[,] GetDistance(ReadOnlyMemory<T>[] vector)
         {
             var size = Storage.Size;
             var ret = new T[size, vector.Length];

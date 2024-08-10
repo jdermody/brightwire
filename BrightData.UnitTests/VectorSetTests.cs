@@ -1,6 +1,7 @@
 ﻿using BrightData.UnitTests.Helper;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.VectorIndexing;
 using BrightData.Types;
 using BrightData.Types.Graph;
@@ -24,7 +25,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank1()
         {
-            using var set = VectorSet<float>.CreateFlat(4);
+            using var set = VectorSet<float>.CreateFlat(4, DistanceMetric.Euclidean);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.8f, 0.8f, 0.8f, 0.8f));
@@ -34,7 +35,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void Rank2()
         {
-            using var set = VectorSet<float>.CreateFlat(4);
+            using var set = VectorSet<float>.CreateFlat(4, DistanceMetric.Euclidean);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var rank = set.Rank(_context.CreateReadOnlyVector(0.45f, 0.45f, 0.45f, 0.45f));
@@ -44,14 +45,14 @@ namespace BrightData.UnitTests
         [Fact]
         public void Closest()
         {
-            using var set = VectorSet<float>.CreateFlat(4);
+            using var set = VectorSet<float>.CreateFlat(4, DistanceMetric.Euclidean);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
             var score = set.Closest([
                 _context.CreateReadOnlyVector(0.5f, 0.5f, 0.5f, 0.5f), // 0
                 _context.CreateReadOnlyVector(0.9f, 0.9f, 0.9f, 0.9f), // 1
                 _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f, 0.1f), // 2
-            ], DistanceMetric.Euclidean);
+            ]);
             score[0].Should().Be(2);
             score[1].Should().Be(1);
         }
@@ -94,6 +95,23 @@ namespace BrightData.UnitTests
 
             for (var i = 0U; i < 5; i++) {
                 tree.GetNodeByVectorIndex(i).VectorIndex.Should().Be(i);
+                tree.Search(vectors[i]).BestVectorIndex.Should().Be(i);
+                tree.KnnSearch<FixedSizeSortedAscending5Array<uint, float>>(vectors[i])[0].Value.Should().Be(i);
+            }
+        }
+
+        [Fact]
+        public void TestBallTree()
+        {
+            var vectors = VectorSet<float>.GetStorage(VectorStorageType.InMemory, 4, 5);
+            vectors.Add([0.1f, 0.1f, 0.1f, 0.1f]);
+            vectors.Add([0.2f, 0.2f, 0.2f, 0.2f]);
+            vectors.Add([0.3f, 0.3f, 0.3f, 0.3f]);
+            vectors.Add([0.4f, 0.4f, 0.4f, 0.4f]);
+            vectors.Add([0.5f, 0.5f, 0.5f, 0.5f]);
+            var tree = new VectorBallTree<float>(vectors, DistanceMetric.Euclidean);
+
+            for (var i = 0U; i < 5; i++) {
                 tree.Search(vectors[i]).BestVectorIndex.Should().Be(i);
                 tree.KnnSearch<FixedSizeSortedAscending5Array<uint, float>>(vectors[i])[0].Value.Should().Be(i);
             }

@@ -23,13 +23,14 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// Creates a vector set with flat indexing (simplest approach for small data sets)
         /// </summary>
         /// <param name="vectorSize">Size of each vector in the set</param>
+        /// <param name="distanceMetric">Distance metric for vector comparison</param>
         /// <param name="storageType">Storage type</param>
         /// <param name="capacity">The expected number of vectors (optional)</param>
         /// <exception cref="NotSupportedException"></exception>
-        public static VectorSet<T> CreateFlat(uint vectorSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        public static VectorSet<T> CreateFlat(uint vectorSize, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
-            return new(new FlatVectorIndex<T>(storage));
+            return new(new FlatVectorIndex<T>(storage, distanceMetric));
         }
 
         /// <summary>
@@ -37,15 +38,16 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <param name="vectorSize">Input vector size</param>
+        /// <param name="distanceMetric">Distance metric for vector comparison</param>
         /// <param name="projectionSize">Projection vector size</param>
         /// <param name="storageType">Vector storage type</param>
         /// <param name="capacity">The expected number of vectors (optional)</param>
         /// <param name="s">Density parameter (random projection)</param>
         /// <returns></returns>
-        public static VectorSet<T> CreateRandomProjection(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
+        public static VectorSet<T> CreateRandomProjection(LinearAlgebraProvider<T> lap, uint vectorSize, uint projectionSize, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int s = 3)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
-            return new(new RandomProjectionVectorIndex<T>(lap, storage, projectionSize, capacity, s));
+            return new(new RandomProjectionVectorIndex<T>(lap, storage, projectionSize, distanceMetric, capacity, s));
         }
 
         /// <summary>
@@ -58,10 +60,25 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// <param name="layers">Number of layers in the HNSW graph</param>
         /// <param name="distanceMetric">Distance metric</param>
         /// <returns></returns>
-        public static VectorSet<T> CreateHNSW(BrightDataContext context, uint vectorSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int layers = 5, DistanceMetric distanceMetric = DistanceMetric.Cosine)
+        public static VectorSet<T> CreateHNSW(BrightDataContext context, uint vectorSize, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null, int layers = 5)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
             return new(new HNSWVectorIndex<T>(context, storage, layers, distanceMetric));
+        }
+
+        /// <summary>
+        /// Creates a vector set that uses a KNN search provider
+        /// </summary>
+        /// <param name="creator"></param>
+        /// <param name="vectorSize"></param>
+        /// <param name="distanceMetric"></param>
+        /// <param name="storageType"></param>
+        /// <param name="capacity"></param>
+        /// <returns></returns>
+        public static VectorSet<T> Create(Func<IReadOnlyVectorStore<T>, ISupportKnnSearch<T>> creator, uint vectorSize, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        {
+            var storage = GetStorage(storageType, vectorSize, capacity);
+            return new(new KnnSearchVectorIndex<T>(storage, creator));
         }
 
         /// <summary>
@@ -169,15 +186,14 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// Returns a list of vector indices ranked by the distance between that vector and a comparison vector
         /// </summary>
         /// <param name="vector"></param>
-        /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        public IEnumerable<uint> Rank(IReadOnlyVector<T> vector, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public IEnumerable<uint> Rank(IReadOnlyVector<T> vector)
         {
             var temp = SpanOwner<T>.Empty;
             var wasTempUsed = false;
             try {
                 var span = vector.GetSpan(ref temp, out wasTempUsed);
-                return _index.Rank(span, distanceMetric);
+                return _index.Rank(span);
             }
             finally {
                 if (wasTempUsed)
@@ -189,9 +205,8 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// Ranks the input vector and returns the closest vectors in the set
         /// </summary>
         /// <param name="span">Input vector</param>
-        /// <param name="distanceMetric">Distance metric</param>
         /// <returns></returns>
-        public IEnumerable<uint> Rank(ReadOnlySpan<T> span, DistanceMetric distanceMetric = DistanceMetric.Euclidean) => _index.Rank(span, distanceMetric);
+        public IEnumerable<uint> Rank(ReadOnlySpan<T> span) => _index.Rank(span);
 
         /// <summary>
         /// Returns the index of the closest vector in the set to each of the supplied vectors
@@ -199,10 +214,10 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// <param name="vector"></param>
         /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        public uint[] Closest(IReadOnlyVector<T>[] vector, DistanceMetric distanceMetric)
+        public uint[] Closest(IReadOnlyVector<T>[] vector)
         {
             var memoryArray = vector.Select(x => x.ReadOnlySegment.GetMemory()).ToArray();
-            return _index.Closest(memoryArray, distanceMetric);
+            return _index.Closest(memoryArray);
         }
 
         /// <summary>

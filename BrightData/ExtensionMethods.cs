@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -446,7 +447,7 @@ namespace BrightData
                 for (var pos = 0; pos < items.Length - 1; pos++) {
                     for (var size = 1; size < items.Length; size++) {
                         var prefixIndices = size.AsRange(pos).Where(i => i < items.Length);
-                        var prefix = new Lazy<ImmutableList<T>>(() => ImmutableList<T>.Empty.AddRange(prefixIndices.Select(i => items[i])));
+                        var prefix = new Lazy<ImmutableList<T>>(() => [.. prefixIndices.Select(i => items[i])]);
                         for (var i = pos + size; i < items.Length; i++) {
                             yield return prefix.Value.Add(items[i]);
                         }
@@ -910,6 +911,67 @@ namespace BrightData
         {
             var kmeans = new KMeans(context, maxIterations);
             return kmeans.Cluster(data, k, distanceMetric);
+        }
+
+        public static unsafe SpanOwner<T> FindDistancesFromVectorsToQuery<T>(this IReadOnlyVectorStore<T> vectors, ReadOnlySpan<uint> vectorIndices, ReadOnlySpan<T> query, DistanceMetric distanceMetric)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            var len = query.Length;
+            var ret = SpanOwner<T>.Allocate(vectorIndices.Length);
+            fixed(T* qPtr = query)
+            fixed (T* retPtr = ret.Span) {
+                var r = retPtr;
+                var q = qPtr;
+                vectors.ForEach(vectorIndices, (x, vi, i) => {
+                    r[i] = x.FindDistance(new ReadOnlySpan<T>(q, len), distanceMetric);
+                });
+            }
+            return ret;
+        }
+
+        public static void ForEach<T>(this IReadOnlyVectorStore<T> vectors, IndexedSpanCallback<T> callback)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            vectors.ForEach((x, _) => callback(x));
+        }
+
+        /// <summary>
+        /// Passes each vector to the callback, possible in parallel
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="indices"></param>
+        /// <param name="callback"></param>
+        public static void ForEach<T>(this IReadOnlyVectorStore<T> vectors, ReadOnlySpan<uint> indices, IndexedSpanCallbackWithVectorIndex<T> callback)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            vectors.ForEach(indices, (x, i, _) => callback(x, i));
+        }
+
+        /// <summary>
+        /// Passes each vector to the callback, possible in parallel
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="indices"></param>
+        /// <param name="callback"></param>
+        public static void ForEach<T>(this IReadOnlyVectorStore<T> vectors, ReadOnlySpan<uint> indices, IndexedSpanCallback<T> callback)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            vectors.ForEach(indices, (x, _, _) => callback(x));
+        }
+
+        /// <summary>
+        /// Enumerates all values in the array, in sorted order
+        /// </summary>
+        /// <param name="array"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="AT"></typeparam>
+        /// <typeparam name="WT"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> EnumerateValues<T, AT, WT>(this AT array)
+            where AT : IFixedSizeSortedArray<T, WT>
+        {
+            for (uint i = 0, len = array.Size; i < len; i++)
+                yield return array[i].Value;
         }
     }
 }
