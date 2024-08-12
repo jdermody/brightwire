@@ -24,7 +24,6 @@ namespace BrightData.Buffer.ReadOnly
             _stream = stream;
             using var reader = new BinaryReader(stream, Encoding.UTF8, true);
             Size = reader.ReadUInt32();
-            BlockSize = reader.ReadUInt32();
             BlockCount = reader.ReadUInt32();
 
             BlockSizes = new uint[BlockCount];
@@ -36,7 +35,6 @@ namespace BrightData.Buffer.ReadOnly
         }
 
         public uint Size { get; }
-        public uint BlockSize { get; }
         public uint BlockCount { get; }
         public Type DataType => typeof(T);
         public uint[] BlockSizes { get; }

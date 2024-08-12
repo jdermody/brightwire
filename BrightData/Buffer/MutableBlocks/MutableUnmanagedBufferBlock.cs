@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Buffer.MutableBlocks
 {
-    internal class MutableUnmanagedBufferBlock<T>(T[] Data) : IMutableBufferBlock<T>
+    internal class MutableUnmanagedBufferBlock<T>(Memory<T> Data) : IMutableBufferBlock<T>
         where T : unmanaged
     {
-        public MutableUnmanagedBufferBlock(T[] data, bool existing) : this(data)
+        public MutableUnmanagedBufferBlock(ReadOnlyMemory<T> data) : this(Unsafe.As<ReadOnlyMemory<T>, Memory<T>>(ref data))
         {
-            if (existing)
-                Size = (uint)data.Length;
+            Size = (uint)data.Length;
         }
 
         public uint Size { get; private set; }
-        public ref T GetNext() => ref Data[Size++];
+        public ref T GetNext() => ref Data.Span[(int)Size++];
         public bool HasFreeCapacity => Size < Data.Length;
         public uint AvailableCapacity => (uint)Data.Length - Size;
-        public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
-        public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
+        public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
+        public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
 
         public async Task<uint> WriteTo(IByteBlockSource file)
         {
@@ -32,7 +33,7 @@ namespace BrightData.Buffer.MutableBlocks
 
         public void Write(ReadOnlySpan<T> data)
         {
-            data.CopyTo(Data.AsSpan((int)Size, (int)AvailableCapacity));
+            data.CopyTo(Data.Span.Slice((int)Size, (int)AvailableCapacity));
             Size += (uint)data.Length;
         }
     }

@@ -12,11 +12,12 @@ namespace BrightData.Buffer.Composite
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class UnmanagedCompositeBuffer<T>(
-        IProvideDataBlocks? tempStreams = null,
-        int blockSize = Consts.DefaultBlockSize,
+        IProvideByteBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultInitialBlockSize,
+        int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null)
-        : CompositeBufferBase<T, MutableUnmanagedBufferBlock<T>>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<T, MutableUnmanagedBufferBlock<T>>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
         where T : unmanaged
     {
         readonly int _sizeOfT = Unsafe.SizeOf<T>();
@@ -26,11 +27,12 @@ namespace BrightData.Buffer.Composite
             if (blockIndex >= BlockCount)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
             uint currentIndex = 0;
+            var blocksInFile = (uint)(_fileBlockSizes?.Count ?? 0);
 
             // read from the in memory blocks
             if (_inMemoryBlocks is not null)
             {
-                if (blockIndex < _blocksInFile + (uint)_inMemoryBlocks.Count)
+                if (blockIndex < blocksInFile + (uint)_inMemoryBlocks.Count)
                 {
                     foreach (var block in _inMemoryBlocks)
                     {
@@ -39,24 +41,24 @@ namespace BrightData.Buffer.Composite
                     }
                 }
                 else
-                    currentIndex = _blocksInFile + (uint)_inMemoryBlocks.Count;
+                    currentIndex = blocksInFile + (uint)_inMemoryBlocks.Count;
             }
 
             // read from the file
-            if (_currentDataBlock != null)
-            {
-                if (blockIndex < _blocksInFile)
+            if (_currentDataBlock != null && _fileBlockSizes != null) {
+                var fileBlockIndex = 0;
+                if (blockIndex < blocksInFile)
                 {
                     uint fileLength = _currentDataBlock.Size, offset = 0;
-                    while (offset < fileLength)
-                    {
+                    while (offset < fileLength) {
+                        var blockSize = _fileBlockSizes[fileBlockIndex++];
                         if (currentIndex++ == blockIndex)
-                            return (await GetBlockFromFile(_currentDataBlock, offset)).Item2;
-                        offset += (uint)(_blockSize * _sizeOfT);
+                            return (await GetBlockFromFile(_currentDataBlock, offset, blockSize)).Item2;
+                        offset += (uint)(blockSize * _sizeOfT);
                     }
                 }
                 else
-                    currentIndex = _blocksInFile;
+                    currentIndex = blocksInFile;
             }
 
             // then from the current block
@@ -89,33 +91,21 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
+        protected override Task<uint> SkipFileBlock(IByteBlockSource file, uint offset, uint numItemsInBlock)
         {
-            return Task.FromResult((uint)_blockSize * (uint)_sizeOfT);
+            return Task.FromResult(numItemsInBlock * (uint)_sizeOfT);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset, uint numItemsInBlock)
         {
-            var ret = new Memory<T>(new T[_blockSize]);
+            var ret = new Memory<T>(new T[numItemsInBlock]);
             var buffer = ret.Cast<T, byte>();
             uint readCount = 0;
             do
             {
                 readCount += await file.ReadAsync(buffer[(int)readCount..], offset + readCount);
-            } while (readCount < _blockSize * _sizeOfT);
-            return ((uint)_blockSize * (uint)_sizeOfT, ret);
-        }
-
-        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<T> callback)
-        {
-            using var buffer = MemoryOwner<byte>.Allocate(_blockSize * _sizeOfT);
-            uint readCount = 0;
-            do
-            {
-                readCount += await file.ReadAsync(buffer.Memory[(int)readCount..], offset + readCount);
-            } while (readCount < _blockSize * _sizeOfT);
-            callback(buffer.Span.Cast<byte, T>());
-            return (uint)_blockSize * (uint)_sizeOfT;
+            } while (readCount < numItemsInBlock * _sizeOfT);
+            return (numItemsInBlock * (uint)_sizeOfT, ret);
         }
     }
 }

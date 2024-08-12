@@ -19,7 +19,7 @@ namespace BrightData.Buffer.ReadOnly
         ReadOnlyMemory<T>? _lastBlock = null;
         uint _lastBlockIndex = uint.MaxValue;
 
-        public BlockReaderReadOnlyBuffer(IByteBlockReader reader, MetaData metadata, uint offset, uint byteSize, uint blockSize = Consts.DefaultBlockSize)
+        public BlockReaderReadOnlyBuffer(IByteBlockReader reader, MetaData metadata, uint offset, uint byteSize, uint blockSize)
         {
             MetaData = metadata;
             _reader = reader;

@@ -18,7 +18,11 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 
         public IStoreVectors<T> Storage => vectors;
 
-        public uint Add(ReadOnlySpan<T> vector) => Storage.Add(vector);
+        public uint Add(ReadOnlySpan<T> vector)
+        {
+            _search = null;
+            return Storage.Add(vector);
+        }
 
         public IEnumerable<uint> Rank(ReadOnlySpan<T> vector)
         {

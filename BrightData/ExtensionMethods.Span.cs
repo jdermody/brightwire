@@ -1684,13 +1684,13 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this ReadOnlySpan<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
+        public static ReadOnlyVector<T> ToReadOnlyVector<T>(this ReadOnlySpan<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new(span.ToArray());
 
         /// <summary>
         /// Creates a read only vector from the span
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static IReadOnlyVector<T> ToReadOnlyVector<T>(this Span<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new ReadOnlyVector<T>(span.ToArray());
+        public static ReadOnlyVector<T> ToReadOnlyVector<T>(this Span<T> span) where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T> => new(span.ToArray());
     }
 }

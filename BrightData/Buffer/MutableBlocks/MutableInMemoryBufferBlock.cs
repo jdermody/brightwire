@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BrightData.Buffer.MutableBlocks
 {
-    internal class MutableInMemoryBufferBlock<T>(T[] Data) : IMutableBufferBlock<T>
+    internal class MutableInMemoryBufferBlock<T>(Memory<T> Data) : IMutableBufferBlock<T>
     {
-        public MutableInMemoryBufferBlock(T[] data, bool existing) : this(data)
+        public MutableInMemoryBufferBlock(ReadOnlyMemory<T> data) : this(Unsafe.As<ReadOnlyMemory<T>, Memory<T>>(ref data))
         {
-            if (existing)
-                Size = (uint)data.Length;
+            Size = (uint)data.Length;
         }
 
         public uint Size { get; private set; }
@@ -21,8 +18,8 @@ namespace BrightData.Buffer.MutableBlocks
         }
 
         public bool HasFreeCapacity => Size < Data.Length;
-        public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
-        public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
-        public ref T GetNext() => ref Data[Size++];
+        public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
+        public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
+        public ref T GetNext() => ref Data.Span[(int)Size++];
     }
 }

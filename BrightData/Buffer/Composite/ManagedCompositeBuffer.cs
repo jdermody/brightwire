@@ -18,15 +18,16 @@ namespace BrightData.Buffer.Composite
     /// <param name="maxDistinctItems"></param>
     internal class ManagedCompositeBuffer<T>(
         CreateFromReadOnlyByteSpan<T> createItem,
-        IProvideDataBlocks? tempStreams = null,
-        int blockSize = Consts.DefaultBlockSize,
+        IProvideByteBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultInitialBlockSize,
+        int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null
     )
-        : CompositeBufferBase<T, MutableManagedBufferBlock<T>>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<T, MutableManagedBufferBlock<T>>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
         where T : IHaveDataAsReadOnlyByteSpan
     {
-        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset, uint numItemsInBlock)
         {
             var lengthBytes = new byte[MutableManagedBufferBlock<T>.HeaderSize];
             await file.ReadAsync(lengthBytes, offset);
@@ -34,14 +35,14 @@ namespace BrightData.Buffer.Composite
             return blockSize + MutableManagedBufferBlock<T>.HeaderSize;
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset)
+        protected override async Task<(uint, ReadOnlyMemory<T>)> GetBlockFromFile(IByteBlockSource file, uint offset, uint numItemsInBlock)
         {
-            var (blockSize, buffer) = await ReadBuffer(file, offset);
+            var (blockByteSize, buffer) = await ReadBuffer(file, offset);
             try
             {
-                var buffer2 = new Memory<T>(new T[_blockSize]);
-                Copy(buffer.Span, buffer2.Span);
-                return (blockSize + MutableManagedBufferBlock<T>.HeaderSize, buffer2);
+                var buffer2 = new Memory<T>(new T[numItemsInBlock]);
+                Copy(buffer.Span, buffer2.Span, numItemsInBlock);
+                return (blockByteSize + MutableManagedBufferBlock<T>.HeaderSize, buffer2);
             }
             finally
             {
@@ -49,25 +50,9 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<T> callback)
+        void Copy(ReadOnlySpan<byte> inputSpan, Span<T> outputSpan, uint numItemsInBlock)
         {
-            var (blockSize, buffer) = await ReadBuffer(file, offset);
-            try
-            {
-                using var buffer2 = MemoryOwner<T>.Allocate(_blockSize);
-                Copy(buffer.Span, buffer2.Span);
-                callback(buffer2.Span);
-                return blockSize + MutableManagedBufferBlock<T>.HeaderSize;
-            }
-            finally
-            {
-                buffer.Dispose();
-            }
-        }
-
-        void Copy(ReadOnlySpan<byte> inputSpan, Span<T> outputSpan)
-        {
-            for (var i = 0; i < _blockSize; i++)
+            for (var i = 0; i < numItemsInBlock; i++)
             {
                 var itemSize = BinaryPrimitives.ReadUInt32LittleEndian(inputSpan);
                 var itemData = inputSpan[4..(int)(itemSize + 4)];
@@ -76,7 +61,7 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        static async Task<(uint BlockSize, MemoryOwner<byte> Buffer)> ReadBuffer(IByteBlockSource file, uint offset)
+        static async Task<(uint BlockByteSize, MemoryOwner<byte> Buffer)> ReadBuffer(IByteBlockSource file, uint offset)
         {
             var lengthBytes = new byte[MutableManagedBufferBlock<T>.HeaderSize];
             await file.ReadAsync(lengthBytes, offset);

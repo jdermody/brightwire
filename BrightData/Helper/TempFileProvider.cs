@@ -10,7 +10,7 @@ namespace BrightData.Helper
     /// Temp file provider
     /// </summary>
     /// <param name="basePath"></param>
-    internal class TempFileProvider(string? basePath = null) : IProvideDataBlocks
+    internal class TempFileProvider(string? basePath = null) : IProvideByteBlocks
     {
         class TempData(Guid id, string path) : IByteBlockSource
         {

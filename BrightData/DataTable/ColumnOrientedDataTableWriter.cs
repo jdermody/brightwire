@@ -6,7 +6,6 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Buffer.Composite;
 using BrightData.Buffer.MutableBlocks;
 using BrightData.DataTable.Columns;
 using BrightData.LinearAlgebra.ReadOnly;
@@ -20,8 +19,9 @@ namespace BrightData.DataTable
     /// Writes buffers to a data table
     /// </summary>
     internal class ColumnOrientedDataTableWriter(
-        IProvideDataBlocks? tempData = null, 
-        int blockSize = Consts.DefaultBlockSize, 
+        IProvideByteBlocks? tempData = null, 
+        int blockSize = Consts.DefaultInitialBlockSize, 
+        int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
     {
         public async Task Write(MetaData tableMetaData, IReadOnlyBufferWithMetaData[] buffers, Stream output)
@@ -55,11 +55,11 @@ namespace BrightData.DataTable
             header.InfoSizeBytes = (uint)(output.Position - header.InfoOffset);
             header.DataOffset = (uint)output.Position;
 
-            var indexWriter         = new Lazy<ICompositeBuffer<uint>>(() => tempData.CreateCompositeBuffer<uint>(blockSize, maxInMemoryBlocks));
-            var weightedIndexWriter = new Lazy<ICompositeBuffer<WeightedIndexList.Item>>(() => tempData.CreateCompositeBuffer<WeightedIndexList.Item>(blockSize, maxInMemoryBlocks));
-            var byteWriter          = new Lazy<ICompositeBuffer<byte>>(() => tempData.CreateCompositeBuffer<byte>(blockSize, maxInMemoryBlocks));
-            var stringWriter        = new Lazy<ICompositeBuffer<string>>(() => tempData.CreateCompositeBuffer(blockSize, maxInMemoryBlocks));
-            var floatWriter         = new Lazy<ICompositeBuffer<float>>(() => tempData.CreateCompositeBuffer<float>(blockSize, maxInMemoryBlocks));
+            var indexWriter         = new Lazy<ICompositeBuffer<uint>>(() => tempData.CreateCompositeBuffer<uint>(blockSize, maxBlockSize, maxInMemoryBlocks));
+            var weightedIndexWriter = new Lazy<ICompositeBuffer<WeightedIndexList.Item>>(() => tempData.CreateCompositeBuffer<WeightedIndexList.Item>(blockSize, maxBlockSize, maxInMemoryBlocks));
+            var byteWriter          = new Lazy<ICompositeBuffer<byte>>(() => tempData.CreateCompositeBuffer<byte>(blockSize, maxBlockSize, maxInMemoryBlocks));
+            var stringWriter        = new Lazy<ICompositeBuffer<string>>(() => tempData.CreateCompositeBuffer(blockSize, maxBlockSize, maxInMemoryBlocks));
+            var floatWriter         = new Lazy<ICompositeBuffer<float>>(() => tempData.CreateCompositeBuffer<float>(blockSize, maxBlockSize, maxInMemoryBlocks));
 
             // write the data (column oriented)
             foreach (var columnSegment in buffers) {

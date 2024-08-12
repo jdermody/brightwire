@@ -71,14 +71,19 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// </summary>
         /// <param name="creator"></param>
         /// <param name="vectorSize"></param>
-        /// <param name="distanceMetric"></param>
         /// <param name="storageType"></param>
         /// <param name="capacity"></param>
         /// <returns></returns>
-        public static VectorSet<T> Create(Func<IReadOnlyVectorStore<T>, ISupportKnnSearch<T>> creator, uint vectorSize, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        public static VectorSet<T> CreateKnnSearch(uint vectorSize, Func<IReadOnlyVectorStore<T>, ISupportKnnSearch<T>> creator, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
             var storage = GetStorage(storageType, vectorSize, capacity);
             return new(new KnnSearchVectorIndex<T>(storage, creator));
+        }
+
+        public static VectorSet<T> CreateFromPreCalculatedEmbedding(IMatrix<T> weight, IVector<T> bias, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        {
+            var storage = GetStorage(storageType, weight.RowCount, capacity);
+            return new(new PreCalculatedEmbeddingVectorIndex<T>(storage, weight, bias, distanceMetric, capacity));
         }
 
         /// <summary>

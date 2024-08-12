@@ -15,12 +15,13 @@ namespace BrightData.Buffer.Composite
     /// <param name="maxInMemoryBlocks"></param>
     /// <param name="maxDistinctItems"></param>
     internal class StringCompositeBuffer(
-        IProvideDataBlocks? tempStreams = null,
-        int blockSize = Consts.DefaultBlockSize,
+        IProvideByteBlocks? tempStreams = null,
+        int blockSize = Consts.DefaultInitialBlockSize,
+        int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null
     )
-        : CompositeBufferBase<string, MutableStringBufferBlock>((x, existing) => new(x, existing), tempStreams, blockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<string, MutableStringBufferBlock>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
     {
 
         public override Task<ReadOnlyMemory<string>> GetTypedBlock(uint blockIndex)
@@ -37,16 +38,16 @@ namespace BrightData.Buffer.Composite
             base.Append(item);
         }
 
-        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset)
+        protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint byteOffset, uint numItemsInBlock)
         {
             var lengthBytes = new byte[4];
-            await file.ReadAsync(lengthBytes, offset);
+            await file.ReadAsync(lengthBytes, byteOffset);
             return MutableStringBufferBlock.HeaderSize + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
         }
 
-        protected override async Task<(uint, ReadOnlyMemory<string>)> GetBlockFromFile(IByteBlockSource file, uint offset)
+        protected override async Task<(uint BlockSizeBytes, ReadOnlyMemory<string> Block)> GetBlockFromFile(IByteBlockSource file, uint byteOffset, uint numItemsInBlock)
         {
-            var (numStrings, block) = await ReadBlock(file, offset);
+            var (numStrings, block) = await ReadBlock(file, byteOffset);
             try
             {
                 var index = 0;
@@ -57,27 +58,6 @@ namespace BrightData.Buffer.Composite
                     buffer.Span[index++] = new string(chars);
                 });
                 return ((uint)block.Length + MutableStringBufferBlock.HeaderSize, buffer);
-            }
-            finally
-            {
-                block.Dispose();
-            }
-        }
-
-        protected override async Task<uint> GetBlockFromFile(IByteBlockSource file, uint offset, BlockCallback<string> callback)
-        {
-            var (numStrings, block) = await ReadBlock(file, offset);
-            try
-            {
-                var index = 0;
-                using var buffer = MemoryOwner<string>.Allocate((int)numStrings);
-                MutableStringBufferBlock.Decode(block.Span, chars =>
-                {
-                    // ReSharper disable once AccessToDisposedClosure
-                    buffer.Span[index++] = new string(chars);
-                });
-                callback(buffer.Span);
-                return (uint)block.Length + MutableStringBufferBlock.HeaderSize;
             }
             finally
             {

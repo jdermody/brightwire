@@ -486,19 +486,19 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Provides data blocks
+    /// Provides byte blocks
     /// </summary>
-    public interface IProvideDataBlocks : IDisposable
+    public interface IProvideByteBlocks : IDisposable
     {
         /// <summary>
-        /// Returns a data block associated with the id
+        /// Returns a new or existing byte block associated with the id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         IByteBlockSource Get(Guid id);
 
         /// <summary>
-        /// Clears all data blocks
+        /// Clears all byte blocks
         /// </summary>
         void Clear();
     }

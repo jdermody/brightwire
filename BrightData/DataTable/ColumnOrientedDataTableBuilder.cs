@@ -16,8 +16,9 @@ namespace BrightData.DataTable
     /// </summary>
     internal class ColumnOrientedDataTableBuilder(
         BrightDataContext context,
-        IProvideDataBlocks? tempData = null,
-        int blockSize = Consts.DefaultBlockSize,
+        IProvideByteBlocks? tempData = null,
+        int blockSize = Consts.DefaultInitialBlockSize,
+        int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
         : IBuildDataTables
     {
@@ -48,7 +49,7 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData)
         {
-            var buffer = type.CreateCompositeBuffer(tempData, blockSize, maxInMemoryBlocks);
+            var buffer = type.CreateCompositeBuffer(tempData, blockSize, maxBlockSize, maxInMemoryBlocks);
             metaData.CopyTo(buffer.MetaData);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
@@ -117,7 +118,7 @@ namespace BrightData.DataTable
 
         public Task WriteTo(Stream stream)
         {
-            var writer = new ColumnOrientedDataTableWriter(tempData, blockSize, maxInMemoryBlocks);
+            var writer = new ColumnOrientedDataTableWriter(tempData, blockSize, maxBlockSize, maxInMemoryBlocks);
             return writer.Write(
                 TableMetaData,
                 _columns.Cast<IReadOnlyBufferWithMetaData>().ToArray(),

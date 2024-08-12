@@ -17,6 +17,7 @@ using BrightData.Buffer.Operations;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.Helper;
+using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.Clustering;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -972,6 +973,18 @@ namespace BrightData
         {
             for (uint i = 0, len = array.Size; i < len; i++)
                 yield return array[i].Value;
+        }
+
+        public static ISupportKnnSearch<T> KDTreeSearch<T>(this IReadOnlyVectorStore<T> vectors)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new VectorKDTree<T>(vectors);
+        }
+
+        public static ISupportKnnSearch<T> BallTreeSearch<T>(this IReadOnlyVectorStore<T> vectors, DistanceMetric distanceMetric = DistanceMetric.Cosine)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new VectorBallTree<T>(vectors, distanceMetric);
         }
     }
 }

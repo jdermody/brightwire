@@ -1,20 +1,28 @@
 ﻿using BrightData.Buffer.MutableBlocks;
-using BrightData.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BrightData.Buffer
 {
-    internal class InMemoryBuffer<T>(uint blockSize = Consts.DefaultBlockSize)
+    internal class InMemoryBuffer<T>
         : TypedBufferBase<T>, IAppendableBuffer<T>
         where T : notnull
     {
+        uint _blockSize;
+        readonly uint _maxBlockSize;
         protected List<MutableInMemoryBufferBlock<T>>? _inMemoryBlocks;
         protected MutableInMemoryBufferBlock<T>? _currBlock;
+
+        public InMemoryBuffer(uint blockSize = Consts.DefaultInitialBlockSize, uint maxBlockSize = Consts.DefaultMaxBlockSize)
+        {
+            if (maxBlockSize < blockSize)
+                throw new ArgumentException($"Expected max block size to be greater or equal to block size: block-size:{blockSize}, max-block-size:{maxBlockSize}");
+
+            _blockSize = blockSize;
+            _maxBlockSize = maxBlockSize;
+        }
 
         public Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
         {
@@ -86,6 +94,7 @@ namespace BrightData.Buffer
                 }
             }
 
+            // then from current block
             if (_currBlock is not null)
             {
                 for (var i = 0; i < _currBlock.WrittenMemory.Length; i++)
@@ -107,9 +116,7 @@ namespace BrightData.Buffer
                 if (_inMemoryBlocks is not null)
                 {
                     foreach (var block in _inMemoryBlocks)
-                    {
-                        ret[index++] = blockSize;
-                    }
+                        ret[index++] = block.Size;
                 }
                 if (_currBlock is not null)
                     ret[index] = _currBlock.Size;
@@ -144,8 +151,14 @@ namespace BrightData.Buffer
                 {
                     (_inMemoryBlocks ??= []).Add(_currBlock);
                 }
-                _currBlock = new(new T[blockSize], false);
+                _currBlock = new(new T[_blockSize]);
                 ++BlockCount;
+
+                // increase the size of the next block
+                var nextBlockSize = _blockSize * 2;
+                if (nextBlockSize > _maxBlockSize)
+                    nextBlockSize = _maxBlockSize;
+                _blockSize = nextBlockSize;
             }
             return _currBlock;
         }

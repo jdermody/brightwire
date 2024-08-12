@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.MutableBlocks
 {
-    internal class MutableManagedBufferBlock<T>(T[] Data) : IMutableBufferBlock<T>
+    internal class MutableManagedBufferBlock<T>(Memory<T> Data) : IMutableBufferBlock<T>
         where T : IHaveDataAsReadOnlyByteSpan
     {
-        public MutableManagedBufferBlock(T[] data, bool existing) : this(data)
+        public MutableManagedBufferBlock(ReadOnlyMemory<T> data) : this(Unsafe.As<ReadOnlyMemory<T>, Memory<T>>(ref data))
         {
-            if (existing)
-                Size = (uint)data.Length;
+            Size = (uint)data.Length;
         }
 
         public const int HeaderSize = 8;
         public uint Size { get; private set; }
-        public ref T GetNext() => ref Data[Size++];
+        public ref T GetNext() => ref Data.Span[(int)Size++];
         public bool HasFreeCapacity => Size < Data.Length;
-        public ReadOnlySpan<T> WrittenSpan => new(Data, 0, (int)Size);
-        public ReadOnlyMemory<T> WrittenMemory => new(Data, 0, (int)Size);
+        public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
+        public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
 
         public async Task<uint> WriteTo(IByteBlockSource file)
         {
@@ -29,8 +29,8 @@ namespace BrightData.Buffer.MutableBlocks
             var memoryOwner = (IMemoryOwner<byte>)writer;
             writer.Advance(HeaderSize);
             uint size = 0;
-            for (uint i = 0; i < Size; i++)
-                size += WriteBlock(Data[i].DataAsBytes, writer);
+            for (var i = 0; i < Size; i++)
+                size += WriteBlock(Data.Span[i].DataAsBytes, writer);
             BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, Size);
             BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], size);
             await file.WriteAsync(writer.WrittenMemory, offset);

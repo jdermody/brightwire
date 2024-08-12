@@ -1,33 +1,33 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.MutableBlocks
 {
-    internal class MutableStringBufferBlock(string[] Data) : IMutableBufferBlock<string>
+    internal class MutableStringBufferBlock(Memory<string> Data) : IMutableBufferBlock<string>
     {
-        public MutableStringBufferBlock(string[] data, bool existing) : this(data)
+        public MutableStringBufferBlock(ReadOnlyMemory<string> data) : this(Unsafe.As<ReadOnlyMemory<string>, Memory<string>>(ref data))
         {
-            if (existing)
-                Size = (uint)data.Length;
+            Size = (uint)data.Length;
         }
 
         public uint Size { get; private set; }
-        public ref string GetNext() => ref Data[Size++];
+        public ref string GetNext() => ref Data.Span[(int)Size++];
         public bool HasFreeCapacity => Size < Data.Length;
-        public ReadOnlySpan<string> WrittenSpan => new(Data, 0, (int)Size);
-        public ReadOnlyMemory<string> WrittenMemory => new(Data, 0, (int)Size);
+        public ReadOnlySpan<string> WrittenSpan => Data.Span[..(int)Size];
+        public ReadOnlyMemory<string> WrittenMemory => Data[..(int)Size];
 
         public const int HeaderSize = 8;
         public async Task<uint> WriteTo(IByteBlockSource file)
         {
             var offset = file.Size;
             var startOffset = offset += HeaderSize;
-            for (uint i = 0; i < Size; i++)
+            for (var i = 0; i < Size; i++)
             {
-                Encode(Data[i], bytes =>
+                Encode(Data.Span[i], bytes =>
                 {
                     file.Write(bytes, offset);
                     offset += (uint)bytes.Length;

@@ -12669,13 +12669,12 @@
             <param name="distanceMetric">Distance metric</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Create(System.Func{BrightData.IReadOnlyVectorStore{`0},BrightData.ISupportKnnSearch{`0}},System.UInt32,BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateKnnSearch(System.UInt32,System.Func{BrightData.IReadOnlyVectorStore{`0},BrightData.ISupportKnnSearch{`0}},BrightData.VectorStorageType,System.Nullable{System.UInt32})">
             <summary>
             Creates a vector set that uses a KNN search provider
             </summary>
             <param name="creator"></param>
             <param name="vectorSize"></param>
-            <param name="distanceMetric"></param>
             <param name="storageType"></param>
             <param name="capacity"></param>
             <returns></returns>

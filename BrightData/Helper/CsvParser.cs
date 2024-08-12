@@ -115,7 +115,7 @@ namespace BrightData.Helper
                                 text = text[1..^1];
 
                             while ((Columns ??= []).Count <= j)
-                                Columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
+                                Columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxBlockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
 
                             // set the column name if needed
                             if (_isFirstRow && parser._firstRowIsHeader)
@@ -145,8 +145,8 @@ namespace BrightData.Helper
 
         readonly bool _firstRowIsHeader;
         readonly char _delimiter, _quote;
-        readonly IProvideDataBlocks? _tempStreams;
-        readonly int _blockSize;
+        readonly IProvideByteBlocks? _tempStreams;
+        readonly int _blockSize, _maxBlockSize;
         readonly uint? _maxInMemoryBlocks, _maxDistinctItems;
 
         /// <summary>
@@ -163,19 +163,21 @@ namespace BrightData.Helper
             bool firstRowIsHeader,
             char delimiter,
             char quote = '"',
-            IProvideDataBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultBlockSize,
+            IProvideByteBlocks? tempStreams = null,
+            int blockSize = Consts.DefaultInitialBlockSize,
+            int maxBlockSize = Consts.DefaultMaxBlockSize,
             uint? maxInMemoryBlocks = null,
             uint? maxDistinctItems = null
         )
         {
-            _firstRowIsHeader = firstRowIsHeader;
-            _delimiter = delimiter;
-            _quote = quote;
-            _tempStreams = tempStreams;
-            _blockSize = blockSize;
+            _firstRowIsHeader  = firstRowIsHeader;
+            _delimiter         = delimiter;
+            _quote             = quote;
+            _tempStreams       = tempStreams;
+            _blockSize         = blockSize;
+            _maxBlockSize      = maxBlockSize;
             _maxInMemoryBlocks = maxInMemoryBlocks;
-            _maxDistinctItems = maxDistinctItems;
+            _maxDistinctItems  = maxDistinctItems;
         }
 
         /// <summary>

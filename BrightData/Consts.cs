@@ -31,29 +31,19 @@
         public const int MinimumSizeForVectorised = 64;
 
         /// <summary>
-        /// Default in memory buffer size
+        /// Default initial size of a block buffer
         /// </summary>
-        public const int DefaultInMemoryBufferSize = 32768 * 4;
+        public const int DefaultInitialBlockSize = 1_024;
 
         /// <summary>
-        /// Default number of table rows to cache in memory
+        /// Default max size of a block buffer
         /// </summary>
-        public const int DefaultTableRowCacheSize = 32768;
-
-        /// <summary>
-        /// Default size of a small buffer
-        /// </summary>
-        public const int DefaultBlockSize = 1024;
+        public const int DefaultMaxBlockSize = 32_768;
 
         /// <summary>
         /// Default maximum number of blocks to keep in memory
         /// </summary>
         public const int DefaultMaxBlocksInMemory = 4096;
-
-        /// <summary>
-        /// Default max number of distinct items
-        /// </summary>
-        public const ushort DefaultMaxDistinctCount = 32768;
 
         /// <summary>
         /// Default max write count
