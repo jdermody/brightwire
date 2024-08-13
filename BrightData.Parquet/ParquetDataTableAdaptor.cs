@@ -17,8 +17,7 @@ namespace BrightData.Parquet
         readonly IReadOnlyBufferWithMetaData[]   _columns;
         uint?                                    _rowCount = null;
         
-
-        private ParquetDataTableAdaptor(BrightDataContext context, ParquetReader reader)
+        ParquetDataTableAdaptor(BrightDataContext context, ParquetReader reader)
         {
             Context = context;
             _reader = reader;

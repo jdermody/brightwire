@@ -118,7 +118,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var results = classifier.Classify(Test).ToList();
             var column = Test.GetColumn(TargetColumn);
-            var expectedLabels = column.GetValues().Select(o => o.ToString()).ToArray();
+            var expectedLabels = column.Enumerate().Select(o => o.ToString()).ToArray();
             var score = results
                 .Average(d => expectedLabels[d.RowIndex] == d.Predictions.MaxBy(c => c.Weight).Classification ? 1.0 : 0.0);
 

@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 var targetColumn = dataTable.GetTargetColumnOrThrow();
                 var column = dataTable.GetColumn(targetColumn);
-                _targetLabel = column.GetValues()
+                _targetLabel = column.Enumerate()
                     .Select(o => o.ToString()!)
                     .Distinct()
                     .Select((v, i) => (Classification: v, Index: (uint)i))

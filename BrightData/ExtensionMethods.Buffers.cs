@@ -25,19 +25,46 @@ namespace BrightData
         /// <summary>
         /// Creates an appendable in memory buffer
         /// </summary>
-        /// <param name="blockSize"></param>
+        /// <param name="blockSize">Initial size of each block</param>
+        /// <param name="maxBlockSize">Max block size</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IAppendableBuffer<T> CreateBuffer<T>(this uint blockSize) where T : notnull => new InMemoryBuffer<T>(blockSize);
+        public static IAppendableBuffer<T> CreateInMemoryBuffer<T>(this uint blockSize, uint maxBlockSize) where T : notnull => new InMemoryBuffer<T>(blockSize, maxBlockSize);
+
+        /// <summary>
+        /// Creates a new buffer in which each value is converted via a mapping function
+        /// </summary>
+        /// <typeparam name="FT"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="converter"></param>
+        /// <returns></returns>
+        public static IReadOnlyBuffer<TT> Map<FT, TT>(this IReadOnlyBuffer<FT> buffer, Func<FT, TT> converter)
+            where FT: notnull
+            where TT: notnull
+        {
+            return (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), buffer, new CustomConversionFunction<FT, TT>(converter));
+        }
 
         /// <summary>
         /// Enumerates values in the buffer (blocking)
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static IEnumerable<object> GetValues(this IReadOnlyBuffer buffer)
+        public static IEnumerable<object> Enumerate(this IReadOnlyBuffer buffer)
         {
             return buffer.EnumerateAll().ToBlockingEnumerable();
+        }
+
+        /// <summary>
+        /// Enumerates values in the buffer (blocking)
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Enumerate<T>(this IReadOnlyBuffer<T> buffer)
+            where T : notnull
+        {
+            return buffer.EnumerateAllTyped().ToBlockingEnumerable();
         }
 
         /// <summary>
@@ -47,7 +74,7 @@ namespace BrightData
         /// <param name="buffer"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IAsyncEnumerable<T> GetValues<T>(this IReadOnlyBuffer buffer) where T: notnull
+        public static IAsyncEnumerable<T> AsyncEnumerate<T>(this IReadOnlyBuffer buffer) where T: notnull
         {
             if (buffer.DataType != typeof(T))
                 throw new ArgumentException($"Buffer is of type {buffer.DataType} but requested {typeof(T)}");
@@ -56,18 +83,30 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a new buffer in which each value is converted via the conversion function
+        /// Async enumeration of values in the buffer
         /// </summary>
-        /// <typeparam name="FT"></typeparam>
-        /// <typeparam name="TT"></typeparam>
+        /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
-        /// <param name="converter"></param>
         /// <returns></returns>
-        public static IReadOnlyBuffer<TT> Convert<FT, TT>(this IReadOnlyBuffer<FT> buffer, Func<FT, TT> converter)
-            where FT: notnull
-            where TT: notnull
+        /// <exception cref="ArgumentException"></exception>
+        public static IAsyncEnumerable<T> AsyncEnumerate<T>(this IReadOnlyBuffer<T> buffer) where T: notnull
         {
-            return (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), buffer, new CustomConversionFunction<FT, TT>(converter));
+            return buffer.EnumerateAllTyped();
+        }
+
+        /// <summary>
+        /// Creates an array from the buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static async Task<T[]> ToArray<T>(this IReadOnlyBuffer buffer) where T : notnull
+        {
+            var ret = new T[buffer.Size];
+            var index = 0;
+            await foreach(var item in buffer.AsyncEnumerate<T>())
+                ret[index++] = item;
+            return ret;
         }
 
         /// <summary>
@@ -204,56 +243,7 @@ namespace BrightData
             }
         }
 
-        ///// <summary>
-        ///// Buffer iterator
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        //public ref struct ReadOnlyBufferIterator<T> where T: notnull
-        //{
-        //    readonly IReadOnlyBuffer<T> _buffer;
-        //    ReadOnlyMemory<T> _currentBlock = ReadOnlyMemory<T>.Empty;
-        //    uint _blockIndex = 0, _position = 0;
-
-        //    internal ReadOnlyBufferIterator(IReadOnlyBuffer<T> buffer) => _buffer = buffer;
-
-        //    /// <summary>
-        //    /// Advances to the next position
-        //    /// </summary>
-        //    /// <returns></returns>
-        //    public bool MoveNext()
-        //    {
-        //        if (++_position < _currentBlock.Length)
-        //            return true;
-
-        //        while(_blockIndex < _buffer.BlockCount) {
-        //            _currentBlock = _buffer.GetTypedBlock(_blockIndex++).Result;
-        //            if (_currentBlock.Length > 0) {
-        //                _position = 0;
-        //                return true;
-        //            }
-        //        }
-        //        return false;
-        //    }
-
-        //    /// <summary>
-        //    /// Current iterator value
-        //    /// </summary>
-        //    public readonly ref readonly T Current => ref _currentBlock.Span[(int)_position];
-
-        //    /// <summary>
-        //    /// Converts to enumerator
-        //    /// </summary>
-        //    /// <returns></returns>
-        //    public readonly ReadOnlyBufferIterator<T> GetEnumerator() => this;
-        //}
-
-        ///// <summary>
-        ///// Creates an iterator for the buffer
-        ///// </summary>
-        ///// <param name="buffer"></param>
-        ///// <typeparam name="T"></typeparam>
-        ///// <returns></returns>
-        //public static ReadOnlyBufferIterator<T> GetEnumerator<T>(this IReadOnlyBuffer<T> buffer) where T: notnull => new(buffer);
+        
 
         /// <summary>
         /// Converts the buffer to an array
@@ -384,7 +374,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static bool CanEncode<T>(this IHaveDistinctItemCount buffer) where T : notnull => buffer.DistinctItems.HasValue;
+        public static bool CanEncode(this IHaveDistinctItemCount buffer) => buffer.DistinctItems.HasValue;
 
         /// <summary>
         /// Encoding a composite buffer maps each item to an index and returns both the mapping table and a new composite buffer of the indices
@@ -972,21 +962,6 @@ namespace BrightData
             var conversion = new ManyToOneMutation<float, ReadOnlyVector<float>>(floatBuffers, output, x => new(x));
             await conversion.Execute();
             return output;
-        }
-
-        /// <summary>
-        /// Creates an array from the buffer
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
-        public static async Task<T[]> ToArray<T>(this IReadOnlyBuffer buffer) where T : notnull
-        {
-            var ret = new T[buffer.Size];
-            var index = 0;
-            await foreach(var item in buffer.GetValues<T>())
-                ret[index++] = item;
-            return ret;
         }
 
         /// <summary>

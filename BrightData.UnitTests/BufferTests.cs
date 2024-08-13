@@ -162,6 +162,7 @@ namespace BrightData.UnitTests
             await foreach (var item in stringBuffer)
                 item.Should().Be(data[index++]);
          
+            stringBuffer.CanEncode().Should().BeTrue();
             var (table, encoded) = stringBuffer.Encode();
             encoded.Size.Should().Be(4);
             table.Length.Should().Be(3);
@@ -238,6 +239,18 @@ namespace BrightData.UnitTests
         {
             foreach (var (numItems, bufferSize, maxBufferSize, inMemoryReadSize, numDistinct) in Configurations)
                 await StringBufferReadWriteTest((uint)numItems, bufferSize, maxBufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
+        }
+
+        [Fact]
+        public async Task InMemoryBuffer()
+        {
+            var buffer = 8U.CreateInMemoryBuffer<int>(32);
+            for(var i = 0; i < 32; i++)
+                buffer.Append(i);
+            var buffer2 = buffer.Map(x => x * 2);
+            (await buffer2.GetItem(1)).Should().Be(2);
+            var strings = await buffer2.ToStringBuffer().ToArray();
+            strings[31].Should().Be("62");
         }
 
         async Task ObjectTests<T>(Func<uint, T> indexTranslator, CreateFromReadOnlyByteSpan<T> createItem) where T : IHaveDataAsReadOnlyByteSpan
