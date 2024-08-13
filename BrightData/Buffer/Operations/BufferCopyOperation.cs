@@ -15,12 +15,13 @@ namespace BrightData.Buffer.Operations
         : IOperation
         where T : notnull
     {
-        public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
+        public async Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            var ret = from.ForEachBlock(to.Append, notify, msg, ct);
-            return onComplete is not null 
-                ? ret.ContinueWith(_ => onComplete(), ct) 
-                : ret;
+            if (notify is not null)
+                await from.ForEachWithProgressNotification(notify, to.Append, msg, ct);
+            else
+                await from.ForEachBlock(to.Append, ct);
+            onComplete?.Invoke();
         }
     }
 }

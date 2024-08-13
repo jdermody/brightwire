@@ -39,12 +39,8 @@ namespace BrightData.Buffer.ReadOnly
         public Type DataType => typeof(T);
         public uint[] BlockSizes { get; }
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            var guid = Guid.NewGuid();
-            notify?.OnStartOperation(guid, message);
-            var count = 0;
-
             for (uint i = 0; i < BlockCount; i++) {
                 var (position, size) = _blockData[i];
                 using var data = MemoryOwner<byte>.Allocate((int)size);
@@ -59,9 +55,7 @@ namespace BrightData.Buffer.ReadOnly
 
                 var typedData = Get(data.Memory);
                 callback(typedData.Span);
-                notify?.OnOperationProgress(guid, (float)++count / BlockCount);
             }
-            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)

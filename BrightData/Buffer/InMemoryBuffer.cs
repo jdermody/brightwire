@@ -1,6 +1,6 @@
-﻿using BrightData.Buffer.MutableBlocks;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,10 +10,28 @@ namespace BrightData.Buffer
         : TypedBufferBase<T>, IAppendableBuffer<T>
         where T : notnull
     {
+        protected class Block(Memory<T> Data) : IMutableBufferBlock<T>
+        {
+            public Block(ReadOnlyMemory<T> data) : this(Unsafe.As<ReadOnlyMemory<T>, Memory<T>>(ref data))
+            {
+                Size = (uint)data.Length;
+            }
+
+            public uint Size { get; private set; }
+            public Task<uint> WriteTo(IByteBlockSource file)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool HasFreeCapacity => Size < Data.Length;
+            public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
+            public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
+            public ref T GetNext() => ref Data.Span[(int)Size++];
+        }
         uint _blockSize;
         readonly uint _maxBlockSize;
-        protected List<MutableInMemoryBufferBlock<T>>? _inMemoryBlocks;
-        protected MutableInMemoryBufferBlock<T>? _currBlock;
+        protected List<Block>? _inMemoryBlocks;
+        protected Block? _currBlock;
 
         public InMemoryBuffer(uint blockSize = Consts.DefaultInitialBlockSize, uint maxBlockSize = Consts.DefaultMaxBlockSize)
         {
@@ -24,12 +42,8 @@ namespace BrightData.Buffer
             _maxBlockSize = maxBlockSize;
         }
 
-        public Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        public Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            var guid = Guid.NewGuid();
-            notify?.OnStartOperation(guid, message);
-            var count = 0;
-
             // read from in memory blocks
             if (_inMemoryBlocks is not null)
             {
@@ -38,17 +52,12 @@ namespace BrightData.Buffer
                     if (ct.IsCancellationRequested)
                         break;
                     callback(block.WrittenSpan);
-                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
                 }
             }
 
             // then from the current block
             if (_currBlock is not null && !ct.IsCancellationRequested)
-            {
                 callback(_currBlock.WrittenSpan);
-                notify?.OnOperationProgress(guid, (float)++count / BlockCount);
-            }
-            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
             return Task.CompletedTask;
         }
 
@@ -143,7 +152,7 @@ namespace BrightData.Buffer
             Append((T)obj);
         }
 
-        protected MutableInMemoryBufferBlock<T> EnsureCurrentBlock()
+        protected Block EnsureCurrentBlock()
         {
             if (_currBlock?.HasFreeCapacity != true)
             {

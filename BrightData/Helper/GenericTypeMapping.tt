@@ -18,12 +18,15 @@ using BrightData.Buffer.Operations.Vectorisation;
 
 namespace BrightData.Helper
 {
+    /// <summary>
+	/// Contains auto generated type mapping functions
+	/// </summary>
     internal class GenericTypeMapping
     {
-        internal static IReadOnlyBuffer<string> ToStringConverter(IReadOnlyBuffer buffer)
+        internal static IReadOnlyBuffer<string> ToStringBuffer(IReadOnlyBuffer buffer)
         {
             var type = buffer.DataType;
-<#= WriteSingleTypeMapping("ToStringConverter", x => $"(IReadOnlyBuffer<{x}>)buffer") #>
+<#= WriteSingleTypeMapping("ToStringConverter", "string", "(IReadOnlyBuffer<string>)buffer", x => $"(IReadOnlyBuffer<{x}>)buffer") #>
         }
 
         internal static IDataAnalyser ConvertToStringFrequencyAnalysis(Type type, uint writeCount)
@@ -31,7 +34,7 @@ namespace BrightData.Helper
 <#= WriteSingleTypeMapping("ConvertToStringFrequencyAnalysis", x => $"writeCount") #>
         }
 
-        internal static IReadOnlyBuffer<object> ToObjectConverter(IReadOnlyBuffer from)
+        internal static IReadOnlyBuffer<object> ToObjectBuffer(IReadOnlyBuffer from)
         {
             var type = from.DataType;
 <#= WriteSingleTypeMapping("ToObjectConverter", x => $"(IReadOnlyBuffer<{x}>)from") #>
@@ -40,7 +43,7 @@ namespace BrightData.Helper
         internal static IReadOnlyBuffer TypeConverter(Type type2, IReadOnlyBuffer from, ICanConvert converter) 
         {
             var type1 = from.DataType;
-<#= WriteDoubleTypeMapping("TypeConverter", (x, y) => $"(IReadOnlyBuffer<{x}>)from, (ICanConvert<{x}, {y}>)converter") #>
+<#= WriteDoubleTypeMapping("TypeConverter", "from", (x, y) => $"(IReadOnlyBuffer<{x}>)from, (ICanConvert<{x}, {y}>)converter") #>
         }
 
         internal static IOperation IndexedCopyOperation(IReadOnlyBuffer from, IAppendToBuffer to, IEnumerable<uint> indices)
@@ -221,6 +224,31 @@ namespace BrightData.Helper
         }
     }
 
+    string WriteSingleTypeMapping(string typeName, string castOn, string castTo, Func<string, string> parameters)
+    {
+        var sb = new StringBuilder();
+
+        // write the type codes
+        sb.AppendLine("\t\t\tvar typeCode = Type.GetTypeCode(type);");
+        foreach(var item in ValidTypeCodes) {
+            sb.AppendLine($"\t\t\tif(typeCode == TypeCode.{item.TypeCode})");
+            if(item.TypeName == castOn)
+                sb.AppendLine($"\t\t\t\treturn {castTo};");
+            else
+                sb.AppendLine($"\t\t\t\treturn new {typeName}<{item.TypeName}>({parameters(item.TypeName)});");
+        }
+
+        // write the types
+        foreach(var item in ValidTypes) {
+            sb.AppendLine($"\t\t\tif(type == typeof({item}))");
+            sb.AppendLine($"\t\t\t\treturn new {typeName}<{item}>({parameters(item)});");
+        }
+
+        var msg = $"Could not create {typeName} for type {{type}}";
+        sb.Append($"\t\t\tthrow new NotImplementedException($\"{msg}\");");
+        return sb.ToString();
+    }
+
     string WriteSingleTypeMapping(string typeName, Func<string, string> parameters)
     {
         var sb = new StringBuilder();
@@ -243,7 +271,7 @@ namespace BrightData.Helper
         return sb.ToString();
     }
 
-    string WriteDoubleTypeMapping(string typeName, Func<string, string, string> parameters)
+    string WriteDoubleTypeMapping(string typeName, string onSame, Func<string, string, string> parameters)
     {
         var sb = new StringBuilder();
 
@@ -251,7 +279,10 @@ namespace BrightData.Helper
         foreach(var item1 in AllValidTypes) {
             foreach(var item2 in AllValidTypes) {
                 sb.AppendLine($"\t\t\tif(type1 == typeof({item1}) && type2 == typeof({item2}))");
-                sb.AppendLine($"\t\t\t\treturn new {typeName}<{item1}, {item2}>({parameters(item1, item2)});");
+                if(item1 == item2)
+                    sb.AppendLine($"\t\t\t\treturn {onSame};");    
+                else
+                    sb.AppendLine($"\t\t\t\treturn new {typeName}<{item1}, {item2}>({parameters(item1, item2)});");
             }
         }
 

@@ -4,11 +4,12 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Buffer.MutableBlocks;
+using BrightData.Buffer.Composite;
 using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.DataTable.Columns;
+using BrightData.DataTable.Helper;
 using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
@@ -34,7 +35,6 @@ namespace BrightData.DataTable
         protected readonly Column[]                              _columns;
         protected readonly IReadOnlyBufferWithMetaData[]         _columnReader;
         protected readonly MetaData[]                            _columnMetaData;
-        readonly Lazy<IReadOnlyBuffer<object>[]>                 _genericColumns;
         BlockMapper<DataRangeColumnType, ReadOnlyVector<float>>  _vectorMapper;
         BlockMapper<MatrixColumnType, ReadOnlyMatrix<float>>     _matrixMapper;
         BlockMapper<Tensor3DColumnType, ReadOnlyTensor3D<float>> _tensor3DMapper;
@@ -83,9 +83,6 @@ namespace BrightData.DataTable
             // create column readers
             _columnReader       = new IReadOnlyBufferWithMetaData[ColumnCount];
             CreateColumnReaders();
-
-            // create lazily loaded column to object columns
-            _genericColumns = new(GetColumnsAsObjectBuffers);
         }
 
         public static async Task<IDataTable> Load(BrightDataContext context, IByteBlockReader reader)
@@ -119,7 +116,7 @@ namespace BrightData.DataTable
             var ret = new List<string>();
             if (headerStringSizeBytes > 0) {
                 var data = await _reader.GetBlock(headerStringOffset, headerStringSizeBytes);
-                MutableStringBufferBlock.Decode(data.Span, str => ret.Add(new string(str)));
+                StringCompositeBuffer.Block.Decode(data.Span, str => ret.Add(new string(str)));
             }
             return ret;
         }
@@ -265,18 +262,6 @@ namespace BrightData.DataTable
         }
 
         public BrightDataContext Context { get; }
-
-        IReadOnlyBuffer<object>[] GetColumnsAsObjectBuffers()
-        {
-            var index = 0;
-            var ret = new IReadOnlyBuffer<object>[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++) {
-                var column = GetColumn(i);
-                ret[index++] = GenericTypeMapping.ToObjectConverter(column);
-            }
-            return ret;
-        }
-
         public Task<GenericTableRow[]> GetRows(params uint[] rowIndices) => ExtensionMethods.GetRows(this, rowIndices);
         public Task<GenericTableRow> this[uint index] => this.GetRow(index);
         public IAsyncEnumerable<GenericTableRow> EnumerateRows() => ExtensionMethods.EnumerateRows(this);
@@ -361,12 +346,12 @@ namespace BrightData.DataTable
                 return (IReadOnlyBufferWithMetaData<T>)reader;
 
             if (typeofT == typeof(object)) {
-                var ret = new ReadOnlyBufferMetaDataWrapper<object>(GenericTypeMapping.ToObjectConverter(reader), _columnMetaData[index]);
+                var ret = new ReadOnlyBufferMetaDataWrapper<object>(reader.ToObjectBuffer(), _columnMetaData[index]);
                 return (IReadOnlyBufferWithMetaData<T>)ret;
             }
 
             if (typeofT == typeof(string)) {
-                var ret = new ReadOnlyBufferMetaDataWrapper<string>(GenericTypeMapping.ToStringConverter(reader), _columnMetaData[index]);
+                var ret = new ReadOnlyBufferMetaDataWrapper<string>(reader.ToStringBuffer(), _columnMetaData[index]);
                 return (IReadOnlyBufferWithMetaData<T>)ret;
             }
 
@@ -379,6 +364,17 @@ namespace BrightData.DataTable
         }
 
         public IReadOnlyBufferWithMetaData GetColumn(uint index) => _columnReader[index];
-        IReadOnlyBuffer<object>[] IHaveGenericColumns.GenericColumns => _genericColumns.Value;
+
+        public IDataDimension[] Dimensions
+        {
+            get
+            {
+                var len = _columns.Length;
+                var ret = new IDataDimension[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = new TableDataDimension(_columns[i].DataType, _columnReader[i]);
+                return ret;
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace BrightWire.InstanceBased.Training
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var featureColumnIndices = table.ColumnIndicesOfFeatures().ToArray();
             var vectoriser = await table.GetVectoriser(true, featureColumnIndices);
-            var targetColumn = table.GetColumn(targetColumnIndex).ToReadOnlyStringBuffer();
+            var targetColumn = table.GetColumn(targetColumnIndex).ToStringBuffer();
             var featureColumns = table.GetColumns(featureColumnIndices);
 
             uint offset = 0;

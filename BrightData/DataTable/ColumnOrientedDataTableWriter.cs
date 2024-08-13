@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Buffer.MutableBlocks;
+using BrightData.Buffer.Composite;
 using BrightData.DataTable.Columns;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
@@ -93,7 +93,7 @@ namespace BrightData.DataTable
                 header.StringOffset = (uint)output.Position;
                 await stringWriter.Value.ForEachBlock(block => {
                     foreach (var str in block) {
-                        MutableStringBufferBlock.Encode(str, bytes => {
+                        StringCompositeBuffer.Block.Encode(str, bytes => {
                             output.Write(bytes);
                             totalSize += (uint)bytes.Length;
                         });

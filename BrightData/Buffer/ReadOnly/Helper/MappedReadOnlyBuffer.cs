@@ -23,7 +23,7 @@ namespace BrightData.Buffer.ReadOnly.Helper
         public Type DataType => typeof(T);
         public uint Size => index.Size;
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify, string? msg, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
             for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++)
             {

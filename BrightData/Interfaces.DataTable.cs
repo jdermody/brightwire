@@ -339,7 +339,7 @@ namespace BrightData
     /// <summary>
     /// Data tables contain structured tabular data
     /// </summary>
-    public interface IDataTable : IDisposable, IHaveMetaData, IHaveBrightDataContext, IHaveGenericColumns
+    public interface IDataTable : IDisposable, IHaveMetaData, IHaveBrightDataContext, IHaveDataDimensions
     {
         /// <summary>
         /// Number of rows in the table
@@ -430,17 +430,6 @@ namespace BrightData
         /// <param name="ct"></param>
         /// <returns></returns>
         public IAsyncEnumerator<GenericTableRow> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateRows().GetAsyncEnumerator(ct);
-    }
-
-    /// <summary>
-    /// Indicates that the type contains an array of generic columns
-    /// </summary>
-    public interface IHaveGenericColumns
-    {
-        /// <summary>
-        /// Generic column array
-        /// </summary>
-        IReadOnlyBuffer<object>[] GenericColumns { get; }
     }
 
     /// <summary>
@@ -557,11 +546,9 @@ namespace BrightData
         /// Executes a callback on each block within the buffer
         /// </summary>
         /// <param name="callback"></param>
-        /// <param name="notify"></param>
-        /// <param name="message"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default);
+        Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default);
 
         /// <summary>
         /// Returns a block from the buffer

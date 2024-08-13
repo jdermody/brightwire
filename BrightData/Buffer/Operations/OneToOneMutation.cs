@@ -24,7 +24,10 @@ namespace BrightData.Buffer.Operations
 
         public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            return from.ForEachBlock(x => mutator.Write(x, to), notify, msg, ct);
+            return notify is not null 
+                ? from.ForEachWithProgressNotification(notify, x => mutator.Write(x, to), msg, ct) 
+                : from.ForEachBlock(x => mutator.Write(x, to), ct)
+            ;
         }
     }
 }

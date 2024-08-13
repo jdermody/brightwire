@@ -28,18 +28,14 @@ namespace BrightData.Parquet.BufferAdaptors
 
         public MetaData MetaData { get; } = metaData;
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            var guid = Guid.NewGuid();
-            notify?.OnStartOperation(guid, message);
             for (uint i = 0; i < rowGroupProvider.RowGroupCount; i++)
             {
                 var column = await rowGroupProvider.GetColumn(i, columnIndex);
                 var data = GetArray(column);
                 callback(data);
-                notify?.OnOperationProgress(guid, (float)i / rowGroupProvider.RowGroupCount);
             }
-            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
         public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)

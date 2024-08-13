@@ -67,3 +67,5 @@
 /Benchmarks/obj
 /BrightData.Parquet/bin
 /BrightData.Parquet/obj
+/BrightData.DataFrame/bin/Debug/net8.0
+/BrightData.DataFrame/obj

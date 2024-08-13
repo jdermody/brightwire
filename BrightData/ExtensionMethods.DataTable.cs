@@ -406,7 +406,7 @@ namespace BrightData
             var featureColumns = dataTable.GetColumns(featureColumnIndices);
 
             var vectoriser = await GetVectoriser(featureColumns, oneHotEncode);
-            var targetColumn = target.HasValue ? dataTable.GetColumn(target.Value).ToReadOnlyStringBuffer() : null;
+            var targetColumn = target.HasValue ? dataTable.GetColumn(target.Value).ToStringBuffer() : null;
             uint blockIndex = 0;
             await foreach (var blockData in vectoriser.Vectorise(featureColumns)) {
                 var blockMemory = new Memory2D<float>(blockData);
@@ -1901,7 +1901,7 @@ namespace BrightData
         /// <returns></returns>
         public static async IAsyncEnumerable<GenericTableRow> EnumerateRows(this IDataTable dataTable)
         {
-            var columns = dataTable.GenericColumns;
+            var columns = dataTable.Dimensions.Select(x => x.GetBuffer<object>()).ToArray();
             var blockSizes = columns[0].BlockSizes;
             var numColumns = columns.Length;
             var tasks = new Task<ReadOnlyMemory<object>>[numColumns];
@@ -1927,7 +1927,7 @@ namespace BrightData
         /// <returns></returns>
         public static Task<GenericTableRow> GetRow(this IDataTable dataTable, uint index)
         {
-            var columns = dataTable.GenericColumns;
+            var columns = dataTable.Dimensions.Select(x => x.GetBuffer<object>()).ToArray();
             var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
             return Task.WhenAll(fetchTasks)
                 .ContinueWith(_ => new GenericTableRow(dataTable, index, fetchTasks.Select(x => x.Result).ToArray()));
@@ -1941,7 +1941,7 @@ namespace BrightData
         /// <returns></returns>
         public static Task<GenericTableRow[]> GetRows(this IDataTable dataTable, params uint[] rowIndices)
         {
-            var columns = dataTable.GenericColumns;
+            var columns = dataTable.Dimensions.Select(x => x.GetBuffer<object>()).ToArray();
             var numColumns = columns.Length;
 
             return CopyRows(dataTable, columns[0], rowIndices, x => x.Select(y => new GenericTableRow(dataTable, y, new object[numColumns])).ToArray(), async (blockIndex, rowCallback) => {

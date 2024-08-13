@@ -12,9 +12,12 @@ using BrightData.Buffer.Operations.Vectorisation;
 
 namespace BrightData.Helper
 {
+    /// <summary>
+	/// Contains auto generated type mapping functions
+	/// </summary>
     internal class GenericTypeMapping
     {
-        internal static IReadOnlyBuffer<string> ToStringConverter(IReadOnlyBuffer buffer)
+        internal static IReadOnlyBuffer<string> ToStringBuffer(IReadOnlyBuffer buffer)
         {
             var type = buffer.DataType;
 			var typeCode = Type.GetTypeCode(type);
@@ -29,7 +32,7 @@ namespace BrightData.Helper
 			if(typeCode == TypeCode.Decimal)
 				return new ToStringConverter<decimal>((IReadOnlyBuffer<decimal>)buffer);
 			if(typeCode == TypeCode.String)
-				return new ToStringConverter<string>((IReadOnlyBuffer<string>)buffer);
+				return (IReadOnlyBuffer<string>)buffer;
 			if(typeCode == TypeCode.Int16)
 				return new ToStringConverter<short>((IReadOnlyBuffer<short>)buffer);
 			if(typeCode == TypeCode.Int32)
@@ -103,7 +106,7 @@ namespace BrightData.Helper
 			throw new NotImplementedException($"Could not create ConvertToStringFrequencyAnalysis for type {type}");
         }
 
-        internal static IReadOnlyBuffer<object> ToObjectConverter(IReadOnlyBuffer from)
+        internal static IReadOnlyBuffer<object> ToObjectBuffer(IReadOnlyBuffer from)
         {
             var type = from.DataType;
 			var typeCode = Type.GetTypeCode(type);
@@ -152,7 +155,7 @@ namespace BrightData.Helper
         {
             var type1 = from.DataType;
 			if(type1 == typeof(bool) && type2 == typeof(bool))
-				return new TypeConverter<bool, bool>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, bool>)converter);
+				return from;
 			if(type1 == typeof(bool) && type2 == typeof(sbyte))
 				return new TypeConverter<bool, sbyte>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, sbyte>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(float))
@@ -190,7 +193,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(sbyte) && type2 == typeof(bool))
 				return new TypeConverter<sbyte, bool>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, bool>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(sbyte))
-				return new TypeConverter<sbyte, sbyte>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, sbyte>)converter);
+				return from;
 			if(type1 == typeof(sbyte) && type2 == typeof(float))
 				return new TypeConverter<sbyte, float>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, float>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(double))
@@ -228,7 +231,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(float) && type2 == typeof(sbyte))
 				return new TypeConverter<float, sbyte>((IReadOnlyBuffer<float>)from, (ICanConvert<float, sbyte>)converter);
 			if(type1 == typeof(float) && type2 == typeof(float))
-				return new TypeConverter<float, float>((IReadOnlyBuffer<float>)from, (ICanConvert<float, float>)converter);
+				return from;
 			if(type1 == typeof(float) && type2 == typeof(double))
 				return new TypeConverter<float, double>((IReadOnlyBuffer<float>)from, (ICanConvert<float, double>)converter);
 			if(type1 == typeof(float) && type2 == typeof(decimal))
@@ -266,7 +269,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(double) && type2 == typeof(float))
 				return new TypeConverter<double, float>((IReadOnlyBuffer<double>)from, (ICanConvert<double, float>)converter);
 			if(type1 == typeof(double) && type2 == typeof(double))
-				return new TypeConverter<double, double>((IReadOnlyBuffer<double>)from, (ICanConvert<double, double>)converter);
+				return from;
 			if(type1 == typeof(double) && type2 == typeof(decimal))
 				return new TypeConverter<double, decimal>((IReadOnlyBuffer<double>)from, (ICanConvert<double, decimal>)converter);
 			if(type1 == typeof(double) && type2 == typeof(string))
@@ -304,7 +307,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(decimal) && type2 == typeof(double))
 				return new TypeConverter<decimal, double>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, double>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(decimal))
-				return new TypeConverter<decimal, decimal>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, decimal>)converter);
+				return from;
 			if(type1 == typeof(decimal) && type2 == typeof(string))
 				return new TypeConverter<decimal, string>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, string>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(short))
@@ -342,7 +345,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(string) && type2 == typeof(decimal))
 				return new TypeConverter<string, decimal>((IReadOnlyBuffer<string>)from, (ICanConvert<string, decimal>)converter);
 			if(type1 == typeof(string) && type2 == typeof(string))
-				return new TypeConverter<string, string>((IReadOnlyBuffer<string>)from, (ICanConvert<string, string>)converter);
+				return from;
 			if(type1 == typeof(string) && type2 == typeof(short))
 				return new TypeConverter<string, short>((IReadOnlyBuffer<string>)from, (ICanConvert<string, short>)converter);
 			if(type1 == typeof(string) && type2 == typeof(int))
@@ -380,7 +383,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(short) && type2 == typeof(string))
 				return new TypeConverter<short, string>((IReadOnlyBuffer<short>)from, (ICanConvert<short, string>)converter);
 			if(type1 == typeof(short) && type2 == typeof(short))
-				return new TypeConverter<short, short>((IReadOnlyBuffer<short>)from, (ICanConvert<short, short>)converter);
+				return from;
 			if(type1 == typeof(short) && type2 == typeof(int))
 				return new TypeConverter<short, int>((IReadOnlyBuffer<short>)from, (ICanConvert<short, int>)converter);
 			if(type1 == typeof(short) && type2 == typeof(long))
@@ -418,7 +421,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(int) && type2 == typeof(short))
 				return new TypeConverter<int, short>((IReadOnlyBuffer<int>)from, (ICanConvert<int, short>)converter);
 			if(type1 == typeof(int) && type2 == typeof(int))
-				return new TypeConverter<int, int>((IReadOnlyBuffer<int>)from, (ICanConvert<int, int>)converter);
+				return from;
 			if(type1 == typeof(int) && type2 == typeof(long))
 				return new TypeConverter<int, long>((IReadOnlyBuffer<int>)from, (ICanConvert<int, long>)converter);
 			if(type1 == typeof(int) && type2 == typeof(IndexList))
@@ -456,7 +459,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(long) && type2 == typeof(int))
 				return new TypeConverter<long, int>((IReadOnlyBuffer<long>)from, (ICanConvert<long, int>)converter);
 			if(type1 == typeof(long) && type2 == typeof(long))
-				return new TypeConverter<long, long>((IReadOnlyBuffer<long>)from, (ICanConvert<long, long>)converter);
+				return from;
 			if(type1 == typeof(long) && type2 == typeof(IndexList))
 				return new TypeConverter<long, IndexList>((IReadOnlyBuffer<long>)from, (ICanConvert<long, IndexList>)converter);
 			if(type1 == typeof(long) && type2 == typeof(WeightedIndexList))
@@ -494,7 +497,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(IndexList) && type2 == typeof(long))
 				return new TypeConverter<IndexList, long>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, long>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(IndexList))
-				return new TypeConverter<IndexList, IndexList>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, IndexList>)converter);
+				return from;
 			if(type1 == typeof(IndexList) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<IndexList, WeightedIndexList>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, WeightedIndexList>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(BinaryData))
@@ -532,7 +535,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(IndexList))
 				return new TypeConverter<WeightedIndexList, IndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, IndexList>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(WeightedIndexList))
-				return new TypeConverter<WeightedIndexList, WeightedIndexList>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, WeightedIndexList>)converter);
+				return from;
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(BinaryData))
 				return new TypeConverter<WeightedIndexList, BinaryData>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, BinaryData>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(ReadOnlyVector<float>))
@@ -570,7 +573,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(BinaryData) && type2 == typeof(WeightedIndexList))
 				return new TypeConverter<BinaryData, WeightedIndexList>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, WeightedIndexList>)converter);
 			if(type1 == typeof(BinaryData) && type2 == typeof(BinaryData))
-				return new TypeConverter<BinaryData, BinaryData>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, BinaryData>)converter);
+				return from;
 			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<BinaryData, ReadOnlyVector<float>>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(BinaryData) && type2 == typeof(ReadOnlyMatrix<float>))
@@ -608,7 +611,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(BinaryData))
 				return new TypeConverter<ReadOnlyVector<float>, BinaryData>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, BinaryData>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyVector<float>))
-				return new TypeConverter<ReadOnlyVector<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, ReadOnlyVector<float>>)converter);
+				return from;
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyMatrix<float>))
 				return new TypeConverter<ReadOnlyVector<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, ReadOnlyMatrix<float>>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
@@ -646,7 +649,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyVector<float>))
 				return new TypeConverter<ReadOnlyMatrix<float>, ReadOnlyVector<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, ReadOnlyVector<float>>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyMatrix<float>))
-				return new TypeConverter<ReadOnlyMatrix<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, ReadOnlyMatrix<float>>)converter);
+				return from;
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
 				return new TypeConverter<ReadOnlyMatrix<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, ReadOnlyTensor3D<float>>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
@@ -684,7 +687,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyMatrix<float>))
 				return new TypeConverter<ReadOnlyTensor3D<float>, ReadOnlyMatrix<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, ReadOnlyMatrix<float>>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
-				return new TypeConverter<ReadOnlyTensor3D<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, ReadOnlyTensor3D<float>>)converter);
+				return from;
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
 				return new TypeConverter<ReadOnlyTensor3D<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, ReadOnlyTensor4D<float>>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(TimeOnly))
@@ -722,7 +725,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyTensor3D<float>))
 				return new TypeConverter<ReadOnlyTensor4D<float>, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, ReadOnlyTensor3D<float>>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(ReadOnlyTensor4D<float>))
-				return new TypeConverter<ReadOnlyTensor4D<float>, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, ReadOnlyTensor4D<float>>)converter);
+				return from;
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(TimeOnly))
 				return new TypeConverter<ReadOnlyTensor4D<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, TimeOnly>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(DateOnly))
@@ -760,7 +763,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(TimeOnly) && type2 == typeof(ReadOnlyTensor4D<float>))
 				return new TypeConverter<TimeOnly, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, ReadOnlyTensor4D<float>>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(TimeOnly))
-				return new TypeConverter<TimeOnly, TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, TimeOnly>)converter);
+				return from;
 			if(type1 == typeof(TimeOnly) && type2 == typeof(DateOnly))
 				return new TypeConverter<TimeOnly, DateOnly>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, DateOnly>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(bool))
@@ -798,7 +801,7 @@ namespace BrightData.Helper
 			if(type1 == typeof(DateOnly) && type2 == typeof(TimeOnly))
 				return new TypeConverter<DateOnly, TimeOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, TimeOnly>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
-				return new TypeConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, DateOnly>)converter);
+				return from;
 			throw new NotImplementedException($"Could not create TypeConverter for types {type1} and {type2}");
         }
 

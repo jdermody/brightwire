@@ -1,4 +1,8 @@
-﻿using BrightData.DataTable.Rows;
+﻿using BrightData.Buffer.ReadOnly.Helper;
+using BrightData.Converter;
+using BrightData.DataTable.Helper;
+using BrightData.DataTable.Rows;
+using BrightData.Helper;
 using BrightData.Parquet.BufferAdaptors;
 using BrightData.Types;
 using Parquet;
@@ -11,8 +15,8 @@ namespace BrightData.Parquet
         readonly ParquetReader                   _reader;
         readonly RowGroupReaderProvider          _rowGroupReaderProvider;
         readonly IReadOnlyBufferWithMetaData[]   _columns;
-        readonly Lazy<IReadOnlyBuffer<object>[]> _genericColumns;
         uint?                                    _rowCount = null;
+        
 
         private ParquetDataTableAdaptor(BrightDataContext context, ParquetReader reader)
         {
@@ -26,18 +30,6 @@ namespace BrightData.Parquet
             }).ToArray();
             _rowGroupReaderProvider = new(reader);
             _columns = dataFields.Select(GetColumn).ToArray();
-
-            // create lazily loaded column to object columns
-            _genericColumns = new(GetColumnsAsObjectBuffers);
-        }
-
-        IReadOnlyBuffer<object>[] GetColumnsAsObjectBuffers()
-        {
-            var index = 0;
-            var ret = new IReadOnlyBuffer<object>[ColumnCount];
-            for (uint i = 0; i < ColumnCount; i++)
-                ret[index++] = GetColumn(i).ToObjectBuffer();
-            return ret;
         }
 
         IReadOnlyBufferWithMetaData GetColumn(DataField dataField, int columnIndex)
@@ -157,20 +149,18 @@ namespace BrightData.Parquet
             if(dataType == typeofT)
                 return (IReadOnlyBufferWithMetaData<T>)reader;
 
-            //if (typeofT == typeof(object)) {
-            //    var ret = new ReadOnlyBufferMetaDataWrapper<object>(GenericTypeMapping.ToObjectConverter(reader), _columnMetaData[index]);
-            //    return (IReadOnlyBufferWithMetaData<T>)ret;
-            //}
+            if (typeofT == typeof(object))
+                return (IReadOnlyBufferWithMetaData<T>)new ReadOnlyBufferMetaDataWrapper<object>(GetColumn(index).ToObjectBuffer(), ColumnMetaData[index]);
 
-            //if (typeofT == typeof(string)) {
-            //    var ret = new ReadOnlyBufferMetaDataWrapper<string>(GenericTypeMapping.ToStringConverter(reader), _columnMetaData[index]);
-            //    return (IReadOnlyBufferWithMetaData<T>)ret;
-            //}
+            if (typeofT == typeof(string)) {
+                var ret = new ReadOnlyBufferMetaDataWrapper<string>(GetColumn(index).ToStringBuffer(), ColumnMetaData[index]);
+                return (IReadOnlyBufferWithMetaData<T>)ret;
+            }
 
-            //if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
-            //    var converter = StaticConverters.GetConverter(dataType, typeof(T));
-            //    return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(typeof(T), reader, converter), _columnMetaData[index]);
-            //}
+            if (dataType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
+                var converter = StaticConverters.GetConverter(dataType, typeof(T));
+                return new ReadOnlyBufferMetaDataWrapper<T>((IReadOnlyBuffer<T>)reader.ConvertWith(converter), ColumnMetaData[index]);
+            }
 
             throw new NotImplementedException($"Not able to create a column of type {typeof(T)} from {dataType}");
         }
@@ -190,6 +180,17 @@ namespace BrightData.Parquet
         public Task<GenericTableRow[]> GetRows(params uint[] rowIndices) => BrightData.ExtensionMethods.GetRows(this, rowIndices);
         public Task<GenericTableRow> this[uint index] => this.GetRow(index);
         public IAsyncEnumerable<GenericTableRow> EnumerateRows() => BrightData.ExtensionMethods.EnumerateRows(this);
-        IReadOnlyBuffer<object>[] IHaveGenericColumns.GenericColumns => _genericColumns.Value;
+
+        public IDataDimension[] Dimensions
+        {
+            get
+            {
+                var len = _columns.Length;
+                var ret = new IDataDimension[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = new TableDataDimension(ColumnTypes[i], _columns[i]);
+                return ret;
+            }
+        }
     }
 }

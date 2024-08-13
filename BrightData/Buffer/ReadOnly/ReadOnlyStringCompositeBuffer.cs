@@ -2,7 +2,6 @@
 using System.Buffers.Binary;
 using System.IO;
 using BrightData.Buffer.Composite;
-using BrightData.Buffer.MutableBlocks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.ReadOnly
@@ -21,7 +20,7 @@ namespace BrightData.Buffer.ReadOnly
             var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(span[4..]);
             var ret = new string[numStrings];
             var index = 0;
-            MutableStringBufferBlock.Decode(span[MutableStringBufferBlock.HeaderSize..], charSpan => ret[index++] = _stringPool.GetOrAdd(charSpan));
+            StringCompositeBuffer.Block.Decode(span[StringCompositeBuffer.Block.HeaderSize..], charSpan => ret[index++] = _stringPool.GetOrAdd(charSpan));
             return ret;
         }
     }

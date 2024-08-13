@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer;
 using BrightData.Buffer.Composite;
@@ -52,19 +53,6 @@ namespace BrightData
                 throw new ArgumentException($"Buffer is of type {buffer.DataType} but requested {typeof(T)}");
             var typedBuffer = (IReadOnlyBuffer<T>)buffer;
             return typedBuffer.EnumerateAllTyped();
-        }
-
-        /// <summary>
-        /// Casts or converts the buffer to a string buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
-        public static IReadOnlyBuffer<string> ToReadOnlyStringBuffer(this IReadOnlyBuffer buffer)
-        {
-            if (buffer.DataType == typeof(string))
-                return (IReadOnlyBuffer<string>)buffer;
-            return GenericTypeMapping.ToStringConverter(buffer);
-
         }
 
         /// <summary>
@@ -617,7 +605,7 @@ namespace BrightData
             if (buffer.DataType == typeof(bool))
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToReadOnlyStringBuffer(), output);
+                conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToStringBuffer(), output);
             else {
                 var converted = buffer.ConvertUnmanagedTo(typeof(bool));
                 conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
@@ -648,7 +636,7 @@ namespace BrightData
             var output = CreateCompositeBuffer(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
             var conversion = buffer.DataType == typeof(string)
                 ? buffer.CreateBufferCopyOperation(output) 
-                : new BufferCopyOperation<string>(GenericTypeMapping.ToStringConverter(buffer), output, null);
+                : new BufferCopyOperation<string>(buffer.ToStringBuffer(), output, null);
             await conversion.Execute();
             return output;
         }
@@ -675,7 +663,7 @@ namespace BrightData
             if (buffer.DataType == typeof(DateTime))
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
+                conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToStringBuffer(), output);
             else {
                 var converted = buffer.ConvertUnmanagedTo(typeof(DateTime));
                 conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
@@ -718,7 +706,7 @@ namespace BrightData
             if (buffer.DataType == typeof(DateOnly))
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToReadOnlyStringBuffer(), output);
+                conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToStringBuffer(), output);
             else {
                 var converted = buffer.ConvertUnmanagedTo(typeof(DateOnly));
                 conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
@@ -761,7 +749,7 @@ namespace BrightData
             if (buffer.DataType == typeof(TimeOnly))
                 conversion = buffer.CreateBufferCopyOperation(output);
             else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToReadOnlyStringBuffer(), output);
+                conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToStringBuffer(), output);
             else {
                 var converted = buffer.ConvertUnmanagedTo(typeof(TimeOnly));
                 conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
@@ -1107,13 +1095,58 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts the typed buffer to a buffer of objects
+        /// Converts the buffer to a buffer of objects
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
         public static IReadOnlyBuffer<object> ToObjectBuffer(this IReadOnlyBuffer buffer)
         {
-            return GenericTypeMapping.ToObjectConverter(buffer);
+            return GenericTypeMapping.ToObjectBuffer(buffer);
+        }
+
+        /// <summary>
+        /// Converts the buffer to a buffer of strings
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static IReadOnlyBuffer<string> ToStringBuffer(this IReadOnlyBuffer buffer)
+        {
+            if (buffer.DataType == typeof(string))
+                return (IReadOnlyBuffer<string>)buffer;
+            return GenericTypeMapping.ToStringBuffer(buffer);
+        }
+
+        /// <summary>
+        /// Converts the buffer to another type via a converter
+        /// </summary>
+        /// <param name="buffer">Buffer to convert</param>
+        /// <param name="converter">Converter</param>
+        /// <returns></returns>
+        public static IReadOnlyBuffer ConvertWith(this IReadOnlyBuffer buffer, ICanConvert converter)
+        {
+            return GenericTypeMapping.TypeConverter(converter.To, buffer, converter);
+        }
+
+        /// <summary>
+        /// Notifies about progress on buffer for each
+        /// </summary>
+        /// <param name="buffer">Underlying buffer</param>
+        /// <param name="notify">Progress notification</param>
+        /// <param name="msg">Msg associated with operation (optional)</param>
+        /// <param name="callback"></param>
+        /// <param name="ct"></param>
+        /// <typeparam name="T"></typeparam>
+        public static async Task ForEachWithProgressNotification<T>(this IReadOnlyBuffer<T> buffer, INotifyOperationProgress notify, BlockCallback<T> callback, string? msg = null, CancellationToken ct = default)
+            where T: notnull
+        {
+            var id = Guid.NewGuid();
+            notify.OnStartOperation(id);
+            var count = 0;
+            await buffer.ForEachBlock(x => {
+                callback(x);
+                notify.OnOperationProgress(id, (float)++count / buffer.Size);
+            }, ct);
+            notify.OnCompleteOperation(id, ct.IsCancellationRequested);
         }
     }
 }

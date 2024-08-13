@@ -12,41 +12,51 @@ namespace BrightData.Buffer.ReadOnly.Helper
     /// <typeparam name="T"></typeparam>
     /// <param name="buffer"></param>
     /// <param name="metaData"></param>
-    internal class ReadOnlyBufferMetaDataWrapper<T>(IReadOnlyBuffer<T> buffer, MetaData metaData) : IReadOnlyBufferWithMetaData<T> where T : notnull
+    public class ReadOnlyBufferMetaDataWrapper<T>(IReadOnlyBuffer<T> buffer, MetaData metaData) : IReadOnlyBufferWithMetaData<T> where T : notnull
     {
+        /// <inheritdoc />
         public uint Size => buffer.Size;
 
+        /// <inheritdoc />
         public uint[] BlockSizes => buffer.BlockSizes;
 
+        /// <inheritdoc />
         public Type DataType => buffer.DataType;
 
+        /// <inheritdoc />
         public IAsyncEnumerable<object> EnumerateAll()
         {
             return buffer.EnumerateAll();
         }
 
+        /// <inheritdoc />
         public Task<Array> GetBlock(uint blockIndex) => buffer.GetBlock(blockIndex);
 
-        public Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        /// <inheritdoc />
+        public Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            return buffer.ForEachBlock(callback, notify, message, ct);
+            return buffer.ForEachBlock(callback, ct);
         }
 
+        /// <inheritdoc />
         public Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             return buffer.GetTypedBlock(blockIndex);
         }
 
+        /// <inheritdoc />
         public IAsyncEnumerable<T> EnumerateAllTyped()
         {
             return buffer.EnumerateAllTyped();
         }
 
+        /// <inheritdoc />
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default)
         {
             return buffer.GetAsyncEnumerator(ct);
         }
 
+        /// <inheritdoc />
         public MetaData MetaData => metaData;
     }
 }

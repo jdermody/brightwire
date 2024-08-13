@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using BrightData.Buffer.MutableBlocks;
 using CommunityToolkit.HighPerformance;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.Composite
 {
@@ -17,9 +15,37 @@ namespace BrightData.Buffer.Composite
         int maxBlockSize = Consts.DefaultMaxBlockSize,
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null)
-        : CompositeBufferBase<T, MutableUnmanagedBufferBlock<T>>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<T, UnmanagedCompositeBuffer<T>.Block>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
         where T : unmanaged
     {
+        public class Block(Memory<T> Data) : IMutableBufferBlock<T>
+        {
+            public Block(ReadOnlyMemory<T> data) : this(Unsafe.As<ReadOnlyMemory<T>, Memory<T>>(ref data))
+            {
+                Size = (uint)data.Length;
+            }
+
+            public uint Size { get; private set; }
+            public ref T GetNext() => ref Data.Span[(int)Size++];
+            public bool HasFreeCapacity => Size < Data.Length;
+            public uint AvailableCapacity => (uint)Data.Length - Size;
+            public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
+            public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
+
+            public async Task<uint> WriteTo(IByteBlockSource file)
+            {
+                var bytes = WrittenMemory.Cast<T, byte>();
+                await file.WriteAsync(bytes, file.Size);
+                return (uint)bytes.Length;
+            }
+
+            public void Write(ReadOnlySpan<T> data)
+            {
+                data.CopyTo(Data.Span.Slice((int)Size, (int)AvailableCapacity));
+                Size += (uint)data.Length;
+            }
+        }
+
         readonly int _sizeOfT = Unsafe.SizeOf<T>();
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)

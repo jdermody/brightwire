@@ -265,7 +265,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -442,7 +442,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -649,7 +649,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -886,7 +886,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1153,7 +1153,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1450,7 +1450,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -1777,7 +1777,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -2134,7 +2134,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -2521,7 +2521,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);
@@ -2938,7 +2938,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);

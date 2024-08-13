@@ -89,19 +89,14 @@ namespace BrightData.Buffer.Composite
             }
         }
 
-        public async Task ForEachBlock(BlockCallback<T> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        public async Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            var guid = Guid.NewGuid();
-            notify?.OnStartOperation(guid, message);
-            var count = 0;
-
             // read from in memory blocks
             if (_inMemoryBlocks is not null) {
                 foreach (var block in _inMemoryBlocks) {
                     if (ct.IsCancellationRequested)
                         break;
                     callback(block.WrittenSpan);
-                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
                 }
             }
 
@@ -113,16 +108,12 @@ namespace BrightData.Buffer.Composite
                     var (size, block) = await GetBlockFromFile(_currentDataBlock, byteOffset, _fileBlockSizes[fileBlockIndex++]);
                     callback(block.Span);
                     byteOffset += size;
-                    notify?.OnOperationProgress(guid, (float)++count / BlockCount);
                 }
             }
 
             // then from the current block
-            if (_currBlock is not null && !ct.IsCancellationRequested) {
+            if (_currBlock is not null && !ct.IsCancellationRequested)
                 callback(_currBlock.WrittenSpan);
-                notify?.OnOperationProgress(guid, (float)++count / BlockCount);
-            }
-            notify?.OnCompleteOperation(guid, ct.IsCancellationRequested);
         }
 
         public override async IAsyncEnumerable<T> EnumerateAllTyped()

@@ -20,6 +20,17 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Indicates that the type has a size
+    /// </summary>
+    public interface IHaveSize
+    {
+        /// <summary>
+        /// Number of items
+        /// </summary>
+        uint Size { get; }
+    }
+
+    /// <summary>
     /// Indicates that the type has a list of indices
     /// </summary>
     public interface IHaveIndices
@@ -150,98 +161,7 @@ namespace BrightData
         void Append(ReadOnlySpan<T> block);
     }
 
-    /// <summary>
-    /// Typed data analyser
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IDataAnalyser<T> : IAppendBlocks<T>, IDataAnalyser where T : notnull
-    {
-        /// <summary>
-        /// Adds a typed object
-        /// </summary>
-        /// <param name="obj"></param>
-        void Add(T obj);
-    }
-
-    /// <summary>
-    /// Standard deviation analysis
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IStandardDeviationAnalysis<T> where T : unmanaged
-    {
-        /// <summary>
-        /// Numerical mean
-        /// </summary>
-        T Mean { get; }
-
-        /// <summary>
-        /// Sample variance
-        /// </summary>
-        T? SampleVariance { get; }
-
-        /// <summary>
-        /// Population variance
-        /// </summary>
-        T? PopulationVariance { get; }
-
-        /// <summary>
-        /// Sample standard deviation
-        /// </summary>
-        T? SampleStdDev { get; }
-
-        /// <summary>
-        /// Population standard deviation
-        /// </summary>
-        T? PopulationStdDev { get; }
-
-        /// <summary>
-        /// Count of items that were analysed
-        /// </summary>
-        ulong Count { get; }
-    }
-
-    /// <summary>
-    /// Numerical analysis
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface INumericAnalysis<T> : IStandardDeviationAnalysis<T>
-        where T: unmanaged
-    {
-        /// <summary>
-        /// L1 norm
-        /// </summary>
-        T L1Norm { get; }
-
-        /// <summary>
-        /// L2 norm
-        /// </summary>
-        T L2Norm { get; }
-
-        /// <summary>
-        /// Minimum number
-        /// </summary>
-        T Min { get; }
-
-        /// <summary>
-        /// Maximum number
-        /// </summary>
-        T Max { get; }
-
-        /// <summary>
-        /// Number of unique numbers
-        /// </summary>
-        uint NumDistinct { get; }
-
-        /// <summary>
-        /// Median
-        /// </summary>
-        T? Median { get; }
-
-        /// <summary>
-        /// Mode
-        /// </summary>
-        T? Mode { get; }
-    }
+    
 
     /// <summary>
     /// Types of data normalization
@@ -383,16 +303,7 @@ namespace BrightData
     /// </summary>
     public interface IContinuousDistribution<out T> : IDistribution<T> where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>;
 
-    /// <summary>
-    /// Indicates that the type has a size
-    /// </summary>
-    public interface IHaveSize
-    {
-        /// <summary>
-        /// Number of items
-        /// </summary>
-        uint Size { get; }
-    }
+    
 
     /// <summary>
     /// Indicates that the type can convert string to string indices
@@ -423,77 +334,7 @@ namespace BrightData
         IIndexStrings? Indexer { get; }
     }
 
-    /// <summary>
-    /// Type of data specification
-    /// </summary>
-    public enum DataSpecificationType
-    {
-        /// <summary>
-        /// Represents a field of data
-        /// </summary>
-        Field,
-
-        /// <summary>
-        /// Represents an item that holds a set of other items
-        /// </summary>
-        Composite,
-
-        /// <summary>
-        /// Represents a field that takes a value from one of a set of possibilities
-        /// </summary>
-        FieldSet
-    }
-
-    /// <summary>
-    /// Data type specifications can validate a data source
-    /// </summary>
-    public interface IDataTypeSpecification
-    {
-        /// <summary>
-        /// Name of this item
-        /// </summary>
-        string? Name { get; }
-
-        /// <summary>
-        /// Children of this item (optional)
-        /// </summary>
-        IDataTypeSpecification[]? Children { get; }
-
-        /// <summary>
-        /// Underlying .net type for this item
-        /// </summary>
-        Type UnderlyingType { get; }
-
-        /// <summary>
-        /// Item type
-        /// </summary>
-        DataSpecificationType SpecificationType { get; }
-
-        /// <summary>
-        /// True if the item can repeat
-        /// </summary>
-        bool CanRepeat { get; }
-    }
-
-    /// <summary>
-    /// Typed data specification
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IDataTypeSpecification<T> : IDataTypeSpecification where T: notnull
-    {
-        /// <summary>
-        /// Checks if the typed instance is valid against the specification
-        /// </summary>
-        /// <param name="instance"></param>
-        /// <returns></returns>
-        bool IsValid(T instance);
-
-        /// <summary>
-        /// Adds a predicate that must match to be considered valid
-        /// </summary>
-        /// <param name="predicate"></param>
-        void AddPredicate(Predicate<T> predicate);
-    }
+    
 
     /// <summary>
     /// Notifies of operations and messages
@@ -612,15 +453,6 @@ namespace BrightData
         ref T GetNext();
     }
 
-    internal interface ISimpleNumericAnalysis : IOperation
-    {
-        public bool IsInteger { get; }
-        public uint NanCount { get; }
-        public uint InfinityCount { get; }
-        public double MinValue { get; }
-        public double MaxValue { get; }
-    }
-
     /// <summary>
     /// Fixed size sorted array of values and weights
     /// </summary>
@@ -695,149 +527,5 @@ namespace BrightData
         /// <param name="index">Index of element to remove</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         V RemoveAt(byte index);
-    }
-
-    /// <summary>
-    /// A graph node
-    /// </summary>
-    public interface IGraphNode : IHaveSingleIndex
-    {
-        /// <summary>
-        /// Span of neighbour indices
-        /// </summary>
-        ReadOnlySpan<uint> NeighbourSpan { get; }
-
-        /// <summary>
-        /// Enumerable of neighbour indices
-        /// </summary>
-        IEnumerable<uint> Neighbours { get; }
-    }
-
-    /// <summary>
-    /// A graph node with weighted neighbours
-    /// </summary>
-    /// <typeparam name="T">Type of value to store</typeparam>
-    /// <typeparam name="W">Type of weight</typeparam>
-    public interface IWeightedGraphNode<out T, W> : IGraphNode
-        where T: IHaveSingleIndex
-        where W : unmanaged, INumber<W>, IMinMaxValue<W>
-    {
-        /// <summary>
-        /// Graph node value
-        /// </summary>
-        public T Value { get; }
-
-        /// <summary>
-        /// Tries to add a neighbour to this node
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="weight"></param>
-        /// <returns></returns>
-        bool TryAddNeighbour(uint index, W weight);
-
-        /// <summary>
-        /// Enumerates the neighbour indices and their weights
-        /// </summary>
-        IEnumerable<(uint Index, W Weight)> WeightedNeighbours { get; }
-    }
-
-    /// <summary>
-    /// Calculates the weights between two indexed graph nodes
-    /// </summary>
-    /// <typeparam name="W"></typeparam>
-    public interface ICalculateNodeWeights<out W>
-        where W : unmanaged, INumber<W>, IMinMaxValue<W>
-    {
-        /// <summary>
-        /// Returns the weight between any two graph nodes
-        /// </summary>
-        /// <param name="fromIndex">First node</param>
-        /// <param name="toIndex">Second index</param>
-        /// <returns></returns>
-        W GetWeight(uint fromIndex, uint toIndex);
-    }
-
-    /// <summary>
-    /// A graph with weighted connections
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="W"></typeparam>
-    public interface IWeightedGraph<out T, W> : IHaveSize
-        where T: IHaveSingleIndex
-        where W : unmanaged, INumber<W>, IMinMaxValue<W>
-    {
-        /// <summary>
-        /// Finds the value of a node based on index
-        /// </summary>
-        /// <param name="nodeIndex"></param>
-        /// <returns></returns>
-        T Find(uint nodeIndex);
-
-        /// <summary>
-        /// Finds the value based on node position within the graph
-        /// </summary>
-        /// <param name="nodePosition"></param>
-        /// <returns></returns>
-        T this[uint nodePosition] { get; }
-
-        /// <summary>
-        /// Performs a probabilistic search between two nodes
-        /// </summary>
-        /// <typeparam name="RAT">Return array type</typeparam>
-        /// <typeparam name="CAT">Candidate array type</typeparam>
-        /// <param name="q">Node index to query</param>
-        /// <param name="entryPoint">Node index from which to start the search</param>
-        /// <param name="distanceCalculator">Weigh calculator</param>
-        /// <returns></returns>
-        RAT ProbabilisticSearch<RAT, CAT>(uint q, uint entryPoint, ICalculateNodeWeights<W> distanceCalculator)
-            where RAT : struct, IFixedSizeSortedArray<uint, W>
-            where CAT : struct, IFixedSizeSortedArray<uint, W>
-        ;
-
-        /// <summary>
-        /// Returns the neighbour indices of a node based on index
-        /// </summary>
-        /// <param name="nodeIndex"></param>
-        /// <returns></returns>
-        ReadOnlySpan<uint> GetNeighbours(uint nodeIndex);
-
-        /// <summary>
-        /// Enumerates the neighbours and their weights of a node based on index
-        /// </summary>
-        /// <param name="nodeIndex"></param>
-        /// <returns></returns>
-        IEnumerable<(uint NeighbourIndex, W Weight)> EnumerateNeighbours(uint nodeIndex);
-
-        /// <summary>
-        /// Adds a new neighbour to a node
-        /// </summary>
-        /// <param name="toNodeIndex">Node index to add to</param>
-        /// <param name="neighbourIndex">Index of the neighbour node</param>
-        /// <param name="weight">Weight of the connection</param>
-        /// <returns></returns>
-        bool AddNeighbour(uint toNodeIndex, uint neighbourIndex, W weight);
-    }
-
-    /// <summary>
-    /// A graph with weighted connections that can be dynamically extended
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="W"></typeparam>
-    public interface IWeightedDynamicGraph<T, W> : IWeightedGraph<T, W>
-        where T: IHaveSingleIndex
-        where W : unmanaged, INumber<W>, IMinMaxValue<W>
-    {
-        /// <summary>
-        /// Adds a new node
-        /// </summary>
-        /// <param name="value"></param>
-        void Add(T value);
-
-        /// <summary>
-        /// Adds a new node and its neighbours
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="neighbours"></param>
-        void Add(T value, ReadOnlySpan<(uint Index, W Weight)> neighbours);
     }
 }

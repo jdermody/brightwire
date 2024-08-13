@@ -28,7 +28,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
             }
         }
 
-        public Task ForEachBlock(BlockCallback<TT> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+        public Task ForEachBlock(BlockCallback<TT> callback, CancellationToken ct = default)
         {
             return from.ForEachBlock(x =>
             {
@@ -37,7 +37,7 @@ namespace BrightData.Buffer.ReadOnly.Converter
                 for (var i = 0; i < x.Length; i++)
                     span[i] = Convert(x[i]);
                 callback(span);
-            }, notify, message, ct);
+            }, ct);
         }
 
         public override async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)

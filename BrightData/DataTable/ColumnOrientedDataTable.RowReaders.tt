@@ -132,7 +132,7 @@ namespace BrightData
                     yield return item;
             }
 
-            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, INotifyOperationProgress? notify = null, string? message = null, CancellationToken ct = default)
+            public async Task ForEachBlock(BlockCallback<TableRow<<#= typeString #>>> callback, CancellationToken ct = default)
             {
                 for (uint i = 0; i < _blockCount && !ct.IsCancellationRequested; i++) {
                     var block = await GetTypedBlock(i);

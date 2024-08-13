@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using BrightData.Buffer.MutableBlocks;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Buffer.Composite
@@ -21,8 +21,85 @@ namespace BrightData.Buffer.Composite
         uint? maxInMemoryBlocks = null,
         uint? maxDistinctItems = null
     )
-        : CompositeBufferBase<string, MutableStringBufferBlock>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
+        : CompositeBufferBase<string, StringCompositeBuffer.Block>(x => new(x), x => new(x), tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems)
     {
+        public class Block(Memory<string> Data) : IMutableBufferBlock<string>
+        {
+            public Block(ReadOnlyMemory<string> data) : this(Unsafe.As<ReadOnlyMemory<string>, Memory<string>>(ref data))
+            {
+                Size = (uint)data.Length;
+            }
+
+            public uint Size { get; private set; }
+            public ref string GetNext() => ref Data.Span[(int)Size++];
+            public bool HasFreeCapacity => Size < Data.Length;
+            public ReadOnlySpan<string> WrittenSpan => Data.Span[..(int)Size];
+            public ReadOnlyMemory<string> WrittenMemory => Data[..(int)Size];
+
+            public const int HeaderSize = 8;
+            public async Task<uint> WriteTo(IByteBlockSource file)
+            {
+                var offset = file.Size;
+                var startOffset = offset += HeaderSize;
+                for (var i = 0; i < Size; i++)
+                {
+                    Encode(Data.Span[i], bytes =>
+                    {
+                        file.Write(bytes, offset);
+                        offset += (uint)bytes.Length;
+                    });
+                }
+                var blockSize = offset - startOffset;
+                Memory<byte> lengthBytes = new byte[HeaderSize];
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span, blockSize);
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span[4..], Size);
+                await file.WriteAsync(lengthBytes, startOffset - HeaderSize);
+                return blockSize + HeaderSize;
+            }
+
+            public static void Encode(string str, BlockCallback<byte> callback)
+            {
+                if (str.Length <= 124 / 3)
+                {
+                    Span<byte> buffer = stackalloc byte[128];
+                    var actualByteCount = Encoding.UTF8.GetBytes(str, buffer[4..]);
+                    BinaryPrimitives.WriteUInt16LittleEndian(buffer, (ushort)str.Length);
+                    BinaryPrimitives.WriteUInt16LittleEndian(buffer[2..], (ushort)actualByteCount);
+                    callback(buffer[..(actualByteCount + 4)]);
+                }
+                else
+                {
+                    using var buffer = SpanOwner<byte>.Allocate(str.Length * 3 + 2);
+                    var actualByteCount = Encoding.UTF8.GetBytes(str, buffer.Span[4..]);
+                    BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span, (ushort)str.Length);
+                    BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span[2..], (ushort)actualByteCount);
+                    callback(buffer.Span[..(actualByteCount + 4)]);
+                }
+            }
+
+            public static void Decode(ReadOnlySpan<byte> data, BlockCallback<char> callback)
+            {
+                Span<char> localBuffer = stackalloc char[128];
+                do
+                {
+                    var charSize = BinaryPrimitives.ReadUInt16LittleEndian(data);
+                    var byteSize = BinaryPrimitives.ReadUInt16LittleEndian(data[2..]);
+                    data = data[4..];
+                    if (charSize <= 128)
+                    {
+                        Encoding.UTF8.GetChars(data[..byteSize], localBuffer[..charSize]);
+                        callback(localBuffer[..charSize]);
+                    }
+                    else
+                    {
+                        using var buffer = SpanOwner<char>.Allocate(charSize);
+                        Encoding.UTF8.GetChars(data[..byteSize], buffer.Span);
+                        callback(buffer.Span);
+                    }
+                    data = data[byteSize..];
+                } while (data.Length > 0);
+            }
+        }
 
         public override Task<ReadOnlyMemory<string>> GetTypedBlock(uint blockIndex)
         {
@@ -42,7 +119,7 @@ namespace BrightData.Buffer.Composite
         {
             var lengthBytes = new byte[4];
             await file.ReadAsync(lengthBytes, byteOffset);
-            return MutableStringBufferBlock.HeaderSize + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
+            return Block.HeaderSize + BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
         }
 
         protected override async Task<(uint BlockSizeBytes, ReadOnlyMemory<string> Block)> GetBlockFromFile(IByteBlockSource file, uint byteOffset, uint numItemsInBlock)
@@ -52,12 +129,12 @@ namespace BrightData.Buffer.Composite
             {
                 var index = 0;
                 var buffer = new Memory<string>(new string[(int)numStrings]);
-                MutableStringBufferBlock.Decode(block.Span, chars =>
+                Block.Decode(block.Span, chars =>
                 {
                     // ReSharper disable once AccessToDisposedClosure
                     buffer.Span[index++] = new string(chars);
                 });
-                return ((uint)block.Length + MutableStringBufferBlock.HeaderSize, buffer);
+                return ((uint)block.Length + Block.HeaderSize, buffer);
             }
             finally
             {
@@ -67,9 +144,9 @@ namespace BrightData.Buffer.Composite
 
         static async Task<(uint NumStrings, MemoryOwner<byte> Block)> ReadBlock(IByteBlockSource file, uint offset)
         {
-            var lengthBytes = new byte[MutableStringBufferBlock.HeaderSize];
+            var lengthBytes = new byte[Block.HeaderSize];
             await file.ReadAsync(lengthBytes, offset);
-            offset += MutableStringBufferBlock.HeaderSize;
+            offset += Block.HeaderSize;
             var blockSize = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes);
             var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(lengthBytes.AsSpan(4));
             var block = MemoryOwner<byte>.Allocate((int)blockSize);
