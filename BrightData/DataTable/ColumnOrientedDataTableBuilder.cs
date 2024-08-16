@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Buffer.Operations;
-using BrightData.DataTable.ConstraintValidation;
+using BrightData.DataTable.Meta;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
 
@@ -104,16 +104,18 @@ namespace BrightData.DataTable
             ++RowCount;
         }
 
-        public Task AddRows(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
+        public async Task AddRows(IReadOnlyList<IReadOnlyBuffer> buffers, CancellationToken ct = default)
         {
             var copy = new ManyToManyCopy(buffers, _columns);
-            return copy.Execute(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
+            await copy.Execute(null, null, ct);
+            RowCount += copy.CopiedCount;
         }
 
-        public Task AddRows(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
+        public async Task AddRows(IReadOnlyList<IReadOnlyBufferWithMetaData> buffers, CancellationToken ct = default)
         {
             var copy = new ManyToManyCopy(buffers, _columns);
-            return copy.Execute(null, null, ct).ContinueWith(_ => RowCount += copy.CopiedCount, ct);
+            await copy.Execute(null, null, ct);
+            RowCount += copy.CopiedCount;
         }
 
         public Task WriteTo(Stream stream)

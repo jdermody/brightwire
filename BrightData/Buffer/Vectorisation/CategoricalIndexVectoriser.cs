@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.Buffer.Operations.Vectorisation
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// Vectorisation to single index

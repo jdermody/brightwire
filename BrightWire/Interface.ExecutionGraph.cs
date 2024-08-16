@@ -9,7 +9,7 @@ using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node;
 using System.Threading.Tasks;
 using BrightWire.ExecutionGraph.Helper;
-using BrightData.DataTable.Helper;
+using BrightData.Buffer.Vectorisation;
 
 namespace BrightWire
 {

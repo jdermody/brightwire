@@ -122,4 +122,8 @@
       <DependentUpon>FixedSizeSortedArrayTemplate.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataTable\Helper\" />
+  </ItemGroup>
 </Project>

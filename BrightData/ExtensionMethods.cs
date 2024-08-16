@@ -986,5 +986,43 @@ namespace BrightData
         {
             return new VectorBallTree<T>(vectors, distanceMetric);
         }
+
+        public static int BinarySearch<K, V>(this SortedList<K, V> list, K value, Func<K, K, int> comparer)
+            where K : notnull
+        {
+            var lower = 0;
+            var upper = list.Count - 1;
+            var keys = list.Keys;
+
+            while (lower <= upper)
+            {
+                var middle = lower + (upper - lower) / 2;
+                var comparisonResult = comparer(value, keys[middle]);
+                switch (comparisonResult) {
+                    case < 0:
+                        upper = middle - 1;
+                        break;
+                    case > 0:
+                        lower = middle + 1;
+                        break;
+                    default:
+                        return middle;
+                }
+            }
+
+            return ~lower;
+        }
+
+        public static int BinarySearch<K, V>(this SortedList<K, V> list, K value)
+            where K : notnull
+        {
+            return BinarySearch(list, value, Comparer<K>.Default);
+        }
+
+        public static int BinarySearch<K, V>(this SortedList<K, V> list, K value, IComparer<K> comparer)
+            where K : notnull
+        {
+            return list.BinarySearch(value, comparer.Compare);
+        }
     }
 }

@@ -17,6 +17,9 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
+using BrightData.Buffer.Vectorisation;
+using BrightData.DataTable.Columns;
+using Microsoft.VisualBasic;
 
 namespace BrightData
 {
@@ -532,13 +535,8 @@ namespace BrightData
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public static async Task<ICompositeBuffer> ToNumeric(this IReadOnlyBuffer buffer, 
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) {
+        public static async Task<IReadOnlyBuffer> ToNumeric(this IReadOnlyBuffer buffer) 
+        {
             if(Type.GetTypeCode(buffer.DataType) is TypeCode.DBNull or TypeCode.Empty or TypeCode.Object)
                 throw new NotSupportedException();
 
@@ -564,103 +562,31 @@ namespace BrightData
                     : BrightDataType.Double;
             }
 
-            var output = CreateCompositeBuffer(toType, tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-            var converter = buffer.ConvertUnmanagedTo(toType.GetDataType());
-            var conversion = GenericTypeMapping.BufferCopyOperation(converter, output);
-            await conversion.Execute();
-            return output;
+            return buffer.ConvertUnmanagedTo(toType.GetDataType());
         }
 
         static readonly HashSet<string> TrueStrings = ["Y", "YES", "TRUE", "T", "1"];
 
-        /// <summary>
-        /// Creates a boolean composite buffer from an existing buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
-        /// <returns></returns>
-        public static async Task<ICompositeBuffer<bool>> ToBoolean(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-            ) {
-            var output = CreateCompositeBuffer<bool>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-            IOperation conversion;
+        public static IReadOnlyBuffer<bool> ToBoolean(this IReadOnlyBuffer buffer) {
             if (buffer.DataType == typeof(bool))
-                conversion = buffer.CreateBufferCopyOperation(output);
-            else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, bool>(StringToBool, buffer.ToStringBuffer(), output);
-            else {
-                var converted = buffer.ConvertUnmanagedTo(typeof(bool));
-                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
+                return (IReadOnlyBuffer<bool>)buffer;
+            if (buffer.DataType == typeof(string)) {
+                var stringBuffer = buffer.ToStringBuffer();
+                return stringBuffer.Map(StringToBool);
             }
+            return (IReadOnlyBuffer<bool>)buffer.ConvertUnmanagedTo(typeof(bool));
 
-            await conversion.Execute();
-            return output;
             static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
         }
 
-        /// <summary>
-        /// Creates a string composite buffer from an existing buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
-        /// <returns></returns>
-        public static async Task<ICompositeBuffer<string>> ToString(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) {
-            var output = CreateCompositeBuffer(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-            var conversion = buffer.DataType == typeof(string)
-                ? buffer.CreateBufferCopyOperation(output) 
-                : new BufferCopyOperation<string>(buffer.ToStringBuffer(), output, null);
-            await conversion.Execute();
-            return output;
-        }
-
-        /// <summary>
-        /// Creates a date time composite buffer from an existing buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
-        /// <returns></returns>
-        public static async Task<ICompositeBuffer<DateTime>> ToDateTime(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) {
-            var output = CreateCompositeBuffer<DateTime>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-            IOperation conversion;
+        public static IReadOnlyBuffer<DateTime> ToDateTime(this IReadOnlyBuffer buffer) {
             if (buffer.DataType == typeof(DateTime))
-                conversion = buffer.CreateBufferCopyOperation(output);
-            else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, DateTime>(StringToDate, buffer.ToStringBuffer(), output);
-            else {
-                var converted = buffer.ConvertUnmanagedTo(typeof(DateTime));
-                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
-            }
-
-            await conversion.Execute();
-            return output;
+                return (IReadOnlyBuffer<DateTime>)buffer;
+            if (buffer.DataType == typeof(DateOnly))
+                return ((IReadOnlyBuffer<DateOnly>)buffer).Map(DateOnlyToDate);
+            if (buffer.DataType == typeof(string))
+                return buffer.ToStringBuffer().Map(StringToDate);
+            return (IReadOnlyBuffer<DateTime>)buffer.ConvertUnmanagedTo(typeof(DateTime));
 
             static DateTime StringToDate(string str)
             {
@@ -672,6 +598,8 @@ namespace BrightData
                     return DateTime.MinValue;
                 }
             }
+
+            static DateTime DateOnlyToDate(DateOnly date) => date.ToDateTime(new TimeOnly());
         }
 
         /// <summary>
@@ -684,27 +612,17 @@ namespace BrightData
         /// <param name="maxInMemoryBlocks"></param>
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
-        public static async Task<ICompositeBuffer<DateOnly>> ToDate(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) {
-            var output = CreateCompositeBuffer<DateOnly>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-            IOperation conversion;
+        public static IReadOnlyBuffer<DateOnly> ToDate(this IReadOnlyBuffer buffer)
+        {
             if (buffer.DataType == typeof(DateOnly))
-                conversion = buffer.CreateBufferCopyOperation(output);
-            else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, DateOnly>(StringToDate, buffer.ToStringBuffer(), output);
-            else {
-                var converted = buffer.ConvertUnmanagedTo(typeof(DateOnly));
-                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
-            }
+                return (IReadOnlyBuffer<DateOnly>)buffer;
+            if (buffer.DataType == typeof(DateTime))
+                return ((IReadOnlyBuffer<DateTime>)buffer).Map(DateTimeToDate);
+            if (buffer.DataType == typeof(string))
+                return buffer.ToStringBuffer().Map(StringToDate);
+            return (IReadOnlyBuffer<DateOnly>)buffer.ConvertUnmanagedTo(typeof(DateOnly));
 
-            await conversion.Execute();
-            return output;
-
+            static DateOnly DateTimeToDate(DateTime date) => new(date.Year, date.Month, date.Day);
             static DateOnly StringToDate(string str)
             {
                 try {
@@ -727,27 +645,18 @@ namespace BrightData
         /// <param name="maxInMemoryBlocks"></param>
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
-        public static async Task<ICompositeBuffer<TimeOnly>> ToTime(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null, 
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null
-        ) {
-            var output = CreateCompositeBuffer<TimeOnly>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+        public static IReadOnlyBuffer<TimeOnly> ToTime(this IReadOnlyBuffer buffer)
+        {
             IOperation conversion;
             if (buffer.DataType == typeof(TimeOnly))
-                conversion = buffer.CreateBufferCopyOperation(output);
-            else if (buffer.DataType == typeof(string))
-                conversion = new CustomConversion<string, TimeOnly>(StringToTime, buffer.ToStringBuffer(), output);
-            else {
-                var converted = buffer.ConvertUnmanagedTo(typeof(TimeOnly));
-                conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
-            }
+                return (IReadOnlyBuffer<TimeOnly>)buffer;
+            if (buffer.DataType == typeof(DateTime))
+                return ((IReadOnlyBuffer<DateTime>)buffer).Map(DateTimeToTime);
+            if (buffer.DataType == typeof(string))
+                buffer.ToStringBuffer().Map(StringToTime);
+            return (IReadOnlyBuffer<TimeOnly>)buffer.ConvertUnmanagedTo(typeof(TimeOnly));
 
-            await conversion.Execute();
-            return output;
-
+            static TimeOnly DateTimeToTime(DateTime date) => new(date.Hour, date.Minute, date.Second, date.Millisecond);
             static TimeOnly StringToTime(string str)
             {
                 try {
@@ -910,34 +819,13 @@ namespace BrightData
             static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector<float> vector) => vector.ToSparse();
         }
 
-        /// <summary>
-        /// Creates a typed composite buffer from an existing buffer
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
-        /// <returns></returns>
-        public static async Task<ICompositeBuffer<T>> To<T>(this IReadOnlyBuffer buffer,
-            IProvideByteBlocks? tempStreams = null,
-            int blockSize = Consts.DefaultInitialBlockSize, 
-            int maxBlockSize = Consts.DefaultMaxBlockSize,
-            uint? maxInMemoryBlocks = null,
-            uint? maxDistinctItems = null) where T: unmanaged
+        public static IReadOnlyBuffer<T> To<T>(this IReadOnlyBuffer buffer) where T: unmanaged
         {
-            var output = CreateCompositeBuffer<T>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
-
             // convert from strings
             if (buffer.DataType == typeof(string))
                 buffer = buffer.ConvertTo<double>();
 
-            var converted = buffer.ConvertUnmanagedTo(typeof(T));
-            var conversion = GenericTypeMapping.BufferCopyOperation(converted, output);
-            await conversion.Execute();
-            return output;
+            return (IReadOnlyBuffer<T>)buffer.ConvertUnmanagedTo(typeof(T));
         }
 
         /// <summary>
@@ -1122,6 +1010,99 @@ namespace BrightData
                 notify.OnOperationProgress(id, (float)++count / buffer.Size);
             }, ct);
             notify.OnCompleteOperation(id, ct.IsCancellationRequested);
+        }
+
+        /// <summary>
+        /// Creates a vectoriser for the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="metaData"></param>
+        /// <param name="oneHotEncodeCategoricalData"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
+        {
+            var dataType = buffer.DataType.GetBrightDataType();
+            var cls = ColumnTypeClassifier.GetClass(dataType, metaData);
+            ICanVectorise? ret;
+
+            if (dataType == BrightDataType.Boolean)
+                ret = new BooleanVectoriser();
+            else if (cls.HasFlag(ColumnClass.Numeric))
+                ret = GenericTypeMapping.NumericVectoriser(buffer.DataType);
+            else if (cls.HasFlag(ColumnClass.Categorical)) {
+                if (oneHotEncodeCategoricalData)
+                    ret = await GetOneHotEncoder(buffer, metaData);
+                else
+                    ret = GenericTypeMapping.CategoricalIndexVectoriser(buffer.DataType);
+            }
+            else if (cls.HasFlag(ColumnClass.IndexBased))
+                ret = await GetIndexBasedVectoriser(buffer, metaData);
+            else if (cls.HasFlag(ColumnClass.Tensor))
+                ret = await GetTensorVectoriser(buffer, metaData);
+            else
+                throw new NotImplementedException();
+            ret.ReadFrom(metaData);
+            return ret;
+
+            static async Task<ICanVectorise> GetIndexBasedVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
+            {
+                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
+                if (size == 0) {
+                    await metaData.Analyse(false, buffer).Execute();
+                    size = metaData.GetIndexAnalysis().MaxIndex ?? 0;
+                    if (size == 0)
+                        throw new Exception("Expected to find a max index size");
+                }
+
+                if(buffer.DataType == typeof(IndexList))
+                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), size);
+                if(buffer.DataType == typeof(WeightedIndexList))
+                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), size);
+                throw new NotSupportedException();
+            }
+
+            static async Task<ICanVectorise> GetOneHotEncoder(IReadOnlyBuffer buffer, MetaData metaData)
+            {
+                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
+                if (size == 0) {
+                    await metaData.Analyse(false, buffer).Execute();
+                    size = metaData.Get<uint>(Consts.NumDistinct, 0);
+                    if (size == 0)
+                        throw new Exception("Expected to find a distinct size of items");
+                }
+
+                return GenericTypeMapping.OneHotVectoriser(buffer.DataType, size);
+            }
+
+            static async Task<ICanVectorise> GetTensorVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
+            {
+                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
+                if (size == 0) {
+                    await metaData.Analyse(false, buffer).Execute();
+                    size = metaData.GetDimensionAnalysis().Size;
+                    if (size == 0)
+                        throw new Exception("Expected to find non empty tensors");
+                }
+
+                return CreateTensorVectoriser(buffer.DataType, size);
+            }
+        }
+
+        /// <summary>
+        /// Creates a vectoriser from multiple buffers
+        /// </summary>
+        /// <param name="buffers"></param>
+        /// <param name="oneHotEncodeCategoricalData"></param>
+        /// <returns></returns>
+        public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBufferWithMetaData[] buffers, bool oneHotEncodeCategoricalData)
+        {
+            var createTasks = buffers.Select(x => GetVectoriser(x, x.MetaData, oneHotEncodeCategoricalData)).ToArray();
+            await Task.WhenAll(createTasks);
+            var vectorisers = createTasks.Select(x => x.Result).ToArray();
+            return new VectorisationModel(vectorisers);
         }
     }
 }

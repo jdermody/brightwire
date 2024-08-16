@@ -11,10 +11,11 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Analysis;
 using BrightData.Buffer.Operations;
 using System.Collections.Generic;
-using BrightData.Buffer.Operations.Helper;
+using BrightData.Buffer.Operations.Conversion;
 using BrightData.Converter;
 using BrightData.DataTable.ConstraintValidation;
-using BrightData.Buffer.Operations.Vectorisation;
+using BrightData.Buffer.Vectorisation;
+using BrightData.Buffer.Composite;
 
 namespace BrightData.Helper
 {
@@ -142,6 +143,17 @@ namespace BrightData.Helper
         {
 <#= WriteSingleTypeMapping("OneHotVectoriser", x => $"maxSize") #>
         }
+
+        internal static ICompositeBuffer CreateNumericCompositeBuffer(
+            Type type,
+            IProvideByteBlocks? tempStreams, 
+            int blockSize = Consts.DefaultInitialBlockSize, 
+            int maxBlockSize = Consts.DefaultMaxBlockSize,
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+<#= WriteNumericTypeMapping("UnmanagedCompositeBuffer", ValidNumericTypeCodes, _ => "tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems") #>
+        }
     }
 }
 
@@ -178,6 +190,7 @@ namespace BrightData.Helper
             yield return "ReadOnlyTensor4D<float>";
             yield return "TimeOnly";
             yield return "DateOnly";
+            yield return "DateTime";
         }
     }
     IEnumerable<string> AllValidTypes

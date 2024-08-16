@@ -9,7 +9,7 @@ using BrightData.Buffer.ReadOnly;
 using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.DataTable.Columns;
-using BrightData.DataTable.Helper;
+using BrightData.DataTable.Meta;
 using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;

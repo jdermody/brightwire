@@ -5,10 +5,11 @@ using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Analysis;
 using BrightData.Buffer.Operations;
 using System.Collections.Generic;
-using BrightData.Buffer.Operations.Helper;
+using BrightData.Buffer.Operations.Conversion;
 using BrightData.Converter;
-using BrightData.DataTable.ConstraintValidation;
-using BrightData.Buffer.Operations.Vectorisation;
+using BrightData.Buffer.Vectorisation;
+using BrightData.Buffer.Composite;
+using BrightData.DataTable.Meta;
 
 namespace BrightData.Helper
 {
@@ -59,6 +60,8 @@ namespace BrightData.Helper
 				return new ToStringConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer);
 			if(type == typeof(DateOnly))
 				return new ToStringConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
+			if(type == typeof(DateTime))
+				return new ToStringConverter<DateTime>((IReadOnlyBuffer<DateTime>)buffer);
 			throw new NotImplementedException($"Could not create ToStringConverter for type {type}");
         }
 
@@ -103,6 +106,8 @@ namespace BrightData.Helper
 				return new ConvertToStringFrequencyAnalysis<TimeOnly>(writeCount);
 			if(type == typeof(DateOnly))
 				return new ConvertToStringFrequencyAnalysis<DateOnly>(writeCount);
+			if(type == typeof(DateTime))
+				return new ConvertToStringFrequencyAnalysis<DateTime>(writeCount);
 			throw new NotImplementedException($"Could not create ConvertToStringFrequencyAnalysis for type {type}");
         }
 
@@ -148,6 +153,8 @@ namespace BrightData.Helper
 				return new ToObjectConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)from);
 			if(type == typeof(DateOnly))
 				return new ToObjectConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)from);
+			if(type == typeof(DateTime))
+				return new ToObjectConverter<DateTime>((IReadOnlyBuffer<DateTime>)from);
 			throw new NotImplementedException($"Could not create ToObjectConverter for type {type}");
         }
 
@@ -190,6 +197,8 @@ namespace BrightData.Helper
 				return new TypeConverter<bool, TimeOnly>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, TimeOnly>)converter);
 			if(type1 == typeof(bool) && type2 == typeof(DateOnly))
 				return new TypeConverter<bool, DateOnly>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, DateOnly>)converter);
+			if(type1 == typeof(bool) && type2 == typeof(DateTime))
+				return new TypeConverter<bool, DateTime>((IReadOnlyBuffer<bool>)from, (ICanConvert<bool, DateTime>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(bool))
 				return new TypeConverter<sbyte, bool>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, bool>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(sbyte))
@@ -226,6 +235,8 @@ namespace BrightData.Helper
 				return new TypeConverter<sbyte, TimeOnly>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, TimeOnly>)converter);
 			if(type1 == typeof(sbyte) && type2 == typeof(DateOnly))
 				return new TypeConverter<sbyte, DateOnly>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, DateOnly>)converter);
+			if(type1 == typeof(sbyte) && type2 == typeof(DateTime))
+				return new TypeConverter<sbyte, DateTime>((IReadOnlyBuffer<sbyte>)from, (ICanConvert<sbyte, DateTime>)converter);
 			if(type1 == typeof(float) && type2 == typeof(bool))
 				return new TypeConverter<float, bool>((IReadOnlyBuffer<float>)from, (ICanConvert<float, bool>)converter);
 			if(type1 == typeof(float) && type2 == typeof(sbyte))
@@ -262,6 +273,8 @@ namespace BrightData.Helper
 				return new TypeConverter<float, TimeOnly>((IReadOnlyBuffer<float>)from, (ICanConvert<float, TimeOnly>)converter);
 			if(type1 == typeof(float) && type2 == typeof(DateOnly))
 				return new TypeConverter<float, DateOnly>((IReadOnlyBuffer<float>)from, (ICanConvert<float, DateOnly>)converter);
+			if(type1 == typeof(float) && type2 == typeof(DateTime))
+				return new TypeConverter<float, DateTime>((IReadOnlyBuffer<float>)from, (ICanConvert<float, DateTime>)converter);
 			if(type1 == typeof(double) && type2 == typeof(bool))
 				return new TypeConverter<double, bool>((IReadOnlyBuffer<double>)from, (ICanConvert<double, bool>)converter);
 			if(type1 == typeof(double) && type2 == typeof(sbyte))
@@ -298,6 +311,8 @@ namespace BrightData.Helper
 				return new TypeConverter<double, TimeOnly>((IReadOnlyBuffer<double>)from, (ICanConvert<double, TimeOnly>)converter);
 			if(type1 == typeof(double) && type2 == typeof(DateOnly))
 				return new TypeConverter<double, DateOnly>((IReadOnlyBuffer<double>)from, (ICanConvert<double, DateOnly>)converter);
+			if(type1 == typeof(double) && type2 == typeof(DateTime))
+				return new TypeConverter<double, DateTime>((IReadOnlyBuffer<double>)from, (ICanConvert<double, DateTime>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(bool))
 				return new TypeConverter<decimal, bool>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, bool>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(sbyte))
@@ -334,6 +349,8 @@ namespace BrightData.Helper
 				return new TypeConverter<decimal, TimeOnly>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, TimeOnly>)converter);
 			if(type1 == typeof(decimal) && type2 == typeof(DateOnly))
 				return new TypeConverter<decimal, DateOnly>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, DateOnly>)converter);
+			if(type1 == typeof(decimal) && type2 == typeof(DateTime))
+				return new TypeConverter<decimal, DateTime>((IReadOnlyBuffer<decimal>)from, (ICanConvert<decimal, DateTime>)converter);
 			if(type1 == typeof(string) && type2 == typeof(bool))
 				return new TypeConverter<string, bool>((IReadOnlyBuffer<string>)from, (ICanConvert<string, bool>)converter);
 			if(type1 == typeof(string) && type2 == typeof(sbyte))
@@ -370,6 +387,8 @@ namespace BrightData.Helper
 				return new TypeConverter<string, TimeOnly>((IReadOnlyBuffer<string>)from, (ICanConvert<string, TimeOnly>)converter);
 			if(type1 == typeof(string) && type2 == typeof(DateOnly))
 				return new TypeConverter<string, DateOnly>((IReadOnlyBuffer<string>)from, (ICanConvert<string, DateOnly>)converter);
+			if(type1 == typeof(string) && type2 == typeof(DateTime))
+				return new TypeConverter<string, DateTime>((IReadOnlyBuffer<string>)from, (ICanConvert<string, DateTime>)converter);
 			if(type1 == typeof(short) && type2 == typeof(bool))
 				return new TypeConverter<short, bool>((IReadOnlyBuffer<short>)from, (ICanConvert<short, bool>)converter);
 			if(type1 == typeof(short) && type2 == typeof(sbyte))
@@ -406,6 +425,8 @@ namespace BrightData.Helper
 				return new TypeConverter<short, TimeOnly>((IReadOnlyBuffer<short>)from, (ICanConvert<short, TimeOnly>)converter);
 			if(type1 == typeof(short) && type2 == typeof(DateOnly))
 				return new TypeConverter<short, DateOnly>((IReadOnlyBuffer<short>)from, (ICanConvert<short, DateOnly>)converter);
+			if(type1 == typeof(short) && type2 == typeof(DateTime))
+				return new TypeConverter<short, DateTime>((IReadOnlyBuffer<short>)from, (ICanConvert<short, DateTime>)converter);
 			if(type1 == typeof(int) && type2 == typeof(bool))
 				return new TypeConverter<int, bool>((IReadOnlyBuffer<int>)from, (ICanConvert<int, bool>)converter);
 			if(type1 == typeof(int) && type2 == typeof(sbyte))
@@ -442,6 +463,8 @@ namespace BrightData.Helper
 				return new TypeConverter<int, TimeOnly>((IReadOnlyBuffer<int>)from, (ICanConvert<int, TimeOnly>)converter);
 			if(type1 == typeof(int) && type2 == typeof(DateOnly))
 				return new TypeConverter<int, DateOnly>((IReadOnlyBuffer<int>)from, (ICanConvert<int, DateOnly>)converter);
+			if(type1 == typeof(int) && type2 == typeof(DateTime))
+				return new TypeConverter<int, DateTime>((IReadOnlyBuffer<int>)from, (ICanConvert<int, DateTime>)converter);
 			if(type1 == typeof(long) && type2 == typeof(bool))
 				return new TypeConverter<long, bool>((IReadOnlyBuffer<long>)from, (ICanConvert<long, bool>)converter);
 			if(type1 == typeof(long) && type2 == typeof(sbyte))
@@ -478,6 +501,8 @@ namespace BrightData.Helper
 				return new TypeConverter<long, TimeOnly>((IReadOnlyBuffer<long>)from, (ICanConvert<long, TimeOnly>)converter);
 			if(type1 == typeof(long) && type2 == typeof(DateOnly))
 				return new TypeConverter<long, DateOnly>((IReadOnlyBuffer<long>)from, (ICanConvert<long, DateOnly>)converter);
+			if(type1 == typeof(long) && type2 == typeof(DateTime))
+				return new TypeConverter<long, DateTime>((IReadOnlyBuffer<long>)from, (ICanConvert<long, DateTime>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(bool))
 				return new TypeConverter<IndexList, bool>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, bool>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(sbyte))
@@ -514,6 +539,8 @@ namespace BrightData.Helper
 				return new TypeConverter<IndexList, TimeOnly>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, TimeOnly>)converter);
 			if(type1 == typeof(IndexList) && type2 == typeof(DateOnly))
 				return new TypeConverter<IndexList, DateOnly>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, DateOnly>)converter);
+			if(type1 == typeof(IndexList) && type2 == typeof(DateTime))
+				return new TypeConverter<IndexList, DateTime>((IReadOnlyBuffer<IndexList>)from, (ICanConvert<IndexList, DateTime>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(bool))
 				return new TypeConverter<WeightedIndexList, bool>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, bool>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(sbyte))
@@ -550,6 +577,8 @@ namespace BrightData.Helper
 				return new TypeConverter<WeightedIndexList, TimeOnly>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, TimeOnly>)converter);
 			if(type1 == typeof(WeightedIndexList) && type2 == typeof(DateOnly))
 				return new TypeConverter<WeightedIndexList, DateOnly>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, DateOnly>)converter);
+			if(type1 == typeof(WeightedIndexList) && type2 == typeof(DateTime))
+				return new TypeConverter<WeightedIndexList, DateTime>((IReadOnlyBuffer<WeightedIndexList>)from, (ICanConvert<WeightedIndexList, DateTime>)converter);
 			if(type1 == typeof(BinaryData) && type2 == typeof(bool))
 				return new TypeConverter<BinaryData, bool>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, bool>)converter);
 			if(type1 == typeof(BinaryData) && type2 == typeof(sbyte))
@@ -586,6 +615,8 @@ namespace BrightData.Helper
 				return new TypeConverter<BinaryData, TimeOnly>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, TimeOnly>)converter);
 			if(type1 == typeof(BinaryData) && type2 == typeof(DateOnly))
 				return new TypeConverter<BinaryData, DateOnly>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, DateOnly>)converter);
+			if(type1 == typeof(BinaryData) && type2 == typeof(DateTime))
+				return new TypeConverter<BinaryData, DateTime>((IReadOnlyBuffer<BinaryData>)from, (ICanConvert<BinaryData, DateTime>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(bool))
 				return new TypeConverter<ReadOnlyVector<float>, bool>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, bool>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(sbyte))
@@ -622,6 +653,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyVector<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, TimeOnly>)converter);
 			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(DateOnly))
 				return new TypeConverter<ReadOnlyVector<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, DateOnly>)converter);
+			if(type1 == typeof(ReadOnlyVector<float>) && type2 == typeof(DateTime))
+				return new TypeConverter<ReadOnlyVector<float>, DateTime>((IReadOnlyBuffer<ReadOnlyVector<float>>)from, (ICanConvert<ReadOnlyVector<float>, DateTime>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(bool))
 				return new TypeConverter<ReadOnlyMatrix<float>, bool>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, bool>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(sbyte))
@@ -658,6 +691,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyMatrix<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, TimeOnly>)converter);
 			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(DateOnly))
 				return new TypeConverter<ReadOnlyMatrix<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, DateOnly>)converter);
+			if(type1 == typeof(ReadOnlyMatrix<float>) && type2 == typeof(DateTime))
+				return new TypeConverter<ReadOnlyMatrix<float>, DateTime>((IReadOnlyBuffer<ReadOnlyMatrix<float>>)from, (ICanConvert<ReadOnlyMatrix<float>, DateTime>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(bool))
 				return new TypeConverter<ReadOnlyTensor3D<float>, bool>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, bool>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(sbyte))
@@ -694,6 +729,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyTensor3D<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, TimeOnly>)converter);
 			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(DateOnly))
 				return new TypeConverter<ReadOnlyTensor3D<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, DateOnly>)converter);
+			if(type1 == typeof(ReadOnlyTensor3D<float>) && type2 == typeof(DateTime))
+				return new TypeConverter<ReadOnlyTensor3D<float>, DateTime>((IReadOnlyBuffer<ReadOnlyTensor3D<float>>)from, (ICanConvert<ReadOnlyTensor3D<float>, DateTime>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(bool))
 				return new TypeConverter<ReadOnlyTensor4D<float>, bool>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, bool>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(sbyte))
@@ -730,6 +767,8 @@ namespace BrightData.Helper
 				return new TypeConverter<ReadOnlyTensor4D<float>, TimeOnly>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, TimeOnly>)converter);
 			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(DateOnly))
 				return new TypeConverter<ReadOnlyTensor4D<float>, DateOnly>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, DateOnly>)converter);
+			if(type1 == typeof(ReadOnlyTensor4D<float>) && type2 == typeof(DateTime))
+				return new TypeConverter<ReadOnlyTensor4D<float>, DateTime>((IReadOnlyBuffer<ReadOnlyTensor4D<float>>)from, (ICanConvert<ReadOnlyTensor4D<float>, DateTime>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(bool))
 				return new TypeConverter<TimeOnly, bool>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, bool>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(sbyte))
@@ -766,6 +805,8 @@ namespace BrightData.Helper
 				return new TypeConverter<TimeOnly, TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, TimeOnly>)converter);
 			if(type1 == typeof(TimeOnly) && type2 == typeof(DateOnly))
 				return new TypeConverter<TimeOnly, DateOnly>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, DateOnly>)converter);
+			if(type1 == typeof(TimeOnly) && type2 == typeof(DateTime))
+				return new TypeConverter<TimeOnly, DateTime>((IReadOnlyBuffer<TimeOnly>)from, (ICanConvert<TimeOnly, DateTime>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(bool))
 				return new TypeConverter<DateOnly, bool>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, bool>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(sbyte))
@@ -802,6 +843,46 @@ namespace BrightData.Helper
 				return new TypeConverter<DateOnly, TimeOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, TimeOnly>)converter);
 			if(type1 == typeof(DateOnly) && type2 == typeof(DateOnly))
 				return new TypeConverter<DateOnly, DateOnly>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, DateOnly>)converter);
+			if(type1 == typeof(DateOnly) && type2 == typeof(DateTime))
+				return new TypeConverter<DateOnly, DateTime>((IReadOnlyBuffer<DateOnly>)from, (ICanConvert<DateOnly, DateTime>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(bool))
+				return new TypeConverter<DateTime, bool>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, bool>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(sbyte))
+				return new TypeConverter<DateTime, sbyte>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, sbyte>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(float))
+				return new TypeConverter<DateTime, float>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, float>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(double))
+				return new TypeConverter<DateTime, double>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, double>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(decimal))
+				return new TypeConverter<DateTime, decimal>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, decimal>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(string))
+				return new TypeConverter<DateTime, string>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, string>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(short))
+				return new TypeConverter<DateTime, short>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, short>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(int))
+				return new TypeConverter<DateTime, int>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, int>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(long))
+				return new TypeConverter<DateTime, long>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, long>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(IndexList))
+				return new TypeConverter<DateTime, IndexList>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, IndexList>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(WeightedIndexList))
+				return new TypeConverter<DateTime, WeightedIndexList>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, WeightedIndexList>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(BinaryData))
+				return new TypeConverter<DateTime, BinaryData>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, BinaryData>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(ReadOnlyVector<float>))
+				return new TypeConverter<DateTime, ReadOnlyVector<float>>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, ReadOnlyVector<float>>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(ReadOnlyMatrix<float>))
+				return new TypeConverter<DateTime, ReadOnlyMatrix<float>>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, ReadOnlyMatrix<float>>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(ReadOnlyTensor3D<float>))
+				return new TypeConverter<DateTime, ReadOnlyTensor3D<float>>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, ReadOnlyTensor3D<float>>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(ReadOnlyTensor4D<float>))
+				return new TypeConverter<DateTime, ReadOnlyTensor4D<float>>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, ReadOnlyTensor4D<float>>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(TimeOnly))
+				return new TypeConverter<DateTime, TimeOnly>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, TimeOnly>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(DateOnly))
+				return new TypeConverter<DateTime, DateOnly>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, DateOnly>)converter);
+			if(type1 == typeof(DateTime) && type2 == typeof(DateTime))
+				return new TypeConverter<DateTime, DateTime>((IReadOnlyBuffer<DateTime>)from, (ICanConvert<DateTime, DateTime>)converter);
 			throw new NotImplementedException($"Could not create TypeConverter for types {type1} and {type2}");
         }
 
@@ -847,6 +928,8 @@ namespace BrightData.Helper
 				return new IndexedCopyOperation<TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (IAppendToBuffer<TimeOnly>)to, indices);
 			if(type == typeof(DateOnly))
 				return new IndexedCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendToBuffer<DateOnly>)to, indices);
+			if(type == typeof(DateTime))
+				return new IndexedCopyOperation<DateTime>((IReadOnlyBuffer<DateTime>)from, (IAppendToBuffer<DateTime>)to, indices);
 			throw new NotImplementedException($"Could not create IndexedCopyOperation for type {type}");
         }
 
@@ -892,6 +975,8 @@ namespace BrightData.Helper
 				return new BufferCopyOperation<TimeOnly>((IReadOnlyBuffer<TimeOnly>)from, (IAppendBlocks<TimeOnly>)to, onComplete);
 			if(type == typeof(DateOnly))
 				return new BufferCopyOperation<DateOnly>((IReadOnlyBuffer<DateOnly>)from, (IAppendBlocks<DateOnly>)to, onComplete);
+			if(type == typeof(DateTime))
+				return new BufferCopyOperation<DateTime>((IReadOnlyBuffer<DateTime>)from, (IAppendBlocks<DateTime>)to, onComplete);
 			throw new NotImplementedException($"Could not create BufferCopyOperation for type {type}");
         }
 
@@ -937,6 +1022,8 @@ namespace BrightData.Helper
 				return new SimpleNumericAnalysis<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer);
 			if(type == typeof(DateOnly))
 				return new SimpleNumericAnalysis<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
+			if(type == typeof(DateTime))
+				return new SimpleNumericAnalysis<DateTime>((IReadOnlyBuffer<DateTime>)buffer);
 			throw new NotImplementedException($"Could not create SimpleNumericAnalysis for type {type}");
         }
 
@@ -1149,6 +1236,8 @@ namespace BrightData.Helper
 				return new ColumnFilter<TimeOnly>(columnIndex, columnType, (IDataTypeSpecification<TimeOnly>)typeSpecification, nonConformingRowIndices);
 			if(type == typeof(DateOnly))
 				return new ColumnFilter<DateOnly>(columnIndex, columnType, (IDataTypeSpecification<DateOnly>)typeSpecification, nonConformingRowIndices);
+			if(type == typeof(DateTime))
+				return new ColumnFilter<DateTime>(columnIndex, columnType, (IDataTypeSpecification<DateTime>)typeSpecification, nonConformingRowIndices);
 			throw new NotImplementedException($"Could not create ColumnFilter for type {type}");
         }
 
@@ -1194,6 +1283,8 @@ namespace BrightData.Helper
 				return new TypedIndexer<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer);
 			if(type == typeof(DateOnly))
 				return new TypedIndexer<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer);
+			if(type == typeof(DateTime))
+				return new TypedIndexer<DateTime>((IReadOnlyBuffer<DateTime>)buffer);
 			throw new NotImplementedException($"Could not create TypedIndexer for type {type}");
         }
 
@@ -1239,6 +1330,8 @@ namespace BrightData.Helper
 				return new OneHotConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer, (ICanIndex<TimeOnly>)indexer);
 			if(type == typeof(DateOnly))
 				return new OneHotConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer, (ICanIndex<DateOnly>)indexer);
+			if(type == typeof(DateTime))
+				return new OneHotConverter<DateTime>((IReadOnlyBuffer<DateTime>)buffer, (ICanIndex<DateTime>)indexer);
 			throw new NotImplementedException($"Could not create OneHotConverter for type {type}");
         }
 
@@ -1284,6 +1377,8 @@ namespace BrightData.Helper
 				return new CategoricalIndexConverter<TimeOnly>((IReadOnlyBuffer<TimeOnly>)buffer, (ICanIndex<TimeOnly>)indexer);
 			if(type == typeof(DateOnly))
 				return new CategoricalIndexConverter<DateOnly>((IReadOnlyBuffer<DateOnly>)buffer, (ICanIndex<DateOnly>)indexer);
+			if(type == typeof(DateTime))
+				return new CategoricalIndexConverter<DateTime>((IReadOnlyBuffer<DateTime>)buffer, (ICanIndex<DateTime>)indexer);
 			throw new NotImplementedException($"Could not create CategoricalIndexConverter for type {type}");
         }
 
@@ -1373,6 +1468,8 @@ namespace BrightData.Helper
 				return new CategoricalIndexVectoriser<TimeOnly>();
 			if(type == typeof(DateOnly))
 				return new CategoricalIndexVectoriser<DateOnly>();
+			if(type == typeof(DateTime))
+				return new CategoricalIndexVectoriser<DateTime>();
 			throw new NotImplementedException($"Could not create CategoricalIndexVectoriser for type {type}");
         }
 
@@ -1417,7 +1514,35 @@ namespace BrightData.Helper
 				return new OneHotVectoriser<TimeOnly>(maxSize);
 			if(type == typeof(DateOnly))
 				return new OneHotVectoriser<DateOnly>(maxSize);
+			if(type == typeof(DateTime))
+				return new OneHotVectoriser<DateTime>(maxSize);
 			throw new NotImplementedException($"Could not create OneHotVectoriser for type {type}");
+        }
+
+        internal static ICompositeBuffer CreateNumericCompositeBuffer(
+            Type type,
+            IProvideByteBlocks? tempStreams, 
+            int blockSize = Consts.DefaultInitialBlockSize, 
+            int maxBlockSize = Consts.DefaultMaxBlockSize,
+            uint? maxInMemoryBlocks = null,
+            uint? maxDistinctItems = null
+        ) {
+			var typeCode = Type.GetTypeCode(type);
+			if(typeCode == TypeCode.SByte)
+				return new UnmanagedCompositeBuffer<sbyte>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Single)
+				return new UnmanagedCompositeBuffer<float>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Double)
+				return new UnmanagedCompositeBuffer<double>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Decimal)
+				return new UnmanagedCompositeBuffer<decimal>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Int16)
+				return new UnmanagedCompositeBuffer<short>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Int32)
+				return new UnmanagedCompositeBuffer<int>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			if(typeCode == TypeCode.Int64)
+				return new UnmanagedCompositeBuffer<long>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+			throw new NotImplementedException($"Could not create UnmanagedCompositeBuffer for type {type}");
         }
     }
 }

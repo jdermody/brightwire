@@ -1,15 +1,8 @@
-﻿using BrightData.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
-using BrightData.Buffer.ReadOnly.Helper;
+﻿using System;
 using BrightData.Converter;
-using System.Reflection;
+using BrightData.Helper;
 
-namespace BrightData.DataTable.Helper
+namespace BrightData.DataTable.Meta
 {
     /// <summary>
     /// A data dimension from a table
@@ -22,22 +15,24 @@ namespace BrightData.DataTable.Helper
         public BrightDataType DataType => dataType;
 
         /// <inheritdoc />
-        public IReadOnlyBuffer<T> GetBuffer<T>() where T: notnull
+        public IReadOnlyBuffer<T> GetBuffer<T>() where T : notnull
         {
             var typeofT = typeof(T);
             var bufferType = buffer.DataType;
 
-            if(bufferType == typeofT)
+            if (bufferType == typeofT)
                 return (IReadOnlyBuffer<T>)buffer;
 
             if (typeofT == typeof(object))
                 return (IReadOnlyBuffer<T>)buffer.ToObjectBuffer();
 
-            if (typeofT == typeof(string)) {
+            if (typeofT == typeof(string))
+            {
                 return (IReadOnlyBuffer<T>)buffer.ToStringBuffer();
             }
 
-            if (bufferType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric()) {
+            if (bufferType.GetBrightDataType().IsNumeric() && typeofT.GetBrightDataType().IsNumeric())
+            {
                 var converter = StaticConverters.GetConverter(bufferType, typeof(T));
                 return (IReadOnlyBuffer<T>)GenericTypeMapping.TypeConverter(typeof(T), buffer, converter);
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.DataTable.Helper;
+using BrightData.Buffer.Vectorisation;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrightData.Buffer.Operations.Helper
+namespace BrightData.Buffer.Operations.Conversion
 {
     /// <summary>
     /// Maintains a mapping of types to indices

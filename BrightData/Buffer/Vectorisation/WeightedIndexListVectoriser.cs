@@ -1,7 +1,7 @@
 ﻿using System;
 using BrightData.Types;
 
-namespace BrightData.Buffer.Operations.Vectorisation
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// Weighted index vectorisation

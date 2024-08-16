@@ -24,32 +24,29 @@ namespace BrightData.Parquet
                 builder.TableMetaData.Set(key, value);
 
             // write the data
-            var tasks = new Task[columnCount];
             for (var i = 0; i < reader.RowGroupCount; i++) {
                 using var rowGroupReader = reader.OpenRowGroupReader(i);
                 for (var j = 0; j < columnCount; j++) {
                     var field = fields[j];
                     var buffer = columns[j] ??= CreateColumn(rowGroupReader, field, columnMetaData[i], builder);
                     var columnType = columnTypes[j];
-                    tasks[j] = rowGroupReader.ReadColumnAsync(fields[j]).ContinueWith(x => {
-                        var parquetData = x.Result.Data;
-                        if (field.IsNullable) {
-                            if (columnType.IsValueType) {
-                                var defaultValue = Activator.CreateInstance(columnType);
-                                foreach (var item in parquetData)
-                                    buffer.AppendObject(item ?? defaultValue!);
-                            }
-                            else
-                                throw new Exception($"Nullable non value types are not supported: {columnType}");
-                        }
-                        else {
+                    var column = await rowGroupReader.ReadColumnAsync(fields[j]);
+                    var parquetData = column.Data;
+                    if (field.IsNullable) {
+                        if (columnType.IsValueType) {
+                            var defaultValue = Activator.CreateInstance(columnType);
                             foreach (var item in parquetData)
-                                buffer.AppendObject(item!);
+                                buffer.AppendObject(item ?? defaultValue!);
                         }
-                    });
+                        else
+                            throw new Exception($"Nullable non value types are not supported: {columnType}");
+                    }
+                    else {
+                        foreach (var item in parquetData)
+                            buffer.AppendObject(item!);
+                    }
 
                 }
-                await Task.WhenAll(tasks);
             }
 
             // write to stream

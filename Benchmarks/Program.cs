@@ -10,6 +10,7 @@ namespace Benchmarks
             BenchmarkSetProperty();
             BenchmarkSum();
             BenchmarkDot();
+            BenchmarkRunner.Run<SortedArrayBenchmarks>();
         }
 
         static void BenchmarkSetProperty()

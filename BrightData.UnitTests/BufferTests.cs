@@ -179,7 +179,7 @@ namespace BrightData.UnitTests
                 foreach (var num in block)
                     num.Should().Be(++index);
             });
-            var test = await intBuffer.ToNumeric(_streamProvider, 256);
+            var test = await intBuffer.ToNumeric();
             test.DataType.Should().Be(typeof(sbyte));
 
             index = 0;

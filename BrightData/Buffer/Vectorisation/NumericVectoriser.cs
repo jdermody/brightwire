@@ -1,7 +1,7 @@
 ﻿using System;
 using BrightData.Helper;
 
-namespace BrightData.Buffer.Operations.Vectorisation
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// Numeric vectorisation

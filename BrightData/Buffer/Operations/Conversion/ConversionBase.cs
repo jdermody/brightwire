@@ -36,10 +36,7 @@ namespace BrightData.Buffer.Operations.Conversion
 
         public Task Execute(INotifyOperationProgress? notify = null, string? msg = null, CancellationToken ct = default)
         {
-            var ret = _operation.Execute(notify, msg, ct);
-            //if (_onComplete != null)
-            //    return ret.ContinueWith(_ => _onComplete(), ct);
-            return ret;
+            return _operation.Execute(notify, msg, ct);
         }
     }
 }

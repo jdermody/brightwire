@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BrightData.DataTable.ConstraintValidation
+namespace BrightData.DataTable.Meta
 {
     /// <summary>
     /// 

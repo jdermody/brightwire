@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.DataTable.ConstraintValidation
+namespace BrightData.DataTable.Meta
 {
     /// <summary>
     /// Throws an exception if a constraint fails validation

@@ -1,4 +1,4 @@
-﻿namespace BrightData.DataTable.ConstraintValidation
+﻿namespace BrightData.DataTable.Meta
 {
     /// <summary>
     /// Field specification

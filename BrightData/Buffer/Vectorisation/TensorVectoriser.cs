@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
 using System;
 
-namespace BrightData.Buffer.Operations.Vectorisation
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// Tensor vectorisation
@@ -15,16 +15,19 @@ namespace BrightData.Buffer.Operations.Vectorisation
         {
             var segment = item.ReadOnlySegment;
             var contiguous = segment.Contiguous;
-            if(contiguous is not null)
+            if (contiguous is not null)
                 contiguous.ReadOnlySpan.CopyTo(buffer);
-            else {
+            else
+            {
                 var temp = SpanOwner<float>.Empty;
                 var wasTempUsed = false;
-                try {
+                try
+                {
                     var span = segment.GetSpan(ref temp, out wasTempUsed);
                     span.CopyTo(buffer);
                 }
-                finally {
+                finally
+                {
                     if (wasTempUsed)
                         temp.Dispose();
                 }

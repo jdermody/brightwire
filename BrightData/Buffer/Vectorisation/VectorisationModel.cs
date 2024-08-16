@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BrightData;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
-namespace BrightData.DataTable.Helper
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// A collection of vectorisers (such as from the columns of a data table)
@@ -143,20 +144,21 @@ namespace BrightData.DataTable.Helper
         /// <returns></returns>
         public IAsyncEnumerable<float[,]> Vectorise(IDataTable table, params uint[] columnIndices) => Vectorise(table.GetColumns(table.AllOrSpecifiedColumnIndices(false, columnIndices)));
 
-        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers, MetaData[]? metaData) 
+        async IAsyncEnumerable<float[,]> DoVectorise<T>(T[] buffers, MetaData[]? metaData)
             where T : IReadOnlyBuffer
         {
             if (buffers.Length != Vectorisers.Length)
                 throw new ArgumentException($"Expected to receive {Vectorisers.Length} buffers (not {buffers.Length})", nameof(buffers));
             var first = buffers[0];
             if (buffers.Skip(1).Any(x => !x.BlockSizes.SequenceEqual(first.BlockSizes)))
-                throw new ArgumentException("Expected all buffers to have the same size and block size", nameof(buffers));
+                throw new ArgumentException("Expected all buffers to have the same size and block sizes", nameof(buffers));
 
             var len = Vectorisers.Length;
             var tasks = new Task[len];
 
             uint blockIndex = 0;
-            foreach(var blockSize in first.BlockSizes) {
+            foreach (var blockSize in first.BlockSizes)
+            {
                 var buffer = new float[blockSize, OutputSize];
                 uint offset = 0;
                 var index = 0;

@@ -6,7 +6,7 @@ namespace BrightData.Analysis.Readers
     /// <summary>
     /// Numeric analysis results
     /// </summary>
-    public class NumericAnalysis
+    public class NumericAnalysis : INumericAnalysis<double>
     {
         internal NumericAnalysis(MetaData metaData)
         {
@@ -79,6 +79,9 @@ namespace BrightData.Analysis.Readers
         /// </summary>
         public double? PopulationStdDev { get; }
 
+        /// <inheritdoc />
+        public ulong Count => Total;
+
         /// <summary>
         /// Median value
         /// </summary>
@@ -92,7 +95,7 @@ namespace BrightData.Analysis.Readers
         /// <summary>
         /// Number of distinct values
         /// </summary>
-        public uint? NumDistinct { get; }
+        public uint NumDistinct { get; }
 
         /// <summary>
         /// Total count of items

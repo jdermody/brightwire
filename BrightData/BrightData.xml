@@ -147,13 +147,6 @@
             Dictionary that holds category string indices
             </summary>
         </member>
-        <member name="M:BrightData.Analysis.Readers.DictionaryValues.GetValues(System.Collections.Generic.IEnumerable{System.Int32})">
-            <summary>
-            Converts from category indices to string
-            </summary>
-            <param name="categoryIndices"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.Analysis.Readers.DictionaryValues.GetValue(System.Int32)">
             <summary>
             Gets the string associated with a category index
@@ -290,6 +283,9 @@
             <summary>
             Population standard deviation
             </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Count">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Median">
             <summary>
@@ -583,7 +579,7 @@
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
-        <member name="M:BrightData.Buffer.Composite.ManagedCompositeBuffer`1.#ctor(BrightData.CreateFromReadOnlyByteSpan{`0},BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Buffer.Composite.ManagedCompositeBuffer`1.#ctor(BrightData.CreateFromReadOnlyByteSpan{`0},BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             A composite buffer for managed types
             </summary>
@@ -603,7 +599,7 @@
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
-        <member name="M:BrightData.Buffer.Composite.StringCompositeBuffer.#ctor(BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Buffer.Composite.StringCompositeBuffer.#ctor(BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             A composite buffer for strings
             </summary>
@@ -618,7 +614,7 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Buffer.Composite.UnmanagedCompositeBuffer`1.#ctor(BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Buffer.Composite.UnmanagedCompositeBuffer`1.#ctor(BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             A composite buffer for unmanaged types
             </summary>
@@ -774,106 +770,6 @@
             <param name="from"></param>
             <param name="to"></param>
             <param name="mutator"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.BooleanVectoriser">
-            <summary>
-            Vectorisation of booleans
-            </summary>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.BooleanVectoriser.#ctor">
-            <summary>
-            Vectorisation of booleans
-            </summary>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectoriser`1">
-            <summary>
-            Vectorisation to single index
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.CategoricalIndexVectoriser`1.#ctor">
-            <summary>
-            Vectorisation to single index
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.IndexListVectoriser">
-            <summary>
-            Vectorisation of index lists
-            </summary>
-            <param name="maxIndex"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.IndexListVectoriser.#ctor(System.UInt32)">
-            <summary>
-            Vectorisation of index lists
-            </summary>
-            <param name="maxIndex"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.NumericVectoriser`1">
-            <summary>
-            Numeric vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.NumericVectoriser`1.#ctor">
-            <summary>
-            Numeric vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.OneHotVectoriser`1">
-            <summary>
-            One hot encoding vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="maxSize"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.OneHotVectoriser`1.#ctor(System.UInt32)">
-            <summary>
-            One hot encoding vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="maxSize"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.TensorVectoriser`1">
-            <summary>
-            Tensor vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="outputSize"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.TensorVectoriser`1.#ctor(System.UInt32)">
-            <summary>
-            Tensor vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="outputSize"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.VectorisationBase`1">
-            <summary>
-            Base class for vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="outputSize"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.VectorisationBase`1.#ctor(System.UInt32)">
-            <summary>
-            Base class for vectorisation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="outputSize"></param>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Vectorisation.WeightedIndexListVectoriser">
-            <summary>
-            Weighted index vectorisation
-            </summary>
-            <param name="maxIndex"></param>
-        </member>
-        <member name="M:BrightData.Buffer.Operations.Vectorisation.WeightedIndexListVectoriser.#ctor(System.UInt32)">
-            <summary>
-            Weighted index vectorisation
-            </summary>
-            <param name="maxIndex"></param>
         </member>
         <member name="T:BrightData.Buffer.ReadOnly.BlockReaderReadOnlyBuffer`1">
             <summary>
@@ -1041,6 +937,36 @@
             <param name="buffer"></param>
             <param name="metaData"></param>
         </member>
+        <member name="P:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.BlockSizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.DataType">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.EnumerateAll">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.GetBlock(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.ForEachBlock(BrightData.BlockCallback{`0},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.GetTypedBlock(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.EnumerateAllTyped">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.GetAsyncEnumerator(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.ReadOnly.Helper.ReadOnlyBufferMetaDataWrapper`1.MetaData">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Buffer.ReadOnly.ReadOnlyCompositeBufferBase`1">
             <summary>
             Read only composite buffer base class
@@ -1089,6 +1015,183 @@
             <typeparam name="T"></typeparam>
             <param name="stream"></param>
         </member>
+        <member name="T:BrightData.Buffer.Vectorisation.BooleanVectoriser">
+            <summary>
+            Vectorisation of booleans
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.BooleanVectoriser.#ctor">
+            <summary>
+            Vectorisation of booleans
+            </summary>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.CategoricalIndexVectoriser`1">
+            <summary>
+            Vectorisation to single index
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.CategoricalIndexVectoriser`1.#ctor">
+            <summary>
+            Vectorisation to single index
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.IndexListVectoriser">
+            <summary>
+            Vectorisation of index lists
+            </summary>
+            <param name="maxIndex"></param>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.IndexListVectoriser.#ctor(System.UInt32)">
+            <summary>
+            Vectorisation of index lists
+            </summary>
+            <param name="maxIndex"></param>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.NumericVectoriser`1">
+            <summary>
+            Numeric vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.NumericVectoriser`1.#ctor">
+            <summary>
+            Numeric vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.OneHotVectoriser`1">
+            <summary>
+            One hot encoding vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="maxSize"></param>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.OneHotVectoriser`1.#ctor(System.UInt32)">
+            <summary>
+            One hot encoding vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="maxSize"></param>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.TensorVectoriser`1">
+            <summary>
+            Tensor vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="outputSize"></param>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.TensorVectoriser`1.#ctor(System.UInt32)">
+            <summary>
+            Tensor vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="outputSize"></param>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.VectorisationBase`1">
+            <summary>
+            Base class for vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="outputSize"></param>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationBase`1.#ctor(System.UInt32)">
+            <summary>
+            Base class for vectorisation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="outputSize"></param>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.VectorisationModel">
+            <summary>
+            A collection of vectorisers (such as from the columns of a data table)
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.#ctor(BrightData.ICanVectorise[])">
+            <summary>
+            Initialise the model from a collection of vectorisers
+            </summary>
+            <param name="vectorisers"></param>
+        </member>
+        <member name="P:BrightData.Buffer.Vectorisation.VectorisationModel.OutputSize">
+            <summary>
+            The combined output size of all vectorisers
+            </summary>
+        </member>
+        <member name="P:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorisers">
+            <summary>
+            The source vectorisers
+            </summary>
+        </member>
+        <member name="P:BrightData.Buffer.Vectorisation.VectorisationModel.SourceColumnIndices">
+            <summary>
+            The source column indices from the data table (if available)
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.Types.MetaData[])">
+            <summary>
+            Vectorise the buffers as an enumerable
+            </summary>
+            <param name="buffers">Buffers to vectoriser</param>
+            <param name="metaData">Metadata in which to store the vectorisation parameters</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.VectorisationModel.VectorCallback">
+            <summary>
+            Called for each vector
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.ForEachVector(BrightData.IReadOnlyBufferWithMetaData[],BrightData.Buffer.Vectorisation.VectorisationModel.VectorCallback)">
+            <summary>
+            Vectorise the buffers and pass each vector to a callback
+            </summary>
+            <param name="buffers"></param>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorise(BrightData.ICanRandomlyAccessData)">
+            <summary>
+            Single vectorisation
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorise(System.Object[])">
+            <summary>
+            Single vectorisation
+            </summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorise(BrightData.IReadOnlyBufferWithMetaData[])">
+            <summary>
+            Vectorise the buffers as an enumerable
+            </summary>
+            <param name="buffers"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.VectorisationModel.Vectorise(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Vectorise the data table
+            </summary>
+            <param name="table"></param>
+            <param name="columnIndices">List of column indices to vectorise (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Buffer.Vectorisation.WeightedIndexListVectoriser">
+            <summary>
+            Weighted index vectorisation
+            </summary>
+            <param name="maxIndex"></param>
+        </member>
+        <member name="M:BrightData.Buffer.Vectorisation.WeightedIndexListVectoriser.#ctor(System.UInt32)">
+            <summary>
+            Weighted index vectorisation
+            </summary>
+            <param name="maxIndex"></param>
+        </member>
         <member name="T:BrightData.Consts">
             <summary>
             Constants
@@ -1119,29 +1222,19 @@
             Minimum size to use SIMD processing
             </summary>
         </member>
-        <member name="F:BrightData.Consts.DefaultInMemoryBufferSize">
+        <member name="F:BrightData.Consts.DefaultInitialBlockSize">
             <summary>
-            Default in memory buffer size
+            Default initial size of a block buffer
             </summary>
         </member>
-        <member name="F:BrightData.Consts.DefaultTableRowCacheSize">
+        <member name="F:BrightData.Consts.DefaultMaxBlockSize">
             <summary>
-            Default number of table rows to cache in memory
-            </summary>
-        </member>
-        <member name="F:BrightData.Consts.DefaultBlockSize">
-            <summary>
-            Default size of a small buffer
+            Default max size of a block buffer
             </summary>
         </member>
         <member name="F:BrightData.Consts.DefaultMaxBlocksInMemory">
             <summary>
             Default maximum number of blocks to keep in memory
-            </summary>
-        </member>
-        <member name="F:BrightData.Consts.DefaultMaxDistinctCount">
-            <summary>
-            Default max number of distinct items
             </summary>
         </member>
         <member name="F:BrightData.Consts.MaxMetaDataWriteCount">
@@ -1279,7 +1372,7 @@
             Builds a data table dynamically
             </summary>
         </member>
-        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.#ctor(BrightData.BrightDataContext,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.#ctor(BrightData.BrightDataContext,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32})">
             <summary>
             Builds a data table dynamically
             </summary>
@@ -1289,7 +1382,7 @@
             Writes buffers to a data table
             </summary>
         </member>
-        <member name="M:BrightData.DataTable.ColumnOrientedDataTableWriter.#ctor(BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableWriter.#ctor(BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32})">
             <summary>
             Writes buffers to a data table
             </summary>
@@ -1594,82 +1687,31 @@
             <typeparam name="T"></typeparam>
             <param name="predicate"></param>
         </member>
-        <member name="T:BrightData.DataTable.Helper.VectorisationModel">
+        <member name="T:BrightData.DataTable.Helper.TableDataDimension">
             <summary>
-            A collection of vectorisers (such as from the columns of a data table)
+            A data dimension from a table
             </summary>
+            <param name="dataType"></param>
+            <param name="buffer"></param>
         </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.#ctor(BrightData.ICanVectorise[])">
+        <member name="M:BrightData.DataTable.Helper.TableDataDimension.#ctor(BrightData.BrightDataType,BrightData.IReadOnlyBuffer)">
             <summary>
-            Initialise the model from a collection of vectorisers
+            A data dimension from a table
             </summary>
-            <param name="vectorisers"></param>
+            <param name="dataType"></param>
+            <param name="buffer"></param>
         </member>
-        <member name="P:BrightData.DataTable.Helper.VectorisationModel.OutputSize">
-            <summary>
-            The combined output size of all vectorisers
-            </summary>
+        <member name="P:BrightData.DataTable.Helper.TableDataDimension.DataType">
+            <inheritdoc />
         </member>
-        <member name="P:BrightData.DataTable.Helper.VectorisationModel.Vectorisers">
-            <summary>
-            The source vectorisers
-            </summary>
+        <member name="M:BrightData.DataTable.Helper.TableDataDimension.GetBuffer``1">
+            <inheritdoc />
         </member>
-        <member name="P:BrightData.DataTable.Helper.VectorisationModel.SourceColumnIndices">
-            <summary>
-            The source column indices from the data table (if available)
-            </summary>
+        <member name="P:BrightData.DataTable.Helper.TableDataDimension.Specification">
+            <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.Types.MetaData[])">
-            <summary>
-            Vectorise the buffers as an enumerable
-            </summary>
-            <param name="buffers">Buffers to vectoriser</param>
-            <param name="metaData">Metadata in which to store the vectorisation parameters</param>
-            <returns></returns>
-            <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="T:BrightData.DataTable.Helper.VectorisationModel.VectorCallback">
-            <summary>
-            Called for each vector
-            </summary>
-        </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.ForEachVector(BrightData.IReadOnlyBufferWithMetaData[],BrightData.DataTable.Helper.VectorisationModel.VectorCallback)">
-            <summary>
-            Vectorise the buffers and pass each vector to a callback
-            </summary>
-            <param name="buffers"></param>
-            <param name="callback"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.ICanRandomlyAccessData)">
-            <summary>
-            Single vectorisation
-            </summary>
-            <param name="data"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(System.Object[])">
-            <summary>
-            Single vectorisation
-            </summary>
-            <param name="values"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IReadOnlyBufferWithMetaData[])">
-            <summary>
-            Vectorise the buffers as an enumerable
-            </summary>
-            <param name="buffers"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.DataTable.Helper.VectorisationModel.Vectorise(BrightData.IDataTable,System.UInt32[])">
-            <summary>
-            Vectorise the data table
-            </summary>
-            <param name="table"></param>
-            <param name="columnIndices">List of column indices to vectorise (optional)</param>
-            <returns></returns>
+        <member name="P:BrightData.DataTable.Helper.TableDataDimension.Size">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.DataTable.Rows.GenericTableRow">
             <summary>
@@ -2249,22 +2291,40 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateBuffer``1(System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.CreateInMemoryBuffer``1(System.UInt32,System.UInt32)">
             <summary>
             Creates an appendable in memory buffer
             </summary>
-            <param name="blockSize"></param>
+            <param name="blockSize">Initial size of each block</param>
+            <param name="maxBlockSize">Max block size</param>
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetValues(BrightData.IReadOnlyBuffer)">
+        <member name="M:BrightData.ExtensionMethods.Map``2(BrightData.IReadOnlyBuffer{``0},System.Func{``0,``1})">
+            <summary>
+            Creates a new buffer in which each value is converted via a mapping function
+            </summary>
+            <typeparam name="FT"></typeparam>
+            <typeparam name="TT"></typeparam>
+            <param name="buffer"></param>
+            <param name="converter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Enumerate(BrightData.IReadOnlyBuffer)">
             <summary>
             Enumerates values in the buffer (blocking)
             </summary>
             <param name="buffer"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetValues``1(BrightData.IReadOnlyBuffer)">
+        <member name="M:BrightData.ExtensionMethods.Enumerate``1(BrightData.IReadOnlyBuffer{``0})">
+            <summary>
+            Enumerates values in the buffer (blocking)
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsyncEnumerate``1(BrightData.IReadOnlyBuffer)">
             <summary>
             Async enumeration of values in the buffer
             </summary>
@@ -2273,21 +2333,21 @@
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToReadOnlyStringBuffer(BrightData.IReadOnlyBuffer)">
+        <member name="M:BrightData.ExtensionMethods.AsyncEnumerate``1(BrightData.IReadOnlyBuffer{``0})">
             <summary>
-            Casts or converts the buffer to a string buffer
+            Async enumeration of values in the buffer
             </summary>
+            <typeparam name="T"></typeparam>
             <param name="buffer"></param>
             <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Convert``2(BrightData.IReadOnlyBuffer{``0},System.Func{``0,``1})">
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.IReadOnlyBuffer)">
             <summary>
-            Creates a new buffer in which each value is converted via the conversion function
+            Creates an array from the buffer
             </summary>
-            <typeparam name="FT"></typeparam>
-            <typeparam name="TT"></typeparam>
+            <typeparam name="T"></typeparam>
             <param name="buffer"></param>
-            <param name="converter"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetGroups(BrightData.IReadOnlyBuffer[])">
@@ -2339,17 +2399,18 @@
             <param name="buffer"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a composite buffer for strings
             </summary>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer``1(BrightData.IProvideDataBlocks,BrightData.CreateFromReadOnlyByteSpan{``0},System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer``1(BrightData.IProvideByteBlocks,BrightData.CreateFromReadOnlyByteSpan{``0},System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a composite buffer for types that can be created from a block of byte data
             </summary>
@@ -2357,28 +2418,31 @@
             <param name="tempStreams"></param>
             <param name="createItem"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer``1(BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer``1(BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a composite buffer for unmanaged types
             </summary>
             <typeparam name="T"></typeparam>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(BrightData.BrightDataType,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(BrightData.BrightDataType,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a composite buffer
             </summary>
             <param name="dataType"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
@@ -2393,7 +2457,7 @@
             <param name="bufferSize"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CanEncode``1(BrightData.IHaveDistinctItemCount)">
+        <member name="M:BrightData.ExtensionMethods.CanEncode(BrightData.IHaveDistinctItemCount)">
             <summary>
             Returns true of the buffer can be encoded (distinct items mapped to indices)
             </summary>
@@ -2401,7 +2465,7 @@
             <param name="buffer"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Encode``1(BrightData.ICompositeBuffer{``0},BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Encode``1(BrightData.ICompositeBuffer{``0},BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32})">
             <summary>
             Encoding a composite buffer maps each item to an index and returns both the mapping table and a new composite buffer of the indices
             </summary>
@@ -2409,17 +2473,19 @@
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(System.Type,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.CreateCompositeBuffer(System.Type,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a composite buffer for the type
             </summary>
             <param name="type"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
@@ -2459,148 +2525,103 @@
             <param name="force"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToNumeric(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToNumeric(BrightData.IReadOnlyBuffer)">
             <summary>
             Creates a numeric composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToBoolean(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Creates a boolean composite buffer from an existing buffer
-            </summary>
-            <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToString(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Creates a string composite buffer from an existing buffer
-            </summary>
-            <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToDateTime(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Creates a date time composite buffer from an existing buffer
-            </summary>
-            <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToDate(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToDate(BrightData.IReadOnlyBuffer)">
             <summary>
             Creates a date composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToTime(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToTime(BrightData.IReadOnlyBuffer)">
             <summary>
             Creates a time composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToCategoricalIndex(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToCategoricalIndex(BrightData.IReadOnlyBuffer,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a categorical index composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToIndexList(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToIndexList(BrightData.IReadOnlyBuffer,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates an index list composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToVector(BrightData.IReadOnlyBuffer,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a vector composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ToWeightedIndexList(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.ToWeightedIndexList(BrightData.IReadOnlyBuffer,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a weighted index list composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.To``1(BrightData.IReadOnlyBuffer,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Creates a typed composite buffer from an existing buffer
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Vectorise the buffers
             </summary>
             <param name="buffers"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.IReadOnlyBuffer)">
-            <summary>
-            Creates an array from the buffer
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="buffer"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetReadOnlyStringCompositeBuffer(System.IO.Stream)">
@@ -2669,9 +2690,55 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.ToObjectBuffer(BrightData.IReadOnlyBuffer)">
             <summary>
-            Converts the typed buffer to a buffer of objects
+            Converts the buffer to a buffer of objects
             </summary>
             <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToStringBuffer(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Converts the buffer to a buffer of strings
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertWith(BrightData.IReadOnlyBuffer,BrightData.ICanConvert)">
+            <summary>
+            Converts the buffer to another type via a converter
+            </summary>
+            <param name="buffer">Buffer to convert</param>
+            <param name="converter">Converter</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ForEachWithProgressNotification``1(BrightData.IReadOnlyBuffer{``0},BrightData.INotifyOperationProgress,BrightData.BlockCallback{``0},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Notifies about progress on buffer for each
+            </summary>
+            <param name="buffer">Underlying buffer</param>
+            <param name="notify">Progress notification</param>
+            <param name="msg">Msg associated with operation (optional)</param>
+            <param name="callback"></param>
+            <param name="ct"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IReadOnlyBuffer,BrightData.Types.MetaData,System.Boolean)">
+            <summary>
+            Creates a vectoriser for the buffer
+            </summary>
+            <param name="buffer"></param>
+            <param name="metaData"></param>
+            <param name="oneHotEncodeCategoricalData"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <exception cref="T:System.Exception"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IReadOnlyBufferWithMetaData[],System.Boolean)">
+            <summary>
+            Creates a vectoriser from multiple buffers
+            </summary>
+            <param name="buffers"></param>
+            <param name="oneHotEncodeCategoricalData"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToType(System.TypeCode)">
@@ -3568,9 +3635,9 @@
             <param name="filePath">File path to store new table on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.IReadOnlyBufferWithMetaData,BrightData.ColumnConversion,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.ExtensionMethods.Convert(BrightData.IReadOnlyBufferWithMetaData,BrightData.ColumnConversion,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
-            Converts the buffer with a column conversion
+            Converts the buffer with a column conversion to a new buffer
             </summary>
             <param name="buffer"></param>
             <param name="conversion"></param>
@@ -3776,18 +3843,6 @@
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IReadOnlyBuffer,BrightData.Types.MetaData,System.Boolean)">
-            <summary>
-            Creates a vectoriser for the buffer
-            </summary>
-            <param name="buffer"></param>
-            <param name="metaData"></param>
-            <param name="oneHotEncodeCategoricalData"></param>
-            <returns></returns>
-            <exception cref="T:System.NotImplementedException"></exception>
-            <exception cref="T:System.Exception"></exception>
-            <exception cref="T:System.NotSupportedException"></exception>
-        </member>
         <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IDataTable,System.Boolean,System.UInt32[])">
             <summary>
             Creates a vectoriser for the specified columns in a data table
@@ -3795,14 +3850,6 @@
             <param name="dataTable"></param>
             <param name="oneHotEncodeCategoricalData"></param>
             <param name="columnIndices"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IReadOnlyBufferWithMetaData[],System.Boolean)">
-            <summary>
-            Creates a vectoriser from multiple buffers
-            </summary>
-            <param name="buffers"></param>
-            <param name="oneHotEncodeCategoricalData"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.Types.MetaData[])">
@@ -5862,7 +5909,7 @@
             Simple CSV parser
             </summary>
         </member>
-        <member name="M:BrightData.Helper.CsvParser.#ctor(System.Boolean,System.Char,System.Char,BrightData.IProvideDataBlocks,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+        <member name="M:BrightData.Helper.CsvParser.#ctor(System.Boolean,System.Char,System.Char,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Constructor
             </summary>
@@ -6001,6 +6048,11 @@
             Get enumerator
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.Helper.GenericTypeMapping">
+            <summary>
+            Contains auto generated type mapping functions
+            </summary>
         </member>
         <member name="T:BrightData.Helper.Math`1">
             <summary>
@@ -6563,6 +6615,16 @@
             Bright data context
             </summary>
         </member>
+        <member name="T:BrightData.IHaveSize">
+            <summary>
+            Indicates that the type has a size
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveSize.Size">
+            <summary>
+            Number of items
+            </summary>
+        </member>
         <member name="T:BrightData.IHaveIndices">
             <summary>
             Indicates that the type has a list of indices
@@ -6683,95 +6745,6 @@
             Add a new block
             </summary>
             <param name="block"></param>
-        </member>
-        <member name="T:BrightData.IDataAnalyser`1">
-            <summary>
-            Typed data analyser
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IDataAnalyser`1.Add(`0)">
-            <summary>
-            Adds a typed object
-            </summary>
-            <param name="obj"></param>
-        </member>
-        <member name="T:BrightData.IStandardDeviationAnalysis`1">
-            <summary>
-            Standard deviation analysis
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.Mean">
-            <summary>
-            Numerical mean
-            </summary>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleVariance">
-            <summary>
-            Sample variance
-            </summary>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationVariance">
-            <summary>
-            Population variance
-            </summary>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleStdDev">
-            <summary>
-            Sample standard deviation
-            </summary>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationStdDev">
-            <summary>
-            Population standard deviation
-            </summary>
-        </member>
-        <member name="P:BrightData.IStandardDeviationAnalysis`1.Count">
-            <summary>
-            Count of items that were analysed
-            </summary>
-        </member>
-        <member name="T:BrightData.INumericAnalysis`1">
-            <summary>
-            Numerical analysis
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.L1Norm">
-            <summary>
-            L1 norm
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.L2Norm">
-            <summary>
-            L2 norm
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.Min">
-            <summary>
-            Minimum number
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.Max">
-            <summary>
-            Maximum number
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.NumDistinct">
-            <summary>
-            Number of unique numbers
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.Median">
-            <summary>
-            Median
-            </summary>
-        </member>
-        <member name="P:BrightData.INumericAnalysis`1.Mode">
-            <summary>
-            Mode
-            </summary>
         </member>
         <member name="T:BrightData.NormalizationType">
             <summary>
@@ -6904,16 +6877,6 @@
             Continuous data distribution
             </summary>
         </member>
-        <member name="T:BrightData.IHaveSize">
-            <summary>
-            Indicates that the type has a size
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveSize.Size">
-            <summary>
-            Number of items
-            </summary>
-        </member>
         <member name="T:BrightData.IIndexStrings">
             <summary>
             Indicates that the type can convert string to string indices
@@ -6940,75 +6903,6 @@
             <summary>
             String indexer
             </summary>
-        </member>
-        <member name="T:BrightData.DataSpecificationType">
-            <summary>
-            Type of data specification
-            </summary>
-        </member>
-        <member name="F:BrightData.DataSpecificationType.Field">
-            <summary>
-            Represents a field of data
-            </summary>
-        </member>
-        <member name="F:BrightData.DataSpecificationType.Composite">
-            <summary>
-            Represents an item that holds a set of other items
-            </summary>
-        </member>
-        <member name="F:BrightData.DataSpecificationType.FieldSet">
-            <summary>
-            Represents a field that takes a value from one of a set of possibilities
-            </summary>
-        </member>
-        <member name="T:BrightData.IDataTypeSpecification">
-            <summary>
-            Data type specifications can validate a data source
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTypeSpecification.Name">
-            <summary>
-            Name of this item
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTypeSpecification.Children">
-            <summary>
-            Children of this item (optional)
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTypeSpecification.UnderlyingType">
-            <summary>
-            Underlying .net type for this item
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTypeSpecification.SpecificationType">
-            <summary>
-            Item type
-            </summary>
-        </member>
-        <member name="P:BrightData.IDataTypeSpecification.CanRepeat">
-            <summary>
-            True if the item can repeat
-            </summary>
-        </member>
-        <member name="T:BrightData.IDataTypeSpecification`1">
-            <summary>
-            Typed data specification
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IDataTypeSpecification`1.IsValid(`0)">
-            <summary>
-            Checks if the typed instance is valid against the specification
-            </summary>
-            <param name="instance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IDataTypeSpecification`1.AddPredicate(System.Predicate{`0})">
-            <summary>
-            Adds a predicate that must match to be considered valid
-            </summary>
-            <param name="predicate"></param>
         </member>
         <member name="T:BrightData.INotifyOperationProgress">
             <summary>
@@ -7215,134 +7109,195 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
-        <member name="T:BrightData.IGraphNode">
+        <member name="T:BrightData.IDataAnalyser`1">
             <summary>
-            A graph node
-            </summary>
-        </member>
-        <member name="P:BrightData.IGraphNode.NeighbourSpan">
-            <summary>
-            Span of neighbour indices
-            </summary>
-        </member>
-        <member name="P:BrightData.IGraphNode.Neighbours">
-            <summary>
-            Enumerable of neighbour indices
-            </summary>
-        </member>
-        <member name="T:BrightData.IWeightedGraphNode`2">
-            <summary>
-            A graph node with weighted neighbours
-            </summary>
-            <typeparam name="T">Type of value to store</typeparam>
-            <typeparam name="W">Type of weight</typeparam>
-        </member>
-        <member name="P:BrightData.IWeightedGraphNode`2.Value">
-            <summary>
-            Graph node value
-            </summary>
-        </member>
-        <member name="M:BrightData.IWeightedGraphNode`2.TryAddNeighbour(System.UInt32,`1)">
-            <summary>
-            Tries to add a neighbour to this node
-            </summary>
-            <param name="index"></param>
-            <param name="weight"></param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.IWeightedGraphNode`2.WeightedNeighbours">
-            <summary>
-            Enumerates the neighbour indices and their weights
-            </summary>
-        </member>
-        <member name="T:BrightData.ICalculateNodeWeights`1">
-            <summary>
-            Calculates the weights between two indexed graph nodes
-            </summary>
-            <typeparam name="W"></typeparam>
-        </member>
-        <member name="M:BrightData.ICalculateNodeWeights`1.GetWeight(System.UInt32,System.UInt32)">
-            <summary>
-            Returns the weight between any two graph nodes
-            </summary>
-            <param name="fromIndex">First node</param>
-            <param name="toIndex">Second index</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.IWeightedGraph`2">
-            <summary>
-            A graph with weighted connections
+            Typed data analyser
             </summary>
             <typeparam name="T"></typeparam>
-            <typeparam name="W"></typeparam>
         </member>
-        <member name="M:BrightData.IWeightedGraph`2.Find(System.UInt32)">
+        <member name="M:BrightData.IDataAnalyser`1.Add(`0)">
             <summary>
-            Finds the value of a node based on index
+            Adds a typed object
             </summary>
-            <param name="nodeIndex"></param>
-            <returns></returns>
+            <param name="obj"></param>
         </member>
-        <member name="P:BrightData.IWeightedGraph`2.Item(System.UInt32)">
+        <member name="T:BrightData.IStandardDeviationAnalysis`1">
             <summary>
-            Finds the value based on node position within the graph
-            </summary>
-            <param name="nodePosition"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IWeightedGraph`2.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
-            <summary>
-            Performs a probabilistic search between two nodes
-            </summary>
-            <typeparam name="RAT">Return array type</typeparam>
-            <typeparam name="CAT">Candidate array type</typeparam>
-            <param name="q">Node index to query</param>
-            <param name="entryPoint">Node index from which to start the search</param>
-            <param name="distanceCalculator">Weigh calculator</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IWeightedGraph`2.GetNeighbours(System.UInt32)">
-            <summary>
-            Returns the neighbour indices of a node based on index
-            </summary>
-            <param name="nodeIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IWeightedGraph`2.EnumerateNeighbours(System.UInt32)">
-            <summary>
-            Enumerates the neighbours and their weights of a node based on index
-            </summary>
-            <param name="nodeIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IWeightedGraph`2.AddNeighbour(System.UInt32,System.UInt32,`1)">
-            <summary>
-            Adds a new neighbour to a node
-            </summary>
-            <param name="toNodeIndex">Node index to add to</param>
-            <param name="neighbourIndex">Index of the neighbour node</param>
-            <param name="weight">Weight of the connection</param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.IWeightedDynamicGraph`2">
-            <summary>
-            A graph with weighted connections that can be dynamically extended
+            Standard deviation analysis
             </summary>
             <typeparam name="T"></typeparam>
-            <typeparam name="W"></typeparam>
         </member>
-        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0)">
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.Mean">
             <summary>
-            Adds a new node
+            Numerical mean
             </summary>
-            <param name="value"></param>
         </member>
-        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleVariance">
             <summary>
-            Adds a new node and its neighbours
+            Sample variance
             </summary>
-            <param name="value"></param>
-            <param name="neighbours"></param>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationVariance">
+            <summary>
+            Population variance
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.SampleStdDev">
+            <summary>
+            Sample standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.PopulationStdDev">
+            <summary>
+            Population standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.IStandardDeviationAnalysis`1.Count">
+            <summary>
+            Count of items that were analysed
+            </summary>
+        </member>
+        <member name="T:BrightData.INumericAnalysis`1">
+            <summary>
+            Numerical analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.L1Norm">
+            <summary>
+            L1 norm
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.L2Norm">
+            <summary>
+            L2 norm
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Min">
+            <summary>
+            Minimum number
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Max">
+            <summary>
+            Maximum number
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.NumDistinct">
+            <summary>
+            Number of unique numbers
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Median">
+            <summary>
+            Median
+            </summary>
+        </member>
+        <member name="P:BrightData.INumericAnalysis`1.Mode">
+            <summary>
+            Mode
+            </summary>
+        </member>
+        <member name="T:BrightData.IDataDimension">
+            <summary>
+            A single dimension of data
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataDimension.DataType">
+            <summary>
+            The type of data within the dimension
+            </summary>
+        </member>
+        <member name="M:BrightData.IDataDimension.GetBuffer``1">
+            <summary>
+            A buffer to access the dimension
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IDataDimension.Specification">
+            <summary>
+            Optional data type specification
+            </summary>
+        </member>
+        <member name="T:BrightData.IHaveDataDimensions">
+            <summary>
+            Indicates that the type has a collection of data dimensions
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveDataDimensions.Dimensions">
+            <summary>
+            Data dimensions within the type
+            </summary>
+        </member>
+        <member name="T:BrightData.DataSpecificationType">
+            <summary>
+            Type of data specification
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.Field">
+            <summary>
+            Represents a field of data
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.Composite">
+            <summary>
+            Represents an item that holds a set of other items
+            </summary>
+        </member>
+        <member name="F:BrightData.DataSpecificationType.FieldSet">
+            <summary>
+            Represents a field that takes a value from one of a set of possibilities
+            </summary>
+        </member>
+        <member name="T:BrightData.IDataTypeSpecification">
+            <summary>
+            Data type specifications can validate a data source
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.Name">
+            <summary>
+            Name of this item
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.Children">
+            <summary>
+            Children of this item (optional)
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.UnderlyingType">
+            <summary>
+            Underlying .net type for this item
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.SpecificationType">
+            <summary>
+            Item type
+            </summary>
+        </member>
+        <member name="P:BrightData.IDataTypeSpecification.CanRepeat">
+            <summary>
+            True if the item can repeat
+            </summary>
+        </member>
+        <member name="T:BrightData.IDataTypeSpecification`1">
+            <summary>
+            Typed data specification
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IDataTypeSpecification`1.IsValid(`0)">
+            <summary>
+            Checks if the typed instance is valid against the specification
+            </summary>
+            <param name="instance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTypeSpecification`1.AddPredicate(System.Predicate{`0})">
+            <summary>
+            Adds a predicate that must match to be considered valid
+            </summary>
+            <param name="predicate"></param>
         </member>
         <member name="T:BrightData.IHaveSingleIndex">
             <summary>
@@ -7753,16 +7708,6 @@
             <param name="ct"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IHaveGenericColumns">
-            <summary>
-            Indicates that the type contains an array of generic columns
-            </summary>
-        </member>
-        <member name="P:BrightData.IHaveGenericColumns.GenericColumns">
-            <summary>
-            Generic column array
-            </summary>
-        </member>
         <member name="T:BrightData.IByteBlockSource">
             <summary>
             Generic block byte data source
@@ -7804,21 +7749,21 @@
             <param name="offset"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IProvideDataBlocks">
+        <member name="T:BrightData.IProvideByteBlocks">
             <summary>
-            Provides data blocks
+            Provides byte blocks
             </summary>
         </member>
-        <member name="M:BrightData.IProvideDataBlocks.Get(System.Guid)">
+        <member name="M:BrightData.IProvideByteBlocks.Get(System.Guid)">
             <summary>
-            Returns a data block associated with the id
+            Returns a new or existing byte block associated with the id
             </summary>
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IProvideDataBlocks.Clear">
+        <member name="M:BrightData.IProvideByteBlocks.Clear">
             <summary>
-            Clears all data blocks
+            Clears all byte blocks
             </summary>
         </member>
         <member name="T:BrightData.BlockCallback`1">
@@ -7870,13 +7815,11 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.IReadOnlyBuffer`1.ForEachBlock(BrightData.BlockCallback{`0},BrightData.INotifyOperationProgress,System.String,System.Threading.CancellationToken)">
+        <member name="M:BrightData.IReadOnlyBuffer`1.ForEachBlock(BrightData.BlockCallback{`0},System.Threading.CancellationToken)">
             <summary>
             Executes a callback on each block within the buffer
             </summary>
             <param name="callback"></param>
-            <param name="notify"></param>
-            <param name="message"></param>
             <param name="ct"></param>
             <returns></returns>
         </member>
@@ -8279,6 +8222,135 @@
             <param name="columns">Number of columns</param>
             <param name="name">New column name</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.IGraphNode">
+            <summary>
+            A graph node
+            </summary>
+        </member>
+        <member name="P:BrightData.IGraphNode.NeighbourSpan">
+            <summary>
+            Span of neighbour indices
+            </summary>
+        </member>
+        <member name="P:BrightData.IGraphNode.Neighbours">
+            <summary>
+            Enumerable of neighbour indices
+            </summary>
+        </member>
+        <member name="T:BrightData.IWeightedGraphNode`2">
+            <summary>
+            A graph node with weighted neighbours
+            </summary>
+            <typeparam name="T">Type of value to store</typeparam>
+            <typeparam name="W">Type of weight</typeparam>
+        </member>
+        <member name="P:BrightData.IWeightedGraphNode`2.Value">
+            <summary>
+            Graph node value
+            </summary>
+        </member>
+        <member name="M:BrightData.IWeightedGraphNode`2.TryAddNeighbour(System.UInt32,`1)">
+            <summary>
+            Tries to add a neighbour to this node
+            </summary>
+            <param name="index"></param>
+            <param name="weight"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IWeightedGraphNode`2.WeightedNeighbours">
+            <summary>
+            Enumerates the neighbour indices and their weights
+            </summary>
+        </member>
+        <member name="T:BrightData.ICalculateNodeWeights`1">
+            <summary>
+            Calculates the weights between two indexed graph nodes
+            </summary>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.ICalculateNodeWeights`1.GetWeight(System.UInt32,System.UInt32)">
+            <summary>
+            Returns the weight between any two graph nodes
+            </summary>
+            <param name="fromIndex">First node</param>
+            <param name="toIndex">Second index</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IWeightedGraph`2">
+            <summary>
+            A graph with weighted connections
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.Find(System.UInt32)">
+            <summary>
+            Finds the value of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.IWeightedGraph`2.Item(System.UInt32)">
+            <summary>
+            Finds the value based on node position within the graph
+            </summary>
+            <param name="nodePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <summary>
+            Performs a probabilistic search between two nodes
+            </summary>
+            <typeparam name="RAT">Return array type</typeparam>
+            <typeparam name="CAT">Candidate array type</typeparam>
+            <param name="q">Node index to query</param>
+            <param name="entryPoint">Node index from which to start the search</param>
+            <param name="distanceCalculator">Weigh calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.GetNeighbours(System.UInt32)">
+            <summary>
+            Returns the neighbour indices of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.EnumerateNeighbours(System.UInt32)">
+            <summary>
+            Enumerates the neighbours and their weights of a node based on index
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IWeightedGraph`2.AddNeighbour(System.UInt32,System.UInt32,`1)">
+            <summary>
+            Adds a new neighbour to a node
+            </summary>
+            <param name="toNodeIndex">Node index to add to</param>
+            <param name="neighbourIndex">Index of the neighbour node</param>
+            <param name="weight">Weight of the connection</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IWeightedDynamicGraph`2">
+            <summary>
+            A graph with weighted connections that can be dynamically extended
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="W"></typeparam>
+        </member>
+        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0)">
+            <summary>
+            Adds a new node
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:BrightData.IWeightedDynamicGraph`2.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
+            <summary>
+            Adds a new node and its neighbours
+            </summary>
+            <param name="value"></param>
+            <param name="neighbours"></param>
         </member>
         <member name="T:BrightData.IHaveLinearAlgebraProvider`1">
             <summary>
@@ -18432,6 +18504,70 @@
             <summary>
             Fixed size array helper methods
             </summary>
+        </member>
+        <member name="T:BrightData.Types.IndexedSortedArray`1">
+            <summary>
+            Sorted array of items that have a single index
+            The index of each item is the sort key
+            </summary>
+            <param name="capacity"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.IndexedSortedArray`1.#ctor(System.Nullable{System.Int32})">
+            <summary>
+            Sorted array of items that have a single index
+            The index of each item is the sort key
+            </summary>
+            <param name="capacity"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.Types.IndexedSortedArray`1.Values">
+            <summary>
+            Span of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.IndexedSortedArray`1.Indices">
+            <summary>
+            Enumerable of indices
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.IndexedSortedArray`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.IndexedSortedArray`1.Item(System.Int32)">
+            <summary>
+            Returns an item at the specified position
+            </summary>
+            <param name="position"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Types.IndexedSortedArray`1.Item(System.UInt32)">
+            <summary>
+            Returns an item at the specified position
+            </summary>
+            <param name="position"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexedSortedArray`1.Add(`0)">
+            <summary>
+            Adds a new value
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:BrightData.Types.IndexedSortedArray`1.Find(System.UInt32)">
+            <summary>
+            Finds an item based on index
+            </summary>
+            <param name="itemIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexedSortedArray`1.TryFind(System.UInt32,System.Nullable{`0}@)">
+            <summary>
+            Tries to find an item based on index
+            </summary>
+            <param name="itemIndex"></param>
+            <param name="value"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Types.IndexList">
             <summary>

@@ -7,7 +7,7 @@ namespace BrightData.Types.Graph
     /// <summary>
     /// A graph node with a (fixed size) maximum number of neighbours
     /// </summary>
-    public record struct FixedSizeWeightedGraphNode<T, W, AT>(T Value) : IWeightedGraphNode<T, W>, IComparable<FixedSizeWeightedGraphNode<T, W, AT>>, IHaveSingleIndex
+    public record struct FixedSizeWeightedGraphNode<T, W, AT>(T Value) : IWeightedGraphNode<T, W>, IComparable<FixedSizeWeightedGraphNode<T, W, AT>>
         where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>

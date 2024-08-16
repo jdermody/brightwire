@@ -23,13 +23,6 @@ namespace BrightData.Analysis.Readers
         }
 
         /// <summary>
-        /// Converts from category indices to string
-        /// </summary>
-        /// <param name="categoryIndices"></param>
-        /// <returns></returns>
-        public IEnumerable<string> GetValues(IEnumerable<int> categoryIndices) => categoryIndices.Select(i => _table[i]);
-
-        /// <summary>
         /// Gets the string associated with a category index
         /// </summary>
         /// <param name="categoryIndex"></param>

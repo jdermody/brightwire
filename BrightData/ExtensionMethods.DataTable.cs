@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -11,19 +10,17 @@ using System.Threading.Tasks;
 using BrightData.Analysis;
 using BrightData.Buffer.ByteBlockReaders;
 using BrightData.Buffer.Operations;
-using BrightData.Buffer.Operations.Vectorisation;
 using BrightData.Buffer.ReadOnly.Helper;
+using BrightData.Buffer.Vectorisation;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Columns;
-using BrightData.DataTable.Helper;
 using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
-using static BrightData.ExtensionMethods;
 
 namespace BrightData
 {
@@ -56,6 +53,8 @@ namespace BrightData
                 BrightDataType.Tensor3D          => typeof(ReadOnlyTensor3D<float>),
                 BrightDataType.Tensor4D          => typeof(ReadOnlyTensor4D<float>),
                 BrightDataType.BinaryData        => typeof(BinaryData),
+                BrightDataType.TimeOnly          => typeof(TimeOnly),
+                BrightDataType.DateOnly          => typeof(DateOnly),
                 _                                => throw new NotImplementedException()
             } ?? throw new NotImplementedException();
         }
@@ -969,7 +968,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts the buffer with a column conversion
+        /// Converts the buffer with a column conversion to a new buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="conversion"></param>
@@ -991,25 +990,48 @@ namespace BrightData
         {
             return conversion switch {
                 ColumnConversion.Unchanged           => buffer,
-                ColumnConversion.ToBoolean           => await buffer.ToBoolean(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToByte              => await buffer.To<byte>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToCategoricalIndex  => await buffer.ToCategoricalIndex(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToDateTime          => await buffer.ToDateTime(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToDate              => await buffer.ToDate(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToTime              => await buffer.ToTime(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToDecimal           => await buffer.To<decimal>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToDouble            => await buffer.To<double>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToFloat             => await buffer.To<float>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToIndexList         => await buffer.ToIndexList(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToInt               => await buffer.To<int>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToLong              => await buffer.To<long>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToNumeric           => await buffer.ToNumeric(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToString            => await buffer.ToString(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToWeightedIndexList => await buffer.ToWeightedIndexList(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
                 ColumnConversion.ToVector            => await buffer.ToVector(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
-                ColumnConversion.ToShort             => await buffer.To<short>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems),
+                ColumnConversion.ToBoolean           => await Copy<bool>(buffer.ToBoolean()),
+                ColumnConversion.ToByte              => await Copy<byte>(buffer.To<byte>()),
+                ColumnConversion.ToDateTime          => await Copy<DateTime>(buffer.ToDateTime()),
+                ColumnConversion.ToDate              => await Copy<DateOnly>(buffer.ToDate()),
+                ColumnConversion.ToTime              => await Copy<TimeOnly>(buffer.ToTime()),
+                ColumnConversion.ToDecimal           => await Copy<decimal>(buffer.To<decimal>()),
+                ColumnConversion.ToDouble            => await Copy<double>(buffer.To<double>()),
+                ColumnConversion.ToFloat             => await Copy<float>(buffer.To<float>()),
+                ColumnConversion.ToInt               => await Copy<int>(buffer.To<int>()),
+                ColumnConversion.ToLong              => await Copy<long>(buffer.To<long>()),
+                ColumnConversion.ToShort             => await Copy<short>(buffer.To<short>()),
+                ColumnConversion.ToNumeric           => await CopyNumeric(await buffer.ToNumeric()),
+                ColumnConversion.ToString            => await CopyStrings(buffer.ToStringBuffer()),
                 _                                    => throw new ArgumentOutOfRangeException(nameof(conversion), conversion, null)
             };
+
+            async Task<IReadOnlyBufferWithMetaData<TT>> Copy<TT>(IReadOnlyBuffer from)
+                where TT: unmanaged
+            {
+                var output = CreateCompositeBuffer<TT>(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+                var operation = GenericTypeMapping.BufferCopyOperation(from, output);
+                await operation.Execute();
+                return output;
+            }
+            async Task<IReadOnlyBufferWithMetaData> CopyNumeric(IReadOnlyBuffer from)
+            {
+                var output = GenericTypeMapping.CreateNumericCompositeBuffer(from.DataType, tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+                var operation = GenericTypeMapping.BufferCopyOperation(from, output);
+                await operation.Execute();
+                return output;
+            }
+            async Task<IReadOnlyBufferWithMetaData<string>> CopyStrings(IReadOnlyBuffer<string> from)
+            {
+                var output = CreateCompositeBuffer(tempStreams, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems);
+                var operation = GenericTypeMapping.BufferCopyOperation(from, output);
+                await operation.Execute();
+                return output;
+            }
         }
 
         /// <summary>
@@ -1421,85 +1443,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a vectoriser for the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="metaData"></param>
-        /// <param name="oneHotEncodeCategoricalData"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        /// <exception cref="Exception"></exception>
-        /// <exception cref="NotSupportedException"></exception>
-        public static async Task<ICanVectorise> GetVectoriser(this IReadOnlyBuffer buffer, MetaData metaData, bool oneHotEncodeCategoricalData)
-        {
-            var dataType = buffer.DataType.GetBrightDataType();
-            var cls = ColumnTypeClassifier.GetClass(dataType, metaData);
-            ICanVectorise? ret;
-
-            if (dataType == BrightDataType.Boolean)
-                ret = new BooleanVectoriser();
-            else if (cls.HasFlag(ColumnClass.Numeric))
-                ret = GenericTypeMapping.NumericVectoriser(buffer.DataType);
-            else if (cls.HasFlag(ColumnClass.Categorical)) {
-                if (oneHotEncodeCategoricalData)
-                    ret = await GetOneHotEncoder(buffer, metaData);
-                else
-                    ret = GenericTypeMapping.CategoricalIndexVectoriser(buffer.DataType);
-            }
-            else if (cls.HasFlag(ColumnClass.IndexBased))
-                ret = await GetIndexBasedVectoriser(buffer, metaData);
-            else if (cls.HasFlag(ColumnClass.Tensor))
-                ret = await GetTensorVectoriser(buffer, metaData);
-            else
-                throw new NotImplementedException();
-            ret.ReadFrom(metaData);
-            return ret;
-
-            static async Task<ICanVectorise> GetIndexBasedVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
-            {
-                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
-                if (size == 0) {
-                    await metaData.Analyse(false, buffer).Execute();
-                    size = metaData.GetIndexAnalysis().MaxIndex ?? 0;
-                    if (size == 0)
-                        throw new Exception("Expected to find a max index size");
-                }
-
-                if(buffer.DataType == typeof(IndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(IndexListVectoriser), size);
-                if(buffer.DataType == typeof(WeightedIndexList))
-                    return GenericActivator.Create<ICanVectorise>(typeof(WeightedIndexListVectoriser), size);
-                throw new NotSupportedException();
-            }
-
-            static async Task<ICanVectorise> GetOneHotEncoder(IReadOnlyBuffer buffer, MetaData metaData)
-            {
-                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
-                if (size == 0) {
-                    await metaData.Analyse(false, buffer).Execute();
-                    size = metaData.Get<uint>(Consts.NumDistinct, 0);
-                    if (size == 0)
-                        throw new Exception("Expected to find a distinct size of items");
-                }
-
-                return GenericTypeMapping.OneHotVectoriser(buffer.DataType, size);
-            }
-
-            static async Task<ICanVectorise> GetTensorVectoriser(IReadOnlyBuffer buffer, MetaData metaData)
-            {
-                var size = metaData.Get<uint>(Consts.VectorisationSize, 0);
-                if (size == 0) {
-                    await metaData.Analyse(false, buffer).Execute();
-                    size = metaData.GetDimensionAnalysis().Size;
-                    if (size == 0)
-                        throw new Exception("Expected to find non empty tensors");
-                }
-
-                return CreateTensorVectoriser(buffer.DataType, size);
-            }
-        }
-
-        /// <summary>
         /// Creates a vectoriser for the specified columns in a data table
         /// </summary>
         /// <param name="dataTable"></param>
@@ -1513,20 +1456,6 @@ namespace BrightData
             var ret = await buffers.GetVectoriser(oneHotEncodeCategoricalData);
             ret.SourceColumnIndices = actualColumnIndices;
             return ret;
-        }
-
-        /// <summary>
-        /// Creates a vectoriser from multiple buffers
-        /// </summary>
-        /// <param name="buffers"></param>
-        /// <param name="oneHotEncodeCategoricalData"></param>
-        /// <returns></returns>
-        public static async Task<VectorisationModel> GetVectoriser(this IReadOnlyBufferWithMetaData[] buffers, bool oneHotEncodeCategoricalData)
-        {
-            var createTasks = buffers.Select(x => GetVectoriser(x, x.MetaData, oneHotEncodeCategoricalData)).ToArray();
-            await Task.WhenAll(createTasks);
-            var vectorisers = createTasks.Select(x => x.Result).ToArray();
-            return new VectorisationModel(vectorisers);
         }
 
         /// <summary>
@@ -1925,12 +1854,12 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="index">Row index</param>
         /// <returns></returns>
-        public static Task<GenericTableRow> GetRow(this IDataTable dataTable, uint index)
+        public static async Task<GenericTableRow> GetRow(this IDataTable dataTable, uint index)
         {
             var columns = dataTable.Dimensions.Select(x => x.GetBuffer<object>()).ToArray();
             var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
-            return Task.WhenAll(fetchTasks)
-                .ContinueWith(_ => new GenericTableRow(dataTable, index, fetchTasks.Select(x => x.Result).ToArray()));
+            await Task.WhenAll(fetchTasks);
+            return new GenericTableRow(dataTable, index, fetchTasks.Select(x => x.Result).ToArray());
         }
 
         /// <summary>

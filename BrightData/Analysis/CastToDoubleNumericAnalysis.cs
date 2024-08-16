@@ -13,7 +13,6 @@ namespace BrightData.Analysis
         where T : unmanaged, INumber<T>
     {
         readonly ConvertToDouble<T> _converter = new();
-        ulong _count;
 
         public NumericAnalyser<double> Analysis { get; } = new(writeCount);
 

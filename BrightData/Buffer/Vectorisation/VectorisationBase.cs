@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BrightData.Types;
 using CommunityToolkit.HighPerformance;
 
-namespace BrightData.Buffer.Operations.Vectorisation
+namespace BrightData.Buffer.Vectorisation
 {
     /// <summary>
     /// Base class for vectorisation

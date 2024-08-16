@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BrightData.Buffer.Operations;
 using BrightData.Helper;
 
-namespace BrightData.Buffer.Operations.Helper
+namespace BrightData.Analysis
 {
     /// <summary>
     /// Casts to double to perform numerical analysis

@@ -24,18 +24,5 @@ namespace BrightData.UnitTests
             array.TryFind(1, out var index).Should().BeTrue();
             index!.Value.Index.Should().Be(1);
         }
-
-        [Fact]
-        public void TestSortedArray()
-        {
-            var array = new SortedArray<uint, float>(4);
-            for (var i = 0U; i < 4; i++)
-                array.Add(i, 4-i);
-            array.Size.Should().Be(4);
-            array[0].Weight.Should().Be(1);
-            array[3].Weight.Should().Be(4);
-            array.TryFind(1, out var value).Should().BeTrue();
-            value.Should().Be(3);
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace BrightData.Types.Helper
 {
@@ -194,6 +195,7 @@ namespace BrightData.Types.Helper
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void ShiftRight<V, W>(bool isFull, int fromPosition, int size, Span<V> values, Span<W> weights)
         {
             var len = size - fromPosition;
@@ -204,6 +206,7 @@ namespace BrightData.Types.Helper
             wf.CopyTo(weights.Slice(fromPosition+1, wf.Length));
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RemoveAt<V, W>(int index, Span<V> values, Span<W> weights)
         {
             values[(index + 1)..].CopyTo(values[index..]);
