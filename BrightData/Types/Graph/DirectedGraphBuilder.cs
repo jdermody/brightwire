@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Types.Graph
 {
+    /// <summary>
+    /// Builds a directed graph
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class DirectedGraphBuilder<T>
-        where T: struct, IHaveSingleIndex
+        where T: unmanaged, IHaveSingleIndex
     {
         class Node(T value, int nodeOffset)
         {
@@ -26,6 +27,11 @@ namespace BrightData.Types.Graph
         }
         readonly Dictionary<uint /* node index */, Node> _nodes = new();
 
+        /// <summary>
+        /// Add a new node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public uint Add(T node)
         {
             var nodeIndex = node.Index;
@@ -33,6 +39,12 @@ namespace BrightData.Types.Graph
             return nodeIndex;
         }
 
+        /// <summary>
+        /// Adds an edge between two nodes
+        /// </summary>
+        /// <param name="fromNodeIndex"></param>
+        /// <param name="toNodeIndex"></param>
+        /// <returns></returns>
         public bool AddEdge(uint fromNodeIndex, uint toNodeIndex)
         {
             if (_nodes.TryGetValue(fromNodeIndex, out var from) && _nodes.TryGetValue(toNodeIndex, out var to)) {
@@ -43,6 +55,10 @@ namespace BrightData.Types.Graph
             return false;
         }
 
+        /// <summary>
+        /// Builds the graph
+        /// </summary>
+        /// <returns></returns>
         public DirectedGraph<T> Build()
         {
             using var nodes = new ArrayPoolBufferWriter<DirectedGraph<T>.Node>();

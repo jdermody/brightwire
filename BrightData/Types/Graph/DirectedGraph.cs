@@ -5,8 +5,12 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Types.Graph
 {
-    public record struct DirectedGraph<T> : IHaveDataAsReadOnlyByteSpan, IHaveSize
-        where T: struct, IHaveSingleIndex
+    /// <summary>
+    /// Directed graph
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public readonly record struct DirectedGraph<T> : IHaveDataAsReadOnlyByteSpan, IHaveSize
+        where T: unmanaged, IHaveSingleIndex
     {
         const int HeaderSize = 8;
 
@@ -57,6 +61,12 @@ namespace BrightData.Types.Graph
             }
         }
 
+        /// <summary>
+        /// Returns the value associated with the node
+        /// </summary>
+        /// <param name="nodeIndex"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public bool TryGetValue(uint nodeIndex, [NotNullWhen(true)]out T? value)
         {
             var nodeSpan = _nodes.AsSpan();
@@ -69,6 +79,11 @@ namespace BrightData.Types.Graph
             return true;
         }
 
+        /// <summary>
+        /// Enumerates the connected nodes from a single node
+        /// </summary>
+        /// <param name="nodeIndex"></param>
+        /// <returns></returns>
         public IEnumerable<T> EnumerateConnectedNodes(uint nodeIndex)
         {
             var nodeSpan = _nodes.AsSpan();

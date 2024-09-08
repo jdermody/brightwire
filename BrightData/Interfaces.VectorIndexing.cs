@@ -141,7 +141,6 @@ namespace BrightData
         /// Returns a list of vector indices ranked by the distance between that vector and a comparison vector
         /// </summary>
         /// <param name="vector">Vector to compare</param>
-        /// <param name="distanceMetric"></param>
         /// <returns></returns>
         IEnumerable<uint> Rank(ReadOnlySpan<T> vector);
 
@@ -149,7 +148,6 @@ namespace BrightData
         /// Returns the index of the closest vector in the set to each of the supplied vectors
         /// </summary>
         /// <param name="vector">Vectors to compare</param>
-        /// <param name="distanceMetric"></param>
         /// <returns></returns>
         uint[] Closest(ReadOnlyMemory<T>[] vector);
     }

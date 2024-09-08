@@ -332,6 +332,12 @@
             Length of largest observed string
             </summary>
         </member>
+        <member name="T:BrightData.Analysis.SimpleNumericAnalysis`1">
+            <summary>
+            Casts to double to perform numerical analysis
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightData.Analysis.StaticAnalysers">
             <summary>
             Static methods to create analyzers
@@ -711,13 +717,7 @@
             <param name="input"></param>
             <param name="output"></param>
         </member>
-        <member name="T:BrightData.Buffer.Operations.Helper.SimpleNumericAnalysis`1">
-            <summary>
-            Casts to double to perform numerical analysis
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:BrightData.Buffer.Operations.Helper.TypedIndexer`1">
+        <member name="T:BrightData.Buffer.Operations.Conversion.TypedIndexer`1">
             <summary>
             Maintains a mapping of types to indices
             </summary>
@@ -1605,7 +1605,7 @@
         <member name="P:BrightData.DataTable.Columns.Tensor4DColumnType.Size">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.DataTable.ConstraintValidation.ColumnFilter`1">
+        <member name="T:BrightData.DataTable.Meta.ColumnFilter`1">
             <summary>
             
             </summary>
@@ -1615,7 +1615,7 @@
             <param name="filter"></param>
             <param name="nonConformingRowIndices"></param>
         </member>
-        <member name="M:BrightData.DataTable.ConstraintValidation.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
+        <member name="M:BrightData.DataTable.Meta.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
             <summary>
             
             </summary>
@@ -1625,19 +1625,19 @@
             <param name="filter"></param>
             <param name="nonConformingRowIndices"></param>
         </member>
-        <member name="T:BrightData.DataTable.ConstraintValidation.DataTableSpecification">
+        <member name="T:BrightData.DataTable.Meta.DataTableSpecification">
             <summary>
             Data table specification
             </summary>
             <param name="dataTable"></param>
         </member>
-        <member name="M:BrightData.DataTable.ConstraintValidation.DataTableSpecification.#ctor(BrightData.IDataTable)">
+        <member name="M:BrightData.DataTable.Meta.DataTableSpecification.#ctor(BrightData.IDataTable)">
             <summary>
             Data table specification
             </summary>
             <param name="dataTable"></param>
         </member>
-        <member name="T:BrightData.DataTable.ConstraintValidation.DataTypeSpecificationBase`1">
+        <member name="T:BrightData.DataTable.Meta.DataTypeSpecificationBase`1">
             <summary>
             Data type specification base
             </summary>
@@ -1647,7 +1647,7 @@
             <param name="canRepeat"></param>
             <param name="children"></param>
         </member>
-        <member name="M:BrightData.DataTable.ConstraintValidation.DataTypeSpecificationBase`1.#ctor(System.String,BrightData.DataSpecificationType,System.Boolean,BrightData.IDataTypeSpecification[])">
+        <member name="M:BrightData.DataTable.Meta.DataTypeSpecificationBase`1.#ctor(System.String,BrightData.DataSpecificationType,System.Boolean,BrightData.IDataTypeSpecification[])">
             <summary>
             Data type specification base
             </summary>
@@ -1657,7 +1657,7 @@
             <param name="canRepeat"></param>
             <param name="children"></param>
         </member>
-        <member name="T:BrightData.DataTable.ConstraintValidation.FieldSpecification`1">
+        <member name="T:BrightData.DataTable.Meta.FieldSpecification`1">
             <summary>
             Field specification
             </summary>
@@ -1665,7 +1665,7 @@
             <param name="name"></param>
             <param name="canRepeat"></param>
         </member>
-        <member name="M:BrightData.DataTable.ConstraintValidation.FieldSpecification`1.#ctor(System.String,System.Boolean)">
+        <member name="M:BrightData.DataTable.Meta.FieldSpecification`1.#ctor(System.String,System.Boolean)">
             <summary>
             Field specification
             </summary>
@@ -1673,45 +1673,45 @@
             <param name="name"></param>
             <param name="canRepeat"></param>
         </member>
-        <member name="T:BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint`1">
-            <summary>
-            Throws an exception if a constraint fails validation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="predicate"></param>
-        </member>
-        <member name="M:BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint`1.#ctor(BrightData.DataTable.ConstraintValidation.ThrowOnInvalidConstraint{`0}.Predicate)">
-            <summary>
-            Throws an exception if a constraint fails validation
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="predicate"></param>
-        </member>
-        <member name="T:BrightData.DataTable.Helper.TableDataDimension">
+        <member name="T:BrightData.DataTable.Meta.TableDataDimension">
             <summary>
             A data dimension from a table
             </summary>
             <param name="dataType"></param>
             <param name="buffer"></param>
         </member>
-        <member name="M:BrightData.DataTable.Helper.TableDataDimension.#ctor(BrightData.BrightDataType,BrightData.IReadOnlyBuffer)">
+        <member name="M:BrightData.DataTable.Meta.TableDataDimension.#ctor(BrightData.BrightDataType,BrightData.IReadOnlyBuffer)">
             <summary>
             A data dimension from a table
             </summary>
             <param name="dataType"></param>
             <param name="buffer"></param>
         </member>
-        <member name="P:BrightData.DataTable.Helper.TableDataDimension.DataType">
+        <member name="P:BrightData.DataTable.Meta.TableDataDimension.DataType">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.DataTable.Helper.TableDataDimension.GetBuffer``1">
+        <member name="M:BrightData.DataTable.Meta.TableDataDimension.GetBuffer``1">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.DataTable.Helper.TableDataDimension.Specification">
+        <member name="P:BrightData.DataTable.Meta.TableDataDimension.Specification">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.DataTable.Helper.TableDataDimension.Size">
+        <member name="P:BrightData.DataTable.Meta.TableDataDimension.Size">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.DataTable.Meta.ThrowOnInvalidConstraint`1">
+            <summary>
+            Throws an exception if a constraint fails validation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="predicate"></param>
+        </member>
+        <member name="M:BrightData.DataTable.Meta.ThrowOnInvalidConstraint`1.#ctor(BrightData.DataTable.Meta.ThrowOnInvalidConstraint{`0}.Predicate)">
+            <summary>
+            Throws an exception if a constraint fails validation
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="predicate"></param>
         </member>
         <member name="T:BrightData.DataTable.Rows.GenericTableRow">
             <summary>
@@ -10148,7 +10148,6 @@
             Returns a list of vector indices ranked by the distance between that vector and a comparison vector
             </summary>
             <param name="vector">Vector to compare</param>
-            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.IVectorIndex`1.Closest(System.ReadOnlyMemory{`0}[])">
@@ -10156,7 +10155,6 @@
             Returns the index of the closest vector in the set to each of the supplied vectors
             </summary>
             <param name="vector">Vectors to compare</param>
-            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.ISupportKnnSearch`1">
@@ -18236,6 +18234,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="P:BrightData.Types.Graph.DirectedGraph`1.Size">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
             <summary>
