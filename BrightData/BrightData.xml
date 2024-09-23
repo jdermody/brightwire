@@ -18235,8 +18235,56 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="T:BrightData.Types.Graph.DirectedGraph`1">
+            <summary>
+            Directed graph
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="P:BrightData.Types.Graph.DirectedGraph`1.Size">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`1.TryGetValue(System.UInt32,System.Nullable{`0}@)">
+            <summary>
+            Returns the value associated with the node
+            </summary>
+            <param name="nodeIndex"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`1.EnumerateConnectedNodes(System.UInt32)">
+            <summary>
+            Enumerates the connected nodes from a single node
+            </summary>
+            <param name="nodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Types.Graph.DirectedGraphBuilder`1">
+            <summary>
+            Builds a directed graph
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraphBuilder`1.Add(`0)">
+            <summary>
+            Add a new node
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraphBuilder`1.AddEdge(System.UInt32,System.UInt32)">
+            <summary>
+            Adds an edge between two nodes
+            </summary>
+            <param name="fromNodeIndex"></param>
+            <param name="toNodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraphBuilder`1.Build">
+            <summary>
+            Builds the graph
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
             <summary>
