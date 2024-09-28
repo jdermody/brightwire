@@ -782,6 +782,7 @@ namespace BrightData.Cuda
             return matrix;
         }
 
+        /// <inheritdoc />
         public override IVector<float> FindDistances(IReadOnlyNumericSegment<float> vector, IReadOnlyList<IReadOnlyNumericSegment<float>> compareTo, DistanceMetric distanceMetric)
         {
             if (distanceMetric is not (DistanceMetric.Euclidean or DistanceMetric.Manhattan or DistanceMetric.Cosine))

@@ -253,6 +253,9 @@
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{System.Single}},System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{System.Single}},BrightData.DistanceMetric)">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.FindDistances(BrightData.IReadOnlyNumericSegment{System.Single},System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyNumericSegment{System.Single}},BrightData.DistanceMetric)">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Cuda.CudaLinearAlgebraProvider.BindThread">
             <inheritdoc />
         </member>
