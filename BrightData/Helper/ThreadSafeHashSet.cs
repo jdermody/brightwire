@@ -13,7 +13,7 @@ namespace BrightData.Helper
     public sealed class ThreadSafeHashSet<T>(int? capacity = null) : IDisposable
     {
         readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
-        readonly HashSet<T> _hashSet = capacity.HasValue ? new(capacity.Value) : new();
+        readonly HashSet<T> _hashSet = capacity.HasValue ? new(capacity.Value) : [];
 
         ~ThreadSafeHashSet()
         {

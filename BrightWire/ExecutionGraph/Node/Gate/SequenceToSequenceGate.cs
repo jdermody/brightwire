@@ -12,6 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         : NodeBase(name, id)
     {
         ConcurrentStack<IGraphContext>? _encoderContext;
+        string _encoderName = encoderName, _decoderName = decoderName;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -23,12 +24,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     ?? throw new Exception("No following mini batch was found");
 
                 // connect the hidden states of the encoder to the decoder
-                var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == encoderName);
+                var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _encoderName);
                 MemoryFeeder memoryFeeder;
-                if (FindByName(decoderName) is IHaveMemoryNode node)
+                if (FindByName(_decoderName) is IHaveMemoryNode node)
                     memoryFeeder = (MemoryFeeder)node.Memory;
                 else
-                    throw new Exception($"{decoderName} was not found or does not have a memory node");
+                    throw new Exception($"{_decoderName} was not found or does not have a memory node");
                 context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
                 memoryFeeder.LoadNextFromMemory = true;
 
@@ -53,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
                 if (gradient != null) {
                     // add the memory signal to the current 
-                    var hiddenBackward = firstContext!.GetData("hidden-backward").Single(d => d.Name == decoderName);
+                    var hiddenBackward = firstContext!.GetData("hidden-backward").Single(d => d.Name == _decoderName);
                     gradient.GetMatrix().AddInPlace(hiddenBackward.Data.GetMatrix());
 
                     // backpropagate the encoder
@@ -73,14 +74,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void WriteTo(BinaryWriter writer)
         {
-            encoderName.WriteTo(writer);
-            decoderName.WriteTo(writer);
+            _encoderName.WriteTo(writer);
+            _decoderName.WriteTo(writer);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            encoderName = reader.ReadString();
-            decoderName = reader.ReadString();
+            _encoderName = reader.ReadString();
+            _decoderName = reader.ReadString();
         }
     }
 }

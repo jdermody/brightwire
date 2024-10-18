@@ -23,7 +23,13 @@ namespace BrightData.Analysis
         /// <returns></returns>
         public static IDataAnalyser<T> CreateNumericAnalyser<T>(uint writeCount = Consts.MaxWriteCount) where T: unmanaged, IMinMaxValue<T>, IBinaryFloatingPointIeee754<T>, IConvertible => new NumericAnalyser<T>(writeCount);
 
-        public static IDataAnalyser<T> CreateNumericAnalyserCastToDouble<T>(uint writeCount = Consts.MaxWriteCount) where T: unmanaged, INumber<T> => new CastToDoubleNumericAnalysis<T>(writeCount);
+        /// <summary>
+        /// Creates a new analyzer that converts each item to a double
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="writeCount"></param>
+        /// <returns></returns>
+        public static IDataAnalyser<T> CreateNumericAnalyserConvertToDouble<T>(uint writeCount = Consts.MaxWriteCount) where T: unmanaged, INumber<T> => new ConvertToDoubleNumericAnalysis<T>(writeCount);
 
         /// <summary>
         /// Creates an analyzer that will convert each item to a string

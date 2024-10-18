@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.Storage
@@ -41,13 +42,17 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
             return index;
         }
 
-        public void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback)
+        public void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback, CancellationToken ct)
         {
             if (Size < Consts.MinimumSizeForParallel) {
-                for (uint i = 0U, size = Size; i < size; i++)
+                for (uint i = 0U, size = Size; i < size && !ct.IsCancellationRequested; i++)
                     callback(this[i], i);
-            }else
-                Parallel.For(0, Size, i => callback(this[(uint)i], (uint)i));
+            }
+            else {
+                Parallel.For(0, Size, new ParallelOptions {
+                    CancellationToken = ct
+                }, i => callback(this[(uint)i], (uint)i));
+            }
         }
 
         public unsafe void ForEach(ReadOnlySpan<uint> indices, IndexedSpanCallbackWithVectorIndexAndRelativeIndex<T> callback)

@@ -17,8 +17,8 @@ namespace BrightData.UnitTests
             };
             var clusters = clusterer.Cluster(vectors, 2, DistanceMetric.Euclidean);
             clusters.Length.Should().Be(2);
-            clusters[0].Should().BeEquivalentTo(new[] { 0U, 1U });
-            clusters[1].Should().BeEquivalentTo(new[] { 2U });
+            clusters[0].Should().BeEquivalentTo([0U, 1U]);
+            clusters[1].Should().BeEquivalentTo([2U]);
         }
 
         [Fact]
@@ -32,8 +32,8 @@ namespace BrightData.UnitTests
             };
             var clusters = clusterer.Cluster(vectors, 2, DistanceMetric.Euclidean);
             clusters.Length.Should().Be(2);
-            clusters[0].Should().BeEquivalentTo(new[] { 0U, 1U });
-            clusters[1].Should().BeEquivalentTo(new[] { 2U });
+            clusters[0].Should().BeEquivalentTo([0U, 1U]);
+            clusters[1].Should().BeEquivalentTo([2U]);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             if (_namedData.TryGetValue(type, out var ret))
                 return ret;
-            return Enumerable.Empty<(string, IGraphData)>();
+            return [];
         }
     }
 }

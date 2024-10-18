@@ -100,7 +100,7 @@ namespace BrightData
         public static INumericAnalysis<T> AnalyzeAsDoubles<T>(this IEnumerable<T> data)
             where T : unmanaged, INumber<T>
         {
-            var analysis = new CastToDoubleNumericAnalysis<T>();
+            var analysis = new ConvertToDoubleNumericAnalysis<T>();
             foreach (var item in data)
                 analysis.Add(item);
             return analysis;

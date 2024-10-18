@@ -255,7 +255,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// The list of sub-nodes
         /// </summary>
-        public virtual IEnumerable<NodeBase> SubNodes => Enumerable.Empty<NodeBase>();
+        public virtual IEnumerable<NodeBase> SubNodes => [];
 
         /// <summary>
         /// Serialise the node to the writer

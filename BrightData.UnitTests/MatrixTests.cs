@@ -19,12 +19,12 @@ namespace BrightData.UnitTests
             matrix[0, 1] = 3;
             matrix[1, 1] = 4;
             var array = matrix.Segment.ToNewArray();
-            array.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 });
+            array.Should().BeEquivalentTo([1, 2, 3, 4]);
 
-            matrix.GetColumn(0).ToArray().Should().BeEquivalentTo(new[] { 1, 2 });
-            matrix.GetColumn(1).ToArray().Should().BeEquivalentTo(new[] { 3, 4 });
-            matrix.GetRow(0).ToArray().Should().BeEquivalentTo(new[] { 1, 3 });
-            matrix.GetRow(1).ToArray().Should().BeEquivalentTo(new[] { 2, 4 });
+            matrix.GetColumn(0).ToArray().Should().BeEquivalentTo([1, 2]);
+            matrix.GetColumn(1).ToArray().Should().BeEquivalentTo([3, 4]);
+            matrix.GetRow(0).ToArray().Should().BeEquivalentTo([1, 3]);
+            matrix.GetRow(1).ToArray().Should().BeEquivalentTo([2, 4]);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace BrightData.UnitTests
             matrix[1, 1] = 4;
 
             using var transpose = matrix.Transpose();
-            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 2, 4 });
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo([1, 3, 2, 4]);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace BrightData.UnitTests
             matrix[1, 2] = 6;
 
             using var transpose = matrix.Transpose();
-            transpose.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 1, 3, 5, 2, 4, 6 });
+            transpose.Segment.ToNewArray().Should().BeEquivalentTo([1, 3, 5, 2, 4, 6]);
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace BrightData.UnitTests
             using var matrix2 = matrix.Clone();
 
             using var multiplied = matrix.Multiply(matrix2);
-            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 7, 10, 15, 22 });
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo([7, 10, 15, 22]);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace BrightData.UnitTests
             using var matrix2 = matrix.Transpose();
 
             using var multiplied = matrix.Multiply(matrix2);
-            multiplied.Segment.ToNewArray().Should().BeEquivalentTo(new[] { 17, 22, 27, 22, 29, 36, 27, 36, 45 });
+            multiplied.Segment.ToNewArray().Should().BeEquivalentTo([17, 22, 27, 22, 29, 36, 27, 36, 45]);
         }
 
         static IMatrix<float> Apply(LinearAlgebraProvider<float> lap, IMatrix<float> a, IMatrix<float> b, Func<IMatrix<float>, IMatrix<float>, IMatrix<float>> func)

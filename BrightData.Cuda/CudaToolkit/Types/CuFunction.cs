@@ -3,7 +3,7 @@
 namespace BrightData.Cuda.CudaToolkit.Types
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct CuFunction
+    internal record struct CuFunction
     {
         public nint Pointer;
         public CuModule GetModule()

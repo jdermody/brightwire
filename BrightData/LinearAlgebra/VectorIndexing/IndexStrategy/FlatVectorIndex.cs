@@ -49,7 +49,6 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         /// Find distance between each vector in the set and each input vector
         /// </summary>
         /// <param name="vector"></param>
-        /// <param name="distanceMetric"></param>
         /// <returns></returns>
         T[,] GetDistance(ReadOnlyMemory<T>[] vector)
         {

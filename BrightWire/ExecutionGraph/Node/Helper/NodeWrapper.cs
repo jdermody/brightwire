@@ -9,6 +9,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 {
     internal class NodeWrapper(NodeBase node, string? name = null) : NodeBase(name)
     {
+        NodeBase _node = node;
+
         class ContextProxy(IGraphContext context, NodeBase wrapper) : IGraphContext
         {
             public IGraphData Data
@@ -53,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            return node.ForwardSingleStep(signal, channel, context, source);
+            return _node.ForwardSingleStep(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()
@@ -73,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            node = graph[_nodeId];
+            _node = graph[_nodeId];
         }
     }
 }

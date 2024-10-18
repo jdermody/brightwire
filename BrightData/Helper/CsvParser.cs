@@ -157,6 +157,7 @@ namespace BrightData.Helper
         /// <param name="quote">Quote character</param>
         /// <param name="tempStreams">Temp stream provider (optional)</param>
         /// <param name="blockSize">Block size in bytes</param>
+        /// <param name="maxBlockSize"></param>
         /// <param name="maxInMemoryBlocks">Max number of blocks to keep in memory</param>
         /// <param name="maxDistinctItems">Max number of distinct items to track</param>
         public CsvParser(

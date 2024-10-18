@@ -4,15 +4,15 @@
         <name>BrightData</name>
     </assembly>
     <members>
-        <member name="T:BrightData.Analysis.CastToDoubleNumericAnalysis`1">
+        <member name="T:BrightData.Analysis.ConvertToDoubleNumericAnalysis`1">
             <summary>
-            Used to cast other numeric types to doubles for numeric analysis
+            Used to convert other numeric types to doubles for numeric analysis
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Analysis.CastToDoubleNumericAnalysis`1.#ctor(System.UInt32)">
+        <member name="M:BrightData.Analysis.ConvertToDoubleNumericAnalysis`1.#ctor(System.UInt32)">
             <summary>
-            Used to cast other numeric types to doubles for numeric analysis
+            Used to convert other numeric types to doubles for numeric analysis
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -355,6 +355,14 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="writeCount">Number of items to write in histogram</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyserConvertToDouble``1(System.UInt32)">
+            <summary>
+            Creates a new analyzer that converts each item to a double
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="writeCount"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateConvertToStringAnalyser``1(System.UInt32)">
@@ -2461,7 +2469,6 @@
             <summary>
             Returns true of the buffer can be encoded (distinct items mapped to indices)
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="buffer"></param>
             <returns></returns>
         </member>
@@ -2530,24 +2537,28 @@
             Creates a numeric composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxBlockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToBoolean(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Creates a boolean read only buffer from this buffer
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToDateTime(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Creates a date time read o
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToDate(BrightData.IReadOnlyBuffer)">
             <summary>
             Creates a date composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxBlockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToTime(BrightData.IReadOnlyBuffer)">
@@ -2555,11 +2566,6 @@
             Creates a time composite buffer from an existing buffer
             </summary>
             <param name="buffer"></param>
-            <param name="tempStreams"></param>
-            <param name="blockSize"></param>
-            <param name="maxBlockSize"></param>
-            <param name="maxInMemoryBlocks"></param>
-            <param name="maxDistinctItems"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToCategoricalIndex(BrightData.IReadOnlyBuffer,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
@@ -2611,6 +2617,14 @@
             <param name="maxDistinctItems"></param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.To``1(BrightData.IReadOnlyBuffer)">
+            <summary>
+            Converts a buffer to an unmanaged type
+            </summary>
+            <param name="buffer"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IReadOnlyBuffer[],BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
@@ -3236,6 +3250,26 @@
             <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.FindDistancesFromVectorsToQuery``1(BrightData.IReadOnlyVectorStore{``0},System.ReadOnlySpan{System.UInt32},System.ReadOnlySpan{``0},BrightData.DistanceMetric)">
+            <summary>
+            Returns the distance between a query vector and the selected vectors in the vector store
+            </summary>
+            <param name="vectors">Vectors</param>
+            <param name="vectorIndices">Vector indices within the store to use</param>
+            <param name="query">Query vector</param>
+            <param name="distanceMetric">Distance metric</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ForEach``1(BrightData.IReadOnlyVectorStore{``0},BrightData.IndexedSpanCallback{``0},System.Threading.CancellationToken)">
+            <summary>
+            Invokes a 
+            </summary>
+            <param name="vectors"></param>
+            <param name="callback"></param>
+            <param name="ct"></param>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ForEach``1(BrightData.IReadOnlyVectorStore{``0},System.ReadOnlySpan{System.UInt32},BrightData.IndexedSpanCallbackWithVectorIndex{``0})">
             <summary>
             Passes each vector to the callback, possible in parallel
@@ -3260,6 +3294,55 @@
             <typeparam name="T"></typeparam>
             <typeparam name="AT"></typeparam>
             <typeparam name="WT"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.KDTreeSearch``1(BrightData.IReadOnlyVectorStore{``0})">
+            <summary>
+            Creates a KD search tree from the vectors in the vector store
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="vectors"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BallTreeSearch``1(BrightData.IReadOnlyVectorStore{``0},BrightData.DistanceMetric)">
+            <summary>
+            Creates a ball search tree from the vectors in the vector store
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="vectors"></param>
+            <param name="distanceMetric"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BinarySearch``2(System.Collections.Generic.SortedList{``0,``1},``0,System.Func{``0,``0,System.Int32})">
+            <summary>
+            Binary search for a sorted list
+            </summary>
+            <param name="list"></param>
+            <param name="value"></param>
+            <param name="comparer"></param>
+            <typeparam name="K"></typeparam>
+            <typeparam name="V"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BinarySearch``2(System.Collections.Generic.SortedList{``0,``1},``0)">
+            <summary>
+            Binary search for a sorted list
+            </summary>
+            <param name="list"></param>
+            <param name="value"></param>
+            <typeparam name="K"></typeparam>
+            <typeparam name="V"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BinarySearch``2(System.Collections.Generic.SortedList{``0,``1},``0,System.Collections.Generic.IComparer{``0})">
+            <summary>
+            Binary search for a sorted list
+            </summary>
+            <param name="list"></param>
+            <param name="value"></param>
+            <param name="comparer"></param>
+            <typeparam name="K"></typeparam>
+            <typeparam name="V"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.BrightDataType)">
@@ -3643,6 +3726,7 @@
             <param name="conversion"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
             <returns></returns>
@@ -4061,6 +4145,14 @@
             Returns a randomly initialized float greater than or equal to 0f, and less than 1f
             </summary>
             <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.NextRandom``1(BrightData.BrightDataContext)">
+            <summary>
+            Returns a random value
+            </summary>
+            <param name="context"></param>
+            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.RandomIndex(BrightData.BrightDataContext,System.Int32)">
@@ -5374,6 +5466,15 @@
             <param name="span"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.NIndices``2(System.ReadOnlySpan{``0})">
+            <summary>
+            Returns the top n indices from the span
+            </summary>
+            <param name="span"></param>
+            <typeparam name="T"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
             <summary>
             Creates a read only vector from the span
@@ -5918,6 +6019,7 @@
             <param name="quote">Quote character</param>
             <param name="tempStreams">Temp stream provider (optional)</param>
             <param name="blockSize">Block size in bytes</param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks">Max number of blocks to keep in memory</param>
             <param name="maxDistinctItems">Max number of distinct items to track</param>
         </member>
@@ -10094,11 +10196,12 @@
             <param name="index"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IReadOnlyVectorStore`1.ForEach(BrightData.IndexedSpanCallbackWithVectorIndex{`0})">
+        <member name="M:BrightData.IReadOnlyVectorStore`1.ForEach(BrightData.IndexedSpanCallbackWithVectorIndex{`0},System.Threading.CancellationToken)">
             <summary>
             Passes each vector to the callback, possible in parallel
             </summary>
             <param name="callback"></param>
+            <param name="ct"></param>
         </member>
         <member name="M:BrightData.IReadOnlyVectorStore`1.ForEach(System.ReadOnlySpan{System.UInt32},BrightData.IndexedSpanCallbackWithVectorIndexAndRelativeIndex{`0})">
             <summary>
@@ -10384,7 +10487,7 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.LinearAlgebraProvider`1.CreateVector(System.Collections.Generic.IEnumerable{`0})">
             <summary>
-            Creates a vector from an enumerable of floats
+            Creates a vector from an IEnumerable of floats
             </summary>
             <param name="values"></param>
             <returns></returns>
@@ -12696,7 +12799,6 @@
             Find distance between each vector in the set and each input vector
             </summary>
             <param name="vector"></param>
-            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1">

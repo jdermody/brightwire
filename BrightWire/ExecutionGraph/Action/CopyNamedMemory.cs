@@ -10,12 +10,13 @@ namespace BrightWire.ExecutionGraph.Action
     internal class CopyNamedMemory(string slotName, IHaveMemoryNode node) : IAction
     {
         string _readFrom = node.Memory.Id;
+        string _slotName = slotName;
 
         public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
         {
             var ec = context.ExecutionContext;
             var memory = ec.GetMemory(_readFrom);
-            ec.SetMemory(slotName, memory);
+            ec.SetMemory(_slotName, memory);
             return input;
         }
 
@@ -24,12 +25,12 @@ namespace BrightWire.ExecutionGraph.Action
             var str = Encoding.UTF8.GetString(Convert.FromBase64String(data));
             var pos = str.IndexOf(':');
             _readFrom = str[..pos];
-            slotName = str[(pos + 1)..];
+            _slotName = str[(pos + 1)..];
         }
 
         public string Serialise()
         {
-            var concat = _readFrom + ":" + slotName;
+            var concat = _readFrom + ":" + _slotName;
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(concat));
         }
     }

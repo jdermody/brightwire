@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 
 namespace BrightData
 {
@@ -88,7 +89,8 @@ namespace BrightData
         /// Passes each vector to the callback, possible in parallel
         /// </summary>
         /// <param name="callback"></param>
-        void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback);
+        /// <param name="ct"></param>
+        void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback, CancellationToken ct = default);
 
         /// <summary>
         /// Passes each vector to the callback, possible in parallel

@@ -12,6 +12,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     class RecurrentBridge(string fromName, string toName, string? name, string? id = null)
         : NodeBase(name, id)
     {
+        string _fromName = fromName;
+        string _toName = toName;
+
         class Backpropagation(RecurrentBridge source) : SingleBackpropagationBase<RecurrentBridge>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
@@ -24,17 +27,16 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 return errorSignal;
             }
         }
-        string _toName = toName;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
             // connect the hidden states
-            var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == fromName);
+            var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _fromName);
             MemoryFeeder memoryFeeder;
             if (FindByName(_toName) is IHaveMemoryNode node)
                 memoryFeeder = (MemoryFeeder)node.Memory;
             else
-                throw new Exception($"{fromName} was not found or does not have a memory node");
+                throw new Exception($"{_fromName} was not found or does not have a memory node");
 
             context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
             memoryFeeder.LoadNextFromMemory = true;
@@ -49,13 +51,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override void WriteTo(BinaryWriter writer)
         {
-            fromName.WriteTo(writer);
+            _fromName.WriteTo(writer);
             _toName.WriteTo(writer);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            fromName = reader.ReadString();
+            _fromName = reader.ReadString();
             _toName = reader.ReadString();
         }
     }

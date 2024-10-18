@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var outputSize = 0U;
 
             if (targetColumn.HasValue) {
-                var firstRow = await dataTable.GetRow<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>(featureColumns.Single(), targetColumn.Value);
+                var firstRow = await dataTable.GetRow<ReadOnlyTensor3D<float>, ReadOnlyVector<float>>(0, featureColumns.Single(), targetColumn.Value);
                 firstTensor = firstRow.C1;
                 outputSize = firstRow.C2.Size;
             }

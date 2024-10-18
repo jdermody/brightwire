@@ -16,6 +16,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     class SelfAttention(LinearAlgebraProvider<float> lap, string encoderName, string decoderName, FeedForward layer, string? name, string? id = null)
         : NodeBase(name, id), IHaveFeedForward
     {
+        LinearAlgebraProvider<float> _lap = lap;
+        string _encoderName               = encoderName;
+        string _decoderName               = decoderName;
+        FeedForward _layer                = layer;
+
         class Backpropagation(SelfAttention source, uint position, List<(IMatrix<float> EncoderState, IMatrix<float> CombinedState)> weights)
             : SingleBackpropagationBase<SelfAttention>(source)
         {
@@ -45,7 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context) => layer.ApplyError(type, delta, context);
+        public override void ApplyError(NodeErrorType type, ITensor<float> delta, ILearningContext context) => _layer.ApplyError(type, delta, context);
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -54,12 +59,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             // get the previous decoder state
             IMatrix<float>? decoderHiddenState = null;
             if (currentIndex == 0) {
-                if (FindByName(decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
+                if (FindByName(_decoderName) is IHaveMemoryNode { Memory: MemoryFeeder decoderMemory })
                     decoderHiddenState = context.ExecutionContext.GetMemory(decoderMemory.Id);
             }
             else {
                 var previousContext = context.BatchSequence.MiniBatch.GetSequenceAtIndex(currentIndex - 1).GraphContext;
-                decoderHiddenState = previousContext?.GetData("hidden-forward").Single(d => d.Name == decoderName).Data.GetMatrix();
+                decoderHiddenState = previousContext?.GetData("hidden-forward").Single(d => d.Name == _decoderName).Data.GetMatrix();
             }
             if (decoderHiddenState == null)
                 throw new Exception("Not able to find the decoder hidden state");
@@ -72,9 +77,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var inputs = new List<IMatrix<float>>();
             for (uint i = 0, len = previous.SequenceCount; i < len; i++) {
                 var sequence = previous.GetSequenceAtIndex(i);
-                var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == encoderName).Data.GetMatrix();
+                var encoderState = sequence.GraphContext!.GetData("hidden-forward").Single(d => d.Name == _encoderName).Data.GetMatrix();
                 var combined = decoderHiddenState.ConcatRight(encoderState);
-                var output = layer.Forward(combined);
+                var output = _layer.Forward(combined);
 
                 if (weights == null)
                     weights = output;
@@ -89,7 +94,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // form the new attention as a product of the weights
             using var softMax = weights!.Softmax();
-            using var combinedAttention = lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
+            using var combinedAttention = _lap.CreateMatrix(signal.Rows, encoderStates[0].ColumnCount, false);
             var backward = new List<(IMatrix<float> EncoderState, IMatrix<float> CombinedState)>();
             var index = 0;
             foreach (var (first, second) in softMax.AllColumnsAsReadOnly(false).Zip(encoderStates)) {
@@ -98,7 +103,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 if(!String.IsNullOrWhiteSpace(Name))
                     context.SetData($"{Name}:{context.BatchSequence.SequenceIndex}:{index}", "self-attention", new SingleGraphData(multiplyWeight));
 
-                using var stretched = lap.CreateMatrixFromColumns(Enumerable.Repeat(first, (int)second.ColumnCount).ToArray());
+                using var stretched = _lap.CreateMatrixFromColumns(Enumerable.Repeat(first, (int)second.ColumnCount).ToArray());
                 using var result = second.PointwiseMultiply(stretched);
                 combinedAttention.AddInPlace(result);
                 backward.Add((second, inputs[index++]));
@@ -110,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return (this, final.AsGraphData(), () => new Backpropagation(this, signal.Columns, backward));
         }
 
-        public IFeedForward FeedForward => layer;
+        public IFeedForward FeedForward => _layer;
 
         protected override (string Description, byte[] Data) GetInfo()
         {
@@ -119,18 +124,18 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            layer.WriteTo(writer);
-            encoderName.WriteTo(writer);
-            decoderName.WriteTo(writer);
+            _layer.WriteTo(writer);
+            _encoderName.WriteTo(writer);
+            _decoderName.WriteTo(writer);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            lap = factory.LinearAlgebraProvider;
-            layer ??= GenericActivator.CreateUninitialized<FeedForward>();
-            layer.ReadFrom(factory, reader);
-            encoderName = reader.ReadString();
-            decoderName = reader.ReadString();
+            _lap = factory.LinearAlgebraProvider;
+            _layer ??= GenericActivator.CreateUninitialized<FeedForward>();
+            _layer.ReadFrom(factory, reader);
+            _encoderName = reader.ReadString();
+            _decoderName = reader.ReadString();
         }
     }
 }

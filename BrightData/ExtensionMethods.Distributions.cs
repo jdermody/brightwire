@@ -13,6 +13,12 @@ namespace BrightData
         /// <returns></returns>
         public static float NextRandomFloat(this BrightDataContext context) => (float)context.Random.NextDouble();
 
+        /// <summary>
+        /// Returns a random value
+        /// </summary>
+        /// <param name="context"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T NextRandom<T>(this BrightDataContext context) where T: unmanaged, INumber<T> => T.CreateSaturating(context.Random.NextDouble());
 
         /// <summary>

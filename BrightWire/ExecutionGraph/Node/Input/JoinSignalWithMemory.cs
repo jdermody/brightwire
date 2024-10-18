@@ -8,6 +8,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// </summary>
     internal class JoinSignalWithMemory(string slotName, string? name) : NodeBase(name)
     {
+        string _slotName = slotName;
+
         class Backpropagation(JoinSignalWithMemory source, uint memorySize) : SingleBackpropagationBase<JoinSignalWithMemory>(source)
         {
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
@@ -21,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
-            var memory = context.ExecutionContext.GetMemory(slotName);
+            var memory = context.ExecutionContext.GetMemory(_slotName);
             var output = signal.ReplaceWith(signal.GetMatrix().ConcatRight(memory));
             return (this, output, () => new Backpropagation(this, memory.ColumnCount));
         }
@@ -33,12 +35,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write(slotName);
+            writer.Write(_slotName);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            slotName = reader.ReadString();
+            _slotName = reader.ReadString();
         }
     }
 }

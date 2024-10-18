@@ -6,10 +6,10 @@ using BrightData.Types;
 namespace BrightData.Analysis
 {
     /// <summary>
-    /// Used to cast other numeric types to doubles for numeric analysis
+    /// Used to convert other numeric types to doubles for numeric analysis
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CastToDoubleNumericAnalysis<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>, INumericAnalysis<T>
+    internal class ConvertToDoubleNumericAnalysis<T>(uint writeCount = Consts.MaxWriteCount) : IDataAnalyser<T>, INumericAnalysis<T>
         where T : unmanaged, INumber<T>
     {
         readonly ConvertToDouble<T> _converter = new();

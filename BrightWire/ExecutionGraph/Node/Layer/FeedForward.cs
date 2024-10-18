@@ -11,6 +11,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class FeedForward(uint inputSize, uint outputSize, IVector<float> bias, IMatrix<float> weight, IGradientDescentOptimisation updater, string? name = null)
         : NodeBase(name), IFeedForward
     {
+        IGradientDescentOptimisation _updater = updater;
+
         protected class Backpropagation(FeedForward source, IMatrix<float> input) : SingleBackpropagationBase<FeedForward>(source)
         {
             protected override void DisposeMemory(bool isDisposing)
@@ -60,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void UpdateWeights(IMatrix<float> delta, ILearningContext context)
         {
-            updater.Update(Weight, delta, context);
+            _updater.Update(Weight, delta, context);
             //if(!Weight.IsEntirelyFinite())
             //    Debugger.Break();
         }
@@ -119,7 +121,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 weight.CopyTo(Weight);
 
             // ReSharper disable once ConstantNullCoalescingCondition
-            updater ??= factory.CreateWeightUpdater(Weight);
+            _updater ??= factory.CreateWeightUpdater(Weight);
         }
 
         public override void WriteTo(BinaryWriter writer)

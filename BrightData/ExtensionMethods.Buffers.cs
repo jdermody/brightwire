@@ -374,7 +374,6 @@ namespace BrightData
         /// <summary>
         /// Returns true of the buffer can be encoded (distinct items mapped to indices)
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="buffer"></param>
         /// <returns></returns>
         public static bool CanEncode(this IHaveDistinctItemCount buffer) => buffer.DistinctItems.HasValue;
@@ -528,11 +527,6 @@ namespace BrightData
         /// Creates a numeric composite buffer from an existing buffer
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
         public static async Task<IReadOnlyBuffer> ToNumeric(this IReadOnlyBuffer buffer) 
@@ -567,6 +561,11 @@ namespace BrightData
 
         static readonly HashSet<string> TrueStrings = ["Y", "YES", "TRUE", "T", "1"];
 
+        /// <summary>
+        /// Creates a boolean read only buffer from this buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<bool> ToBoolean(this IReadOnlyBuffer buffer) {
             if (buffer.DataType == typeof(bool))
                 return (IReadOnlyBuffer<bool>)buffer;
@@ -579,6 +578,11 @@ namespace BrightData
             static bool StringToBool(string str) => TrueStrings.Contains(str.ToUpperInvariant());
         }
 
+        /// <summary>
+        /// Creates a date time read o
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static IReadOnlyBuffer<DateTime> ToDateTime(this IReadOnlyBuffer buffer) {
             if (buffer.DataType == typeof(DateTime))
                 return (IReadOnlyBuffer<DateTime>)buffer;
@@ -606,11 +610,6 @@ namespace BrightData
         /// Creates a date composite buffer from an existing buffer
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
         public static IReadOnlyBuffer<DateOnly> ToDate(this IReadOnlyBuffer buffer)
         {
@@ -639,15 +638,9 @@ namespace BrightData
         /// Creates a time composite buffer from an existing buffer
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="tempStreams"></param>
-        /// <param name="blockSize"></param>
-        /// <param name="maxBlockSize"></param>
-        /// <param name="maxInMemoryBlocks"></param>
-        /// <param name="maxDistinctItems"></param>
         /// <returns></returns>
         public static IReadOnlyBuffer<TimeOnly> ToTime(this IReadOnlyBuffer buffer)
         {
-            IOperation conversion;
             if (buffer.DataType == typeof(TimeOnly))
                 return (IReadOnlyBuffer<TimeOnly>)buffer;
             if (buffer.DataType == typeof(DateTime))
@@ -819,6 +812,12 @@ namespace BrightData
             static WeightedIndexList VectorToWeightedIndexList(ReadOnlyVector<float> vector) => vector.ToSparse();
         }
 
+        /// <summary>
+        /// Converts a buffer to an unmanaged type
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IReadOnlyBuffer<T> To<T>(this IReadOnlyBuffer buffer) where T: unmanaged
         {
             // convert from strings

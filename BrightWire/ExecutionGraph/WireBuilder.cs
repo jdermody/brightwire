@@ -126,7 +126,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder AddFeedForward(uint outputSize, string? name = null)
         {
-            NodeBase node = _factory.CreateFeedForward(CurrentSize, outputSize, name);
+            var node = _factory.CreateFeedForward(CurrentSize, outputSize, name);
             SetNode(node);
             return SetNewSize(outputSize);
         }

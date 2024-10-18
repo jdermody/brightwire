@@ -239,11 +239,11 @@ namespace BrightData
             {
                 BrightDataType.Double     => StaticAnalysers.CreateNumericAnalyser(writeCount),
                 BrightDataType.Float      => StaticAnalysers.CreateNumericAnalyser<float>(writeCount),
-                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyserCastToDouble<decimal>(writeCount),
-                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyserCastToDouble<sbyte>(writeCount),
-                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyserCastToDouble<int>(writeCount),
-                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyserCastToDouble<long>(writeCount),
-                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyserCastToDouble<short>(writeCount),
+                BrightDataType.Decimal    => StaticAnalysers.CreateNumericAnalyserConvertToDouble<decimal>(writeCount),
+                BrightDataType.SByte      => StaticAnalysers.CreateNumericAnalyserConvertToDouble<sbyte>(writeCount),
+                BrightDataType.Int        => StaticAnalysers.CreateNumericAnalyserConvertToDouble<int>(writeCount),
+                BrightDataType.Long       => StaticAnalysers.CreateNumericAnalyserConvertToDouble<long>(writeCount),
+                BrightDataType.Short      => StaticAnalysers.CreateNumericAnalyserConvertToDouble<short>(writeCount),
                 BrightDataType.Date       => StaticAnalysers.CreateDateAnalyser(),
                 BrightDataType.BinaryData => StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(writeCount),
                 BrightDataType.DateOnly   => StaticAnalysers.CreateFrequencyAnalyser<DateOnly>(writeCount),
@@ -974,6 +974,7 @@ namespace BrightData
         /// <param name="conversion"></param>
         /// <param name="tempStreams"></param>
         /// <param name="blockSize"></param>
+        /// <param name="maxBlockSize"></param>
         /// <param name="maxInMemoryBlocks"></param>
         /// <param name="maxDistinctItems"></param>
         /// <returns></returns>

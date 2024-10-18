@@ -1646,6 +1646,13 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Returns the top n indices from the span
+        /// </summary>
+        /// <param name="span"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="AT"></typeparam>
+        /// <returns></returns>
         public static AT NIndices<T, AT>(this ReadOnlySpan<T> span)
             where AT: IFixedSizeSortedArray<uint, T>, new()
         {

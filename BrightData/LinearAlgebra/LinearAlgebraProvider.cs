@@ -252,7 +252,7 @@ namespace BrightData.LinearAlgebra
         public IVector<T> CreateVector(IReadOnlyVector<T> vector) => CreateVector(Clone(vector.ReadOnlySegment));
 
         /// <summary>
-        /// Creates a vector from an enumerable of floats
+        /// Creates a vector from an IEnumerable of floats
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>

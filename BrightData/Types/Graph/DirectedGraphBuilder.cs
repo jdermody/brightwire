@@ -20,7 +20,7 @@ namespace BrightData.Types.Graph
 
             public void AddEdge(int toNodeOffset)
             {
-                (_edges??=new()).Add(toNodeOffset);
+                (_edges??= []).Add(toNodeOffset);
             }
             public IEnumerable<int> ConnectedToNodeOffsets => _edges ?? Enumerable.Empty<int>();
             public int NumEdges => _edges?.Count ?? 0;

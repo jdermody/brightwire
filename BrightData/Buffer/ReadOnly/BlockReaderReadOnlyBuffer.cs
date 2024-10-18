@@ -38,8 +38,10 @@ namespace BrightData.Buffer.ReadOnly
 
         public async Task ForEachBlock(BlockCallback<T> callback, CancellationToken ct = default)
         {
-            for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++)
-                callback((await GetTypedBlock(i)).Span);
+            for (uint i = 0; i < BlockCount && !ct.IsCancellationRequested; i++) {
+                var block = await GetTypedBlock(i);
+                callback(block.Span);
+            }
         }
 
         public uint[] BlockSizes

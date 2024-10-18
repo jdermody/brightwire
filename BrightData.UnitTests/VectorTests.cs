@@ -487,7 +487,7 @@ namespace BrightData.UnitTests
             using var otherA = lap.CreateVector(a);
             using var otherB = lap.CreateVector(b);
             using var otherC = lap.CreateVector(c);
-            return otherA.FindDistances(new[] { otherB, otherC }, distanceMetric);
+            return otherA.FindDistances([otherB, otherC], distanceMetric);
         }
 
         [Fact]

@@ -914,6 +914,15 @@ namespace BrightData
             return kmeans.Cluster(data, k, distanceMetric);
         }
 
+        /// <summary>
+        /// Returns the distance between a query vector and the selected vectors in the vector store
+        /// </summary>
+        /// <param name="vectors">Vectors</param>
+        /// <param name="vectorIndices">Vector indices within the store to use</param>
+        /// <param name="query">Query vector</param>
+        /// <param name="distanceMetric">Distance metric</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static unsafe SpanOwner<T> FindDistancesFromVectorsToQuery<T>(this IReadOnlyVectorStore<T> vectors, ReadOnlySpan<uint> vectorIndices, ReadOnlySpan<T> query, DistanceMetric distanceMetric)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
@@ -930,10 +939,17 @@ namespace BrightData
             return ret;
         }
 
-        public static void ForEach<T>(this IReadOnlyVectorStore<T> vectors, IndexedSpanCallback<T> callback)
+        /// <summary>
+        /// Invokes a 
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <param name="callback"></param>
+        /// <param name="ct"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void ForEach<T>(this IReadOnlyVectorStore<T> vectors, IndexedSpanCallback<T> callback, CancellationToken ct = default)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
-            vectors.ForEach((x, _) => callback(x));
+            vectors.ForEach((x, _) => callback(x), ct);
         }
 
         /// <summary>
@@ -975,18 +991,40 @@ namespace BrightData
                 yield return array[i].Value;
         }
 
+        /// <summary>
+        /// Creates a KD search tree from the vectors in the vector store
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="vectors"></param>
+        /// <returns></returns>
         public static ISupportKnnSearch<T> KDTreeSearch<T>(this IReadOnlyVectorStore<T> vectors)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
             return new VectorKDTree<T>(vectors);
         }
 
+        /// <summary>
+        /// Creates a ball search tree from the vectors in the vector store
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="vectors"></param>
+        /// <param name="distanceMetric"></param>
+        /// <returns></returns>
         public static ISupportKnnSearch<T> BallTreeSearch<T>(this IReadOnlyVectorStore<T> vectors, DistanceMetric distanceMetric = DistanceMetric.Cosine)
             where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
         {
             return new VectorBallTree<T>(vectors, distanceMetric);
         }
 
+        /// <summary>
+        /// Binary search for a sorted list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comparer"></param>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <returns></returns>
         public static int BinarySearch<K, V>(this SortedList<K, V> list, K value, Func<K, K, int> comparer)
             where K : notnull
         {
@@ -1013,12 +1051,29 @@ namespace BrightData
             return ~lower;
         }
 
+        /// <summary>
+        /// Binary search for a sorted list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <returns></returns>
         public static int BinarySearch<K, V>(this SortedList<K, V> list, K value)
             where K : notnull
         {
             return BinarySearch(list, value, Comparer<K>.Default);
         }
 
+        /// <summary>
+        /// Binary search for a sorted list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comparer"></param>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <returns></returns>
         public static int BinarySearch<K, V>(this SortedList<K, V> list, K value, IComparer<K> comparer)
             where K : notnull
         {

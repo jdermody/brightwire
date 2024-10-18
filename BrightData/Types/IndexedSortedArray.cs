@@ -21,7 +21,7 @@ namespace BrightData.Types
         {
             public int CompareTo(T other) => index.CompareTo(other.Index);
         }
-        readonly List<T> _values = capacity.HasValue ? new(capacity.Value) : new();
+        readonly List<T> _values = capacity.HasValue ? new(capacity.Value) : [];
 
         /// <summary>
         /// Span of values

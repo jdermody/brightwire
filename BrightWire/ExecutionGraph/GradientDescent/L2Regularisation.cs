@@ -8,20 +8,22 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// </summary>
     internal class L2Regularisation(float lambda) : StochasticGradientDescent
     {
+        float _lambda = lambda;
+
         public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
-            var l2 = 1.0f - (context.LearningRate * lambda);
+            var l2 = 1.0f - (context.LearningRate * _lambda);
             Update(source, delta, context, l2, context.LearningRate);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            lambda = reader.ReadSingle();
+            _lambda = reader.ReadSingle();
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write(lambda);
+            writer.Write(_lambda);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace BrightData.UnitTests
         {
             var first = WeightedIndexList.Create((0, 0.5f), (1, 0.5f));
             var second = WeightedIndexList.Create((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Sum);
+            var merged = WeightedIndexList.Merge([first, second], AggregationType.Sum);
 
             merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(1.0f);
@@ -47,7 +47,7 @@ namespace BrightData.UnitTests
         {
             var first = WeightedIndexList.Create((0, 0.5f), (1, 0.5f));
             var second = WeightedIndexList.Create((1, 0.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] { first, second }, mergeOperation:AggregationType.Average);
+            var merged = WeightedIndexList.Merge([first, second], mergeOperation:AggregationType.Average);
 
             merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(0.5f);
@@ -58,7 +58,7 @@ namespace BrightData.UnitTests
         {
             var first = WeightedIndexList.Create((0, 0.5f), (1, 1.5f));
             var second = WeightedIndexList.Create((1, 2.5f), (2, 0.5f));
-            var merged = WeightedIndexList.Merge(new[] { first, second }, AggregationType.Max);
+            var merged = WeightedIndexList.Merge([first, second], AggregationType.Max);
 
             merged.Size.Should().Be(3);
             merged.Indices.Single(i => i.Index == 1).Weight.Should().Be(2.5f);
@@ -161,7 +161,7 @@ namespace BrightData.UnitTests
         public void TfIdf()
         {
             var documents = GetSampleDocuments();
-            foreach (var (document, weightedTerms) in documents.TfIdf()) {
+            foreach (var (_, weightedTerms) in documents.TfIdf()) {
                 // check that each index is positive
                 weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
             }
@@ -171,7 +171,7 @@ namespace BrightData.UnitTests
         public void Bm25Plus()
         {
             var documents = GetSampleDocuments();
-            foreach (var (document, weightedTerms) in documents.Bm25Plus()) {
+            foreach (var (_, weightedTerms) in documents.Bm25Plus()) {
                 // check that each index is positive
                 weightedTerms.Indices.Where(i => i.Weight <= 0).Should().BeEmpty();
             }

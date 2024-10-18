@@ -214,7 +214,7 @@ namespace BrightData.Buffer.Composite
                 if (_currBlock is not null) {
                     if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value) {
                         _currentDataBlock ??= (_dataBlockProvider ??= new TempFileProvider()).Get(Id);
-                        (_fileBlockSizes ??= new()).Add(_currBlock.Size);
+                        (_fileBlockSizes ??= []).Add(_currBlock.Size);
                         await _currBlock.WriteTo(_currentDataBlock);
                     }
                     else
