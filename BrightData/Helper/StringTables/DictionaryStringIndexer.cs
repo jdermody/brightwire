@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.Helper
+namespace BrightData.Helper.StringTables
 {
     /// <summary>
-    /// Builds a string table
+    /// Builds a string table in memory using a dictionary
     /// </summary>
-    public class StringIndexer : IIndexStrings
+    public class DictionaryStringIndexer : IIndexStrings
     {
         readonly Dictionary<string, uint> _index = new();
 
@@ -15,18 +15,11 @@ namespace BrightData.Helper
         /// Creates a string indexer
         /// </summary>
         /// <param name="strings">Initial strings in table</param>
-        public StringIndexer(params string[] strings)
+        public DictionaryStringIndexer(params string[] strings)
         {
             foreach (var str in strings)
                 GetIndex(str);
         }
-
-        /// <summary>
-        /// Creates a string indexer
-        /// </summary>
-        /// <param name="strings">Initial strings in table</param>
-        [Obsolete("Please use standard constructor instead")]
-        public static StringIndexer Create(params string[] strings) => new(strings);
 
         /// <summary>
         /// Returns the index of a string (creates it if not already in table)
@@ -37,18 +30,25 @@ namespace BrightData.Helper
         {
             if (_index.TryGetValue(str, out var ret))
                 return ret;
-            _index.Add(str, ret = (uint)_index.Count);
+            lock (_index) {
+                if (_index.TryGetValue(str, out ret))
+                    return ret;
+                _index.Add(str, ret = (uint)_index.Count);
+            }
             return ret;
         }
 
         /// <summary>
         /// Size of the string table
         /// </summary>
-        public uint OutputSize => (uint) _index.Count;
+        public uint Size => (uint)_index.Count;
 
         /// <summary>
         /// Returns all strings by indexed order
         /// </summary>
-        public IEnumerable<string> OrderedStrings => _index.OrderBy(kv => kv.Value).Select(kv => kv.Key);
+        public IEnumerable<string> OrderedStrings => _index
+            .OrderBy(kv => kv.Value)
+            .Select(kv => kv.Key)
+        ;
     }
 }

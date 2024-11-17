@@ -308,7 +308,7 @@ namespace BrightData
     /// <summary>
     /// Indicates that the type can convert string to string indices
     /// </summary>
-    public interface IIndexStrings
+    public interface IIndexStrings : IHaveSize
     {
         /// <summary>
         /// Returns the index for a string
@@ -320,7 +320,12 @@ namespace BrightData
         /// <summary>
         /// Gets the total number of possible string indices
         /// </summary>
-        uint OutputSize { get; }
+        [Obsolete]public uint OutputSize => Size;
+
+        /// <summary>
+        /// Returns the list of strings, ordered by string index
+        /// </summary>
+        IEnumerable<string> OrderedStrings { get; }
     }
 
     /// <summary>
@@ -334,7 +339,11 @@ namespace BrightData
         IIndexStrings? Indexer { get; }
     }
 
-    
+    public interface IStringTableInMemory : IHaveSize
+    {
+        ReadOnlySpan<byte> GetUtf8(uint index);
+        string GetString(uint index);
+    }
 
     /// <summary>
     /// Notifies of operations and messages

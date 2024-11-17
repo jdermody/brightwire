@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
 using BrightData.Helper;
+using BrightData.Helper.StringTables;
 using BrightData.Types;
 using BrightWire;
 using BrightWire.ExecutionGraph;
@@ -167,7 +168,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -198,7 +199,7 @@ namespace ExampleCode.DataTableTrainers
             ;
         }
 
-        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, StringIndexer indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> CreateCombinedDataTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -221,7 +222,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildInMemory();
         }
 
-        static StringIndexer GetIndexer() => new("negative", "positive");
+        static IIndexStrings GetIndexer() => new DictionaryStringIndexer("negative", "positive");
 
         public async Task TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {

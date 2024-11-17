@@ -83,7 +83,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -124,7 +124,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -133,6 +133,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -211,7 +212,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -339,7 +340,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -380,7 +381,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -389,6 +390,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -467,7 +469,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -595,7 +597,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -636,7 +638,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -645,6 +647,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -723,7 +726,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -851,7 +854,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -892,7 +895,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -901,6 +904,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -979,7 +983,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1107,7 +1111,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1148,7 +1152,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -1157,6 +1161,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1235,7 +1240,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1363,7 +1368,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1404,7 +1409,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -1413,6 +1418,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1491,7 +1497,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1619,7 +1625,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1660,7 +1666,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -1669,6 +1675,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1747,7 +1754,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1875,7 +1882,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -1916,7 +1923,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -1925,6 +1932,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2003,7 +2011,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2131,7 +2139,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2172,7 +2180,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -2181,6 +2189,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2259,7 +2268,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2387,7 +2396,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2428,7 +2437,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -2437,6 +2446,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2515,7 +2525,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2643,7 +2653,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2684,7 +2694,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -2693,6 +2703,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2771,7 +2782,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2899,7 +2910,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -2940,7 +2951,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -2949,6 +2960,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3027,7 +3039,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3155,7 +3167,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3196,7 +3208,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -3205,6 +3217,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3283,7 +3296,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3411,7 +3424,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3452,7 +3465,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -3461,6 +3474,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3539,7 +3553,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3667,7 +3681,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3708,7 +3722,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -3717,6 +3731,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3795,7 +3810,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3923,7 +3938,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -3964,7 +3979,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -3973,6 +3988,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4051,7 +4067,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4179,7 +4195,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4220,7 +4236,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -4229,6 +4245,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4307,7 +4324,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4435,7 +4452,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4476,7 +4493,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -4485,6 +4502,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4563,7 +4581,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4691,7 +4709,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4732,7 +4750,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -4741,6 +4759,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4819,7 +4838,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4947,7 +4966,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -4988,7 +5007,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -4997,6 +5016,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5075,7 +5095,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5203,7 +5223,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5244,7 +5264,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -5253,6 +5273,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5331,7 +5352,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5459,7 +5480,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5500,7 +5521,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -5509,6 +5530,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5587,7 +5609,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5715,7 +5737,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5756,7 +5778,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -5765,6 +5787,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5843,7 +5866,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -5971,7 +5994,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6012,7 +6035,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -6021,6 +6044,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6099,7 +6123,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6227,7 +6251,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6268,7 +6292,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -6277,6 +6301,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6355,7 +6380,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6483,7 +6508,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6524,7 +6549,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -6533,6 +6558,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6611,7 +6637,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6739,7 +6765,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6780,7 +6806,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -6789,6 +6815,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6867,7 +6894,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -6995,7 +7022,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7036,7 +7063,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -7045,6 +7072,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7123,7 +7151,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7251,7 +7279,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7292,7 +7320,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -7301,6 +7329,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7379,7 +7408,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7507,7 +7536,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7548,7 +7577,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -7557,6 +7586,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7635,7 +7665,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7763,7 +7793,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -7804,7 +7834,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -7813,6 +7843,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7891,7 +7922,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -8019,7 +8050,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -8060,7 +8091,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];
@@ -8069,6 +8100,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -8147,7 +8179,7 @@ namespace BrightData.Types
             {
                 if (index < Size)
                     return (Values[(int)index], Weights[(int)index]);
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 

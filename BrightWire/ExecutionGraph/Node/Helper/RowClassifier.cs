@@ -37,12 +37,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
 
             public uint GetIndex(string str) => _targetLabel[str];
-            public uint OutputSize => (uint)_targetLabel.Count;
+            public IEnumerable<string> OrderedStrings => _targetLabel.OrderBy(x => x.Value).Select(x => x.Key);
+            public uint Size => (uint)_targetLabel.Count;
         }
 
         readonly IIndexStrings _indexer = (classifier as IHaveStringIndexer)?.Indexer ?? new DefaultIndexer(dataTable);
 
-        public uint OutputSize => _indexer.OutputSize;
+        public uint OutputSize => _indexer.Size;
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)
         {
@@ -52,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                     .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
                     .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
-            var output = lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].GetValueOrDefault(j, 0f));
+            var output = lap.CreateMatrix((uint)resultList.Length, OutputSize, (i, j) => resultList[i].GetValueOrDefault(j, 0f));
             return (this, output.AsGraphData(), () => new Backpropagation(this));
         }
     }
