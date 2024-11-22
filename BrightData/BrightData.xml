@@ -6525,6 +6525,82 @@
         <member name="P:BrightData.Helper.StringTables.TrieStringIndexer.Size">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1">
+            <summary>
+            An in-memory generic trie that maintains a prefix shortcut table based on usage
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData">
+            <summary>
+            Represents a node within the trie
+            </summary>
+            <param name="ParentIndex">Parent index of this node</param>
+            <param name="Character">Node data</param>
+            <param name="Index">Index of following node</param>
+            <param name="ValueIndex">Index (or max value if none) of the node's value</param>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.#ctor(System.UInt32,`0,System.UInt32,System.UInt32)">
+            <summary>
+            Represents a node within the trie
+            </summary>
+            <param name="ParentIndex">Parent index of this node</param>
+            <param name="Character">Node data</param>
+            <param name="Index">Index of following node</param>
+            <param name="ValueIndex">Index (or max value if none) of the node's value</param>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.ParentIndex">
+            <summary>Parent index of this node</summary>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.Character">
+            <summary>Node data</summary>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.Index">
+            <summary>Index of following node</summary>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.ValueIndex">
+            <summary>Index (or max value if none) of the node's value</summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.NodeData.CompareTo(BrightData.Helper.StringTables.UniqueIndexedStringTrie{`0}.NodeData)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Builder">
+            <summary>
+            Builds a trie
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Builder.#ctor">
+            <summary>
+            Creates an empty builder
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Builder.Add(System.ReadOnlySpan{`0},System.UInt32)">
+            <summary>
+            Adds a new string
+            </summary>
+            <param name="str">String to add</param>
+            <param name="index">String index</param>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Builder.Build">
+            <summary>
+            Builds a trie in memory
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.#ctor(System.ReadOnlyMemory{BrightData.Helper.StringTables.UniqueIndexedStringTrie{`0}.NodeData})">
+            <summary>
+            Creates a trie from node data
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.TryGetIndex(System.ReadOnlySpan{`0},System.UInt32@)">
+            <summary>
+            Searches the trie for an index from the specified string
+            </summary>
+            <param name="str"></param>
+            <param name="ret"></param>
+            <returns></returns>
+        </member>
         <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.DataAsBytes">
             <inheritdoc />
         </member>
@@ -13153,7 +13229,104 @@
         <member name="P:BrightData.Types.BinaryData.ReadOnlyMemory">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Types.BitVector">
+            <summary>
+            Binary vector - each bit represents an item in the vector
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.BitVector.#ctor(System.UInt64[])">
+            <summary>
+            Creates a fixed size bit vector from a data block
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.Types.BitVector.#ctor(System.UInt32)">
+            <summary>
+            Creates a fixed size bit vector
+            </summary>
+            <param name="size"></param>
+        </member>
+        <member name="P:BrightData.Types.BitVector.Data">
+            <summary>
+            Underlying data
+            </summary>
+        </member>
         <member name="P:BrightData.Types.BitVector.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BitVector.Item(System.Int32)">
+            <summary>
+            Gets or sets an item in the vector
+            </summary>
+            <param name="bitIndex"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.Types.BitVector.CountOfSetBits">
+            <summary>
+            Counts the bits that are true
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.AsSpan">
+            <summary>
+            Underlying data
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.XorWith(BrightData.Types.BitVector)">
+            <summary>
+            Returns a new vector that has been XORed with this and another vector
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.UnionWith(BrightData.Types.BitVector)">
+            <summary>
+            Returns a new vector that is the union of this and another vector
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.IntersectionWith(BrightData.Types.BitVector)">
+            <summary>
+            Returns a new vector that is the intersection of this and another vector
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.Except(BrightData.Types.BitVector)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.HammingDistance(BrightData.Types.BitVector)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.BitVector.XorInPlace(BrightData.Types.BitVector@)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="M:BrightData.Types.BitVector.UnionInPlace(BrightData.Types.BitVector@)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="M:BrightData.Types.BitVector.IntersectionInPlace(BrightData.Types.BitVector@)">
+            <summary>
+            
+            </summary>
+            <param name="other"></param>
+        </member>
+        <member name="P:BrightData.Types.BitVector.DataAsBytes">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending1Array`2">

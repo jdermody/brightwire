@@ -12,7 +12,7 @@ namespace BrightData.Helper.StringTables
     /// An in-memory generic trie that maintains a prefix shortcut table based on usage
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly ref struct UniqueIndexedStringTrie<T> : IHaveDataAsReadOnlyByteSpan
+    public class UniqueIndexedStringTrie<T> : IHaveDataAsReadOnlyByteSpan
         where T: unmanaged, IComparable<T>
     {
         /// <summary>
@@ -99,7 +99,7 @@ namespace BrightData.Helper.StringTables
         {
             record Node(uint UniqueIndex)
             {
-                readonly Dictionary<T, Node> _children = new();
+                readonly Dictionary<T, Node> _children = [];
 
                 uint? ItemIndex { get; set; }
 
