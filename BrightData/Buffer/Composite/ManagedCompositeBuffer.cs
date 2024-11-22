@@ -14,6 +14,7 @@ namespace BrightData.Buffer.Composite
     /// <param name="createItem"></param>
     /// <param name="tempStreams"></param>
     /// <param name="blockSize"></param>
+    /// <param name="maxBlockSize"></param>
     /// <param name="maxInMemoryBlocks"></param>
     /// <param name="maxDistinctItems"></param>
     internal class ManagedCompositeBuffer<T>(

@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 ;
             }
 
-            public uint GetIndex(string str) => _targetLabel[str];
+            public uint GetIndex(ReadOnlySpan<char> str) => _targetLabel[str.ToString()];
             public IEnumerable<string> OrderedStrings => _targetLabel.OrderBy(x => x.Value).Select(x => x.Key);
             public uint Size => (uint)_targetLabel.Count;
         }

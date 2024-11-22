@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace BrightData.Helper.StringTables
 {
     /// <summary>
-    /// Builds a string table in memory using a dictionary
+    /// Indexes strings in memory using a dictionary
     /// </summary>
     public class DictionaryStringIndexer : IIndexStrings
     {
-        readonly Dictionary<string, uint> _index = new();
+        readonly Dictionary<string, uint> _index = [];
+        readonly Lock _lock = new();
 
         /// <summary>
         /// Creates a string indexer
@@ -26,14 +29,38 @@ namespace BrightData.Helper.StringTables
         /// </summary>
         /// <param name="str">String to search</param>
         /// <returns>String index</returns>
-        public uint GetIndex(string str)
+        [SkipLocalsInit]
+        public uint GetIndex(ReadOnlySpan<char> str)
         {
-            if (_index.TryGetValue(str, out var ret))
+            // convert to lowercase
+            uint ret;
+            Span<char> temp = stackalloc char[str.Length];
+            var size = str.Trim().ToLowerInvariant(temp);
+
+            // fast path
+            if (size >= 0) {
+                var lookup = _index.GetAlternateLookup<ReadOnlySpan<char>>();
+                var lowerStr = temp[..size].AsReadOnly();
+                if (!lookup.TryGetValue(lowerStr, out ret)) {
+                    lock (_lock) {
+                        if (lookup.TryGetValue(lowerStr, out ret))
+                            return ret;
+                        if (!lookup.TryAdd(lowerStr, ret = (uint)_index.Count))
+                            throw new Exception($"Not able to add {lowerStr} to dictionary");
+                    }
+                }
                 return ret;
-            lock (_index) {
-                if (_index.TryGetValue(str, out ret))
+            }
+
+            // fallback
+            var str2 = str.Trim().ToString().ToLowerInvariant();
+            if (_index.TryGetValue(str2, out ret))
+                return ret;
+            lock (_lock) {
+                if (_index.TryGetValue(str2, out ret))
                     return ret;
-                _index.Add(str, ret = (uint)_index.Count);
+                if (!_index.TryAdd(str2, ret = (uint)_index.Count))
+                    throw new Exception($"Not able to add {str2} to dictionary");
             }
             return ret;
         }

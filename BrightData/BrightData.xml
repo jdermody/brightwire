@@ -590,6 +590,7 @@
             <param name="createItem"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
@@ -601,6 +602,7 @@
             <param name="createItem"></param>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
@@ -610,6 +612,7 @@
             </summary>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
@@ -619,6 +622,7 @@
             </summary>
             <param name="tempStreams"></param>
             <param name="blockSize"></param>
+            <param name="maxBlockSize"></param>
             <param name="maxInMemoryBlocks"></param>
             <param name="maxDistinctItems"></param>
         </member>
@@ -6373,7 +6377,7 @@
         </member>
         <member name="T:BrightData.Helper.StringTables.DictionaryStringIndexer">
             <summary>
-            Builds a string table in memory using a dictionary
+            Indexes strings in memory using a dictionary
             </summary>
         </member>
         <member name="M:BrightData.Helper.StringTables.DictionaryStringIndexer.#ctor(System.String[])">
@@ -6382,7 +6386,7 @@
             </summary>
             <param name="strings">Initial strings in table</param>
         </member>
-        <member name="M:BrightData.Helper.StringTables.DictionaryStringIndexer.GetIndex(System.String)">
+        <member name="M:BrightData.Helper.StringTables.DictionaryStringIndexer.GetIndex(System.ReadOnlySpan{System.Char})">
             <summary>
             Returns the index of a string (creates it if not already in table)
             </summary>
@@ -6399,6 +6403,64 @@
             Returns all strings by indexed order
             </summary>
         </member>
+        <member name="T:BrightData.Helper.StringTables.FileBasedStringTable">
+            <summary>
+            File based string table that has been created with InMemoryStringTableBuilder
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.Create(System.String)">
+            <summary>
+            Creates a string table from the file path
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetString(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetUtf8(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetAll(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.FileBasedStringTable.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetStringIndexer(BrightData.StringIndexType,System.Int32)">
+            <summary>
+            Creates a string indexer
+            </summary>
+            <param name="type">Type of string indexer to create</param>
+            <param name="maxStringSize">Max string size to index</param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetStringIndexer(System.Func{System.ReadOnlySpan{System.Char},System.ReadOnlySpan{System.Int32}},System.Int32)">
+            <summary>
+            Creates a string indexer from a tokenizer (characters are mapped to a series of integers, for example from Byte Pair Encoding)
+            </summary>
+            <param name="tokenizer"></param>
+            <param name="maxStringSize"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Helper.StringTables.InMemoryStringTableBuilder">
+            <summary>
+            Builds utf-8 based string data in memory and writes to file
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.InMemoryStringTableBuilder.#ctor(BrightData.IIndexStrings,System.Int32)">
+            <summary>
+            Creates a string table builder from a string indexer
+            </summary>
+            <param name="stringIndexer"></param>
+            <param name="maxStringSizeInBytes"></param>
+            <exception cref="T:System.Exception"></exception>
+        </member>
         <member name="M:BrightData.Helper.StringTables.InMemoryStringTableBuilder.Dispose">
             <inheritdoc />
         </member>
@@ -6409,6 +6471,61 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.Helper.StringTables.InMemoryStringTableBuilder.GetString(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.InMemoryStringTableBuilder.GetAll(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.InMemoryStringTableBuilder.WriteTo(System.String)">
+            <summary>
+            Writes the string table to a file
+            </summary>
+            <param name="outputPath"></param>
+        </member>
+        <member name="T:BrightData.Helper.StringTables.StringIndexerWithOverflow">
+            <summary>
+            A string indexer that provides an overflow buffer to index strings that are not represented in an underlying string indexer
+            </summary>
+            <param name="indexer">Underlying string indexer</param>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringIndexerWithOverflow.#ctor(BrightData.IIndexStrings)">
+            <summary>
+            A string indexer that provides an overflow buffer to index strings that are not represented in an underlying string indexer
+            </summary>
+            <param name="indexer">Underlying string indexer</param>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringIndexerWithOverflow.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringIndexerWithOverflow.GetIndex(System.ReadOnlySpan{System.Char})">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringIndexerWithOverflow.OrderedStrings">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringIndexerWithOverflow.AdditionalStringCount">
+            <summary>
+            Additional strings that have been indexed
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringIndexerWithOverflow.AdditionalStrings">
+            <summary>
+            Additional strings that were not in the underlying string indexer
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.TrieStringIndexer.GetIndex(System.ReadOnlySpan{System.Char})">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.TrieStringIndexer.OrderedStrings">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.TrieStringIndexer.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.TrieStringIndexer.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.DataAsBytes">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Helper.TempFileProvider">
@@ -6990,7 +7107,7 @@
             Indicates that the type can convert string to string indices
             </summary>
         </member>
-        <member name="M:BrightData.IIndexStrings.GetIndex(System.String)">
+        <member name="M:BrightData.IIndexStrings.GetIndex(System.ReadOnlySpan{System.Char})">
             <summary>
             Returns the index for a string
             </summary>
@@ -13208,6 +13325,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending2Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 2 elements)
@@ -13376,6 +13496,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending3Array`2">
             <summary>
@@ -13546,6 +13669,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending4Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 4 elements)
@@ -13714,6 +13840,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending5Array`2">
             <summary>
@@ -13884,6 +14013,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending6Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 6 elements)
@@ -14052,6 +14184,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending7Array`2">
             <summary>
@@ -14222,6 +14357,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending8Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 8 elements)
@@ -14390,6 +14528,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending9Array`2">
             <summary>
@@ -14560,6 +14701,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending10Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 10 elements)
@@ -14728,6 +14872,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending11Array`2">
             <summary>
@@ -14898,6 +15045,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending12Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 12 elements)
@@ -15066,6 +15216,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending13Array`2">
             <summary>
@@ -15236,6 +15389,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending14Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 14 elements)
@@ -15404,6 +15560,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending15Array`2">
             <summary>
@@ -15574,6 +15733,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending16Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 16 elements)
@@ -15742,6 +15904,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending17Array`2">
             <summary>
@@ -15912,6 +16077,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending18Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 18 elements)
@@ -16080,6 +16248,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending19Array`2">
             <summary>
@@ -16250,6 +16421,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending20Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 20 elements)
@@ -16418,6 +16592,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending21Array`2">
             <summary>
@@ -16588,6 +16765,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending22Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 22 elements)
@@ -16756,6 +16936,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending23Array`2">
             <summary>
@@ -16926,6 +17109,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending24Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 24 elements)
@@ -17094,6 +17280,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending25Array`2">
             <summary>
@@ -17264,6 +17453,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending26Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 26 elements)
@@ -17432,6 +17624,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending27Array`2">
             <summary>
@@ -17602,6 +17797,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending28Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 28 elements)
@@ -17770,6 +17968,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending29Array`2">
             <summary>
@@ -17940,6 +18141,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending30Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 30 elements)
@@ -18108,6 +18312,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending31Array`2">
             <summary>
@@ -18278,6 +18485,9 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending32Array`2">
             <summary>
             Fixed size sorted array of values and weights (max 32 elements)
@@ -18446,6 +18656,9 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.DirectedGraph`1">
             <summary>

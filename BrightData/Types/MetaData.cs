@@ -14,7 +14,7 @@ namespace BrightData.Types
     /// </summary>
     public class MetaData
     {
-        readonly Dictionary<string, IConvertible> _values = new();
+        readonly Dictionary<string, IConvertible> _values = [];
         readonly List<string> _orderedValues = [];
 
         /// <summary>

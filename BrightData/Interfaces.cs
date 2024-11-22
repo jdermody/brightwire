@@ -315,7 +315,7 @@ namespace BrightData
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        uint GetIndex(string str);
+        uint GetIndex(ReadOnlySpan<char> str);
 
         /// <summary>
         /// Gets the total number of possible string indices
@@ -343,6 +343,14 @@ namespace BrightData
     {
         ReadOnlySpan<byte> GetUtf8(uint index);
         string GetString(uint index);
+        string[] GetAll(int maxStringSize = 1024);
+    }
+
+    public interface IAsyncStringTable : IHaveSize
+    {
+        Task<ReadOnlyMemory<byte>> GetUtf8(uint index);
+        Task<string> GetString(uint index);
+        Task<string[]> GetAll(int maxStringSize = 1024);
     }
 
     /// <summary>
@@ -536,5 +544,11 @@ namespace BrightData
         /// <param name="index">Index of element to remove</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         V RemoveAt(byte index);
+    }
+
+    public enum StringIndexType
+    {
+        Dictionary,
+        Trie
     }
 }

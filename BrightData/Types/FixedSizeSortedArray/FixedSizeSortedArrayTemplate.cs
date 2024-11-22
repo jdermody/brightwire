@@ -262,6 +262,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -519,6 +520,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -776,6 +778,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1033,6 +1036,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1290,6 +1294,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1547,6 +1552,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -1804,6 +1810,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2061,6 +2068,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2318,6 +2326,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2575,6 +2584,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -2832,6 +2842,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3089,6 +3100,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3346,6 +3358,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3603,6 +3616,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -3860,6 +3874,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4117,6 +4132,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4374,6 +4390,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4631,6 +4648,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -4888,6 +4906,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5145,6 +5164,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5402,6 +5422,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5659,6 +5680,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -5916,6 +5938,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6173,6 +6196,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6430,6 +6454,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6687,6 +6712,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -6944,6 +6970,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7201,6 +7228,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7458,6 +7486,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7715,6 +7744,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -7972,6 +8002,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 
@@ -8229,6 +8260,7 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
 

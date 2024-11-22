@@ -2,10 +2,8 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
@@ -13,20 +11,29 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.Helper.StringTables
 {
+    /// <summary>
+    /// Builds utf-8 based string data in memory and writes to file
+    /// </summary>
     public class InMemoryStringTableBuilder : IDisposable, IStringTableInMemory
     {
-        public readonly record struct OffsetAndLength(uint Offset, uint Length);
+        internal readonly record struct OffsetAndLength(uint Offset, uint Length);
         readonly ArrayPoolBufferWriter<byte> _writer = new();
-        readonly List<OffsetAndLength> _stringTable = new();
+        readonly List<OffsetAndLength> _stringTable = [];
 
+        /// <summary>
+        /// Creates a string table builder from a string indexer
+        /// </summary>
+        /// <param name="stringIndexer"></param>
+        /// <param name="maxStringSizeInBytes"></param>
+        /// <exception cref="Exception"></exception>
         [SkipLocalsInit]
-        public InMemoryStringTableBuilder(IIndexStrings strings, int stackBufferSize = 4096)
+        public InMemoryStringTableBuilder(IIndexStrings stringIndexer, int maxStringSizeInBytes = 1024)
         {
-            Span<byte> buffer = stackalloc byte[stackBufferSize];
-            foreach (var str in strings.OrderedStrings) {
+            Span<byte> buffer = stackalloc byte[maxStringSizeInBytes];
+            foreach (var str in stringIndexer.OrderedStrings) {
                 var offset = (uint)_writer.WrittenCount;
                 if (!Encoding.UTF8.TryGetBytes(str, buffer, out var size))
-                    throw new Exception($"String was too large to encode in {stackBufferSize:N0} bytes: \"{str[..32]}...\" ({str.Length} characters)");
+                    throw new Exception($"String was too large to encode in {maxStringSizeInBytes:N0} bytes: \"{str[..32]}...\" ({str.Length} characters)");
                 _writer.Write(buffer[..size]);
                 _stringTable.Add(new(offset, (uint)size));
             }
@@ -37,11 +44,6 @@ namespace BrightData.Helper.StringTables
         {
             _writer.Dispose();
         }
-
-        public ReadOnlySpan<byte> BufferSpan => _writer.WrittenSpan;
-        public ReadOnlyMemory<byte> BufferMemory => _writer.WrittenMemory;
-        public ReadOnlySpan<OffsetAndLength> StringSpan => CollectionsMarshal.AsSpan(_stringTable);
-        public OffsetAndLength[] AllStrings => _stringTable.ToArray();
 
         /// <inheritdoc />
         public uint Size => (uint)_stringTable.Count;
@@ -56,11 +58,24 @@ namespace BrightData.Helper.StringTables
         /// <inheritdoc />
         public string GetString(uint index) => Encoding.UTF8.GetString(GetUtf8(index));
 
+        /// <inheritdoc />
+        public string[] GetAll(int maxStringSize)
+        {
+            var ret = new string[Size];
+            for (uint i = 0U, len = Size; i < len; i++)
+                ret[i] = Encoding.UTF8.GetString(GetUtf8(i)[..maxStringSize]);
+            return ret;
+        }
+
+        /// <summary>
+        /// Writes the string table to a file
+        /// </summary>
+        /// <param name="outputPath"></param>
         public async Task WriteTo(string outputPath)
         {
             const uint HeaderSize = 12U;
             var sizeHeader = new byte[HeaderSize];
-            var strings = AllStrings.AsMemory().Cast<OffsetAndLength, byte>();
+            var strings = _stringTable.ToArray().AsMemory().Cast<OffsetAndLength, byte>();
             var header = WriteHeader(sizeHeader, [
                 Size,
                 HeaderSize,
@@ -71,7 +86,8 @@ namespace BrightData.Helper.StringTables
             using var file = File.OpenHandle(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, FileOptions.Asynchronous | FileOptions.SequentialScan);
             await RandomAccess.WriteAsync(file, sizeHeader, 0);
             await RandomAccess.WriteAsync(file, strings, header[1]);
-            await RandomAccess.WriteAsync(file, BufferMemory, header[2]);
+            await RandomAccess.WriteAsync(file, _writer.WrittenMemory, header[2]);
+            return;
 
             static uint[] WriteHeader(Span<byte> span, uint[] header)
             {

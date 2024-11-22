@@ -65,7 +65,7 @@ namespace BrightData.Parquet
             var firstColumn = columns[0];
 
             // create a parquet writer
-            using var writer = await ParquetWriter.CreateAsync(schema, output);
+            await using var writer = await ParquetWriter.CreateAsync(schema, output);
             writer.CompressionMethod = CompressionMethod.Gzip;
             writer.CompressionLevel = System.IO.Compression.CompressionLevel.Optimal;
 
