@@ -339,17 +339,57 @@ namespace BrightData
         IIndexStrings? Indexer { get; }
     }
 
+    /// <summary>
+    /// In memory string table
+    /// </summary>
     public interface IStringTableInMemory : IHaveSize
     {
+        /// <summary>
+        /// Gets a string as utf-8
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         ReadOnlySpan<byte> GetUtf8(uint index);
+
+        /// <summary>
+        /// Gets a string by index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         string GetString(uint index);
+
+        /// <summary>
+        /// Gets all strings
+        /// </summary>
+        /// <param name="maxStringSize">Max string size</param>
+        /// <returns></returns>
         string[] GetAll(int maxStringSize = 1024);
     }
 
+    /// <summary>
+    /// Asynchronous string table
+    /// </summary>
     public interface IAsyncStringTable : IHaveSize
     {
+        /// <summary>
+        /// Gets a string as utf-8
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         Task<ReadOnlyMemory<byte>> GetUtf8(uint index);
+
+        /// <summary>
+        /// Gets a string by index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         Task<string> GetString(uint index);
+
+        /// <summary>
+        /// Gets all strings
+        /// </summary>
+        /// <param name="maxStringSize">Max string size</param>
+        /// <returns></returns>
         Task<string[]> GetAll(int maxStringSize = 1024);
     }
 

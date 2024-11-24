@@ -56,6 +56,19 @@ namespace BrightData.Helper
         }
 
         /// <summary>
+        /// Adds a new operation
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="coefficient"></param>
+        public void Add(ReadOnlySpan<T> span, T coefficient)
+        {
+            ++_count;
+            var existing = _delta.Span;
+            for (var i = 0; i < _delta.Length; i++)
+                existing[i] = _operation(existing[i], span[i] * coefficient, _count);
+        }
+
+        /// <summary>
         /// The aggregation result
         /// </summary>
         public readonly ReadOnlySpan<T> Span => _delta.Span;

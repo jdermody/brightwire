@@ -9,7 +9,7 @@ namespace BrightData.Helper.StringTables
 {
     internal class TrieStringIndexer(UniqueIndexedStringTrie<char> trie, IStringTableInMemory stringTable) : IIndexStrings, IHaveDataAsReadOnlyByteSpan
     {
-        public static async Task<TrieStringIndexer> Create(FileBasedStringTable stringTable, string filePath)
+        public static async Task<TrieStringIndexer> Create(IStringTableInMemory stringTable, string filePath)
         {
             var data = await File.ReadAllBytesAsync(filePath);
             var trie = new UniqueIndexedStringTrie<char>(data.AsMemory().Cast<byte, UniqueIndexedStringTrie<char>.NodeData>());

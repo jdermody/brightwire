@@ -135,7 +135,7 @@ namespace BrightData.Helper.StringTables
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<IIndexStrings> GetStringIndexer(StringIndexType type, int maxStringSize = 1024)
+        public async Task<IIndexStrings> GetStringIndexer(StringIndexType type = StringIndexType.Dictionary, int maxStringSize = 1024)
         {
             // read entire string block
             var dataSize = RandomAccess.GetLength(_file) - _stringDataOffset;

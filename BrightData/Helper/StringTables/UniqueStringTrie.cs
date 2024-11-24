@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -180,6 +182,13 @@ namespace BrightData.Helper.StringTables
                 return _data.Character.CompareTo(other.Character);
             }
         }
+        readonly ref struct IndexComparator(uint Index) : IComparable<NodeData>
+        {
+            public int CompareTo(NodeData other)
+            {
+                return Index.CompareTo(other.ParentIndex);
+            }
+        }
 
         readonly ReadOnlyMemory<NodeData> _data;
         readonly Dictionary<FixedSizePrefixArray, int> _prefixes = [];
@@ -192,6 +201,12 @@ namespace BrightData.Helper.StringTables
         public UniqueIndexedStringTrie(ReadOnlyMemory<NodeData> data)
         {
             _data = data;
+        }
+
+        public static async Task<UniqueIndexedStringTrie<T>> Load(string filePath)
+        {
+            var data = await File.ReadAllBytesAsync(filePath);
+            return new UniqueIndexedStringTrie<T>(data.AsMemory().Cast<byte, NodeData>());
         }
 
         /// <summary>
@@ -239,6 +254,87 @@ namespace BrightData.Helper.StringTables
 
             ret = default;
             return false;
+        }
+
+        public IEnumerable<uint> Search(ReadOnlySpan<T> prefix)
+        {
+            var isValid = true;
+            var data = _data.Span;
+            ref readonly var curr = ref _defaultRoot;
+
+            while (prefix.Length > 0) {
+                var index = new CharacterIndex(curr.Index, prefix[0]);
+                var characterIndex = data.BinarySearch(new CharacterComparator(in index));
+                if (characterIndex < 0) {
+                    isValid = false;
+                    break;
+                }
+
+                curr = ref data[characterIndex];
+                prefix = prefix[1..];
+            }
+
+            if (isValid) {
+                var ret = new List<uint>();
+                var indices = new Stack<uint>();
+                indices.Push(curr.Index);
+                if (curr.ValueIndex != uint.MaxValue)
+                    ret.Add(curr.ValueIndex);
+
+                while (indices.Count > 0) {
+                    var comparator = new IndexComparator(indices.Pop());
+                    foreach (var index in data.MultiBinarySearch(comparator)) {
+                        ref readonly var item = ref data[index];
+                        if (item.ValueIndex != uint.MaxValue)
+                            ret.Add(item.ValueIndex);
+                        indices.Push(item.Index);
+                    }
+                }
+                return ret;
+            }
+            return [];
+        }
+
+        public IReadOnlyList<(T[] Item, uint Index)> Complete(ReadOnlySpan<T> prefix)
+        {
+            var isValid = true;
+            var data = _data.Span;
+            ref readonly var curr = ref _defaultRoot;
+
+            var prefixData = prefix.ToArray();
+            while (prefix.Length > 0) {
+                var index = new CharacterIndex(curr.Index, prefix[0]);
+                var characterIndex = data.BinarySearch(new CharacterComparator(in index));
+                if (characterIndex < 0) {
+                    isValid = false;
+                    break;
+                }
+
+                curr = ref data[characterIndex];
+                prefix = prefix[1..];
+            }
+
+            var ret = new List<(T[] Item, uint Index)>();
+            if (isValid) {
+                var indices = new Stack<(uint Index, T[] Prefix)>();
+                indices.Push((curr.Index, prefixData));
+                if (curr.ValueIndex != uint.MaxValue)
+                    ret.Add((prefixData, curr.ValueIndex));
+
+                while (indices.Count > 0) {
+                    var (nextIndex, str) = indices.Pop();
+                    var comparator = new IndexComparator(nextIndex);
+                    foreach (var index in data.MultiBinarySearch(comparator)) {
+                        ref readonly var item = ref data[index];
+                        T[] nextData = [..str, item.Character];
+                        indices.Push((item.Index, nextData));
+                        if (item.ValueIndex != uint.MaxValue)
+                            ret.Add((nextData, item.ValueIndex));
+                    }
+                }
+                return ret;
+            }
+            return ret;
         }
 
         /// <inheritdoc />

@@ -23,7 +23,8 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static ReadOnlySpan<T> AsReadOnly<T>(this Span<T> span) => span;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<T> AsReadOnly<T>(this Span<T> span) => span;
 
         /// <summary>
         /// Callback to calculate a new vector of Ts from two existing vectors
@@ -31,14 +32,14 @@ namespace BrightData
         /// <param name="a">First input vector</param>
         /// <param name="b">Second input vector</param>
         /// <param name="r">Result (output) vector</param>
-        public delegate void ComputeVectorisedTwo<T>(in Vector<T> a, in Vector<T> b, out Vector<T> r) where T: unmanaged, INumber<T>;
+        public delegate void ComputeVectorisedTwo<T>(in Vector<T> a, in Vector<T> b, out Vector<T> r) where T : unmanaged, INumber<T>;
 
         /// <summary>
         /// Callback to calculate a new vector of Ts from an existing vector
         /// </summary>
         /// <param name="a">Input vector</param>
         /// <param name="r">Result (output) vector</param>
-        public delegate void ComputeVectorisedOne<T>(in Vector<T> a, out Vector<T> r) where T: unmanaged, INumber<T>;
+        public delegate void ComputeVectorisedOne<T>(in Vector<T> a, out Vector<T> r) where T : unmanaged, INumber<T>;
 
         readonly unsafe struct ZipAction<T>(T* segment, T* other, Func<T, T, T> action, T[] ret)
             : IAction
@@ -46,43 +47,53 @@ namespace BrightData
         {
             public void Invoke(int i) => ret[i] = action(segment[i], other[i]);
         }
+
         readonly unsafe struct TransformAction<T>(T* segment, Func<T, T> action, T[] ret) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => ret[i] = action(segment[i]);
         }
+
         readonly unsafe struct ZipInPlaceAction<T>(T* segment, T* other, Func<T, T, T> action) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => segment[i] = action(segment[i], other[i]);
         }
+
         readonly struct TransformIndexedAction<T>(Func<uint, T> action, T[] ret) : IAction
         {
             public void Invoke(int i) => ret[i] = action((uint)i);
         }
+
         readonly unsafe struct TransformIndexedWithValueAction<T>(T* segment, Func<uint, T, T> action, T[] ret) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => ret[i] = action((uint)i, segment[i]);
         }
+
         readonly unsafe struct MutateAction<T>(Func<T, T> action, T* segment) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => segment[i] = action(segment[i]);
         }
+
         readonly unsafe struct MutateIndexedAction<T>(Func<uint, T, T> action, T* segment) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => segment[i] = action((uint)i, segment[i]);
         }
+
         readonly unsafe struct AnalyseAction<T>(Action<T, uint> action, T* segment) : IAction
             where T : unmanaged
         {
             public void Invoke(int i) => action(segment[i], (uint)i);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(int size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size, clear ? AllocationMode.Clear : AllocationMode.Default);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]static MemoryOwner<T> Allocate<T>(uint size, bool clear) where T: unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size, clear ? AllocationMode.Clear : AllocationMode.Default);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static MemoryOwner<T> Allocate<T>(int size, bool clear) where T : unmanaged, INumber<T> => MemoryOwner<T>.Allocate(size, clear ? AllocationMode.Clear : AllocationMode.Default);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static MemoryOwner<T> Allocate<T>(uint size, bool clear) where T : unmanaged, INumber<T> => MemoryOwner<T>.Allocate((int)size, clear ? AllocationMode.Clear : AllocationMode.Default);
 
         /// <summary>
         /// Creates a new span of numbers from applying an operation to each pair of elements from this and another span
@@ -92,11 +103,13 @@ namespace BrightData
         /// <param name="func">Function that computes a new value from a pair of values</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> ZipParallel<T>(
-            this ReadOnlySpan<T> span, 
-            ReadOnlySpan<T> other, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe MemoryOwner<T> ZipParallel<T>(
+            this ReadOnlySpan<T> span,
+            ReadOnlySpan<T> other,
             Func<T, T, T> func
-        ) where T: unmanaged, INumber<T> {
+        ) where T : unmanaged, INumber<T>
+        {
             var size = span.Length;
             if (size != other.Length)
                 throw new ArgumentException("Spans were different sizes");
@@ -105,7 +118,7 @@ namespace BrightData
             var array = ret.DangerousGetArray().Array!;
             fixed (T* xfp = span)
             fixed (T* yfp = other)
-            fixed (T* zfp = &array[0]){
+            fixed (T* zfp = &array[0]) {
                 if (size >= Consts.MinimumSizeForParallel)
                     ParallelHelper.For(0, size, new ZipAction<T>(xfp, yfp, func, array));
                 else {
@@ -116,6 +129,7 @@ namespace BrightData
                         *zp++ = func(*xp++, *yp++);
                 }
             }
+
             return ret;
         }
 
@@ -128,12 +142,13 @@ namespace BrightData
         /// <param name="func2">Element callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> ZipVectorized<T>(
-            this ReadOnlySpan<T> span, 
-            ReadOnlySpan<T> other, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> ZipVectorized<T>(
+            this ReadOnlySpan<T> span,
+            ReadOnlySpan<T> other,
             ComputeVectorisedTwo<T> func1,
             Func<T, T, T> func2
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             if (size != other.Length)
@@ -152,6 +167,7 @@ namespace BrightData
                 for (var j = 0; j < numVectors; j++)
                     func1(leftVec[j], rightVec[j], out resultVec[j]);
             }
+
             for (; nextIndex < size; nextIndex++)
                 resultPtr[nextIndex] = func2(span[nextIndex], other[nextIndex]);
             return ret;
@@ -163,10 +179,11 @@ namespace BrightData
         /// <param name="span">Vector</param>
         /// <param name="transformer">Callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> MapParallel<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe MemoryOwner<T> MapParallel<T>(
+            this ReadOnlySpan<T> span,
             Func<T, T> transformer
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var ret = Allocate<T>(size, false);
@@ -193,10 +210,11 @@ namespace BrightData
         /// <param name="span">Vector</param>
         /// <param name="transformer">Callback</param>
         /// <returns>Memory buffer that holds results from each callback</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> MapParallel<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe MemoryOwner<T> MapParallel<T>(
+            this ReadOnlySpan<T> span,
             Func<uint, T, T> transformer
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var ret = Allocate<T>(size, false);
@@ -224,11 +242,12 @@ namespace BrightData
         /// <param name="transformer1">Vectorized transformer</param>
         /// <param name="transformer2">Sequential transformer</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> TransformVectorized<T>(
-            this ReadOnlySpan<T> span, 
-            ComputeVectorisedOne<T> transformer1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> TransformVectorized<T>(
+            this ReadOnlySpan<T> span,
+            ComputeVectorisedOne<T> transformer1,
             Func<T, T> transformer2
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var ret = Allocate<T>(size, false);
@@ -244,6 +263,7 @@ namespace BrightData
                 for (var j = 0; j < numVectors; j++)
                     transformer1(leftVec[j], out resultVec[j]);
             }
+
             for (; nextIndex < size; nextIndex++)
                 resultPtr[nextIndex] = transformer2(span[nextIndex]);
 
@@ -256,21 +276,23 @@ namespace BrightData
         /// <param name="span">Input span</param>
         /// <param name="transformer">Transformation function (possibly executed in parallel)</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> TransformParallelIndexed<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> TransformParallelIndexed<T>(
+            this ReadOnlySpan<T> span,
             Func<uint, T> transformer
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var ret = Allocate<T>(size, false);
             var array = ret.DangerousGetArray().Array!;
 
-            if(size >= Consts.MinimumSizeForParallel)
+            if (size >= Consts.MinimumSizeForParallel)
                 ParallelHelper.For(0, size, new TransformIndexedAction<T>(transformer, array));
             else {
                 for (uint i = 0; i < size; i++)
                     array[i] = transformer(i);
             }
+
             return ret;
         }
 
@@ -280,10 +302,11 @@ namespace BrightData
         /// <param name="span">Input span</param>
         /// <param name="transformer">Transformation function (possibly executed in parallel)</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe MemoryOwner<T> TransformParallelIndexed<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe MemoryOwner<T> TransformParallelIndexed<T>(
+            this ReadOnlySpan<T> span,
             Func<uint, T, T> transformer
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var ret = Allocate<T>(size, false);
@@ -309,11 +332,12 @@ namespace BrightData
         /// <param name="other">Other span</param>
         /// <param name="func">Update function</param>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void Mutate<T>(
-            this Span<T> span, 
-            ReadOnlySpan<T> other, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Mutate<T>(
+            this Span<T> span,
+            ReadOnlySpan<T> other,
             Func<T, T, T> func
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             if (size != other.Length)
@@ -342,12 +366,13 @@ namespace BrightData
         /// <param name="transformer1">Vectorized transformer</param>
         /// <param name="transformer2">Sequential transformer</param>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateVectorized<T>(
-            this Span<T> span, 
-            ReadOnlySpan<T> other, 
-            ComputeVectorisedTwo<T> transformer1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MutateVectorized<T>(
+            this Span<T> span,
+            ReadOnlySpan<T> other,
+            ComputeVectorisedTwo<T> transformer1,
             Func<T, T, T> transformer2
-        )where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             if (size != other.Length)
@@ -366,6 +391,7 @@ namespace BrightData
                     leftVec[i] = temp;
                 }
             }
+
             for (; nextIndex < size; nextIndex++)
                 span[nextIndex] = transformer2(span[nextIndex], other[nextIndex]);
         }
@@ -375,10 +401,11 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <param name="mutator"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void MutateInPlace<T>(
+            this Span<T> span,
             Func<T, T> mutator
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             fixed (T* xfp = span) {
@@ -399,10 +426,11 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <param name="mutator"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static unsafe void MutateInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void MutateInPlace<T>(
+            this Span<T> span,
             Func<uint, T, T> mutator
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             fixed (T* xfp = span) {
@@ -424,11 +452,12 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="mutator1"></param>
         /// <param name="mutator2"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MutateInPlaceVectorized<T>(
-            this Span<T> span, 
-            ComputeVectorisedOne<T> mutator1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MutateInPlaceVectorized<T>(
+            this Span<T> span,
+            ComputeVectorisedOne<T> mutator1,
             Func<T, T> mutator2
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var nextIndex = 0;
@@ -442,6 +471,7 @@ namespace BrightData
                     leftVec[i] = temp;
                 }
             }
+
             for (; nextIndex < size; nextIndex++)
                 span[nextIndex] = mutator2(span[nextIndex]);
         }
@@ -452,7 +482,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span"></param>
         /// <param name="analyser">Callback that receives each value and its index</param>
-        public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T: unmanaged
+        public static unsafe void Analyse<T>(ReadOnlySpan<T> span, Action<T, uint> analyser) where T : unmanaged
         {
             var size = span.Length;
             fixed (T* fp = span) {
@@ -471,7 +501,8 @@ namespace BrightData
         /// </summary>
         /// <param name="span"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static T Sum<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Sum<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             var nextIndex = 0;
@@ -485,6 +516,7 @@ namespace BrightData
                 for (var i = 0; i < numVectors; i++)
                     ret += Vector.Sum(leftVec[i]);
             }
+
             for (; nextIndex < size; nextIndex++)
                 ret += span[nextIndex];
             return ret;
@@ -497,13 +529,14 @@ namespace BrightData
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Add<T>(
+            this ReadOnlySpan<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b,
             (a, b) => a + b
         );
 
@@ -516,14 +549,15 @@ namespace BrightData
         /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
         /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Add<T>(
             this ReadOnlySpan<T> span,
-            ReadOnlySpan<T> other, 
-            T coefficient1, 
+            ReadOnlySpan<T> other,
+            T coefficient1,
             T coefficient2
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
             (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 + b * coefficient2,
             (a, b) => a * coefficient1 + b * coefficient2
         );
@@ -535,15 +569,16 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="scalar"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Add<T>(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Add<T>(
             this ReadOnlySpan<T> span,
             T scalar
-        )where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var scalarVector = new Vector<T>(scalar);
             return TransformVectorized(
-                span, 
-                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector, 
+                span,
+                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector,
                 a => a + scalar
             );
         }
@@ -554,13 +589,14 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddInPlace<T>(
+            this Span<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b, 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a + b,
             (a, b) => a + b
         );
 
@@ -572,15 +608,16 @@ namespace BrightData
         /// <param name="other">Other span</param>
         /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
         /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
-            this Span<T> span, 
-            ReadOnlySpan<T> other, 
-            T coefficient1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddInPlace<T>(
+            this Span<T> span,
+            ReadOnlySpan<T> other,
+            T coefficient1,
             T coefficient2
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = (a * coefficient1) + (b * coefficient2), 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = (a * coefficient1) + (b * coefficient2),
             (a, b) => (a * coefficient1) + (b * coefficient2)
         );
 
@@ -590,15 +627,16 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span"></param>
         /// <param name="scalar"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void AddInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddInPlace<T>(
+            this Span<T> span,
             T scalar
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var scalarVector = new Vector<T>(scalar);
             MutateInPlaceVectorized(
-                span, 
-                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector, 
+                span,
+                (in Vector<T> a, out Vector<T> r) => r = a + scalarVector,
                 a => a + scalar
             );
         }
@@ -609,15 +647,16 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span"></param>
         /// <param name="scalar"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void MultiplyInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MultiplyInPlace<T>(
+            this Span<T> span,
             T scalar
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var scalarVector = new Vector<T>(scalar);
             MutateInPlaceVectorized(
-                span, 
-                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector, 
+                span,
+                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector,
                 a => a * scalar
             );
         }
@@ -629,18 +668,19 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="scalar"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Multiply<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Multiply<T>(
+            this ReadOnlySpan<T> span,
             T scalar
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var scalarVector = new Vector<T>(scalar);
             return TransformVectorized(
-                span, 
-                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector, 
+                span,
+                (in Vector<T> a, out Vector<T> r) => r = a * scalarVector,
                 a => a * scalar
             );
-        } 
+        }
 
         /// <summary>
         /// Creates a new buffer in which each value in another span is subtracted from the values in this span
@@ -649,13 +689,14 @@ namespace BrightData
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Subtract<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Subtract<T>(
+            this ReadOnlySpan<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b,
             (a, b) => a - b
         );
 
@@ -668,15 +709,16 @@ namespace BrightData
         /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
         /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> Subtract<T>(
-            this ReadOnlySpan<T> span, 
-            ReadOnlySpan<T> other, 
-            T coefficient1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Subtract<T>(
+            this ReadOnlySpan<T> span,
+            ReadOnlySpan<T> other,
+            T coefficient1,
             T coefficient2
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2,
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
@@ -686,13 +728,14 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SubtractInPlace<T>(
+            this Span<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b, 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a - b,
             (a, b) => a - b
         );
 
@@ -704,15 +747,16 @@ namespace BrightData
         /// <param name="other">Other span</param>
         /// <param name="coefficient1">Coefficient to apply to each value in this span</param>
         /// <param name="coefficient2">Coefficient to apply to each value in the other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void SubtractInPlace<T>(
-            this Span<T> span, 
-            ReadOnlySpan<T> other, 
-            T coefficient1, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SubtractInPlace<T>(
+            this Span<T> span,
+            ReadOnlySpan<T> other,
+            T coefficient1,
             T coefficient2
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2, 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * coefficient1 - b * coefficient2,
             (a, b) => a * coefficient1 - b * coefficient2
         );
 
@@ -724,12 +768,12 @@ namespace BrightData
         /// <param name="other">Other span</param>
         /// <returns></returns>
         public static MemoryOwner<T> PointwiseMultiply<T>(
-            this ReadOnlySpan<T> span, 
+            this ReadOnlySpan<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b,
             (a, b) => a * b
         );
 
@@ -739,13 +783,14 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseMultiplyInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PointwiseMultiplyInPlace<T>(
+            this Span<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b, 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a * b,
             (a, b) => a * b
         );
 
@@ -756,13 +801,14 @@ namespace BrightData
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static MemoryOwner<T> PointwiseDivide<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> PointwiseDivide<T>(
+            this ReadOnlySpan<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => ZipVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b, 
+        ) where T : unmanaged, INumber<T> => ZipVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b,
             (a, b) => a / b
         );
 
@@ -772,13 +818,14 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span">This span</param>
         /// <param name="other">Other span</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static void PointwiseDivideInPlace<T>(
-            this Span<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PointwiseDivideInPlace<T>(
+            this Span<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T> => MutateVectorized(
-            span, 
-            other, 
-            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b, 
+        ) where T : unmanaged, INumber<T> => MutateVectorized(
+            span,
+            other,
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = a / b,
             (a, b) => a / b
         );
 
@@ -790,10 +837,11 @@ namespace BrightData
         /// <param name="other">Other span</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static T DotProduct<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T DotProduct<T>(
+            this ReadOnlySpan<T> span,
             ReadOnlySpan<T> other
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             var size = span.Length;
             if (size != other.Length)
@@ -810,7 +858,8 @@ namespace BrightData
                 for (var j = 0; j < numVectors; j++)
                     ret += Vector.Dot(leftVec[j], rightVec[j]);
             }
-            for(; nextIndex < size; nextIndex++)
+
+            for (; nextIndex < size; nextIndex++)
                 ret += span[nextIndex] * other[nextIndex];
             return ret;
         }
@@ -821,10 +870,11 @@ namespace BrightData
         /// <param name="span">This tensor</param>
         /// <param name="adjustment">A small value to add to each value in case of zeros</param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static MemoryOwner<T> Sqrt<T>(
-            this ReadOnlySpan<T> span, 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> Sqrt<T>(
+            this ReadOnlySpan<T> span,
             T adjustment
-        ) where T: unmanaged, INumber<T>, IRootFunctions<T>
+        ) where T : unmanaged, INumber<T>, IRootFunctions<T>
         {
             Vector<T> adjustmentVector = new(adjustment);
             return TransformVectorized(span,
@@ -841,10 +891,10 @@ namespace BrightData
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
         public static void ConstrainInPlace<T>(
-            this Span<T> span, 
-            T? minValue, 
+            this Span<T> span,
+            T? minValue,
             T? maxValue
-        ) where T: unmanaged, INumber<T>
+        ) where T : unmanaged, INumber<T>
         {
             MutateInPlace(span, value => {
                 if (T.IsNaN(value))
@@ -853,7 +903,7 @@ namespace BrightData
                     return minValue.Value;
                 if (maxValue.HasValue && (value.CompareTo(maxValue.Value) > 0 || T.IsPositiveInfinity(value)))
                     return maxValue.Value;
-                
+
                 return value;
             });
         }
@@ -864,7 +914,7 @@ namespace BrightData
         /// <param name="vector">This tensor</param>
         /// <returns></returns>
         public static T Average<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>
+            where T : unmanaged, INumber<T>
         {
             return Sum(vector) / T.CreateSaturating(vector.Length);
         }
@@ -875,7 +925,7 @@ namespace BrightData
         /// <param name="vector">This tensor</param>
         /// <returns></returns>
         public static T L1Norm<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>
+            where T : unmanaged, INumber<T>
         {
             var abs = Abs(vector);
             try {
@@ -891,7 +941,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static T L2Norm<T>(this ReadOnlySpan<T> segment) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T L2Norm<T>(this ReadOnlySpan<T> segment) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var squared = Squared(segment);
             try {
@@ -908,7 +958,7 @@ namespace BrightData
         /// <param name="segment">This tensor</param>
         /// <returns></returns>
         public static (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues<T>(this ReadOnlySpan<T> segment)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T>
+            where T : unmanaged, INumber<T>, IMinMaxValue<T>
         {
             var min = T.MaxValue;
             var max = T.MinValue;
@@ -939,9 +989,10 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]public static bool IsEntirelyFinite<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEntirelyFinite<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T>
         {
-            for(int i = 0, len = span.Length; i < len; i++) {
+            for (int i = 0, len = span.Length; i < len; i++) {
                 var v = span[i];
                 if (T.IsNaN(v) || T.IsInfinity(v))
                     return false;
@@ -956,7 +1007,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="span"></param>
         /// <returns></returns>
-        public static unsafe MemoryOwner<T> Reverse<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T>
+        public static unsafe MemoryOwner<T> Reverse<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T>
         {
             var len = span.Length - 1;
             fixed (T* fp = span) {
@@ -971,7 +1022,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static T MeanSquaredDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T MeanSquaredDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var diff = Subtract(tensor, other);
             try {
@@ -989,7 +1040,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static T SquaredEuclideanDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T SquaredEuclideanDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var diff = Subtract(tensor, other);
             try {
@@ -1007,7 +1058,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
-        public static T ManhattanDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T ManhattanDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var distance = Subtract(tensor, other);
             try {
@@ -1031,7 +1082,7 @@ namespace BrightData
         /// <param name="other">Other tensor</param>
         /// <returns></returns>
         public static T EuclideanDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other)
-            where T: unmanaged, IBinaryFloatingPointIeee754<T>
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var distance = Subtract(tensor, other);
             try {
@@ -1054,7 +1105,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Abs<T>(this ReadOnlySpan<T> tensor) where T: unmanaged, INumber<T> => TransformVectorized(tensor,
+        public static MemoryOwner<T> Abs<T>(this ReadOnlySpan<T> tensor) where T : unmanaged, INumber<T> => TransformVectorized(tensor,
             (in Vector<T> a, out Vector<T> r) => r = Vector.Abs(a),
             T.Abs
         );
@@ -1065,7 +1116,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Log<T>(this ReadOnlySpan<T> tensor) where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(tensor, T.Log);
+        public static MemoryOwner<T> Log<T>(this ReadOnlySpan<T> tensor) where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(tensor, T.Log);
 
         /// <summary>
         /// Creates a new tensor segment that contains the exponent of each value in this tensor segment
@@ -1073,7 +1124,7 @@ namespace BrightData
         /// <param name="tensor">This tensor</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Exp<T>(this ReadOnlySpan<T> tensor) where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(tensor, T.Exp);
+        public static MemoryOwner<T> Exp<T>(this ReadOnlySpan<T> tensor) where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(tensor, T.Exp);
 
         /// <summary>
         /// Creates a new tensor segment that contains each value raised by the specified power in this tensor segment
@@ -1082,7 +1133,7 @@ namespace BrightData
         /// <param name="power">Specified power</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Pow<T>(this ReadOnlySpan<T> segment, T power) where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, v => T.Pow(v, power));
+        public static MemoryOwner<T> Pow<T>(this ReadOnlySpan<T> segment, T power) where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, v => T.Pow(v, power));
 
         /// <summary>
         /// Creates a new buffer in which each value in this span is squared
@@ -1091,9 +1142,9 @@ namespace BrightData
         /// <param name="span"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Squared<T>(this ReadOnlySpan<T> span) where T: unmanaged, INumber<T> => TransformVectorized(
-            span, 
-            (in Vector<T> a, out Vector<T> r) => r = a * a, 
+        public static MemoryOwner<T> Squared<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T> => TransformVectorized(
+            span,
+            (in Vector<T> a, out Vector<T> r) => r = a * a,
             a => a * a
         );
 
@@ -1104,7 +1155,7 @@ namespace BrightData
         /// <param name="mean">Mean of the tensor segment (optional)</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T StdDev<T>(this ReadOnlySpan<T> segment, T? mean) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T StdDev<T>(this ReadOnlySpan<T> segment, T? mean) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var avg = mean ?? Average(segment);
             var avgVector = new Vector<T>(avg);
@@ -1133,7 +1184,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Sigmoid<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T> => T.One / (T.One + T.Exp(T.NegativeOne * val));
+        public static T Sigmoid<T>(T val) where T : unmanaged, IBinaryFloatingPointIeee754<T> => T.One / (T.One + T.Exp(T.NegativeOne * val));
 
         /// <summary>
         /// Calculates sigmoid derivative
@@ -1142,7 +1193,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T SigmoidDerivative<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T>
+        public static T SigmoidDerivative<T>(T val) where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var sigmoid = Sigmoid(val);
             return sigmoid * (T.One - sigmoid);
@@ -1155,7 +1206,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T TanhDerivative<T>(T val) where T: unmanaged, IBinaryFloatingPointIeee754<T> => T.One - T.Pow(T.Tanh(val), T.One + T.One);
+        public static T TanhDerivative<T>(T val) where T : unmanaged, IBinaryFloatingPointIeee754<T> => T.One - T.Pow(T.Tanh(val), T.One + T.One);
 
         /// <summary>
         /// Calculates RELU
@@ -1164,7 +1215,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Relu<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : val;
+        public static T Relu<T>(T val) where T : unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : val;
 
         /// <summary>
         /// Calculates RELU derivative
@@ -1173,7 +1224,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ReluDerivative<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : T.One;
+        public static T ReluDerivative<T>(T val) where T : unmanaged, INumber<T> => (val <= T.Zero) ? T.Zero : T.One;
 
         /// <summary>
         /// Calculates leaky RELU
@@ -1182,7 +1233,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T LeakyRelu<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) * val : val;
+        public static T LeakyRelu<T>(T val) where T : unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) * val : val;
 
         /// <summary>
         /// Calculates leaky RELU derivative
@@ -1191,7 +1242,7 @@ namespace BrightData
         /// <param name="val"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T LeakyReluDerivative<T>(T val) where T: unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) : T.One;
+        public static T LeakyReluDerivative<T>(T val) where T : unmanaged, INumber<T> => (val <= T.Zero) ? T.CreateChecked(0.01f) : T.One;
 
         /// <summary>
         /// Creates a new tensor segment with sigmoid function applied to each value in this tensor segment
@@ -1199,8 +1250,8 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> Sigmoid<T>(this ReadOnlySpan<T> segment) 
-            where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, Sigmoid);
+        public static MemoryOwner<T> Sigmoid<T>(this ReadOnlySpan<T> segment)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, Sigmoid);
 
         /// <summary>
         /// Creates a new tensor segment with sigmoid derivative applied to each value in this tensor segment
@@ -1208,8 +1259,8 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemoryOwner<T> SigmoidDerivative<T>(this ReadOnlySpan<T> segment) 
-            where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, SigmoidDerivative);
+        public static MemoryOwner<T> SigmoidDerivative<T>(this ReadOnlySpan<T> segment)
+            where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, SigmoidDerivative);
 
         /// <summary>
         /// Creates a new tensor segment with tanh function applied to each value in this tensor segment
@@ -1218,7 +1269,7 @@ namespace BrightData
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MemoryOwner<T> Tanh<T>(this ReadOnlySpan<T> segment)
-            where T: unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, T.Tanh);
+            where T : unmanaged, IBinaryFloatingPointIeee754<T> => MapParallel(segment, T.Tanh);
 
         /// <summary>
         /// Creates a new tensor segment with tanh derivative applied to each value in this tensor segment
@@ -1285,7 +1336,7 @@ namespace BrightData
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MemoryOwner<T> SoftmaxDerivative<T>(this ReadOnlySpan<T> segment, int rowCount)
-            where T: unmanaged, INumber<T>
+            where T : unmanaged, INumber<T>
         {
             var ret = Allocate<T>(segment.Length * segment.Length, false);
             var span = ret.Span;
@@ -1297,6 +1348,7 @@ namespace BrightData
                     ? xVal * (T.One - xVal)
                     : -xVal * segment[y];
             }
+
             return ret;
         }
 
@@ -1307,7 +1359,7 @@ namespace BrightData
         /// <param name="span"></param>
         /// <param name="arrayIndices"></param>
         /// <returns></returns>
-        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, ReadOnlySpan<uint> arrayIndices) where T: unmanaged, INumber<T>
+        public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, ReadOnlySpan<uint> arrayIndices) where T : unmanaged, INumber<T>
         {
             var ret = MemoryOwner<T>.Allocate(arrayIndices.Length);
             var ptr = ret.Span;
@@ -1323,7 +1375,7 @@ namespace BrightData
         /// <param name="lower"></param>
         /// <param name="upper"></param>
         public static void RoundInPlace<T>(this Span<T> segment, T lower, T upper)
-            where T: unmanaged, INumber<T>
+            where T : unmanaged, INumber<T>
         {
             var compareTo = lower + (upper - lower) / (T.One + T.One);
             MutateInPlace(segment, v => v >= compareTo ? upper : lower);
@@ -1335,7 +1387,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="coefficient">Coefficient to apply to each adjusted value</param>
         public static void L1Regularization<T>(this Span<T> segment, T coefficient)
-            where T: unmanaged, INumber<T>
+            where T : unmanaged, INumber<T>
         {
             for (int i = 0, len = segment.Length; i < len; i++) {
                 var val = segment[i];
@@ -1351,16 +1403,15 @@ namespace BrightData
         /// <param name="distance">Distance metric</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T: unmanaged, IBinaryFloatingPointIeee754<T> => distance switch 
-        {
-            DistanceMetric.Cosine            => vector.CosineDistance(other),
-            DistanceMetric.Angular           => vector.AngularDistance(other),
-            DistanceMetric.Euclidean         => vector.EuclideanDistance(other),
-            DistanceMetric.Manhattan         => vector.ManhattanDistance(other),
-            DistanceMetric.MeanSquared       => vector.MeanSquaredDistance(other),
-            DistanceMetric.SquaredEuclidean  => vector.SquaredEuclideanDistance(other),
+        public static T FindDistance<T>(this ReadOnlySpan<T> vector, ReadOnlySpan<T> other, DistanceMetric distance) where T : unmanaged, IBinaryFloatingPointIeee754<T> => distance switch {
+            DistanceMetric.Cosine => vector.CosineDistance(other),
+            DistanceMetric.Angular => vector.AngularDistance(other),
+            DistanceMetric.Euclidean => vector.EuclideanDistance(other),
+            DistanceMetric.Manhattan => vector.ManhattanDistance(other),
+            DistanceMetric.MeanSquared => vector.MeanSquaredDistance(other),
+            DistanceMetric.SquaredEuclidean => vector.SquaredEuclideanDistance(other),
             DistanceMetric.InnerProductSpace => vector.InnerProductSpaceDistance(other),
-            _                                => throw new NotImplementedException(distance.ToString())
+            _ => throw new NotImplementedException(distance.ToString())
         };
 
         /// <summary>
@@ -1371,7 +1422,7 @@ namespace BrightData
         /// <returns>Cosine distance between the two vectors</returns>
         /// <exception cref="ArgumentException"></exception>
         public static T CosineDistance<T>(this ReadOnlySpan<T> v1, ReadOnlySpan<T> v2)
-            where T: unmanaged, IBinaryFloatingPointIeee754<T>
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var length = v1.Length;
             if (length != v2.Length)
@@ -1396,6 +1447,7 @@ namespace BrightData
                     aa2 += a * a;
                     bb2 += b * b;
                 }
+
                 return T.One - ab2 / (T.Sqrt(aa2) * T.Sqrt(bb2));
             }
             else {
@@ -1407,6 +1459,7 @@ namespace BrightData
                     aa += a * a;
                     bb += b * b;
                 }
+
                 return T.One - ab / (T.Sqrt(aa) * T.Sqrt(bb));
             }
         }
@@ -1445,7 +1498,7 @@ namespace BrightData
         /// <param name="vector">Vector to analyze</param>
         /// <returns>Tuple containing the minimum value and its index</returns>
         public static (T Value, uint Index) Minimum<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T>
+            where T : unmanaged, INumber<T>, IMinMaxValue<T>
         {
             var ret = uint.MaxValue;
             var lowestValue = T.MaxValue;
@@ -1467,15 +1520,15 @@ namespace BrightData
         /// <param name="vector">Vector to analyse</param>
         /// <returns></returns>
         public static uint MinimumIndex<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T> => Minimum(vector).Index;
+            where T : unmanaged, INumber<T>, IMinMaxValue<T> => Minimum(vector).Index;
 
         /// <summary>
         /// Returns the minimum value
         /// </summary>
         /// <param name="vector">Vector to analyse</param>
         /// <returns></returns>
-        public static T MinimumValue<T>(this ReadOnlySpan<T> vector) 
-            where T: unmanaged, INumber<T>, IMinMaxValue<T> => Minimum(vector).Value;
+        public static T MinimumValue<T>(this ReadOnlySpan<T> vector)
+            where T : unmanaged, INumber<T>, IMinMaxValue<T> => Minimum(vector).Value;
 
         /// <summary>
         /// Returns the maximum value and index within a vector
@@ -1483,7 +1536,7 @@ namespace BrightData
         /// <param name="vector">Vector to analyse</param>
         /// <returns>Tuple containing the maximum value and its index</returns>
         public static (T Value, uint Index) Maximum<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T>
+            where T : unmanaged, INumber<T>, IMinMaxValue<T>
         {
             var ret = uint.MaxValue;
             var highestValue = T.MinValue;
@@ -1505,7 +1558,7 @@ namespace BrightData
         /// <param name="vector">Vector to analyse</param>
         /// <returns></returns>
         public static uint MaximumIndex<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T> => Maximum(vector).Index;
+            where T : unmanaged, INumber<T>, IMinMaxValue<T> => Maximum(vector).Index;
 
         /// <summary>
         /// Returns the index of the maximum value within a vector
@@ -1513,7 +1566,7 @@ namespace BrightData
         /// <param name="vector">Vector to analyse</param>
         /// <returns></returns>
         public static T MaximumValue<T>(this ReadOnlySpan<T> vector)
-            where T: unmanaged, INumber<T>, IMinMaxValue<T> => Maximum(vector).Value;
+            where T : unmanaged, INumber<T>, IMinMaxValue<T> => Maximum(vector).Value;
 
         /// <summary>
         /// Calculates the pearson correlation coefficient metric between two tensor segments
@@ -1525,7 +1578,7 @@ namespace BrightData
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="DivideByZeroException"></exception>
         public static T? PearsonCorrelationCoefficient<T>(this ReadOnlySpan<T> x, ReadOnlySpan<T> y)
-            where T: unmanaged, IBinaryFloatingPointIeee754<T>
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var size = x.Length;
             if (size != y.Length)
@@ -1553,7 +1606,7 @@ namespace BrightData
 
             // calculate the Pearson similarity
             var denominator = T.Sqrt(denominatorX * denominatorY);
-    
+
             // check if the denominator is zero
             if (T.IsZero(denominator))
                 throw new DivideByZeroException("The standard deviations of x and y are zero.");
@@ -1569,7 +1622,7 @@ namespace BrightData
         /// <param name="tolerance">Degree of tolerance</param>
         /// <returns></returns>
         public static GenericIndexedEnumerator<T> Search<T>(this ReadOnlySpan<T> segment, T value, T? tolerance = null)
-            where T: unmanaged, IBinaryFloatingPointIeee754<T>
+            where T : unmanaged, IBinaryFloatingPointIeee754<T>
         {
             var results = new List<uint>();
             var spinLock = new SpinLock();
@@ -1590,13 +1643,14 @@ namespace BrightData
         /// <param name="rowCount"></param>
         /// <param name="columnCount"></param>
         /// <returns></returns>
-        public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T: unmanaged, INumber<T>
+        public static unsafe (MemoryOwner<T> Data, uint RowCount, uint ColumnCount) Transpose<T>(this ReadOnlySpan<T> matrix, uint rowCount, uint columnCount) where T : unmanaged, INumber<T>
         {
             var ret = Allocate<T>(columnCount * rowCount, false);
             fixed (T* matrixPtr = matrix)
             fixed (T* retPtr = ret.Span) {
                 CacheTranspose(matrixPtr, rowCount, columnCount, 0, rowCount, 0, columnCount, retPtr);
             }
+
             return (ret, columnCount, rowCount);
         }
 
@@ -1637,11 +1691,11 @@ namespace BrightData
             var indicesSpan = indices.Span;
             for (var i = 0; i < len; i++)
                 indicesSpan[i] = (uint)i;
-            
+
             copy.Sort(indicesSpan);
 
             var ret = len.AsRange().ToArray();
-            for(var i = 0; i < len; i++)
+            for (var i = 0; i < len; i++)
                 ret[indicesSpan[i]] = (uint)i;
             return ret;
         }
@@ -1654,7 +1708,7 @@ namespace BrightData
         /// <typeparam name="AT"></typeparam>
         /// <returns></returns>
         public static AT NIndices<T, AT>(this ReadOnlySpan<T> span)
-            where AT: IFixedSizeSortedArray<uint, T>, new()
+            where AT : IFixedSizeSortedArray<uint, T>, new()
         {
             var ret = new AT();
             for (int i = 0, len = span.Length; i < len; i++)
@@ -1671,6 +1725,7 @@ namespace BrightData
                 span.CopyTo(ret.Span);
                 return ret;
             }
+
             return span.Multiply(T.One / magnitude);
         }
 
@@ -1683,10 +1738,39 @@ namespace BrightData
                 span.CopyTo(ret.Span);
                 return ret;
             }
+
             return span.Multiply(T.One / magnitude);
         }
 
         /// <summary>
+        /// Multi
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="comparator"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="CT"></typeparam>
+        /// <returns></returns>
+        public static int[] MultiBinarySearch<T, CT>(this ReadOnlySpan<T> span, CT comparator)
+            where CT: IComparable<T>, allows ref struct
+        {
+            var index = span.BinarySearch(comparator);
+            if (index >= 0) {
+                int first = index, last = index;
+                while (first >= 1 && comparator.CompareTo(span[first - 1]) == 0)
+                    --first;
+                while (last >= 0 && last < span.Length - 1 && comparator.CompareTo(span[last + 1]) == 0)
+                    ++last;
+                var ind = 0;
+                var ret = new int[last - first + 1];
+                for (var i = first; i <= last; i++)
+                    ret[ind++] = i;
+                return ret;
+            }
+            return [];
+        }
+    
+
+    /// <summary>
         /// Creates a read only vector from the span
         /// </summary>
         /// <param name="span"></param>
