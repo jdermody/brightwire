@@ -4385,7 +4385,7 @@
             <param name="weight">Weight to give each index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList``1(System.Collections.Generic.IReadOnlyList{BrightData.IndexListWithLabel{``0}},System.Boolean)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList``1(System.Collections.Generic.IEnumerable{BrightData.IndexListWithLabel{``0}},System.Boolean)">
             <summary>
             Converts the indexed classifications to weighted indexed classifications
             </summary>
@@ -4417,14 +4417,14 @@
             <param name="data"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.TfIdf``1(System.Collections.Generic.IReadOnlyList{BrightData.WeightedIndexListWithLabel{``0}})">
+        <member name="M:BrightData.ExtensionMethods.TfIdf``1(System.Collections.Generic.IReadOnlyCollection{BrightData.WeightedIndexListWithLabel{``0}})">
             <summary>
             Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Tf%E2%80%93idf
             </summary>
             <returns>A newly weighted classification set</returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyList{BrightData.WeightedIndexListWithLabel{``0}},System.Single,System.Single,System.Single)">
+        <member name="M:BrightData.ExtensionMethods.Bm25Plus``1(System.Collections.Generic.IReadOnlyCollection{BrightData.WeightedIndexListWithLabel{``0}},System.Single,System.Single,System.Single)">
             <summary>
             Okapi B525+ modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Okapi_BM25
@@ -5479,6 +5479,16 @@
             <typeparam name="AT"></typeparam>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.MultiBinarySearch``2(System.ReadOnlySpan{``0},``1)">
+            <summary>
+            Multi
+            </summary>
+            <param name="span"></param>
+            <param name="comparator"></param>
+            <typeparam name="T"></typeparam>
+            <typeparam name="CT"></typeparam>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
             <summary>
             Creates a read only vector from the span
@@ -6351,6 +6361,13 @@
             </summary>
             <param name="span"></param>
         </member>
+        <member name="M:BrightData.Helper.SpanAggregator`1.Add(System.ReadOnlySpan{`0},`0)">
+            <summary>
+            Adds a new operation
+            </summary>
+            <param name="span"></param>
+            <param name="coefficient"></param>
+        </member>
         <member name="P:BrightData.Helper.SpanAggregator`1.Span">
             <summary>
             The aggregation result
@@ -7209,6 +7226,58 @@
             <summary>
             String indexer
             </summary>
+        </member>
+        <member name="T:BrightData.IStringTableInMemory">
+            <summary>
+            In memory string table
+            </summary>
+        </member>
+        <member name="M:BrightData.IStringTableInMemory.GetUtf8(System.UInt32)">
+            <summary>
+            Gets a string as utf-8
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IStringTableInMemory.GetString(System.UInt32)">
+            <summary>
+            Gets a string by index
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IStringTableInMemory.GetAll(System.Int32)">
+            <summary>
+            Gets all strings
+            </summary>
+            <param name="maxStringSize">Max string size</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IAsyncStringTable">
+            <summary>
+            Asynchronous string table
+            </summary>
+        </member>
+        <member name="M:BrightData.IAsyncStringTable.GetUtf8(System.UInt32)">
+            <summary>
+            Gets a string as utf-8
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IAsyncStringTable.GetString(System.UInt32)">
+            <summary>
+            Gets a string by index
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IAsyncStringTable.GetAll(System.Int32)">
+            <summary>
+            Gets all strings
+            </summary>
+            <param name="maxStringSize">Max string size</param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.INotifyOperationProgress">
             <summary>
@@ -13106,7 +13175,7 @@
             <param name="memory"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(System.Collections.Generic.IReadOnlyList{BrightData.IReadOnlyVector{`0}})">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Add(System.Collections.Generic.IReadOnlyCollection{BrightData.IReadOnlyVector{`0}})">
             <summary>
             Adds a collection of vectors to the set
             </summary>

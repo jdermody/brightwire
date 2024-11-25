@@ -172,11 +172,12 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// </summary>
         /// <param name="vectors"></param>
         /// <returns></returns>
-        public uint[] Add(IReadOnlyList<IReadOnlyVector<T>> vectors)
+        public uint[] Add(IReadOnlyCollection<IReadOnlyVector<T>> vectors)
         {
             var ret = new uint[vectors.Count];
-            for (var i = 0; i < ret.Length; i++)
-                ret[i] = Add(vectors[i]);
+            var index = 0;
+            foreach(var item in vectors)
+                ret[index++] = Add(item);
             return ret;
         }
 

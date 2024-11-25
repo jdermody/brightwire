@@ -60,7 +60,7 @@ namespace BrightData
         /// <param name="data"></param>
         /// <param name="groupByClassification">True to group by classification (i.e. convert the bag to a set)</param>
         public static WeightedIndexListWithLabel<T>[] ConvertToWeightedIndexList<T>(
-            this IReadOnlyList<IndexListWithLabel<T>> data,
+            this IEnumerable<IndexListWithLabel<T>> data,
             bool groupByClassification
         )
         {
@@ -184,7 +184,7 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A newly weighted classification set</returns>
-        public static WeightedIndexListWithLabel<T>[] TfIdf<T>(this IReadOnlyList<WeightedIndexListWithLabel<T>> data) where T: notnull
+        public static WeightedIndexListWithLabel<T>[] TfIdf<T>(this IReadOnlyCollection<WeightedIndexListWithLabel<T>> data) where T: notnull
         {
             int len = data.Count, i = 0;
             var ret = new WeightedIndexListWithLabel<T>[len];
@@ -216,7 +216,7 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Okapi_BM25
         /// </summary>
         /// <returns>Newly weighted classification set</returns>
-        public static WeightedIndexListWithLabel<T>[] Bm25Plus<T>(this IReadOnlyList<WeightedIndexListWithLabel<T>> data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
+        public static WeightedIndexListWithLabel<T>[] Bm25Plus<T>(this IReadOnlyCollection<WeightedIndexListWithLabel<T>> data, float k = 1.2f, float b = 0.75f, float d = 1f) where T : notnull
         {
             int len = data.Count, i = 0;
             var ret = new WeightedIndexListWithLabel<T>[len];
