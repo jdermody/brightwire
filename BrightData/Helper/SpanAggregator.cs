@@ -12,7 +12,7 @@ namespace BrightData.Helper
     /// <param name="val">New value</param>
     /// <param name="total">Number of previous aggregation operations (including this one)</param>
     /// <returns></returns>
-    public delegate T SpanAggregationOperation<T>(T existingVal, T val, uint total) where T: unmanaged, INumber<T>;
+    public delegate T SpanAggregationOperation<T>(T existingVal, T val, T total) where T: unmanaged, INumber<T>;
 
     /// <summary>
     /// A span aggregator
@@ -22,7 +22,7 @@ namespace BrightData.Helper
     {
         readonly SpanOwner<T> _delta;
         readonly SpanAggregationOperation<T> _operation;
-        uint _count = 0;
+        T _denominator = T.Zero;
 
         SpanAggregator(uint size, SpanAggregationOperation<T> operation)
         {
@@ -49,10 +49,10 @@ namespace BrightData.Helper
         /// <param name="span"></param>
         public void Add(ReadOnlySpan<T> span)
         {
-            ++_count;
+            ++_denominator;
             var existing = _delta.Span;
             for (var i = 0; i < _delta.Length; i++)
-                existing[i] = _operation(existing[i], span[i], _count);
+                existing[i] = _operation(existing[i], span[i], _denominator);
         }
 
         /// <summary>
@@ -62,10 +62,10 @@ namespace BrightData.Helper
         /// <param name="coefficient"></param>
         public void Add(ReadOnlySpan<T> span, T coefficient)
         {
-            ++_count;
+            _denominator += coefficient;
             var existing = _delta.Span;
             for (var i = 0; i < _delta.Length; i++)
-                existing[i] = _operation(existing[i], span[i] * coefficient, _count);
+                existing[i] = _operation(existing[i], span[i] * coefficient, _denominator);
         }
 
         /// <summary>

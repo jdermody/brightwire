@@ -303,8 +303,6 @@ namespace BrightData
     /// </summary>
     public interface IContinuousDistribution<out T> : IDistribution<T> where T : unmanaged, INumber<T>, IBinaryFloatingPointIeee754<T>;
 
-    
-
     /// <summary>
     /// Indicates that the type can convert string to string indices
     /// </summary>

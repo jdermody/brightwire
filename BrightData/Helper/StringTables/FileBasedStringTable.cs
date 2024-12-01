@@ -49,6 +49,7 @@ namespace BrightData.Helper.StringTables
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _file.Dispose();
         }
 

@@ -63,7 +63,7 @@ namespace BrightData.Types
         {
             var other = metadata;
             if (keys.Length == 0)
-                keys = _orderedValues.ToArray();
+                keys = [.._orderedValues];
 
             foreach (var key in keys)
             {

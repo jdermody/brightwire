@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
+using BrightData.Analysis;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -446,6 +447,11 @@ namespace BrightData.Types
                     : type.Aggregate(g.Select(d => d.Weight)))
                 ).ToArray()
             );
+        }
+
+        public WeightedIndexList Normalize(NormalisationModel model)
+        {
+            return Create(Indices.Select(x => new Item(x.Index, (float)model.Normalize(x.Weight))));
         }
 
         /// <summary>

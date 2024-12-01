@@ -102,6 +102,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// <inheritdoc />
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             _index.Dispose();
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData.Analysis;
 using BrightData.Types;
 
 namespace BrightData
@@ -242,6 +243,22 @@ namespace BrightData
             }
 
             return ret;
+        }
+
+        public static (WeightedIndexListWithLabel<T>[], NormalisationModel Model) Normalize<T>(this IReadOnlyCollection<WeightedIndexListWithLabel<T>> data, NormalizationType normalizationType)
+        {
+            var analysis = new NumericAnalyser<float>();
+            foreach (var item in data) {
+                foreach(var value in item.Data)
+                    analysis.Add(value.Weight);
+            }
+
+            var model = new NormalisationModel(normalizationType, analysis.GetMetaData());
+            int len = data.Count, i = 0;
+            var ret = new WeightedIndexListWithLabel<T>[len];
+            foreach (var (label, weightedIndexList) in data)
+                ret[i++] = new(label, weightedIndexList.Normalize(model));
+            return (ret, model);
         }
     }
 }
