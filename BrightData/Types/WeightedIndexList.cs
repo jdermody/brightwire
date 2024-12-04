@@ -237,7 +237,7 @@ namespace BrightData.Types
         /// <param name="lists">Lists to merge</param>
         /// <param name="mergeOperation">How to merge item weights</param>
         /// <returns></returns>
-        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average) => Merge(lists.SelectMany(x => x.Indices), mergeOperation);
+        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Sum) => Merge(lists.SelectMany(x => x.Indices), mergeOperation);
 
         /// <summary>
         /// Merges a sequence of weighted index items into one list
@@ -245,7 +245,7 @@ namespace BrightData.Types
         /// <param name="items">Lists to merge</param>
         /// <param name="mergeOperation">How to merge item weights</param>
         /// <returns></returns>
-        public static WeightedIndexList Merge(IEnumerable<Item> items, AggregationType mergeOperation = AggregationType.Average)
+        public static WeightedIndexList Merge(IEnumerable<Item> items, AggregationType mergeOperation = AggregationType.Sum)
         {
             var itemWeights = new Dictionary<uint, List<float>>();
             foreach (var index in items)

@@ -1,0 +1,350 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using BrightData.Buffer;
+using System.Runtime.InteropServices;
+using CommunityToolkit.HighPerformance;
+
+namespace BrightData.Types
+{
+	/// <summary>
+	/// A tuple of spans - each with the same type
+	/// </summary>
+	public static class SingleTypeSpanTuple
+	{
+<# for(var i = 2; i <= SIZE; i++) { #>
+		/// <summary>
+		/// Creates a span of tuples (size <#= i #>)
+		/// </summary>
+		public static SingleTypeSpanTuple<#= i #><ST> Create<ST>(<#= GetSingleTypeSpanList(i) #>) where ST: unmanaged
+		{
+			return new(
+<# for(var j = 1; j <= i; j++) { #>
+				item<#= j #><#= j < i ? "," : "" #>
+<# } #>
+			);
+		}
+<# } #>
+	}
+
+<# for(var i = 2; i <= SIZE; i++) { #>
+	/// <summary>
+	/// A tuple (size <#= i #>) of spans - each with the same type
+	/// </summary>
+	public readonly ref struct SingleTypeSpanTuple<#= i #><ST> : IAmTupleOfSpans where ST: unmanaged
+	{
+		internal SingleTypeSpanTuple<#= i #>(<#= GetSingleTypeSpanList(i) #>)
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #> = item<#= j #>;
+<# } #>
+		}
+<# for(var j = 1; j <= i; j++) { #>
+
+		/// <summary>
+		/// Item <#= j #> in the tuple
+		/// </summary>
+		public Span<ST> Item<#= j #> { get; }
+<# } #>
+
+		/// <inheritdoc />
+		public int[] Sizes => [
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #>.Length,
+<# } #>
+		];
+
+		/// <inheritdoc />
+		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			callback(MemoryMarshal.Cast<ST, T>(Item<#= j #>), <#= j-1 #>);
+<# } #>
+		}
+	}
+<# } #>
+
+	/// <summary>
+	/// A tuple of read only spans - each with the same type
+	/// </summary>
+	public static class ReadOnlySingleTypeSpanTuple
+	{
+<# for(var i = 2; i <= SIZE; i++) { #>
+		/// <summary>
+		/// Creates a read only span of tuples (size <#= i #>)
+		/// </summary>
+		public static ReadOnlySingleTypeSpanTuple<#= i #><ST> Create<ST>(<#= GetSingleTypeReadOnlySpanList(i) #>) where ST: unmanaged
+		{
+			return new(
+<# for(var j = 1; j <= i; j++) { #>
+				item<#= j #><#= j < i ? "," : "" #>
+<# } #>
+			);
+		}
+<# } #>
+	}
+
+<# for(var i = 2; i <= SIZE; i++) { #>
+	/// <summary>
+	/// A tuple (size <#= i #>) of read only spans - each with the same type
+	/// </summary>
+	public readonly ref struct ReadOnlySingleTypeSpanTuple<#= i #><ST> : IAmTupleOfSpans where ST: unmanaged
+	{
+		internal ReadOnlySingleTypeSpanTuple<#= i #>(<#= GetSingleTypeReadOnlySpanList(i) #>)
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #> = item<#= j #>;
+<# } #>
+		}
+<# for(var j = 1; j <= i; j++) { #>
+
+		/// <summary>
+		/// Item <#= j #> in the tuple
+		/// </summary>
+		public ReadOnlySpan<ST> Item<#= j #> { get; }
+<# } #>
+
+		/// <inheritdoc />
+		public int[] Sizes => [
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #>.Length,
+<# } #>
+		];
+
+		/// <inheritdoc />
+		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			callback(MemoryMarshal.Cast<ST, T>(Item<#= j #>), <#= j-1 #>);
+<# } #>
+		}
+	}
+<# } #>
+
+	/// <summary>
+	/// A tuple of spans, each with a different type
+	/// </summary>
+	public static class MultiTypeSpanTuple
+	{
+<# for(var i = 2; i <= SIZE; i++) { #>
+		/// <summary>
+		/// Creates a multi type span tuple with <#= i #> items
+		/// </summary>
+		public static MultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>> Create<<#= GetTypeList(i) #>>(<#= GetSpanList(i) #>)
+<# for(var j = 1; j <= i; j++) { #>
+			where T<#= j #>: unmanaged
+<# } #>
+		{
+			return new MultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>>(
+<# for(var j = 1; j <= i; j++) { #>
+				item<#= j #><#= j < i ? "," : "" #>
+<# } #>
+			);
+		}
+<# } #>
+	}
+
+	/// <summary>
+	/// A tuple of read only spans, each with a different type
+	/// </summary>
+	public static class ReadOnlyMultiTypeSpanTuple
+	{
+<# for(var i = 2; i <= SIZE; i++) { #>
+		/// <summary>
+		/// Creates a read only multi type span tuple with <#= i #> items
+		/// </summary>
+		public static ReadOnlyMultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>> Create<<#= GetTypeList(i) #>>(<#= GetReadOnlySpanList(i) #>)
+<# for(var j = 1; j <= i; j++) { #>
+			where T<#= j #>: unmanaged
+<# } #>
+		{
+			return new ReadOnlyMultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>>(
+<# for(var j = 1; j <= i; j++) { #>
+				item<#= j #><#= j < i ? "," : "" #>
+<# } #>
+			);
+		}
+<# } #>
+	}
+
+<# for(var i = 2; i <= SIZE; i++) { #>
+	/// <summary>
+	/// A tuple (size <#= i #>) of spans
+	/// </summary>
+	public readonly ref struct MultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>> : IAmTupleOfSpans
+<# for(var j = 1; j <= i; j++) { #>
+		where T<#= j #>: unmanaged
+<# } #>
+	{
+		internal MultiTypeSpanTuple<#= i #>(<#= GetSpanList(i) #>)
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #> = item<#= j #>;
+<# } #>
+		}
+
+<# for(var j = 1; j <= i; j++) { #>
+		/// <summary>
+		/// Item <#= j #> in the tuple
+		/// </summary>
+		public Span<T<#= j #>> Item<#= j #> { get; }
+
+<# } #>
+		/// <inheritdoc />
+		public int[] Sizes => [
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #>.Length,
+<# } #>
+		];
+
+		/// <inheritdoc />
+		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			callback(MemoryMarshal.Cast<T<#= j #>, T>(Item<#= j #>), <#= j-1 #>);
+<# } #>
+		}
+	}
+
+	/// <summary>
+	/// A tuple (size <#= i #>) of read only spans, each item 
+	/// </summary>
+	public readonly ref struct ReadOnlyMultiTypeSpanTuple<#= i #><<#= GetTypeList(i) #>> : IAmTupleOfSpans
+<# for(var j = 1; j <= i; j++) { #>
+		where T<#= j #>: unmanaged
+<# } #>
+	{
+		internal ReadOnlyMultiTypeSpanTuple<#= i #>(<#= GetReadOnlySpanList(i) #>)
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #> = item<#= j #>;
+<# } #>
+		}
+
+<# for(var j = 1; j <= i; j++) { #>
+		/// <summary>
+		/// Item <#= j #> in the tuple
+		/// </summary>
+		public ReadOnlySpan<T<#= j #>> Item<#= j #> { get; }
+
+<# } #>
+		/// <inheritdoc />
+		public int[] Sizes => [
+<# for(var j = 1; j <= i; j++) { #>
+			Item<#= j #>.Length,
+<# } #>
+		];
+
+		/// <summary>
+		/// Casts each item to T and then invokes a callback on the new span
+		/// </summary>
+		/// <typeparam name="T">Type to cast to</typeparam>
+		/// <param name="callback">Callback to invoke for each item</param>
+		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
+		{
+<# for(var j = 1; j <= i; j++) { #>
+			callback(MemoryMarshal.Cast<T<#= j #>, T>(Item<#= j #>), <#= j-1 #>);
+<# } #>
+		}
+	}
+<# } #>
+}
+
+namespace BrightData
+{
+	public static partial class ExtensionMethods
+	{
+<# for(var i = 2; i <= SIZE; i++) { #>
+		/// <summary>
+		/// Reads the data block that has a header of <see cref="BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+		/// </summary>
+		public static (<#= GetReadOnlyMemoryList(i) #>) GetTupleFromBlockHeader<<#= GetTypeList(i) #>>(this ReadOnlyMemory<byte> data)
+<# for(var j = 1; j <= i; j++) { #>
+			where T<#= j #>: unmanaged
+<# } #>
+		{
+			var span = data.Span;
+            var header = span[..(<#= i #> * BlockHeader.StructSize)].Cast<byte, BlockHeader>();
+			return (
+<# for(var j = 0; j < i; j++) { #>
+				header[<#= j #>].Get(data).Cast<byte, T<#= j+1 #>>()<#= j+1 < i ? "," : "" #>
+<# } #>
+			);
+		}
+<# } #>
+	}
+}
+
+<#+
+	const int SIZE = 12;
+
+	string GetTypeList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"T{i}");
+		}
+		return sb.ToString();
+	}
+
+	string GetSpanList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"Span<T{i}> item{i}");
+		}
+		return sb.ToString();
+	}
+
+	string GetReadOnlySpanList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"ReadOnlySpan<T{i}> item{i}");
+		}
+		return sb.ToString();
+	}
+
+	string GetSingleTypeSpanList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"Span<ST> item{i}");
+		}
+		return sb.ToString();
+	}
+
+	string GetSingleTypeReadOnlySpanList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"ReadOnlySpan<ST> item{i}");
+		}
+		return sb.ToString();
+	}
+
+	string GetReadOnlyMemoryList(int size) 
+	{
+		var sb = new StringBuilder();
+		for(var i = 1; i <= size; i++) {
+			if(sb.Length > 0)
+				sb.Append(", ");
+			sb.Append($"ReadOnlyMemory<T{i}> Item{i}");
+		}
+		return sb.ToString();
+	}
+#>

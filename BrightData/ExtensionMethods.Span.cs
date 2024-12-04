@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using BrightData.Buffer;
 using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using CommunityToolkit.HighPerformance;
@@ -1743,14 +1744,14 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Multi
+        /// Returns the element indices that match the comparator using binary search - span should be sorted
         /// </summary>
         /// <param name="span"></param>
         /// <param name="comparator"></param>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="CT"></typeparam>
         /// <returns></returns>
-        public static int[] MultiBinarySearch<T, CT>(this ReadOnlySpan<T> span, CT comparator)
+        public static uint[] MultiBinarySearchIndices<T, CT>(this ReadOnlySpan<T> span, CT comparator)
             where CT: IComparable<T>, allows ref struct
         {
             var index = span.BinarySearch(comparator);
@@ -1761,16 +1762,30 @@ namespace BrightData
                 while (last >= 0 && last < span.Length - 1 && comparator.CompareTo(span[last + 1]) == 0)
                     ++last;
                 var ind = 0;
-                var ret = new int[last - first + 1];
+                var ret = new uint[last - first + 1];
                 for (var i = first; i <= last; i++)
-                    ret[ind++] = i;
+                    ret[ind++] = (uint)i;
                 return ret;
             }
             return [];
         }
     
+        public static ReadOnlySpan<T> MultiBinarySearchSpan<T, CT>(this ReadOnlySpan<T> span, CT comparator)
+            where CT: IComparable<T>, allows ref struct
+        {
+            var index = span.BinarySearch(comparator);
+            if (index >= 0) {
+                int first = index, last = index;
+                while (first >= 1 && comparator.CompareTo(span[first - 1]) == 0)
+                    --first;
+                while (last >= 0 && last < span.Length - 1 && comparator.CompareTo(span[last + 1]) == 0)
+                    ++last;
+                return span[first..last];
+            }
+            return [];
+        }
 
-    /// <summary>
+        /// <summary>
         /// Creates a read only vector from the span
         /// </summary>
         /// <param name="span"></param>

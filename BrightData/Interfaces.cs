@@ -473,7 +473,7 @@ namespace BrightData
     /// <param name="Label"></param>
     /// <param name="Data"></param>
     /// <typeparam name="T"></typeparam>
-    public record IndexListWithLabel<T>(T Label, IndexList Data);
+    public readonly record struct IndexListWithLabel<T>(T Label, IndexList Data);
 
     /// <summary>
     /// A weighted index list with a typed label
@@ -481,7 +481,7 @@ namespace BrightData
     /// <typeparam name="T"></typeparam>
     /// <param name="Label"></param>
     /// <param name="Data"></param>
-    public record WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
+    public readonly record struct WeightedIndexListWithLabel<T>(T Label, WeightedIndexList Data);
 
     /// <summary>
     /// A vector clustering strategy
@@ -584,9 +584,45 @@ namespace BrightData
         V RemoveAt(byte index);
     }
 
+    /// <summary>
+    /// String index storage type
+    /// </summary>
     public enum StringIndexType
     {
+        /// <summary>
+        /// Store strings in a dictionary
+        /// </summary>
         Dictionary,
+
+        /// <summary>
+        /// Store strings in a trie
+        /// </summary>
         Trie
+    }
+
+    /// <summary>
+    /// Callback for each span in a collection
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="span"></param>
+    /// <param name="index"></param>
+    public delegate void ForEachSpanCallback<T>(ReadOnlySpan<T> span, int index);
+
+    /// <summary>
+    /// A tuple of spans
+    /// </summary>
+    public interface IAmTupleOfSpans
+    {
+        /// <summary>
+        /// Size of each of the spans in the tuple
+        /// </summary>
+        int[] Sizes { get; }
+
+        /// <summary>
+        /// Invokes a callback on each span in the tuple
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback"></param>
+        void ForEach<T>(ForEachSpanCallback<T> callback) where T : unmanaged;
     }
 }

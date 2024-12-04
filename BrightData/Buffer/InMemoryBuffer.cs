@@ -88,7 +88,9 @@ namespace BrightData.Buffer
             throw new Exception("Unexpected - failed to find block");
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public override async IAsyncEnumerable<T> EnumerateAllTyped()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             // read from in memory blocks
             if (_inMemoryBlocks is not null)

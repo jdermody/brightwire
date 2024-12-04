@@ -283,8 +283,8 @@ namespace BrightData.Helper.StringTables
 
                 while (indices.Count > 0) {
                     var comparator = new IndexComparator(indices.Pop());
-                    foreach (var index in data.MultiBinarySearch(comparator)) {
-                        ref readonly var item = ref data[index];
+                    foreach (var index in data.MultiBinarySearchIndices(comparator)) {
+                        ref readonly var item = ref data[(int)index];
                         if (item.ValueIndex != uint.MaxValue)
                             ret.Add(item.ValueIndex);
                         indices.Push(item.Index);
@@ -324,8 +324,8 @@ namespace BrightData.Helper.StringTables
                 while (indices.Count > 0) {
                     var (nextIndex, str) = indices.Pop();
                     var comparator = new IndexComparator(nextIndex);
-                    foreach (var index in data.MultiBinarySearch(comparator)) {
-                        ref readonly var item = ref data[index];
+                    foreach (var index in data.MultiBinarySearchIndices(comparator)) {
+                        ref readonly var item = ref data[(int)index];
                         T[] nextData = [..str, item.Character];
                         indices.Push((item.Index, nextData));
                         if (item.ValueIndex != uint.MaxValue)

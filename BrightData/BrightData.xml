@@ -544,6 +544,83 @@
             <param name="buffer"></param>
             <param name="defaultBufferSize"></param>
         </member>
+        <member name="T:BrightData.Buffer.BlockHeader">
+            <summary>
+            A header that points to the location of a block within a buffer
+            </summary>
+            <param name="Offset">The start offset of the block in the buffer</param>
+            <param name="Size">The size of the block in the buffer</param>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.#ctor(System.Int32,System.Int32)">
+            <summary>
+            A header that points to the location of a block within a buffer
+            </summary>
+            <param name="Offset">The start offset of the block in the buffer</param>
+            <param name="Size">The size of the block in the buffer</param>
+        </member>
+        <member name="P:BrightData.Buffer.BlockHeader.Offset">
+            <summary>The start offset of the block in the buffer</summary>
+        </member>
+        <member name="P:BrightData.Buffer.BlockHeader.Size">
+            <summary>The size of the block in the buffer</summary>
+        </member>
+        <member name="P:BrightData.Buffer.BlockHeader.EndOffset">
+            <summary>
+            The end offset of the block in the buffer
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Get``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Returns the block
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="memory">Buffer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Get``1(System.ReadOnlyMemory{``0})">
+            <summary>
+            Returns the block
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="memory">Buffer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Get``1(System.Memory{``0})">
+            <summary>
+            Returns the block
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="memory">Buffer</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Get``1(System.Span{``0})">
+            <summary>
+            Returns the block
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="memory">Buffer</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Buffer.BlockHeader.StructSize">
+            <summary>
+            The size (in bytes) of the BlockHeader structure
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Create(System.Int32[])">
+            <summary>
+            Create an array of block headers, each pointing to contiguous blocks within a buffer
+            </summary>
+            <param name="blockSizes">The array of block sizes</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.BlockHeader.Combine``1(``0@)">
+            <summary>
+            Returns a single buffer of bytes that consists of all the items in the span tuple arranged contiguously
+            </summary>
+            <param name="tuple"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Buffer.ByteBlockReaders.FileByteBlockReader">
             <summary>
             Reads from a file
@@ -5479,9 +5556,9 @@
             <typeparam name="AT"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.MultiBinarySearch``2(System.ReadOnlySpan{``0},``1)">
+        <member name="M:BrightData.ExtensionMethods.MultiBinarySearchIndices``2(System.ReadOnlySpan{``0},``1)">
             <summary>
-            Multi
+            Returns the element indices that match the comparator using binary search - span should be sorted
             </summary>
             <param name="span"></param>
             <param name="comparator"></param>
@@ -5885,6 +5962,61 @@
             <param name="dataTable"></param>
             <returns></returns>
             <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``2(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``3(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``4(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``5(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``6(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``7(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``8(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``9(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``10(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``11(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTupleFromBlockHeader``12(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Reads the data block that has a header of <see cref="T:BrightData.Buffer.BlockHeader" /> and returns a tuple of read only memory corresponding to each data block
+            </summary>
         </member>
         <member name="T:BrightData.Distribution.BernoulliDistribution">
             <summary>
@@ -7483,6 +7615,46 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:BrightData.StringIndexType">
+            <summary>
+            String index storage type
+            </summary>
+        </member>
+        <member name="F:BrightData.StringIndexType.Dictionary">
+            <summary>
+            Store strings in a dictionary
+            </summary>
+        </member>
+        <member name="F:BrightData.StringIndexType.Trie">
+            <summary>
+            Store strings in a trie
+            </summary>
+        </member>
+        <member name="T:BrightData.ForEachSpanCallback`1">
+            <summary>
+            Callback for each span in a collection
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="index"></param>
+        </member>
+        <member name="T:BrightData.IAmTupleOfSpans">
+            <summary>
+            A tuple of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.IAmTupleOfSpans.Sizes">
+            <summary>
+            Size of each of the spans in the tuple
+            </summary>
+        </member>
+        <member name="M:BrightData.IAmTupleOfSpans.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Invokes a callback on each span in the tuple
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="callback"></param>
         </member>
         <member name="T:BrightData.IDataAnalyser`1">
             <summary>
@@ -19615,6 +19787,2314 @@
             <summary>
             Creates a clone of the current metadata
             </summary>
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple">
+            <summary>
+            A tuple of spans - each with the same type
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 2)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 3)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 4)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 5)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 6)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 7)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 8)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 9)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 10)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 11)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple.Create``1(System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0},System.Span{``0})">
+            <summary>
+            Creates a span of tuples (size 12)
+            </summary>
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple2`1">
+            <summary>
+            A tuple (size 2) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple2`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple2`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple2`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple2`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple3`1">
+            <summary>
+            A tuple (size 3) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple3`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple4`1">
+            <summary>
+            A tuple (size 4) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple4`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple5`1">
+            <summary>
+            A tuple (size 5) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple5`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple6`1">
+            <summary>
+            A tuple (size 6) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple6`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple7`1">
+            <summary>
+            A tuple (size 7) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple7`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple8`1">
+            <summary>
+            A tuple (size 8) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple8`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple9`1">
+            <summary>
+            A tuple (size 9) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple9`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple10`1">
+            <summary>
+            A tuple (size 10) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple10`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple11`1">
+            <summary>
+            A tuple (size 11) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple11`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.SingleTypeSpanTuple12`1">
+            <summary>
+            A tuple (size 12) of spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Item12">
+            <summary>
+            Item 12 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.SingleTypeSpanTuple12`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple">
+            <summary>
+            A tuple of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 2)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 3)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 4)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 5)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 6)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 7)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 8)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 9)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 10)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 11)
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple.Create``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a read only span of tuples (size 12)
+            </summary>
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1">
+            <summary>
+            A tuple (size 2) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1">
+            <summary>
+            A tuple (size 3) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1">
+            <summary>
+            A tuple (size 4) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1">
+            <summary>
+            A tuple (size 5) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1">
+            <summary>
+            A tuple (size 6) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1">
+            <summary>
+            A tuple (size 7) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1">
+            <summary>
+            A tuple (size 8) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1">
+            <summary>
+            A tuple (size 9) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1">
+            <summary>
+            A tuple (size 10) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1">
+            <summary>
+            A tuple (size 11) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1">
+            <summary>
+            A tuple (size 12) of read only spans - each with the same type
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Item12">
+            <summary>
+            Item 12 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple">
+            <summary>
+            A tuple of spans, each with a different type
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``2(System.Span{``0},System.Span{``1})">
+            <summary>
+            Creates a multi type span tuple with 2 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``3(System.Span{``0},System.Span{``1},System.Span{``2})">
+            <summary>
+            Creates a multi type span tuple with 3 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``4(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3})">
+            <summary>
+            Creates a multi type span tuple with 4 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``5(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4})">
+            <summary>
+            Creates a multi type span tuple with 5 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``6(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5})">
+            <summary>
+            Creates a multi type span tuple with 6 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``7(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6})">
+            <summary>
+            Creates a multi type span tuple with 7 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``8(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6},System.Span{``7})">
+            <summary>
+            Creates a multi type span tuple with 8 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``9(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6},System.Span{``7},System.Span{``8})">
+            <summary>
+            Creates a multi type span tuple with 9 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``10(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6},System.Span{``7},System.Span{``8},System.Span{``9})">
+            <summary>
+            Creates a multi type span tuple with 10 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``11(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6},System.Span{``7},System.Span{``8},System.Span{``9},System.Span{``10})">
+            <summary>
+            Creates a multi type span tuple with 11 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple.Create``12(System.Span{``0},System.Span{``1},System.Span{``2},System.Span{``3},System.Span{``4},System.Span{``5},System.Span{``6},System.Span{``7},System.Span{``8},System.Span{``9},System.Span{``10},System.Span{``11})">
+            <summary>
+            Creates a multi type span tuple with 12 items
+            </summary>
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple">
+            <summary>
+            A tuple of read only spans, each with a different type
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``2(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1})">
+            <summary>
+            Creates a read only multi type span tuple with 2 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``3(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2})">
+            <summary>
+            Creates a read only multi type span tuple with 3 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``4(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3})">
+            <summary>
+            Creates a read only multi type span tuple with 4 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``5(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4})">
+            <summary>
+            Creates a read only multi type span tuple with 5 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``6(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5})">
+            <summary>
+            Creates a read only multi type span tuple with 6 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``7(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6})">
+            <summary>
+            Creates a read only multi type span tuple with 7 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``8(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6},System.ReadOnlySpan{``7})">
+            <summary>
+            Creates a read only multi type span tuple with 8 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``9(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6},System.ReadOnlySpan{``7},System.ReadOnlySpan{``8})">
+            <summary>
+            Creates a read only multi type span tuple with 9 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``10(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6},System.ReadOnlySpan{``7},System.ReadOnlySpan{``8},System.ReadOnlySpan{``9})">
+            <summary>
+            Creates a read only multi type span tuple with 10 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``11(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6},System.ReadOnlySpan{``7},System.ReadOnlySpan{``8},System.ReadOnlySpan{``9},System.ReadOnlySpan{``10})">
+            <summary>
+            Creates a read only multi type span tuple with 11 items
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple.Create``12(System.ReadOnlySpan{``0},System.ReadOnlySpan{``1},System.ReadOnlySpan{``2},System.ReadOnlySpan{``3},System.ReadOnlySpan{``4},System.ReadOnlySpan{``5},System.ReadOnlySpan{``6},System.ReadOnlySpan{``7},System.ReadOnlySpan{``8},System.ReadOnlySpan{``9},System.ReadOnlySpan{``10},System.ReadOnlySpan{``11})">
+            <summary>
+            Creates a read only multi type span tuple with 12 items
+            </summary>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple2`2">
+            <summary>
+            A tuple (size 2) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple2`2.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple2`2.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple2`2.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple2`2.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2">
+            <summary>
+            A tuple (size 2) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple3`3">
+            <summary>
+            A tuple (size 3) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple3`3.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3">
+            <summary>
+            A tuple (size 3) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple4`4">
+            <summary>
+            A tuple (size 4) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple4`4.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4">
+            <summary>
+            A tuple (size 4) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple5`5">
+            <summary>
+            A tuple (size 5) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple5`5.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5">
+            <summary>
+            A tuple (size 5) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple6`6">
+            <summary>
+            A tuple (size 6) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple6`6.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6">
+            <summary>
+            A tuple (size 6) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple7`7">
+            <summary>
+            A tuple (size 7) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple7`7.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7">
+            <summary>
+            A tuple (size 7) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple8`8">
+            <summary>
+            A tuple (size 8) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple8`8.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8">
+            <summary>
+            A tuple (size 8) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple9`9">
+            <summary>
+            A tuple (size 9) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple9`9.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9">
+            <summary>
+            A tuple (size 9) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple10`10">
+            <summary>
+            A tuple (size 10) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple10`10.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10">
+            <summary>
+            A tuple (size 10) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple11`11">
+            <summary>
+            A tuple (size 11) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple11`11.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11">
+            <summary>
+            A tuple (size 11) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
+        </member>
+        <member name="T:BrightData.Types.MultiTypeSpanTuple12`12">
+            <summary>
+            A tuple (size 12) of spans
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Item12">
+            <summary>
+            Item 12 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.MultiTypeSpanTuple12`12.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12">
+            <summary>
+            A tuple (size 12) of read only spans, each item 
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item1">
+            <summary>
+            Item 1 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item2">
+            <summary>
+            Item 2 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item3">
+            <summary>
+            Item 3 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item4">
+            <summary>
+            Item 4 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item5">
+            <summary>
+            Item 5 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item6">
+            <summary>
+            Item 6 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item7">
+            <summary>
+            Item 7 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item8">
+            <summary>
+            Item 8 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item9">
+            <summary>
+            Item 9 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item10">
+            <summary>
+            Item 10 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item11">
+            <summary>
+            Item 11 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Item12">
+            <summary>
+            Item 12 in the tuple
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.ForEach``1(BrightData.ForEachSpanCallback{``0})">
+            <summary>
+            Casts each item to T and then invokes a callback on the new span
+            </summary>
+            <typeparam name="T">Type to cast to</typeparam>
+            <param name="callback">Callback to invoke for each item</param>
         </member>
         <member name="T:BrightData.Types.WeightedIndexList">
             <summary>

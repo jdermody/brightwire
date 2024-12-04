@@ -1103,5 +1103,10 @@ namespace BrightData
             var vectorisers = createTasks.Select(x => x.Result).ToArray();
             return new VectorisationModel(vectorisers);
         }
+
+        public static Task WriteTo(this IHaveMemory<byte> itemWithMemory, string filePath)
+        {
+            return File.WriteAllBytesAsync(filePath, itemWithMemory.ReadOnlyMemory);
+        }
     }
 }

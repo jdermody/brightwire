@@ -66,6 +66,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>GenericTypeMapping.tt</DependentUpon>
     </None>
+    <None Include="Types\SpanTuples\SpanTuple.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SpanTuple.tt</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -92,6 +97,10 @@
     <None Update="Types\FixedSizeSortedArray\FixedSizeSortedArray.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>FixedSizeSortedArray.cs</LastGenOutput>
+    </None>
+    <None Update="Types\SpanTuples\SpanTuple.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SpanTuple.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -123,6 +132,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>FixedSizeSortedArrayTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Types\SpanTuples\SpanTuple.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SpanTuple.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
