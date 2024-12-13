@@ -1104,6 +1104,12 @@ namespace BrightData
             return new VectorisationModel(vectorisers);
         }
 
+        /// <summary>
+        /// Writes the item (that can be represented as a byte array) to disk
+        /// </summary>
+        /// <param name="itemWithMemory"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static Task WriteTo(this IHaveMemory<byte> itemWithMemory, string filePath)
         {
             return File.WriteAllBytesAsync(filePath, itemWithMemory.ReadOnlyMemory);

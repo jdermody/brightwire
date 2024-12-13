@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using BrightData.Buffer;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 
@@ -16,9 +17,8 @@ namespace BrightData.Helper.StringTables
     /// </summary>
     public class InMemoryStringTableBuilder : IDisposable, IStringTableInMemory
     {
-        internal readonly record struct OffsetAndLength(uint Offset, uint Length);
-        readonly ArrayPoolBufferWriter<byte> _writer = new();
-        readonly List<OffsetAndLength> _stringTable = [];
+        readonly ArrayPoolBufferWriter<byte> _dataWriter = new();
+        readonly ArrayPoolBufferWriter<OffsetAndSize> _stringTable = new();
 
         /// <summary>
         /// Creates a string table builder from a string indexer
@@ -31,11 +31,11 @@ namespace BrightData.Helper.StringTables
         {
             Span<byte> buffer = stackalloc byte[maxStringSizeInBytes];
             foreach (var str in stringIndexer.OrderedStrings) {
-                var offset = (uint)_writer.WrittenCount;
+                var offset = (uint)_dataWriter.WrittenCount;
                 if (!Encoding.UTF8.TryGetBytes(str, buffer, out var size))
                     throw new Exception($"String was too large to encode in {maxStringSizeInBytes:N0} bytes: \"{str[..32]}...\" ({str.Length} characters)");
-                _writer.Write(buffer[..size]);
-                _stringTable.Add(new(offset, (uint)size));
+                _dataWriter.Write(buffer[..size]);
+                _stringTable.Write(new OffsetAndSize(offset, (uint)size));
             }
         }
 
@@ -43,18 +43,15 @@ namespace BrightData.Helper.StringTables
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            _writer.Dispose();
+            _dataWriter.Dispose();
+            _stringTable.Dispose();
         }
 
         /// <inheritdoc />
-        public uint Size => (uint)_stringTable.Count;
+        public uint Size => (uint)_stringTable.WrittenCount;
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> GetUtf8(uint index)
-        {
-            var (offset, size) = _stringTable[(int)index];
-            return _writer.WrittenSpan.Slice((int)offset, (int)size);
-        }
+        public ReadOnlySpan<byte> GetUtf8(uint index) => _stringTable.WrittenSpan[(int)index].GetSpan(_dataWriter.WrittenSpan);
 
         /// <inheritdoc />
         public string GetString(uint index) => Encoding.UTF8.GetString(GetUtf8(index));
@@ -74,29 +71,8 @@ namespace BrightData.Helper.StringTables
         /// <param name="outputPath"></param>
         public async Task WriteTo(string outputPath)
         {
-            const uint HeaderSize = 12U;
-            var sizeHeader = new byte[HeaderSize];
-            var strings = _stringTable.ToArray().AsMemory().Cast<OffsetAndLength, byte>();
-            var header = WriteHeader(sizeHeader, [
-                Size,
-                HeaderSize,
-                HeaderSize + (uint)strings.Length
-            ]);
-
-            // write to file
-            using var file = File.OpenHandle(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            await RandomAccess.WriteAsync(file, sizeHeader, 0);
-            await RandomAccess.WriteAsync(file, strings, header[1]);
-            await RandomAccess.WriteAsync(file, _writer.WrittenMemory, header[2]);
-            return;
-
-            static uint[] WriteHeader(Span<byte> span, uint[] header)
-            {
-                BinaryPrimitives.WriteUInt32LittleEndian(span[..4], header[0]);
-                BinaryPrimitives.WriteUInt32LittleEndian(span[4..8], header[1]);
-                BinaryPrimitives.WriteUInt32LittleEndian(span[8..12], header[2]);
-                return header;
-            }
+            var stringTable = new StringTable(_stringTable.WrittenMemory, _dataWriter.WrittenMemory);
+            await File.WriteAllBytesAsync(outputPath, stringTable.ReadOnlyMemory);
         }
     }
 }

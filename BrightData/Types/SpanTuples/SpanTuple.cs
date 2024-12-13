@@ -1,6 +1,7 @@
 ﻿using System;
 using BrightData.Buffer;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Types
@@ -205,6 +206,12 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<ST, T>(Item1), 0);
@@ -243,6 +250,13 @@ namespace BrightData.Types
 			Item1.Length,
 			Item2.Length,
 			Item3.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -292,6 +306,14 @@ namespace BrightData.Types
 			Item2.Length,
 			Item3.Length,
 			Item4.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -349,6 +371,15 @@ namespace BrightData.Types
 			Item3.Length,
 			Item4.Length,
 			Item5.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -414,6 +445,16 @@ namespace BrightData.Types
 			Item4.Length,
 			Item5.Length,
 			Item6.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -487,6 +528,17 @@ namespace BrightData.Types
 			Item5.Length,
 			Item6.Length,
 			Item7.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -568,6 +620,18 @@ namespace BrightData.Types
 			Item6.Length,
 			Item7.Length,
 			Item8.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -657,6 +721,19 @@ namespace BrightData.Types
 			Item7.Length,
 			Item8.Length,
 			Item9.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -754,6 +831,20 @@ namespace BrightData.Types
 			Item8.Length,
 			Item9.Length,
 			Item10.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -859,6 +950,21 @@ namespace BrightData.Types
 			Item9.Length,
 			Item10.Length,
 			Item11.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
+			Item11.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -972,6 +1078,22 @@ namespace BrightData.Types
 			Item10.Length,
 			Item11.Length,
 			Item12.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
+			Item11.Length * Unsafe.SizeOf<ST>(),
+			Item12.Length * Unsafe.SizeOf<ST>(),
 		];
 
 		/// <inheritdoc />
@@ -1186,6 +1308,12 @@ namespace BrightData.Types
 		public ReadOnlySpan<ST> Item2 { get; }
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+		];
+
+		/// <inheritdoc />
 		public int[] Sizes => [
 			Item1.Length,
 			Item2.Length,
@@ -1224,6 +1352,13 @@ namespace BrightData.Types
 		/// Item 3 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item3 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1272,6 +1407,14 @@ namespace BrightData.Types
 		/// Item 4 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item4 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1328,6 +1471,15 @@ namespace BrightData.Types
 		/// Item 5 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item5 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1392,6 +1544,16 @@ namespace BrightData.Types
 		/// Item 6 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item6 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1464,6 +1626,17 @@ namespace BrightData.Types
 		/// Item 7 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item7 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1544,6 +1717,18 @@ namespace BrightData.Types
 		/// Item 8 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item8 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1632,6 +1817,19 @@ namespace BrightData.Types
 		/// Item 9 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item9 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1728,6 +1926,20 @@ namespace BrightData.Types
 		/// Item 10 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item10 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1832,6 +2044,21 @@ namespace BrightData.Types
 		/// Item 11 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item11 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
+			Item11.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -1944,6 +2171,22 @@ namespace BrightData.Types
 		/// Item 12 in the tuple
 		/// </summary>
 		public ReadOnlySpan<ST> Item12 { get; }
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<ST>(),
+			Item2.Length * Unsafe.SizeOf<ST>(),
+			Item3.Length * Unsafe.SizeOf<ST>(),
+			Item4.Length * Unsafe.SizeOf<ST>(),
+			Item5.Length * Unsafe.SizeOf<ST>(),
+			Item6.Length * Unsafe.SizeOf<ST>(),
+			Item7.Length * Unsafe.SizeOf<ST>(),
+			Item8.Length * Unsafe.SizeOf<ST>(),
+			Item9.Length * Unsafe.SizeOf<ST>(),
+			Item10.Length * Unsafe.SizeOf<ST>(),
+			Item11.Length * Unsafe.SizeOf<ST>(),
+			Item12.Length * Unsafe.SizeOf<ST>(),
+		];
 
 		/// <inheritdoc />
 		public int[] Sizes => [
@@ -2507,6 +2750,12 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -2541,6 +2790,12 @@ namespace BrightData.Types
 		public int[] Sizes => [
 			Item1.Length,
 			Item2.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
 		];
 
 		/// <summary>
@@ -2592,6 +2847,13 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -2635,6 +2897,13 @@ namespace BrightData.Types
 			Item1.Length,
 			Item2.Length,
 			Item3.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
 		];
 
 		/// <summary>
@@ -2695,6 +2964,14 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -2747,6 +3024,14 @@ namespace BrightData.Types
 			Item2.Length,
 			Item3.Length,
 			Item4.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
 		];
 
 		/// <summary>
@@ -2816,6 +3101,15 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -2877,6 +3171,15 @@ namespace BrightData.Types
 			Item3.Length,
 			Item4.Length,
 			Item5.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
 		];
 
 		/// <summary>
@@ -2955,6 +3258,16 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -3025,6 +3338,16 @@ namespace BrightData.Types
 			Item4.Length,
 			Item5.Length,
 			Item6.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
 		];
 
 		/// <summary>
@@ -3112,6 +3435,17 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -3191,6 +3525,17 @@ namespace BrightData.Types
 			Item5.Length,
 			Item6.Length,
 			Item7.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
 		];
 
 		/// <summary>
@@ -3287,6 +3632,18 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -3375,6 +3732,18 @@ namespace BrightData.Types
 			Item6.Length,
 			Item7.Length,
 			Item8.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
 		];
 
 		/// <summary>
@@ -3480,6 +3849,19 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -3577,6 +3959,19 @@ namespace BrightData.Types
 			Item7.Length,
 			Item8.Length,
 			Item9.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
 		];
 
 		/// <summary>
@@ -3691,6 +4086,20 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -3797,6 +4206,20 @@ namespace BrightData.Types
 			Item8.Length,
 			Item9.Length,
 			Item10.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
 		];
 
 		/// <summary>
@@ -3920,6 +4343,21 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
+			Item11.Length * Unsafe.SizeOf<T11>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -4035,6 +4473,21 @@ namespace BrightData.Types
 			Item9.Length,
 			Item10.Length,
 			Item11.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
+			Item11.Length * Unsafe.SizeOf<T11>(),
 		];
 
 		/// <summary>
@@ -4167,6 +4620,22 @@ namespace BrightData.Types
 		];
 
 		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
+			Item11.Length * Unsafe.SizeOf<T11>(),
+			Item12.Length * Unsafe.SizeOf<T12>(),
+		];
+
+		/// <inheritdoc />
 		public void ForEach<T>(ForEachSpanCallback<T> callback) where T: unmanaged 
 		{
 			callback(MemoryMarshal.Cast<T1, T>(Item1), 0);
@@ -4291,6 +4760,22 @@ namespace BrightData.Types
 			Item10.Length,
 			Item11.Length,
 			Item12.Length,
+		];
+
+		/// <inheritdoc />
+		public int[] ByteSizes => [
+			Item1.Length * Unsafe.SizeOf<T1>(),
+			Item2.Length * Unsafe.SizeOf<T2>(),
+			Item3.Length * Unsafe.SizeOf<T3>(),
+			Item4.Length * Unsafe.SizeOf<T4>(),
+			Item5.Length * Unsafe.SizeOf<T5>(),
+			Item6.Length * Unsafe.SizeOf<T6>(),
+			Item7.Length * Unsafe.SizeOf<T7>(),
+			Item8.Length * Unsafe.SizeOf<T8>(),
+			Item9.Length * Unsafe.SizeOf<T9>(),
+			Item10.Length * Unsafe.SizeOf<T10>(),
+			Item11.Length * Unsafe.SizeOf<T11>(),
+			Item12.Length * Unsafe.SizeOf<T12>(),
 		];
 
 		/// <summary>

@@ -715,6 +715,56 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="T:BrightData.Buffer.OffsetAndSize">
+            <summary>
+            A range (with an offset and size) of a buffer
+            </summary>
+            <param name="StartOffset">Start position within the buffer</param>
+            <param name="Size">Length within the buffer</param>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.#ctor(System.UInt32,System.UInt32)">
+            <summary>
+            A range (with an offset and size) of a buffer
+            </summary>
+            <param name="StartOffset">Start position within the buffer</param>
+            <param name="Size">Length within the buffer</param>
+        </member>
+        <member name="P:BrightData.Buffer.OffsetAndSize.StartOffset">
+            <summary>Start position within the buffer</summary>
+        </member>
+        <member name="P:BrightData.Buffer.OffsetAndSize.Size">
+            <summary>Length within the buffer</summary>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.GetSpan``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Returns the section referenced by this offset and length
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span">Base buffer</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Buffer.OffsetAndSize.EndOffset">
+            <summary>
+            The end offset
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.Intersects(System.UInt32)">
+            <summary>
+            Checks if a position is within the range
+            </summary>
+            <param name="position"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.Intersects(BrightData.Buffer.OffsetAndSize@)">
+            <summary>
+            Checks if another range intersects
+            </summary>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.CompareTo(BrightData.Buffer.OffsetAndSize)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Buffer.Operations.AggregateNotification">
             <summary>
             Notification from an aggregate operation
@@ -2834,6 +2884,14 @@
             </summary>
             <param name="buffers"></param>
             <param name="oneHotEncodeCategoricalData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.WriteTo(BrightData.IHaveMemory{System.Byte},System.String)">
+            <summary>
+            Writes the item (that can be represented as a byte array) to disk
+            </summary>
+            <param name="itemWithMemory"></param>
+            <param name="filePath"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToType(System.TypeCode)">
@@ -6552,51 +6610,6 @@
             Returns all strings by indexed order
             </summary>
         </member>
-        <member name="T:BrightData.Helper.StringTables.FileBasedStringTable">
-            <summary>
-            File based string table that has been created with InMemoryStringTableBuilder
-            </summary>
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.Create(System.String)">
-            <summary>
-            Creates a string table from the file path
-            </summary>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetString(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetUtf8(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetAll(System.Int32)">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Helper.StringTables.FileBasedStringTable.Size">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetStringIndexer(BrightData.StringIndexType,System.Int32)">
-            <summary>
-            Creates a string indexer
-            </summary>
-            <param name="type">Type of string indexer to create</param>
-            <param name="maxStringSize">Max string size to index</param>
-            <returns></returns>
-            <exception cref="T:System.Exception"></exception>
-            <exception cref="T:System.NotImplementedException"></exception>
-        </member>
-        <member name="M:BrightData.Helper.StringTables.FileBasedStringTable.GetStringIndexer(System.Func{System.ReadOnlySpan{System.Char},System.ReadOnlySpan{System.Int32}},System.Int32)">
-            <summary>
-            Creates a string indexer from a tokenizer (characters are mapped to a series of integers, for example from Byte Pair Encoding)
-            </summary>
-            <param name="tokenizer"></param>
-            <param name="maxStringSize"></param>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.Helper.StringTables.InMemoryStringTableBuilder">
             <summary>
             Builds utf-8 based string data in memory and writes to file
@@ -6661,6 +6674,49 @@
             <summary>
             Additional strings that were not in the underlying string indexer
             </summary>
+        </member>
+        <member name="T:BrightData.Helper.StringTables.StringTable">
+            <summary>
+            File based string table that has been created with InMemoryStringTableBuilder
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.#ctor(System.ReadOnlyMemory{BrightData.Buffer.OffsetAndSize},System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            File based string table that has been created with InMemoryStringTableBuilder
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringTable.ReadOnlyMemory">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.GetString(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.GetUtf8(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.GetAll(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Helper.StringTables.StringTable.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.GetStringIndexer(BrightData.StringIndexType,System.Int32)">
+            <summary>
+            Creates a string indexer
+            </summary>
+            <param name="type">Type of string indexer to create</param>
+            <param name="maxStringSize">Max string size to index</param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.GetStringIndexer(System.Func{System.ReadOnlySpan{System.Char},System.ReadOnlySpan{System.Int32}},System.Int32)">
+            <summary>
+            Creates a string indexer from a tokenizer (characters are mapped to a series of integers, for example from Byte Pair Encoding)
+            </summary>
+            <param name="tokenizer"></param>
+            <param name="maxStringSize"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.Helper.StringTables.TrieStringIndexer.GetIndex(System.ReadOnlySpan{System.Char})">
             <inheritdoc />
@@ -7385,32 +7441,6 @@
             <param name="maxStringSize">Max string size</param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IAsyncStringTable">
-            <summary>
-            Asynchronous string table
-            </summary>
-        </member>
-        <member name="M:BrightData.IAsyncStringTable.GetUtf8(System.UInt32)">
-            <summary>
-            Gets a string as utf-8
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IAsyncStringTable.GetString(System.UInt32)">
-            <summary>
-            Gets a string by index
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IAsyncStringTable.GetAll(System.Int32)">
-            <summary>
-            Gets all strings
-            </summary>
-            <param name="maxStringSize">Max string size</param>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.INotifyOperationProgress">
             <summary>
             Notifies of operations and messages
@@ -7649,12 +7679,27 @@
             Size of each of the spans in the tuple
             </summary>
         </member>
+        <member name="P:BrightData.IAmTupleOfSpans.ByteSizes">
+            <summary>
+            Byte size of each of the spans in the tuple
+            </summary>
+        </member>
         <member name="M:BrightData.IAmTupleOfSpans.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <summary>
             Invokes a callback on each span in the tuple
             </summary>
             <typeparam name="T"></typeparam>
             <param name="callback"></param>
+        </member>
+        <member name="T:BrightData.IHaveOffset">
+            <summary>
+            Indicates that the type has an offset into a buffer
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveOffset.Offset">
+            <summary>
+            Offset into a buffer
+            </summary>
         </member>
         <member name="T:BrightData.IDataAnalyser`1">
             <summary>
@@ -19866,6 +19911,9 @@
         <member name="P:BrightData.Types.SingleTypeSpanTuple2`1.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple2`1.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple2`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -19890,6 +19938,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple3`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple3`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -19921,6 +19972,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple4`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple4`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -19957,6 +20011,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple5`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple5`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -19998,6 +20055,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple6`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple6`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20044,6 +20104,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple7`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple7`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20095,6 +20158,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple8`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple8`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20151,6 +20217,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple9`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple9`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20212,6 +20281,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple10`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple10`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20278,6 +20350,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple11`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple11`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20349,6 +20424,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.SingleTypeSpanTuple12`1.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.SingleTypeSpanTuple12`1.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -20429,6 +20507,9 @@
             Item 2 in the tuple
             </summary>
         </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple2`1.Sizes">
             <inheritdoc />
         </member>
@@ -20454,6 +20535,9 @@
             <summary>
             Item 3 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple3`1.Sizes">
             <inheritdoc />
@@ -20485,6 +20569,9 @@
             <summary>
             Item 4 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple4`1.Sizes">
             <inheritdoc />
@@ -20521,6 +20608,9 @@
             <summary>
             Item 5 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple5`1.Sizes">
             <inheritdoc />
@@ -20562,6 +20652,9 @@
             <summary>
             Item 6 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple6`1.Sizes">
             <inheritdoc />
@@ -20608,6 +20701,9 @@
             <summary>
             Item 7 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple7`1.Sizes">
             <inheritdoc />
@@ -20659,6 +20755,9 @@
             <summary>
             Item 8 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple8`1.Sizes">
             <inheritdoc />
@@ -20715,6 +20814,9 @@
             <summary>
             Item 9 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple9`1.Sizes">
             <inheritdoc />
@@ -20776,6 +20878,9 @@
             <summary>
             Item 10 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple10`1.Sizes">
             <inheritdoc />
@@ -20842,6 +20947,9 @@
             <summary>
             Item 11 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple11`1.Sizes">
             <inheritdoc />
@@ -20913,6 +21021,9 @@
             <summary>
             Item 12 in the tuple
             </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.ByteSizes">
+            <inheritdoc />
         </member>
         <member name="P:BrightData.Types.ReadOnlySingleTypeSpanTuple12`1.Sizes">
             <inheritdoc />
@@ -21058,6 +21169,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple2`2.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple2`2.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple2`2.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21077,6 +21191,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple2`2.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21109,6 +21226,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple3`3.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple3`3.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21133,6 +21253,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple3`3.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21170,6 +21293,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple4`4.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple4`4.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21199,6 +21325,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple4`4.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21241,6 +21370,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple5`5.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple5`5.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21275,6 +21407,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple5`5.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21322,6 +21457,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple6`6.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple6`6.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21361,6 +21499,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple6`6.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21413,6 +21554,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple7`7.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple7`7.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21457,6 +21601,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple7`7.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21514,6 +21661,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple8`8.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple8`8.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21563,6 +21713,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple8`8.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21625,6 +21778,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple9`9.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple9`9.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21679,6 +21835,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple9`9.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21746,6 +21905,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple10`10.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple10`10.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21805,6 +21967,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple10`10.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -21877,6 +22042,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple11`11.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple11`11.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -21941,6 +22109,9 @@
             </summary>
         </member>
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.Sizes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.ByteSizes">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple11`11.ForEach``1(BrightData.ForEachSpanCallback{``0})">
@@ -22018,6 +22189,9 @@
         <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.MultiTypeSpanTuple12`12.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.MultiTypeSpanTuple12`12.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <inheritdoc />
         </member>
@@ -22089,6 +22263,9 @@
         <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.Sizes">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.ByteSizes">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.ReadOnlyMultiTypeSpanTuple12`12.ForEach``1(BrightData.ForEachSpanCallback{``0})">
             <summary>
             Casts each item to T and then invokes a callback on the new span
@@ -22141,22 +22318,10 @@
             An item within a weighted index list
             </summary>
         </member>
-        <member name="P:BrightData.Types.WeightedIndexList.Item.Index">
-            <summary>
-            Index of item
-            </summary>
-        </member>
-        <member name="P:BrightData.Types.WeightedIndexList.Item.Weight">
-            <summary>
-            Weight of item
-            </summary>
-        </member>
         <member name="M:BrightData.Types.WeightedIndexList.Item.#ctor(System.UInt32,System.Single)">
             <summary>
-            Constructor
+            An item within a weighted index list
             </summary>
-            <param name="index">Index of item</param>
-            <param name="weight">Weight of item</param>
         </member>
         <member name="M:BrightData.Types.WeightedIndexList.Item.ToString">
             <inheritdoc />
@@ -22257,6 +22422,14 @@
             <returns></returns>
         </member>
         <member name="M:BrightData.Types.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.Types.WeightedIndexList.Item},BrightData.AggregationType)">
+            <summary>
+            Merges a sequence of weighted index items into one list
+            </summary>
+            <param name="items">Lists to merge</param>
+            <param name="mergeOperation">How to merge item weights</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.WeightedIndexList.Merge(System.ReadOnlySpan{BrightData.Types.WeightedIndexList.Item},BrightData.AggregationType)">
             <summary>
             Merges a sequence of weighted index items into one list
             </summary>

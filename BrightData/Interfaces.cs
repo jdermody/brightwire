@@ -365,33 +365,6 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Asynchronous string table
-    /// </summary>
-    public interface IAsyncStringTable : IHaveSize
-    {
-        /// <summary>
-        /// Gets a string as utf-8
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        Task<ReadOnlyMemory<byte>> GetUtf8(uint index);
-
-        /// <summary>
-        /// Gets a string by index
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        Task<string> GetString(uint index);
-
-        /// <summary>
-        /// Gets all strings
-        /// </summary>
-        /// <param name="maxStringSize">Max string size</param>
-        /// <returns></returns>
-        Task<string[]> GetAll(int maxStringSize = 1024);
-    }
-
-    /// <summary>
     /// Notifies of operations and messages
     /// </summary>
     public interface INotifyOperationProgress
@@ -619,10 +592,26 @@ namespace BrightData
         int[] Sizes { get; }
 
         /// <summary>
+        /// Byte size of each of the spans in the tuple
+        /// </summary>
+        int[] ByteSizes { get; }
+
+        /// <summary>
         /// Invokes a callback on each span in the tuple
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="callback"></param>
         void ForEach<T>(ForEachSpanCallback<T> callback) where T : unmanaged;
+    }
+
+    /// <summary>
+    /// Indicates that the type has an offset into a buffer
+    /// </summary>
+    public interface IHaveOffset
+    {
+        /// <summary>
+        /// Offset into a buffer
+        /// </summary>
+        uint Offset { get; }
     }
 }

@@ -319,7 +319,7 @@ namespace BrightData.LinearAlgebra
                 fixed (T* otherPtr = otherSpan)
                 fixed (T* retPtr = retSpan) {
                     //MatrixMultiplyChunked(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
-                    MatrixMultiplyTiled2(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
+                    MatrixMultiplyTiled3(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                 }
             }
             finally {
@@ -474,6 +474,55 @@ namespace BrightData.LinearAlgebra
                     for (uint colTile = 0; colTile < cols; colTile += L2BlockSize) {
                         MultiplyBlock(rowTile, colTile, rowTile + L2BlockSize, colTile + L2BlockSize);
                     }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static unsafe void MatrixMultiplyTiled3(T* a, T* b, int size, uint rows, uint cols, T* ret)
+        {
+            const int L1BlockSize = 32;
+            const int L2BlockSize = 64;
+            var vectorSize = Vector<T>.Count;
+            var numVectors = size / vectorSize;
+            var ceiling = numVectors * vectorSize;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void MultiplyBlock(uint rowStart, uint colStart, uint rowEnd, uint colEnd)
+            {
+                for (var i = rowStart; i < rowEnd; i += L1BlockSize) {
+                    for (var j = colStart; j < colEnd; j += L1BlockSize) {
+                        for (uint ii = i, iLen = Math.Min(i + L1BlockSize, rows); ii < iLen; ii++) {
+                            var xPtr = &a[ii * size];
+                            for (uint jj = j, jLen = Math.Min(j + L1BlockSize, cols); jj < jLen; jj++) {
+                                var yPtr = &b[jj * size];
+                                var vSum = Vector<T>.Zero;
+                                for (var z = 0; z < numVectors; z++) 
+                                    vSum += Vector.Load(xPtr + z * vectorSize) * Vector.Load(yPtr + z * vectorSize);
+
+                                var sum = Vector.Dot(vSum, Vector<T>.One);
+                                for (var z = ceiling; z < size; z++)
+                                    sum += xPtr[z] * yPtr[z];
+                                ret[jj * rows + ii] = sum;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (rows * cols >= Consts.MinimumSizeForParallel) {
+                Parallel.For(0, (int)Math.Ceiling((double)rows / L2BlockSize), rowTile =>
+                {
+                    var rowStart = (uint)rowTile * L2BlockSize;
+                    var rowEnd = rowStart + L2BlockSize;
+                    for (var colTile = 0U; colTile < cols; colTile += L2BlockSize)
+                        MultiplyBlock(rowStart, colTile, rowEnd, colTile + L2BlockSize);
+                });
+            }
+            else {
+                for (var rowTile = 0U; rowTile < rows; rowTile += L2BlockSize) {
+                    for (var colTile = 0U; colTile < cols; colTile += L2BlockSize)
+                        MultiplyBlock(rowTile, colTile, rowTile + L2BlockSize, colTile + L2BlockSize);
                 }
             }
         }

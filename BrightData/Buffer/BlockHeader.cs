@@ -11,7 +11,7 @@ namespace BrightData.Buffer
     /// </summary>
     /// <param name="Offset">The start offset of the block in the buffer</param>
     /// <param name="Size">The size of the block in the buffer</param>
-    public readonly partial record struct BlockHeader(int Offset, int Size) : IHaveSize
+    public readonly record struct BlockHeader(int Offset, int Size) : IHaveSize
     {
         /// <summary>
         /// The end offset of the block in the buffer
@@ -83,13 +83,13 @@ namespace BrightData.Buffer
         /// <returns></returns>
         public static ReadOnlyMemory<byte> Combine<T>(in T tuple) where T: IAmTupleOfSpans, allows ref struct
         {
-            var sizes = tuple.Sizes;
+            var sizes = tuple.ByteSizes;
             var header = Create(sizes);
             var headerBytes = header.Span.AsBytes();
             var totalSize = headerBytes.Length + sizes.Sum();
 
             Memory<byte> ret = new byte[totalSize];
-            headerBytes.CopyTo(header.Span[0].Get(ret).Span);
+            headerBytes.CopyTo(ret.Span[..headerBytes.Length]);
             tuple.ForEach<byte>((x, i) => x.CopyTo(header.Span[i].Get(ret).Span));
             return ret;
         }

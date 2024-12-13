@@ -88,29 +88,8 @@ namespace BrightData.Types
         /// An item within a weighted index list
         /// </summary>
         //[StructLayout(LayoutKind.Sequential, Pack=0)]
-        public readonly record struct Item
+        public readonly record struct Item(uint Index, float Weight)
         {
-            /// <summary>
-            /// Index of item
-            /// </summary>
-            public uint Index { get; }
-
-            /// <summary>
-            /// Weight of item
-            /// </summary>
-            public float Weight { get; }
-
-            /// <summary>
-            /// Constructor
-            /// </summary>
-            /// <param name="index">Index of item</param>
-            /// <param name="weight">Weight of item</param>
-            public Item(uint index, float weight)
-            {
-                Index = index;
-                Weight = weight;
-            }
-
             /// <inheritdoc />
             public override string ToString() => $"{Index}:{Weight}";
 
@@ -168,14 +147,14 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList Create(params Item[] indexList) => Merge(indexList);
+        public static WeightedIndexList Create(params Item[] indexList) => Merge(indexList.AsSpan());
 
         /// <summary>
         /// Creates a new weighted index list
         /// </summary>
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
-        public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => Merge(indexList.ToArray());
+        public static WeightedIndexList Create(ReadOnlySpan<Item> indexList) => Merge(indexList);
 
         /// <summary>
         /// Creates a new weighted index list
@@ -190,7 +169,7 @@ namespace BrightData.Types
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList Create(params (uint Index, float Weight)[] indexList) =>
-            Merge(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+            Merge(indexList.Select(d => new Item(d.Index, d.Weight)));
 
         /// <summary>
         /// Creates a new weighted index list
@@ -198,7 +177,7 @@ namespace BrightData.Types
         /// <param name="indexList">Weighted indices</param>
         /// <returns></returns>
         public static WeightedIndexList Create(IEnumerable<(uint Index, float Weight)> indexList) =>
-            Merge(indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+            Merge(indexList.Select(d => new Item(d.Index, d.Weight)));
 
         /// <summary>
         /// The number of items in the list
@@ -245,14 +224,35 @@ namespace BrightData.Types
         /// <param name="items">Lists to merge</param>
         /// <param name="mergeOperation">How to merge item weights</param>
         /// <returns></returns>
+        [OverloadResolutionPriority(2)]
         public static WeightedIndexList Merge(IEnumerable<Item> items, AggregationType mergeOperation = AggregationType.Sum)
         {
             var itemWeights = new Dictionary<uint, List<float>>();
-            foreach (var index in items)
-            {
-                if (!itemWeights.TryGetValue(index.Index, out var weights))
-                    itemWeights.Add(index.Index, weights = []);
-                weights.Add(index.Weight);
+            foreach (var (index, weight) in items) {
+                if (!itemWeights.TryGetValue(index, out var weights))
+                    itemWeights.Add(index, weights = []);
+                weights.Add(weight);
+            }
+
+            return new WeightedIndexList(
+                itemWeights.Select(d => new Item(d.Key, mergeOperation.Aggregate(d.Value))).ToArray()
+            );
+        }
+
+        /// <summary>
+        /// Merges a sequence of weighted index items into one list
+        /// </summary>
+        /// <param name="items">Lists to merge</param>
+        /// <param name="mergeOperation">How to merge item weights</param>
+        /// <returns></returns>
+        [OverloadResolutionPriority(1)]
+        public static WeightedIndexList Merge(ReadOnlySpan<Item> items, AggregationType mergeOperation = AggregationType.Sum)
+        {
+            var itemWeights = new Dictionary<uint, List<float>>();
+            foreach (var (index, weight) in items) {
+                if (!itemWeights.TryGetValue(index, out var weights))
+                    itemWeights.Add(index, weights = []);
+                weights.Add(weight);
             }
 
             return new WeightedIndexList(

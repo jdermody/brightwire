@@ -54,8 +54,6 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
-        public StringTable StringTable => _stringTable.StringTable;
-
         public BernoulliNaiveBayes TrainBernoulli()
         {
             var bernoulli = _indexedSentencesTraining.TrainBernoulliNaiveBayes();
