@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using System.Threading;
 using CommunityToolkit.HighPerformance;
 
@@ -9,7 +11,7 @@ namespace BrightData.Types
     /// <summary>
     /// Binary vector - each bit represents an item in the vector
     /// </summary>
-    public readonly record struct BitVector : IHaveSize, IHaveDataAsReadOnlyByteSpan
+    public readonly record struct BitVector : IHaveSize
     {
         const int NumBitsPerItem = 64;
 
@@ -17,9 +19,11 @@ namespace BrightData.Types
         /// Creates a fixed size bit vector from a data block
         /// </summary>
         /// <param name="data"></param>
-        public BitVector(ulong[] data)
+        /// <param name="size"></param>
+        public BitVector(ulong[] data, uint size)
         {
             Data = data;
+            Size = size;
         }
 
         /// <summary>
@@ -29,11 +33,13 @@ namespace BrightData.Types
         public BitVector(uint size)
         {
             Data = new ulong[size / NumBitsPerItem + (size % NumBitsPerItem > 0 ? 1 : 0)];
+            Size = size;
         }
 
         BitVector(BitVector other)
         {
             Data = other.Data.ToArray();
+            Size = other.Size;
         }
 
         /// <summary>
@@ -42,7 +48,7 @@ namespace BrightData.Types
         public ulong[] Data { get; }
 
         /// <inheritdoc />
-        public uint Size => (uint)Data.Length * NumBitsPerItem;
+        public uint Size { get; }
 
         /// <summary>
         /// Gets or sets an item in the vector
@@ -57,7 +63,7 @@ namespace BrightData.Types
                 var index = bitIndex / NumBitsPerItem;
                 if (index < 0 || index > Size)
                     throw new ArgumentException("Bit index out of bounds", nameof(bitIndex));
-                return Data[index] * mask == mask;
+                return (Data[index] & mask) == mask;
             }
             set
             {
@@ -76,6 +82,63 @@ namespace BrightData.Types
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets a range of bits
+        /// </summary>
+        /// <param name="range"></param>
+        public void SetBits(Range range)
+        {
+            var start = range.Start.GetOffset((int)Size);
+            var end = range.End.GetOffset((int)Size);
+            var keys = Enumerable.Range(start, end-start)
+                .Select(x => (Index: x / NumBitsPerItem, Mask: 1UL << x))
+                .GroupBy(x => x.Index)
+                .Select(x => (Index: x.Key, Mask: x.Aggregate(0UL, (y, z) => y | z.Mask)))
+            ;
+            foreach (var (index, mask) in keys) {
+                while (true) {
+                    var previousValue = Data[index];
+                    var newValue = previousValue | mask;
+                    if (Interlocked.CompareExchange(ref Data[index], newValue, previousValue) == previousValue)
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns all contiguous ranges of set bits
+        /// </summary>
+        public IEnumerable<Range> ContiguousRanges
+        {
+            get
+            {
+                var inRange = false;
+                var start = -1;
+                for (var i = 0; i < Size; i++) {
+                    if (this[i]) {
+                        if(inRange)
+                            continue;
+                        inRange = true;
+                        start = i;
+                    }else if (inRange) {
+                        yield return new Range(start, i);
+                        inRange = false;
+                        start = -1;
+                    }
+                }
+                if (start >= 0)
+                    yield return new Range(start, (int)Size);
+            }
+        }
+
+        /// <summary>
+        /// Clears all bits
+        /// </summary>
+        public void Clear()
+        {
+            Array.Fill(Data, 0UL);
         }
 
         /// <summary>
@@ -190,6 +253,14 @@ namespace BrightData.Types
         );
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> DataAsBytes => AsSpan().AsBytes();
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < Math.Min(Size, 128); i++)
+                sb.Append(this[i] ? '1' : '0');
+            if (Size > 128)
+                sb.Append("...");
+            return sb.ToString();
+        }
     }
 }
