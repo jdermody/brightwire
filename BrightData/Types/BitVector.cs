@@ -225,11 +225,13 @@ namespace BrightData.Types
         /// </summary>
         /// <param name="other"></param>
         public void XorInPlace(in BitVector other) => Xor(Data.AsSpan(), other.AsSpan());
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="other"></param>
         public void UnionInPlace(in BitVector other) => Or(Data.AsSpan(), other.AsSpan());
+
         /// <summary>
         /// 
         /// </summary>

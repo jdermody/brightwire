@@ -755,15 +755,38 @@
             <param name="position"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffer.OffsetAndSize.Intersects(BrightData.Buffer.OffsetAndSize@)">
+        <member name="M:BrightData.Buffer.OffsetAndSize.Contains(BrightData.Buffer.OffsetAndSize@)">
             <summary>
-            Checks if another range intersects
+            Checks if another range is contained within this range
             </summary>
             <param name="other"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Buffer.OffsetAndSize.CompareTo(BrightData.Buffer.OffsetAndSize)">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.AsRange">
+            <summary>
+            Converts to a range
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:BrightData.Buffer.OffsetAndSize.Null">
+            <summary>
+            Null indicator
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.IsNull">
+            <summary>
+            Checks if the offset is "null"
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffer.OffsetAndSize.IsValid">
+            <summary>
+            Checks if the offset is valid - not "null"
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Buffer.Operations.AggregateNotification">
             <summary>
@@ -13520,11 +13543,12 @@
             Binary vector - each bit represents an item in the vector
             </summary>
         </member>
-        <member name="M:BrightData.Types.BitVector.#ctor(System.UInt64[])">
+        <member name="M:BrightData.Types.BitVector.#ctor(System.UInt64[],System.UInt32)">
             <summary>
             Creates a fixed size bit vector from a data block
             </summary>
             <param name="data"></param>
+            <param name="size"></param>
         </member>
         <member name="M:BrightData.Types.BitVector.#ctor(System.UInt32)">
             <summary>
@@ -13546,6 +13570,22 @@
             </summary>
             <param name="bitIndex"></param>
             <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:BrightData.Types.BitVector.SetBits(System.Range)">
+            <summary>
+            Sets a range of bits
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="P:BrightData.Types.BitVector.ContiguousRanges">
+            <summary>
+            Returns all contiguous ranges of set bits
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.BitVector.Clear">
+            <summary>
+            Clears all bits
+            </summary>
         </member>
         <member name="M:BrightData.Types.BitVector.CountOfSetBits">
             <summary>
@@ -13612,7 +13652,7 @@
             </summary>
             <param name="other"></param>
         </member>
-        <member name="P:BrightData.Types.BitVector.DataAsBytes">
+        <member name="M:BrightData.Types.BitVector.ToString">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending1Array`2">

@@ -30,19 +30,43 @@ namespace BrightData.Buffer
         public bool Intersects(uint position) => position >= StartOffset && position < EndOffset;
 
         /// <summary>
-        /// Checks if another range intersects
+        /// Checks if another range is contained within this range
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Intersects(in OffsetAndSize other) => Intersects(other.StartOffset) || Intersects(other.EndOffset);
+        public bool Contains(in OffsetAndSize other) => Intersects(other.StartOffset) && Intersects(other.EndOffset);
 
         /// <inheritdoc />
         public int CompareTo(OffsetAndSize other)
         {
             var ret = StartOffset.CompareTo(other.StartOffset);
-            if(ret != 0) return ret;
+            if(ret != 0) 
+                return ret;
             return Size.CompareTo(other.Size);
         }
+
+        /// <summary>
+        /// Converts to a range
+        /// </summary>
+        /// <returns></returns>
+        public Range AsRange() => new((int)StartOffset, (int)EndOffset);
+
+        /// <summary>
+        /// Null indicator
+        /// </summary>
+        public static readonly OffsetAndSize Null = new(uint.MaxValue, 0);
+
+        /// <summary>
+        /// Checks if the offset is "null"
+        /// </summary>
+        /// <returns></returns>
+        public bool IsNull() => StartOffset == uint.MaxValue && Size is 0 or uint.MaxValue;
+
+        /// <summary>
+        /// Checks if the offset is valid - not "null"
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValid() => !IsNull();
 
         uint IHaveOffset.Offset => StartOffset;
     }

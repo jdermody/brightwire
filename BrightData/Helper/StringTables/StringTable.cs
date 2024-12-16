@@ -69,19 +69,12 @@ namespace BrightData.Helper.StringTables
         {
             var span = _stringTable.Span;
             var dataSpan = _stringData.Span;
-            using var buffer = SpanOwner<char>.Allocate(maxStringSize);
             switch (type) {
                 case StringIndexType.Dictionary: {
-                    var ret = new DictionaryStringIndexer();
-                    for (var i = 0U; i < Size; i++) {
-                        var utf8 = span[(int)i].GetSpan(dataSpan);
-                        var str = Encoding.UTF8.GetString(utf8);
-                        if (ret.GetIndex(str) != i)
-                            throw new Exception("Indices did not align");
-                    }
-                    return ret;
+                    return new FrozenDictionaryStringIndexer(span, dataSpan, maxStringSize);
                 }
                 case StringIndexType.Trie: {
+                    using var buffer = SpanOwner<char>.Allocate(maxStringSize);
                     var bufferSpan = buffer.Span;
                     var trieBuilder = new UniqueIndexedStringTrie<char>.Builder();
                     for (var i = 0U; i < Size; i++) {
@@ -89,7 +82,6 @@ namespace BrightData.Helper.StringTables
                         var bufferSize = Encoding.UTF8.GetChars(utf8, bufferSpan);
                         trieBuilder.Add(bufferSpan[..bufferSize], i);
                     }
-
                     return new TrieStringIndexer(trieBuilder.Build(), this);
                 }
                 default:
