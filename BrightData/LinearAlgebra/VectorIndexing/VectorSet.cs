@@ -17,7 +17,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
     {
         readonly IVectorIndex<T> _index;
 
-        private VectorSet(IVectorIndex<T> index) => _index = index;
+        VectorSet(IVectorIndex<T> index) => _index = index;
 
         /// <summary>
         /// Creates a vector set with flat indexing (simplest approach for small data sets)
@@ -80,10 +80,33 @@ namespace BrightData.LinearAlgebra.VectorIndexing
             return new(new KnnSearchVectorIndex<T>(storage, creator));
         }
 
+        /// <summary>
+        /// Creates a vector index that stores vectors via a linear transform
+        /// </summary>
+        /// <param name="weight">Embedding weights</param>
+        /// <param name="bias">Embedding bias</param>
+        /// <param name="distanceMetric"></param>
+        /// <param name="storageType"></param>
+        /// <param name="capacity"></param>
+        /// <returns></returns>
         public static VectorSet<T> CreateFromPreCalculatedEmbedding(IMatrix<T> weight, IVector<T> bias, DistanceMetric distanceMetric = DistanceMetric.Cosine, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
         {
             var storage = GetStorage(storageType, weight.RowCount, capacity);
             return new(new PreCalculatedEmbeddingVectorIndex<T>(storage, weight, bias, distanceMetric, capacity));
+        }
+
+        /// <summary>
+        /// Creates a vector index that compresses vectors to bit vectors
+        /// in which positive numbers are set as 1 and values equal or less than zero are false
+        /// </summary>
+        /// <param name="vectorSize"></param>
+        /// <param name="storageType"></param>
+        /// <param name="capacity"></param>
+        /// <returns></returns>
+        public static VectorSet<T> CreateBitCompressionIndex(uint vectorSize, VectorStorageType storageType = VectorStorageType.InMemory, uint? capacity = null)
+        {
+            var storage = GetStorage(storageType, vectorSize, capacity);
+            return new(new BitVectorIndex<T>(storage));
         }
 
         /// <summary>
@@ -173,7 +196,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// </summary>
         /// <param name="vectors"></param>
         /// <returns></returns>
-        public uint[] Add(IReadOnlyCollection<IReadOnlyVector<T>> vectors)
+        public uint[] Add(params IReadOnlyCollection<IReadOnlyVector<T>> vectors)
         {
             var ret = new uint[vectors.Count];
             var index = 0;
@@ -219,9 +242,8 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// Returns the index of the closest vector in the set to each of the supplied vectors
         /// </summary>
         /// <param name="vector"></param>
-        /// <param name="distanceMetric"></param>
         /// <returns></returns>
-        public uint[] Closest(IReadOnlyVector<T>[] vector)
+        public uint[] Closest(params IEnumerable<IReadOnlyVector<T>> vector)
         {
             var memoryArray = vector.Select(x => x.ReadOnlySegment.GetMemory()).ToArray();
             return _index.Closest(memoryArray);
@@ -232,7 +254,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing
         /// </summary>
         /// <param name="vectorIndices">Indices of the vectors to combine</param>
         /// <returns></returns>
-        public T[] GetAverage(IEnumerable<uint> vectorIndices)
+        public T[] GetAverage(params IEnumerable<uint> vectorIndices)
         {
             using var aggregate = SpanAggregator<T>.GetOnlineAverage(VectorSize);
             foreach(var vectorIndex in vectorIndices)

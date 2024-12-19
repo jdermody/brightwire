@@ -22,11 +22,26 @@ namespace BrightData.Buffer.Operations
             var blocks = from.GetIndices(indices)
                 .GroupBy(x => x.BlockIndex)
                 .OrderBy(x => x.Key)
+                .ToList()
             ;
+
+            Guid? id = null;
+            if (notify is not null) {
+                id = new Guid();
+                notify.OnStartOperation(id.Value, msg);
+            }
+
+            var index = 0;
             foreach (var block in blocks) {
+                if (ct.IsCancellationRequested)
+                    break;
                 var blockMemory = await from.GetTypedBlock(block.Key);
                 CopyIndices(blockMemory, block.Select(x => (int)x.RelativeBlockIndex));
+                if(id.HasValue && notify is not null)
+                    notify.OnOperationProgress(id.Value, index++ / (float)blocks.Count);
             }
+            if(id.HasValue && notify is not null)
+                notify.OnCompleteOperation(id.Value, ct.IsCancellationRequested);
             return;
 
             void CopyIndices(ReadOnlyMemory<T> fromMemory, IEnumerable<int> copyIndices)

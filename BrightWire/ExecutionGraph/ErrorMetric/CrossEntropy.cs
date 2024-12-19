@@ -11,12 +11,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     {
         public IMatrix<float>CalculateGradient(IMatrix<float> output, IMatrix<float> targetOutput)
         {
-            var lap = output.LinearAlgebraProvider;
-            using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, (_, _) => 1f);
-            using var oneMinusOutput = ones.Subtract(output);
-            using var oneMinusOutputTimesOutput = oneMinusOutput.PointwiseMultiply(output);
-            using var delta = targetOutput.Subtract(output);
-            return delta.PointwiseDivide(oneMinusOutputTimesOutput);
+            return targetOutput.Subtract(output);
         }
 
         public float Compute(IReadOnlyVector<float> output, IReadOnlyVector<float> targetOutput)

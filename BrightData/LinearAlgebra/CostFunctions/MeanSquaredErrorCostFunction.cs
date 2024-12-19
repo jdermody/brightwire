@@ -18,7 +18,7 @@ namespace BrightData.LinearAlgebra.CostFunctions
         public IReadOnlyNumericSegment<T> Gradient(IReadOnlyNumericSegment<T> predicted, IReadOnlyNumericSegment<T> expected)
         {
             using var ret = lap.Subtract(expected, predicted);
-            return lap.Multiply(ret, (T.One + T.One) / T.CreateSaturating(expected.Size));
+            return lap.Multiply(ret, T.One / T.CreateSaturating(expected.Size));
         }
     }
 }

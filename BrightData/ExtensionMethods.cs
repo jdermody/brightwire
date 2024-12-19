@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -414,11 +413,8 @@ namespace BrightData
         {
             var ret       = new T[size];
             var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
-#if DEBUG
-            
             if (bytesRead != Unsafe.SizeOf<T>() * size)
                 throw new Exception("Unexpected end of file");
-#endif
             return ret;
         }
 
@@ -932,7 +928,7 @@ namespace BrightData
             fixed (T* retPtr = ret.Span) {
                 var r = retPtr;
                 var q = qPtr;
-                vectors.ForEach(vectorIndices, (x, vi, i) => {
+                vectors.ForEach(vectorIndices, (x, _, i) => {
                     r[i] = x.FindDistance(new ReadOnlySpan<T>(q, len), distanceMetric);
                 });
             }

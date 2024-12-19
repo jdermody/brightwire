@@ -51,12 +51,10 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
             return _projectionIndex.Closest(Project(vector));
         }
 
-        ReadOnlyMemory<T>[] Project(ReadOnlyMemory<T>[] vectors) =>
-            vectors.Select(x => {
-                using var vector2 = _lap.CreateVector(x);
-                using var projection = _randomProjection.Multiply(vector2);
-                return new ReadOnlyMemory<T>(projection.ReadOnlySegment.ToNewArray());
-            }).ToArray()
-        ;
+        ReadOnlyMemory<T>[] Project(ReadOnlyMemory<T>[] vectors) => vectors.Select(x => {
+            using var vector2 = _lap.CreateVector(x);
+            using var projection = _randomProjection.Multiply(vector2);
+            return new ReadOnlyMemory<T>(projection.ReadOnlySegment.ToNewArray());
+        }).ToArray();
     }
 }

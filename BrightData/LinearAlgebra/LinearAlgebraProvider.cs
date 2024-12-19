@@ -9,7 +9,6 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
-using static BrightData.DataTable.ColumnOrientedDataTable;
 
 namespace BrightData.LinearAlgebra
 {

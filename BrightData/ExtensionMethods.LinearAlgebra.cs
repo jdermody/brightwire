@@ -610,5 +610,13 @@ namespace BrightData
         {
             return new CrossEntropyCostFunction<T>(lap);
         }
+
+        /// <summary>
+        /// Converts the vector to a sparse format (only non-zero entries are preserved)
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static WeightedIndexList ToSparse(this IReadOnlyVector<float> vector) => vector.ReadOnlySegment.ToSparse();
     }
 }

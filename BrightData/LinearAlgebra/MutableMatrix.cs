@@ -318,7 +318,6 @@ namespace BrightData.LinearAlgebra
                 fixed (T* matrixPtr = matrixSpan)
                 fixed (T* otherPtr = otherSpan)
                 fixed (T* retPtr = retSpan) {
-                    //MatrixMultiplyChunked(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                     MatrixMultiplyTiled3(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                 }
             }

@@ -1769,7 +1769,7 @@
         </member>
         <member name="T:BrightData.DataTable.Meta.ColumnFilter`1">
             <summary>
-            
+            Filters columns to find non-conforming rows
             </summary>
             <typeparam name="T"></typeparam>
             <param name="columnIndex"></param>
@@ -1779,7 +1779,7 @@
         </member>
         <member name="M:BrightData.DataTable.Meta.ColumnFilter`1.#ctor(System.UInt32,BrightData.BrightDataType,BrightData.IDataTypeSpecification{`0},System.Collections.Generic.HashSet{System.UInt32})">
             <summary>
-            
+            Filters columns to find non-conforming rows
             </summary>
             <typeparam name="T"></typeparam>
             <param name="columnIndex"></param>
@@ -2451,6 +2451,115 @@
             </summary>
             <param name="items"></param>
             <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetContiguousRanges``1(``0)">
+            <summary>
+            Returns all contiguous ranges of set bits
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CountOfSetBits``1(``0)">
+            <summary>
+            Counts the bits that are true
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Clone``1(``0)">
+            <summary>
+            Creates a copy of the bit vector
+            </summary>
+            <param name="vector"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.XorWith``1(``0,``0)">
+            <summary>
+            Returns a new vector that has been XORed with this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.XorWith``1(``0,System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            Returns a new vector that has been XORed with this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.UnionWith``1(``0,``0)">
+            <summary>
+            Returns a new vector that is the union of this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.UnionWith``1(``0,System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            Returns a new vector that is the union of this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IntersectionWith``1(``0,``0)">
+            <summary>
+            Returns a new vector that is the intersection of this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IntersectionWith``1(``0,System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            Returns a new vector that is the intersection of this and another vector
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Except``1(``0,``0)">
+            <summary>
+            
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Except``1(``0,System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.HammingDistance``1(``0,BrightData.Types.BitVector)">
+            <summary>
+            
+            </summary>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.HammingDistance``1(``0,System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="vector"></param>
+            <param name="other"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToDataTableBuilder(BrightData.IStoreVectors{System.Single},BrightData.BrightDataContext,System.String)">
+            <summary>
+            Builds the vectors in the storage into a table of vectors
+            </summary>
+            <param name="context"></param>
+            <param name="vectorStorage"></param>
+            <param name="columnName">Column name of the vector column</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateInMemoryBuffer``1(System.UInt32,System.UInt32)">
@@ -4589,6 +4698,15 @@
             </summary>
             <returns>Newly weighted classification set</returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Normalize``1(System.Collections.Generic.IReadOnlyCollection{BrightData.WeightedIndexListWithLabel{``0}},BrightData.NormalizationType)">
+            <summary>
+            Normalises the items across the sparse vectors
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="data"></param>
+            <param name="normalizationType"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateReadOnlyVector(BrightData.BrightDataContext,System.UInt32,System.Func{System.UInt32,System.Single})">
             <summary>
             Creates a read only vector
@@ -5494,7 +5612,7 @@
             </summary>
             <typeparam name="T"></typeparam>
             <param name="span"></param>
-            <param name="arrayIndices"></param>
+            <param name="indices"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.RoundInPlace``1(System.Span{``0},``0,``0)">
@@ -5637,6 +5755,22 @@
             <typeparam name="AT"></typeparam>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.EuclideanNormalize``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new span from the current span divided by its L2 norm
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ManhattanNormalize``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a new span from the current span divided by its L1 norm
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.MultiBinarySearchIndices``2(System.ReadOnlySpan{``0},``1)">
             <summary>
             Returns the element indices that match the comparator using binary search - span should be sorted
@@ -5646,6 +5780,40 @@
             <typeparam name="T"></typeparam>
             <typeparam name="CT"></typeparam>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MultiBinarySearchSpan``2(System.ReadOnlySpan{``0},``1)">
+            <summary>
+            Returns the span of elements that match the comparator using binary search - span should be sorted
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="CT"></typeparam>
+            <param name="span"></param>
+            <param name="comparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Xor``1(System.Span{``0},System.ReadOnlySpan{``0})">
+            <summary>
+            Calculates the XOR of the span with another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="data"></param>
+            <param name="other"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Or``1(System.Span{System.UInt64},System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            Calculates the OR of the span with another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="data"></param>
+            <param name="other"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.And``1(System.Span{System.UInt64},System.ReadOnlySpan{System.UInt64})">
+            <summary>
+            Calculates the AND of the span with another span
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="data"></param>
+            <param name="other"></param>
         </member>
         <member name="M:BrightData.ExtensionMethods.ToReadOnlyVector``1(System.ReadOnlySpan{``0})">
             <summary>
@@ -6016,6 +6184,15 @@
             </summary>
             <param name="segment"></param>
             <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.NIndices``2(BrightData.IReadOnlyNumericSegment{``0})">
+            <summary>
+            Finds the top N indices from the segment
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <param name="segment"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.AsDataFieldSpecification(BrightData.BrightDataType,System.String,System.Boolean)">
@@ -7723,6 +7900,19 @@
             <summary>
             Offset into a buffer
             </summary>
+        </member>
+        <member name="P:BrightData.IBitVector.Item(System.Int32)">
+            <summary>
+            Gets the value of a bit within the vector
+            </summary>
+            <param name="bitIndex">Index of the bit</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IBitVector.AsSpan">
+            <summary>
+            Underlying data
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.IDataAnalyser`1">
             <summary>
@@ -10633,26 +10823,6 @@
             <param name="expected"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.VectorIndexStrategy">
-            <summary>
-            Represents how vectors should be indexed
-            </summary>
-        </member>
-        <member name="F:BrightData.VectorIndexStrategy.Flat">
-            <summary>
-            Flat indexing (naive, brute force approach)
-            </summary>
-        </member>
-        <member name="F:BrightData.VectorIndexStrategy.RandomProjection">
-            <summary>
-            Vectors are randomly projected into a random lower dimensional space
-            </summary>
-        </member>
-        <member name="F:BrightData.VectorIndexStrategy.HierarchicalNavigableSmallWorld">
-            <summary>
-            A nearest neighbour graph is created to improve index performance
-            </summary>
-        </member>
         <member name="T:BrightData.VectorStorageType">
             <summary>
             Determines how vectors are stored
@@ -12988,6 +13158,12 @@
             </summary>
             <param name="data"></param>
         </member>
+        <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector`1.#ctor(System.ReadOnlySpan{`0})">
+            <summary>
+            Creates a vector from a span
+            </summary>
+            <param name="data"></param>
+        </member>
         <member name="M:BrightData.LinearAlgebra.ReadOnly.ReadOnlyVector`1.#ctor(System.ReadOnlySpan{System.Byte})">
             <summary>
             Creates a vector from bytes
@@ -13364,6 +13540,27 @@
             <param name="capacity"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateFromPreCalculatedEmbedding(BrightData.IMatrix{`0},BrightData.IVector{`0},BrightData.DistanceMetric,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+            <summary>
+            Creates a vector index that stores vectors via a linear transform
+            </summary>
+            <param name="weight">Embedding weights</param>
+            <param name="bias">Embedding bias</param>
+            <param name="distanceMetric"></param>
+            <param name="storageType"></param>
+            <param name="capacity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.CreateBitCompressionIndex(System.UInt32,BrightData.VectorStorageType,System.Nullable{System.UInt32})">
+            <summary>
+            Creates a vector index that compresses vectors to bit vectors
+            in which positive numbers are set as 1 and values equal or less than zero are false
+            </summary>
+            <param name="vectorSize"></param>
+            <param name="storageType"></param>
+            <param name="capacity"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.GetStorage(BrightData.VectorStorageType,System.UInt32,System.Nullable{System.UInt32})">
             <summary>
             Creates vector storage
@@ -13443,12 +13640,11 @@
             <param name="span">Input vector</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(BrightData.IReadOnlyVector{`0}[])">
+        <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.Closest(System.Collections.Generic.IEnumerable{BrightData.IReadOnlyVector{`0}})">
             <summary>
             Returns the index of the closest vector in the set to each of the supplied vectors
             </summary>
             <param name="vector"></param>
-            <param name="distanceMetric"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.LinearAlgebra.VectorIndexing.VectorSet`1.GetAverage(System.Collections.Generic.IEnumerable{System.UInt32})">
@@ -13543,7 +13739,7 @@
             Binary vector - each bit represents an item in the vector
             </summary>
         </member>
-        <member name="M:BrightData.Types.BitVector.#ctor(System.UInt64[],System.UInt32)">
+        <member name="M:BrightData.Types.BitVector.#ctor(System.Memory{System.UInt64},System.UInt32)">
             <summary>
             Creates a fixed size bit vector from a data block
             </summary>
@@ -13554,6 +13750,13 @@
             <summary>
             Creates a fixed size bit vector
             </summary>
+            <param name="size"></param>
+        </member>
+        <member name="M:BrightData.Types.BitVector.#ctor(System.ReadOnlySpan{System.UInt64},System.UInt32)">
+            <summary>
+            Creates a fixed size bit vector
+            </summary>
+            <param name="data"></param>
             <param name="size"></param>
         </member>
         <member name="P:BrightData.Types.BitVector.Data">
@@ -13577,61 +13780,15 @@
             </summary>
             <param name="range"></param>
         </member>
-        <member name="P:BrightData.Types.BitVector.ContiguousRanges">
-            <summary>
-            Returns all contiguous ranges of set bits
-            </summary>
-        </member>
         <member name="M:BrightData.Types.BitVector.Clear">
             <summary>
             Clears all bits
             </summary>
         </member>
-        <member name="M:BrightData.Types.BitVector.CountOfSetBits">
-            <summary>
-            Counts the bits that are true
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.Types.BitVector.AsSpan">
             <summary>
             Underlying data
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.BitVector.XorWith(BrightData.Types.BitVector)">
-            <summary>
-            Returns a new vector that has been XORed with this and another vector
-            </summary>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.BitVector.UnionWith(BrightData.Types.BitVector)">
-            <summary>
-            Returns a new vector that is the union of this and another vector
-            </summary>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.BitVector.IntersectionWith(BrightData.Types.BitVector)">
-            <summary>
-            Returns a new vector that is the intersection of this and another vector
-            </summary>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.BitVector.Except(BrightData.Types.BitVector)">
-            <summary>
-            
-            </summary>
-            <param name="other"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.BitVector.HammingDistance(BrightData.Types.BitVector)">
-            <summary>
-            
-            </summary>
-            <param name="other"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Types.BitVector.XorInPlace(BrightData.Types.BitVector@)">
@@ -19165,6 +19322,12 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`1.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Creates a directed graph from graph data
+            </summary>
+            <param name="data"></param>
+        </member>
         <member name="P:BrightData.Types.Graph.DirectedGraph`1.Size">
             <inheritdoc />
         </member>
@@ -19872,6 +20035,35 @@
             <summary>
             Creates a clone of the current metadata
             </summary>
+        </member>
+        <member name="T:BrightData.Types.ReadOnlyBitVector">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyBitVector.#ctor(System.ReadOnlySpan{System.UInt64},System.UInt32)">
+            <summary>
+            
+            </summary>
+            <param name="data"></param>
+            <param name="size"></param>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyBitVector.Data">
+            <summary>
+            Underlying data
+            </summary>
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyBitVector.Size">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyBitVector.Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyBitVector.AsSpan">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.ReadOnlyBitVector.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.SingleTypeSpanTuple">
             <summary>

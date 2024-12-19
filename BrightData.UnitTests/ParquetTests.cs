@@ -4,6 +4,9 @@ using System.IO;
 using System.Threading.Tasks;
 using BrightData.Parquet;
 using FluentAssertions;
+using Parquet;
+using Parquet.Data;
+using Parquet.Schema;
 using Xunit;
 
 namespace BrightData.UnitTests
@@ -49,6 +52,40 @@ namespace BrightData.UnitTests
             row1.Get<int>(4).Should().Be(row2.Get<int>(4));
             row1.Get<long>(4).Should().Be(row2.Get<long>(4));
             row1.Get<string>(4).Should().Be(row2.Get<string>(4));
+        }
+
+        [Fact]
+        public async Task AdaptParquet()
+        {
+            var schema = new ParquetSchema(new DataField<int>("id"), new DataField<string>("city"));
+            var idColumn = new DataColumn(schema.DataFields[0], new[] { 1, 2 });
+            var cityColumn = new DataColumn(schema.DataFields[1], new[] { "London", "Derby" });
+
+            using var stream = new MemoryStream();
+            {
+                await using var parquetWriter = await ParquetWriter.CreateAsync(schema, stream);
+                parquetWriter.CompressionMethod = CompressionMethod.Gzip;
+                parquetWriter.CompressionLevel = System.IO.Compression.CompressionLevel.Optimal;
+
+                using var groupWriter = parquetWriter.CreateRowGroup();
+                await groupWriter.WriteColumnAsync(idColumn);
+                await groupWriter.WriteColumnAsync(cityColumn);
+            }
+            stream.Seek(0, SeekOrigin.Begin);
+            using var table = await _context.LoadParquetDataTableFromStream(stream);
+            table.RowCount.Should().Be(2);
+            table.ColumnTypes.Should().BeEquivalentTo([BrightDataType.Int, BrightDataType.String]);
+            var cities = await table.GetColumn(1).ToArray<string>();
+            cities.Should().ContainInOrder((string[])cityColumn.Data);
+            (await table.Get<int>(0, 0)).Should().Be(1);
+
+            await foreach (var row in table) {
+                row.Size.Should().Be(2);
+            }
+
+            await foreach (var row in table.Enumerate<int, string>()) {
+                row.Size.Should().Be(2);
+            }
         }
     }
 }

@@ -245,6 +245,13 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Normalises the items across the sparse vectors
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="normalizationType"></param>
+        /// <returns></returns>
         public static (WeightedIndexListWithLabel<T>[], NormalisationModel Model) Normalize<T>(this IReadOnlyCollection<WeightedIndexListWithLabel<T>> data, NormalizationType normalizationType)
         {
             var analysis = new NumericAnalyser<float>();

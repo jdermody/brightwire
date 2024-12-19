@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 using BrightData.Types;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
@@ -9,7 +10,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         ISupportKnnSearch<T>? _search = null;
-        readonly object _lock = new();
+        readonly Lock _lock = new();
 
         public void Dispose()
         {

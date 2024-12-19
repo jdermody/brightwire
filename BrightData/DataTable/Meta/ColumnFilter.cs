@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BrightData.DataTable.Meta
 {
     /// <summary>
-    /// 
+    /// Filters columns to find non-conforming rows
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="columnIndex"></param>

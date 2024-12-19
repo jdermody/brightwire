@@ -19,7 +19,6 @@ using CommunityToolkit.HighPerformance.Buffers;
 using BrightData.Types;
 using BrightData.Buffer.Vectorisation;
 using BrightData.DataTable.Columns;
-using Microsoft.VisualBasic;
 
 namespace BrightData
 {

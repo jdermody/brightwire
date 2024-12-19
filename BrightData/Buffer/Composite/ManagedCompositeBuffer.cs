@@ -46,11 +46,12 @@ namespace BrightData.Buffer.Composite
             {
                 var offset = file.Size;
                 using var writer = new ArrayPoolBufferWriter<byte>();
-                var memoryOwner = (IMemoryOwner<byte>)writer;
                 writer.Advance(HeaderSize);
                 uint size = 0;
                 for (var i = 0; i < Size; i++)
                     size += WriteBlock(Data.Span[i].DataAsBytes, writer);
+
+                IMemoryOwner<byte> memoryOwner = writer;
                 BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, Size);
                 BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], size);
                 await file.WriteAsync(writer.WrittenMemory, offset);

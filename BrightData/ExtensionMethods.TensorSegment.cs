@@ -610,13 +610,20 @@ namespace BrightData
         public static ReadOnlyMemory<T> GetMemory<T>(this IReadOnlyNumericSegment<T> segment) 
             where T : unmanaged, INumber<T>
         {
-            IHaveReadOnlyContiguousMemory<T>? contiguous = null;
+            IHaveReadOnlyContiguousMemory<T>? contiguous;
             return (contiguous = segment.Contiguous) != null 
                 ? contiguous.ContiguousMemory 
                 : segment.ToNewArray()
             ;
         }
 
+        /// <summary>
+        /// Finds the top N indices from the segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="AT"></typeparam>
+        /// <param name="segment"></param>
+        /// <returns></returns>
         public static AT NIndices<T, AT>(this IReadOnlyNumericSegment<T> segment)
             where T : unmanaged, INumber<T>
             where AT: IFixedSizeSortedArray<uint, T>, new()

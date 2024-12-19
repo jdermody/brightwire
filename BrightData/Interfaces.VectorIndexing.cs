@@ -6,27 +6,6 @@ using System.Threading;
 namespace BrightData
 {
     /// <summary>
-    /// Represents how vectors should be indexed
-    /// </summary>
-    public enum VectorIndexStrategy
-    {
-        /// <summary>
-        /// Flat indexing (naive, brute force approach)
-        /// </summary>
-        Flat,
-
-        /// <summary>
-        /// Vectors are randomly projected into a random lower dimensional space
-        /// </summary>
-        RandomProjection,
-
-        /// <summary>
-        /// A nearest neighbour graph is created to improve index performance
-        /// </summary>
-        HierarchicalNavigableSmallWorld 
-    }
-
-    /// <summary>
     /// Determines how vectors are stored
     /// </summary>
     public enum VectorStorageType

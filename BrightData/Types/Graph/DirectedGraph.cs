@@ -25,6 +25,10 @@ namespace BrightData.Types.Graph
         readonly Node[] _nodes;
         readonly int[] _edges;
 
+        /// <summary>
+        /// Creates a directed graph from graph data
+        /// </summary>
+        /// <param name="data"></param>
         public DirectedGraph(ReadOnlySpan<byte> data)
         {
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);

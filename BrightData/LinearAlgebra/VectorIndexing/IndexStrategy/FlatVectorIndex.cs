@@ -29,6 +29,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 
             return results
                 .Select((x, i) => (Distance: x, Index: (uint)i))
+                .Where(x => !T.IsNaN(x.Distance))
                 .OrderBy(x => x.Distance)
                 .Select(x => x.Index)
             ;

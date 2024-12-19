@@ -614,4 +614,20 @@ namespace BrightData
         /// </summary>
         uint Offset { get; }
     }
+
+    public interface IBitVector : IHaveSize
+    {
+        /// <summary>
+        /// Gets the value of a bit within the vector
+        /// </summary>
+        /// <param name="bitIndex">Index of the bit</param>
+        /// <returns></returns>
+        bool this[int bitIndex] { get; }
+
+        /// <summary>
+        /// Underlying data
+        /// </summary>
+        /// <returns></returns>
+        ReadOnlySpan<ulong> AsSpan();
+    }
 }

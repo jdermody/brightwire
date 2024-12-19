@@ -207,7 +207,8 @@ namespace BrightData.Helper.Vectors
                 bool hasLeft = node.HasLeftBranch, hasRight = node.HasRightBranch;
 
                 // compare to node vector
-                results.TryAdd(node.VectorIndex, query.EuclideanDistance(nodeVector));
+                var distance = query.EuclideanDistance(nodeVector);
+                results.TryAdd(node.VectorIndex, distance);
 
                 // two branches
                 if (hasLeft && hasRight)

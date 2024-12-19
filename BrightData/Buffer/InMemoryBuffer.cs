@@ -28,10 +28,10 @@ namespace BrightData.Buffer
             public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
             public ref T GetNext() => ref Data.Span[(int)Size++];
         }
-        uint _blockSize;
-        readonly uint _maxBlockSize;
+        uint                   _blockSize;
+        readonly uint          _maxBlockSize;
         protected List<Block>? _inMemoryBlocks;
-        protected Block? _currBlock;
+        protected Block?       _currBlock;
 
         public InMemoryBuffer(uint blockSize = Consts.DefaultInitialBlockSize, uint maxBlockSize = Consts.DefaultMaxBlockSize)
         {

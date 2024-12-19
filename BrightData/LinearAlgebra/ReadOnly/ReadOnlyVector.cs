@@ -22,7 +22,17 @@ namespace BrightData.LinearAlgebra.ReadOnly
         /// Creates a vector from memory
         /// </summary>
         /// <param name="data"></param>
+        [OverloadResolutionPriority(1)]
         public ReadOnlyVector(ReadOnlyMemory<T> data) : base(new ReadOnlyTensorSegment<T>(data))
+        {
+            _valueSemantics = new(this);
+        }
+
+        /// <summary>
+        /// Creates a vector from a span
+        /// </summary>
+        /// <param name="data"></param>
+        public ReadOnlyVector(ReadOnlySpan<T> data) : base(new ReadOnlyTensorSegment<T>(data.ToArray()))
         {
             _valueSemantics = new(this);
         }

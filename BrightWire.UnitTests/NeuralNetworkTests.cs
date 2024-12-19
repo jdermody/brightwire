@@ -28,8 +28,8 @@ namespace BrightWire.UnitTests
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.3f, 
                 batchSize: 1, 
-                hiddenLayerSize: 4, 
-                numIterations: 40, 
+                hiddenLayerSize: 2, 
+                numIterations: 100, 
                 activation: x => x.SigmoidActivation(), 
                 gradientDescent: x => x.Adam, 
                 weightInitialisation: x => x.Gaussian
@@ -67,8 +67,8 @@ namespace BrightWire.UnitTests
                 errorMetric: graph.ErrorMetric.CrossEntropy, 
                 learningRate: 0.1f, 
                 batchSize: 1, 
-                hiddenLayerSize: 4, 
-                numIterations: 40, 
+                hiddenLayerSize: 2, 
+                numIterations: 100, 
                 activation: x => x.SigmoidActivation(), 
                 gradientDescent: x => x.Adam, 
                 weightInitialisation: x => x.Gaussian

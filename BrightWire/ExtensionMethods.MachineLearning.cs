@@ -230,11 +230,11 @@ namespace BrightWire
             // create the network
             graph.Connect(engine)
                 // create the initial feed forward layer with activation
-                .AddFeedForward(hiddenLayerSize)
+                .AddFeedForward(hiddenLayerSize, "hidden")
                 .Add(activation(graph))
 
                 // create a second feed forward layer with activation
-                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "output")
                 .Add(activation(graph))
 
                 // calculate the error and backpropagate the error signal

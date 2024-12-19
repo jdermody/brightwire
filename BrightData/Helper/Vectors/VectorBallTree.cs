@@ -229,8 +229,11 @@ namespace BrightData.Helper.Vectors
 
                 // check if leaf node
                 bool hasLeft = node.HasLeftBranch, hasRight = node.HasRightBranch;
+                T distance;
                 if (!hasLeft && !hasRight) {
-                    results.TryAdd(node.VectorIndex, Vectors[node.VectorIndex].FindDistance(query, DistanceMetric));
+                    distance = Vectors[node.VectorIndex].FindDistance(query, DistanceMetric);
+                    if(!T.IsNaN(distance))
+                        results.TryAdd(node.VectorIndex, distance);
                     continue;
                 }
 
@@ -239,7 +242,9 @@ namespace BrightData.Helper.Vectors
                     continue;
 
                 // query is within the ball
-                results.TryAdd(node.VectorIndex, Vectors[node.VectorIndex].FindDistance(query, DistanceMetric));
+                distance = Vectors[node.VectorIndex].FindDistance(query, DistanceMetric);
+                if(!T.IsNaN(distance))
+                    results.TryAdd(node.VectorIndex, distance);
                 if (hasLeft && stackSize < MaxDepth)
                     stack[stackSize++] = node.LeftNodeIndex!.Value;
                 if (hasRight && stackSize < MaxDepth)

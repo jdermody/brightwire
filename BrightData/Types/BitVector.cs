@@ -4,23 +4,22 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
-using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Types
 {
     /// <summary>
     /// Binary vector - each bit represents an item in the vector
     /// </summary>
-    public readonly record struct BitVector : IHaveSize
+    public readonly record struct BitVector : IBitVector
     {
-        const int NumBitsPerItem = 64;
+        internal const int NumBitsPerItem = 64;
 
         /// <summary>
         /// Creates a fixed size bit vector from a data block
         /// </summary>
         /// <param name="data"></param>
         /// <param name="size"></param>
-        public BitVector(ulong[] data, uint size)
+        public BitVector(Memory<ulong> data, uint size)
         {
             Data = data;
             Size = size;
@@ -32,20 +31,27 @@ namespace BrightData.Types
         /// <param name="size"></param>
         public BitVector(uint size)
         {
-            Data = new ulong[size / NumBitsPerItem + (size % NumBitsPerItem > 0 ? 1 : 0)];
+            Data = new ulong[GetRequiredSize(size)];
             Size = size;
         }
 
-        BitVector(BitVector other)
+        internal static uint GetRequiredSize(uint size) => (uint)(size / NumBitsPerItem + (size % NumBitsPerItem > 0 ? 1 : 0));
+
+        /// <summary>
+        /// Creates a fixed size bit vector
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="size"></param>
+        public BitVector(ReadOnlySpan<ulong> data, uint size)
         {
-            Data = other.Data.ToArray();
-            Size = other.Size;
+            Data = data.ToArray();
+            Size = size;
         }
 
         /// <summary>
         /// Underlying data
         /// </summary>
-        public ulong[] Data { get; }
+        public Memory<ulong> Data { get; }
 
         /// <inheritdoc />
         public uint Size { get; }
@@ -63,7 +69,7 @@ namespace BrightData.Types
                 var index = bitIndex / NumBitsPerItem;
                 if (index < 0 || index > Size)
                     throw new ArgumentException("Bit index out of bounds", nameof(bitIndex));
-                return (Data[index] & mask) == mask;
+                return (Data.Span[index] & mask) == mask;
             }
             set
             {
@@ -72,13 +78,14 @@ namespace BrightData.Types
                 if (index < 0 || index > Size)
                     throw new ArgumentException("Bit index out of bounds", nameof(bitIndex));
 
+                var span = Data.Span;
                 while (true) {
-                    var previousValue = Data[index];
+                    var previousValue = span[index];
                     var newValue = value 
                         ? previousValue | mask 
                         : previousValue ^ mask
                     ;
-                    if (Interlocked.CompareExchange(ref Data[index], newValue, previousValue) == previousValue)
+                    if (newValue == previousValue || Interlocked.CompareExchange(ref span[index], newValue, previousValue) == previousValue)
                         break;
                 }
             }
@@ -97,162 +104,45 @@ namespace BrightData.Types
                 .GroupBy(x => x.Index)
                 .Select(x => (Index: x.Key, Mask: x.Aggregate(0UL, (y, z) => y | z.Mask)))
             ;
+            var span = Data.Span;
             foreach (var (index, mask) in keys) {
                 while (true) {
-                    var previousValue = Data[index];
+                    var previousValue = span[index];
                     var newValue = previousValue | mask;
-                    if (Interlocked.CompareExchange(ref Data[index], newValue, previousValue) == previousValue)
+                    if (newValue == previousValue || Interlocked.CompareExchange(ref span[index], newValue, previousValue) == previousValue)
                         break;
                 }
             }
         }
 
         /// <summary>
-        /// Returns all contiguous ranges of set bits
-        /// </summary>
-        public IEnumerable<Range> ContiguousRanges
-        {
-            get
-            {
-                var inRange = false;
-                var start = -1;
-                for (var i = 0; i < Size; i++) {
-                    if (this[i]) {
-                        if(inRange)
-                            continue;
-                        inRange = true;
-                        start = i;
-                    }else if (inRange) {
-                        yield return new Range(start, i);
-                        inRange = false;
-                        start = -1;
-                    }
-                }
-                if (start >= 0)
-                    yield return new Range(start, (int)Size);
-            }
-        }
-
-        /// <summary>
         /// Clears all bits
         /// </summary>
-        public void Clear()
-        {
-            Array.Fill(Data, 0UL);
-        }
-
-        /// <summary>
-        /// Counts the bits that are true
-        /// </summary>
-        /// <returns></returns>
-        public uint CountOfSetBits()
-        {
-            var ret = 0;
-            foreach (var item in Data)
-                ret += BitOperations.PopCount(item);
-            return (uint)ret;
-        }
+        public void Clear() => Data.Span.Clear();
 
         /// <summary>
         /// Underlying data
         /// </summary>
         /// <returns></returns>
-        public ReadOnlySpan<ulong> AsSpan() => new(Data);
-
-        /// <summary>
-        /// Returns a new vector that has been XORed with this and another vector
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public BitVector XorWith(BitVector other)
-        {
-            var ret = new BitVector(this);
-            Xor(ret.Data.AsSpan(), other.AsSpan());
-            return ret;
-        }
-
-        /// <summary>
-        /// Returns a new vector that is the union of this and another vector
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public BitVector UnionWith(BitVector other)
-        {
-            var ret = new BitVector(this);
-            Or(ret.Data.AsSpan(), other.AsSpan());
-            return ret;
-        }
-
-        /// <summary>
-        /// Returns a new vector that is the intersection of this and another vector
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public BitVector IntersectionWith(BitVector other)
-        {
-            var ret = new BitVector(this);
-            And(ret.Data.AsSpan(), other.AsSpan());
-            return ret;
-        }
+        public ReadOnlySpan<ulong> AsSpan() => Data.Span;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="other"></param>
-        /// <returns></returns>
-        public BitVector Except(BitVector other)
-        {
-            var ret = new BitVector(this);
-            Xor(ret.Data.AsSpan(), other.AsSpan());
-            And(ret.Data.AsSpan(), other.AsSpan());
-            return ret;
-        }
+        public void XorInPlace(in BitVector other) => ExtensionMethods.Xor(Data.Span, other.AsSpan());
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="other"></param>
-        /// <returns></returns>
-        public uint HammingDistance(BitVector other)
-        {
-            var copy = new BitVector(this);
-            Xor(copy.Data.AsSpan(), other.AsSpan());
-            return copy.CountOfSetBits();
-        }
+        public void UnionInPlace(in BitVector other) => ExtensionMethods.Or<ulong>(Data.Span, other.AsSpan());
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="other"></param>
-        public void XorInPlace(in BitVector other) => Xor(Data.AsSpan(), other.AsSpan());
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="other"></param>
-        public void UnionInPlace(in BitVector other) => Or(Data.AsSpan(), other.AsSpan());
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="other"></param>
-        public void IntersectionInPlace(in BitVector other) => And(Data.AsSpan(), other.AsSpan());
-
-        static void Xor(Span<ulong> data, ReadOnlySpan<ulong> other) => data.MutateVectorized(
-            other,
-            (in Vector<ulong> a, in Vector<ulong> b, out Vector<ulong> r) => r = Vector.Xor(a, b),
-            (a, b) => a ^ b
-        );
-        static void Or(Span<ulong> data, ReadOnlySpan<ulong> other) => data.MutateVectorized(
-            other,
-            (in Vector<ulong> a, in Vector<ulong> b, out Vector<ulong> r) => r = Vector.BitwiseOr(a, b),
-            (a, b) => a | b
-        );
-        static void And(Span<ulong> data, ReadOnlySpan<ulong> other) => data.MutateVectorized(
-            other,
-            (in Vector<ulong> a, in Vector<ulong> b, out Vector<ulong> r) => r = Vector.BitwiseAnd(a, b),
-            (a, b) => a & b
-        );
+        public void IntersectionInPlace(in BitVector other) => ExtensionMethods.And<ulong>(Data.Span, other.AsSpan());
 
         /// <inheritdoc />
         public override string ToString()

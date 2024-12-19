@@ -30,6 +30,7 @@ namespace BrightData.Buffer.ByteBlockReaders
         {
             if (numBytes == 0)
                 return ReadOnlyMemory<byte>.Empty;
+
             Memory<byte> ret = new(new byte[numBytes]);
             var readOffset = 0;
             do

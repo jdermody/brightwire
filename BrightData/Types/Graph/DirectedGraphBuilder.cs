@@ -68,11 +68,11 @@ namespace BrightData.Types.Graph
                 var edgeIndex = edges.WrittenCount;
                 var edgeCount = node.Value.NumEdges;
                 if (edgeCount > 0) {
-                    var span = edges.GetSpan((int)edgeCount);
+                    var span = edges.GetSpan(edgeCount);
                     var index = 0;
                     foreach (var edge in node.Value.ConnectedToNodeOffsets.Order())
                         span[index++] = edge;
-                    edges.Advance((int)edgeCount);
+                    edges.Advance(edgeCount);
                 }
                 nodes.Write(new DirectedGraph<T>.Node(node.Value.Value, edgeIndex, edgeCount));
             }
