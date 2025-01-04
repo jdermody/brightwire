@@ -27,7 +27,7 @@ namespace BrightData.Buffer
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        public bool Intersects(uint position) => position >= StartOffset && position < EndOffset;
+        public bool Intersects(uint position) => position >= StartOffset && position <= EndOffset;
 
         /// <summary>
         /// Checks if another range is contained within this range
