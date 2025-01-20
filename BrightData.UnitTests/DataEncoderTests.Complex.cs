@@ -12,18 +12,18 @@ namespace BrightData.UnitTests
     {
         readonly SerialisationFixture _context = new();
 
-        void Encode<T>(T input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>>? optionsFunc = null) where T: notnull
+        void Encode<T>(T input) where T: notnull
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.Read<T>(_context.ReadFromStart());
-            output.Should().BeEquivalentTo(input, options => optionsFunc?.Invoke(options) ?? options);
+            output.Should().BeEquivalentTo(input);
         }
 
-        void EncodeArray<T>(T[] input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>>? optionsFunc = null) where T: notnull
+        void EncodeArray<T>(T[] input) where T: notnull
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.ReadArray<T>(_context.ReadFromStart());
-            output.Should().BeEquivalentTo(input, options => optionsFunc?.Invoke(options) ?? options);
+            output.Should().BeEquivalentTo(input);
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void EncodeBinaryData()
         {
-            Encode(new BinaryData(1, 2, 3), options => options.ComparingByValue<BinaryData>());
+            Encode(new BinaryData(1, 2, 3));
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace BrightData.UnitTests
             EncodeArray([
                 new BinaryData(1, 2, 3),
                 new BinaryData(2, 3, 4)
-            ], options => options.ComparingByValue<BinaryData>());
+            ]);
         }
     }
 }

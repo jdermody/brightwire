@@ -30,8 +30,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             // find the number of sequences of each row
             var foundData = false;
             foreach(var row in _buffer.EnumerateAllTyped().ToBlockingEnumerable()) {
-                var inputMatrix = row.C1;
-                var outputMatrix = row.C2;
+                var inputMatrix = row.Column1;
+                var outputMatrix = row.Column2;
                 _rowDepth[row.RowIndex] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
@@ -64,8 +64,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             if (_sequenceLengthsAreVaried) {
                 await foreach (var row in GetRows(rows)) {
-                    var input = row.C1;
-                    var output = row.C2;
+                    var input = row.Column1;
+                    var output = row.Column2;
                     for (uint i = 0, len = input.RowCount; i < len; i++) {
                         if (!inputData.TryGetValue(i, out var temp))
                             inputData.Add(i, temp = []);
@@ -109,8 +109,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
 
             await foreach (var row in GetRows(rows)) {
-                var input = row.C1;
-                var output = row.C2;
+                var input = row.Column1;
+                var output = row.Column2;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = []);

@@ -955,7 +955,7 @@ namespace BrightData
             var columns = new IReadOnlyBuffer[dataTable.ColumnCount];
             for (uint i = 0; i < dataTable.ColumnCount; i++) {
                 var column = dataTable.GetColumn(i);
-                if (columnMutationTable.TryGetValue(i, out var model))
+                if (columnMutationTable.TryGetValue(i, out var model) && model.NormalizationType != NormalizationType.None)
                     columns[i] = GenericTypeMapping.NormalizationConverter(column, model);
                 else
                     columns[i] = column;
@@ -1357,18 +1357,20 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <param name="stream"></param>
+        /// <param name="shouldTakeOwnershipOfStream">False to leave the stream open when the data table has disposed</param>
         /// <returns></returns>
-        public static Task<IDataTable> LoadTableFromStream(this BrightDataContext context, Stream stream)
+        public static Task<IDataTable> LoadTableFromStream(this BrightDataContext context, Stream stream, bool shouldTakeOwnershipOfStream = true)
         {
             if (stream is FileStream fileStream) {
                 var path = fileStream.Name;
-                fileStream.Close();
+                if(shouldTakeOwnershipOfStream)
+                    fileStream.Close();
                 return ColumnOrientedDataTable.Load(context, new FileByteBlockReader(path));
             }
 
             if(stream is MemoryStream memoryStream)
-                return ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(memoryStream.GetBuffer()));
-            return ColumnOrientedDataTable.Load(context, new StreamByteBlockReader(stream));
+                return ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(memoryStream.GetBuffer(), shouldTakeOwnershipOfStream ? memoryStream : null));
+            return ColumnOrientedDataTable.Load(context, new StreamByteBlockReader(stream, shouldTakeOwnershipOfStream));
         }
 
         /// <summary>
@@ -1424,6 +1426,9 @@ namespace BrightData
         /// <exception cref="NotSupportedException"></exception>
         public static async Task<NormalisationModel> GetNormalization(this IReadOnlyBufferWithMetaData buffer, NormalizationType type)
         {
+            if (type == NormalizationType.None)
+                return new NormalisationModel(NormalizationType.None, 1, 0);
+
             var metaData = buffer.MetaData;
             if (metaData.Get(Consts.NormalizationType, NormalizationType.None) == type)
                 return metaData.GetNormalization();

@@ -57,6 +57,13 @@ namespace BrightData.Analysis
             Divide = metaData.Get(Consts.NormalizationP2, 0D);
         }
 
+        internal NormalisationModel(NormalizationType type, double divide, double subtract)
+        {
+            NormalizationType = type;
+            Divide = divide;
+            Subtract = subtract;
+        }
+
         /// <summary>
         /// Writes the normalization parameters to a meta data store
         /// </summary>

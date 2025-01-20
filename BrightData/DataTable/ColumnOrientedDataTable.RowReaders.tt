@@ -18,7 +18,7 @@ namespace BrightData
 <# for(var i = 1; i < COUNT; i++) {
         var range = Enumerable.Range(1, i).ToList();
         var typeString = String.Join(", ", range.Select(x => $"T{x}"));
-        var parameters = String.Join(", ", range.Select(x => $"T{x} C{x}"));
+        var parameters = String.Join(", ", range.Select(x => $"T{x} Column{x}"));
         var where = String.Join(" ", range.Select(x => $"where T{x}: notnull"));
 #>
     /// <summary>
@@ -33,7 +33,7 @@ namespace BrightData
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
 <# for(var j = 0; j < i; j++) { #>
-            <#= j #> => C<#= j+1 #>,
+            <#= j #> => Column<#= j+1 #>,
 <# } #>
             _ => throw new Exception("Column index was out of range")
         };

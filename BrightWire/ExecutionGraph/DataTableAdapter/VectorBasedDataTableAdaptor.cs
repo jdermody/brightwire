@@ -29,8 +29,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             if (targetColumn.HasValue) {
                 var firstRow = await dataTable.GetRow<ReadOnlyVector<float>, ReadOnlyVector<float>>(0, featureColumns.Single(), targetColumn.Value);
-                firstVector = firstRow.C1;
-                outputSize = firstRow.C2.Size;
+                firstVector = firstRow.Column1;
+                outputSize = firstRow.Column2.Size;
             }
             else {
                 firstVector = await dataTable.Get<ReadOnlyVector<float>>(featureColumns.Single(), 0);
@@ -49,8 +49,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var index = 0;
 
             await foreach (var row in GetRows(rows)) {
-                inputRows.Span[index] = row.C1.ReadOnlySegment;
-                targetRows.Span[index] = row.C2.ReadOnlySegment;
+                inputRows.Span[index] = row.Column1.ReadOnlySegment;
+                targetRows.Span[index] = row.Column2.ReadOnlySegment;
                 ++index;
             }
 

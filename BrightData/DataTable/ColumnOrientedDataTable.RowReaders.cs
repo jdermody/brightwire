@@ -11,7 +11,7 @@ namespace BrightData
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1>(IDataTable Table, uint RowIndex, T1 C1) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1>(IDataTable Table, uint RowIndex, T1 Column1) : TableRowBase(Table, RowIndex)
         where T1: notnull
     {
         /// <inheritdoc />
@@ -19,14 +19,14 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
+            0 => Column1,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2>(IDataTable Table, uint RowIndex, T1 C1, T2 C2) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull
     {
         /// <inheritdoc />
@@ -34,15 +34,15 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
+            0 => Column1,
+            1 => Column2,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull
     {
         /// <inheritdoc />
@@ -50,16 +50,16 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull
     {
         /// <inheritdoc />
@@ -67,17 +67,17 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull
     {
         /// <inheritdoc />
@@ -85,18 +85,18 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5, T6>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5, T6 Column6) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull
     {
         /// <inheritdoc />
@@ -104,19 +104,19 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
-            5 => C6,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
+            5 => Column6,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5, T6 Column6, T7 Column7) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull
     {
         /// <inheritdoc />
@@ -124,20 +124,20 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
-            5 => C6,
-            6 => C7,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
+            5 => Column6,
+            6 => Column7,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5, T6 Column6, T7 Column7, T8 Column8) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull
     {
         /// <inheritdoc />
@@ -145,21 +145,21 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
-            5 => C6,
-            6 => C7,
-            7 => C8,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
+            5 => Column6,
+            6 => Column7,
+            7 => Column8,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5, T6 Column6, T7 Column7, T8 Column8, T9 Column9) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull
     {
         /// <inheritdoc />
@@ -167,22 +167,22 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
-            5 => C6,
-            6 => C7,
-            7 => C8,
-            8 => C9,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
+            5 => Column6,
+            6 => Column7,
+            7 => Column8,
+            8 => Column9,
             _ => throw new Exception("Column index was out of range")
         };
     }
     /// <summary>
     /// Typed data table row
     /// </summary>
-    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IDataTable Table, uint RowIndex, T1 C1, T2 C2, T3 C3, T4 C4, T5 C5, T6 C6, T7 C7, T8 C8, T9 C9, T10 C10) : TableRowBase(Table, RowIndex)
+    public record TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IDataTable Table, uint RowIndex, T1 Column1, T2 Column2, T3 Column3, T4 Column4, T5 Column5, T6 Column6, T7 Column7, T8 Column8, T9 Column9, T10 Column10) : TableRowBase(Table, RowIndex)
         where T1: notnull where T2: notnull where T3: notnull where T4: notnull where T5: notnull where T6: notnull where T7: notnull where T8: notnull where T9: notnull where T10: notnull
     {
         /// <inheritdoc />
@@ -190,16 +190,16 @@ namespace BrightData
 
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
-            0 => C1,
-            1 => C2,
-            2 => C3,
-            3 => C4,
-            4 => C5,
-            5 => C6,
-            6 => C7,
-            7 => C8,
-            8 => C9,
-            9 => C10,
+            0 => Column1,
+            1 => Column2,
+            2 => Column3,
+            3 => Column4,
+            4 => Column5,
+            5 => Column6,
+            6 => Column7,
+            7 => Column8,
+            8 => Column9,
+            9 => Column10,
             _ => throw new Exception("Column index was out of range")
         };
     }

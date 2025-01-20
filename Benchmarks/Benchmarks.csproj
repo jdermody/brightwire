@@ -9,10 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+    <None Remove="Data\house-price.dat" />
+    <None Remove="Data\house-price.parquet" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Data\house-price.dat" />
+    <EmbeddedResource Include="Data\house-price.parquet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageReference Include="Parquet.Net" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData.Parquet\BrightData.Parquet.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
   </ItemGroup>
 

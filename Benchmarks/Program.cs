@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Running;
 
 namespace Benchmarks
@@ -7,10 +8,21 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkSetProperty();
-            BenchmarkSum();
-            BenchmarkDot();
-            BenchmarkRunner.Run<SortedArrayBenchmarks>();
+            BenchmarkDataTables();
+            //BenchmarkSetProperty();
+            //BenchmarkSum();
+            //BenchmarkDot();
+            //BenchmarkRunner.Run<SortedArrayBenchmarks>();
+        }
+
+        static void BenchmarkDataTables()
+        {
+            //var test = new DataTableBenchmarks();
+            //test.GlobalSetup();
+            //test.AdaptedParquet().GetAwaiter().GetResult();
+            //test.SaveDataTable(@"C:\code\brightwire\Benchmarks\Data\house-price.dat").GetAwaiter().GetResult();
+            //test.DataTable().GetAwaiter().GetResult();
+            BenchmarkRunner.Run<DataTableBenchmarks>();
         }
 
         static void BenchmarkSetProperty()

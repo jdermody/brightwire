@@ -646,7 +646,7 @@
             </summary>
             <param name="stream"></param>
         </member>
-        <member name="M:BrightData.Buffer.ByteBlockReaders.StreamByteBlockReader.#ctor(System.IO.Stream)">
+        <member name="M:BrightData.Buffer.ByteBlockReaders.StreamByteBlockReader.#ctor(System.IO.Stream,System.Boolean)">
             <summary>
             Reads from a stream
             </summary>
@@ -4165,12 +4165,13 @@
             <param name="buffers"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.LoadTableFromStream(BrightData.BrightDataContext,System.IO.Stream)">
+        <member name="M:BrightData.ExtensionMethods.LoadTableFromStream(BrightData.BrightDataContext,System.IO.Stream,System.Boolean)">
             <summary>
             Loads a data table from the stream
             </summary>
             <param name="context"></param>
             <param name="stream"></param>
+            <param name="shouldTakeOwnershipOfStream">False to leave the stream open when the data table has disposed</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.BrightDataType)">

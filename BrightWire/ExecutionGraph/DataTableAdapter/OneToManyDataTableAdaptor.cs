@@ -27,8 +27,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             ReadOnlyVector<float>? inputVector = null;
             ReadOnlyMatrix<float>? outputMatrix = null;
             foreach(var row in _buffer.EnumerateAllTyped().ToBlockingEnumerable()) {
-                inputVector = row.C1;
-                outputMatrix = row.C2;
+                inputVector = row.Column1;
+                outputMatrix = row.Column2;
                 _rowDepth[row.RowIndex] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -65,13 +65,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             var index = 0;
             var outputData = new Dictionary<uint, List<IReadOnlyNumericSegment<float>>>();
             await foreach (var item in GetRows(rows)) {
-                var output = item.C2;
+                var output = item.Column2;
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = []);
                     temp.Add(output.GetReadOnlyRow(i));
                 }
-                inputData[index++] = item.C1;
+                inputData[index++] = item.Column1;
             }
 
             var miniBatch = new MiniBatch(rows, this);
