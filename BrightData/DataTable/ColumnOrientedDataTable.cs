@@ -89,9 +89,11 @@ namespace BrightData.DataTable
         {
             var headerSize = Unsafe.SizeOf<TableHeader>();
             var header = (await reader.GetBlock(0, (uint)headerSize)).Span.Cast<byte, TableHeader>()[0];
-            var columns = (await reader.GetBlock(header.InfoOffset, header.InfoSizeBytes)).Span.Cast<byte, Column>().ToArray();
-            var metaData = await reader.GetBlock(header.MetaDataOffset, reader.Size - header.MetaDataOffset);
-            return new ColumnOrientedDataTable(context, header, columns, metaData, reader);
+            var columnsBlock = reader.GetBlock(header.InfoOffset, header.InfoSizeBytes);
+            var metaDataBlock = reader.GetBlock(header.MetaDataOffset, reader.Size - header.MetaDataOffset);
+            await Task.WhenAll(columnsBlock, metaDataBlock);
+            var columns = columnsBlock.Result.Span.Cast<byte, Column>().ToArray();
+            return new ColumnOrientedDataTable(context, header, columns, metaDataBlock.Result, reader);
         }
 
         public MetaData MetaData { get; }

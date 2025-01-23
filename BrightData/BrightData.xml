@@ -3724,14 +3724,6 @@
             <param name="size">Number of rows to return</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.LoadTableFromFile(BrightData.BrightDataContext,System.String)">
-            <summary>
-            Loads a data table from disk
-            </summary>
-            <param name="context"></param>
-            <param name="filePath">File path on disk</param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.Types.MetaData[],System.Nullable{System.UInt32})">
             <summary>
             Sets the target column across an array of metadata
@@ -4172,6 +4164,15 @@
             <param name="context"></param>
             <param name="stream"></param>
             <param name="shouldTakeOwnershipOfStream">False to leave the stream open when the data table has disposed</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LoadTableFromFile(BrightData.BrightDataContext,System.String,System.Boolean)">
+            <summary>
+            Loads a data table from disk
+            </summary>
+            <param name="context"></param>
+            <param name="filePath">File path on disk</param>
+            <param name="loadIntoMemory">True to load the file entirely into memory</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.BrightDataType)">

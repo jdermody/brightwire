@@ -314,14 +314,6 @@ namespace BrightData
         ;
 
         /// <summary>
-        /// Loads a data table from disk
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="filePath">File path on disk</param>
-        /// <returns></returns>
-        public static Task<IDataTable> LoadTableFromFile(this BrightDataContext context, string filePath) => ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
-
-        /// <summary>
         /// Sets the target column across an array of metadata
         /// </summary>
         /// <param name="metaData"></param>
@@ -1349,7 +1341,7 @@ namespace BrightData
             var builder = new ColumnOrientedDataTableWriter();
             await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
             await builder.Write(tableMetaData ?? new(), buffers, stream);
-            return await ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
+            return await LoadTableFromStream(context, stream, false);
         }
 
         /// <summary>
@@ -1365,12 +1357,28 @@ namespace BrightData
                 var path = fileStream.Name;
                 if(shouldTakeOwnershipOfStream)
                     fileStream.Close();
-                return ColumnOrientedDataTable.Load(context, new FileByteBlockReader(path));
+                return context.LoadTableFromFile(path, false);
             }
 
             if(stream is MemoryStream memoryStream)
                 return ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(memoryStream.GetBuffer(), shouldTakeOwnershipOfStream ? memoryStream : null));
             return ColumnOrientedDataTable.Load(context, new StreamByteBlockReader(stream, shouldTakeOwnershipOfStream));
+        }
+
+        /// <summary>
+        /// Loads a data table from disk
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="filePath">File path on disk</param>
+        /// <param name="loadIntoMemory">True to load the file entirely into memory</param>
+        /// <returns></returns>
+        public static async Task<IDataTable> LoadTableFromFile(this BrightDataContext context, string filePath, bool loadIntoMemory = false)
+        {
+            if (loadIntoMemory) {
+                var data = await File.ReadAllBytesAsync(filePath);
+                return await ColumnOrientedDataTable.Load(context, new MemoryByteBlockReader(data));
+            }
+            return await ColumnOrientedDataTable.Load(context, new FileByteBlockReader(filePath));
         }
 
         /// <summary>

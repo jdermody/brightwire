@@ -377,7 +377,7 @@ namespace ExampleCode.DataSet
             var path = GetDataFilePath(context, fileName);
             if (!File.Exists(path))
                 return await createTable(path);
-            return await context.LoadTableFromFile(path);
+            return await context.LoadTableFromFile(path, true);
         }
 
         static async Task<StreamReader> GetStreamReader(this BrightDataContext context, string fileName, string? remoteUrl = null)
