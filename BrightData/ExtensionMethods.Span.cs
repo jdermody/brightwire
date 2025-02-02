@@ -1783,7 +1783,7 @@ namespace BrightData
         {
             var index = span.BinarySearch(comparator);
             if (index >= 0) {
-                int first = index, last = index;
+                int first = index, last = index+1;
                 while (first >= 1 && comparator.CompareTo(span[first - 1]) == 0)
                     --first;
                 while (last >= 0 && last < span.Length - 1 && comparator.CompareTo(span[last + 1]) == 0)

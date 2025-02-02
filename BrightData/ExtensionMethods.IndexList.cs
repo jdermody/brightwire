@@ -223,23 +223,25 @@ namespace BrightData
             var ret = new WeightedIndexListWithLabel<T>[len];
 
             var (indexOccurrence, classificationSum) = FindIndexOccurrence(data);
-            var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
-            var numDocs = (float)len;
-                
-            // calculate bm25f score for each document
-            foreach (var (label, weightedIndexList) in data) {
-                var documentWeight = classificationSum[label] / averageDocumentWeight;
-                var classificationIndex = new List<WeightedIndexList.Item>();
-                foreach (ref readonly var item in weightedIndexList.ReadOnlySpan) {
-                    var index = item.Index;
-                    var tf = (item.Weight * (k+1)) / ((item.Weight + k) * (1 - b + (b * documentWeight))) + d;
-                    var docsWithTerm = (float)indexOccurrence[index];
-                    var idf = MathF.Log((numDocs - docsWithTerm + 0.5f) / (0.5f + docsWithTerm) + 1);
-                    var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndexList.Item(index, score));
-                }
+            if (classificationSum.Count > 0) {
+                var averageDocumentWeight = classificationSum.Average(doc => doc.Value);
+                var numDocs = (float)len;
 
-                ret[i++] = new(label, WeightedIndexList.Create(classificationIndex.ToArray()));
+                // calculate bm25f score for each document
+                foreach (var (label, weightedIndexList) in data) {
+                    var documentWeight = classificationSum[label] / averageDocumentWeight;
+                    var classificationIndex = new List<WeightedIndexList.Item>();
+                    foreach (ref readonly var item in weightedIndexList.ReadOnlySpan) {
+                        var index = item.Index;
+                        var tf = (item.Weight * (k + 1)) / ((item.Weight + k) * (1 - b + (b * documentWeight))) + d;
+                        var docsWithTerm = (float)indexOccurrence[index];
+                        var idf = MathF.Log((numDocs - docsWithTerm + 0.5f) / (0.5f + docsWithTerm) + 1);
+                        var score = tf * idf;
+                        classificationIndex.Add(new WeightedIndexList.Item(index, score));
+                    }
+
+                    ret[i++] = new(label, WeightedIndexList.Create(classificationIndex.ToArray()));
+                }
             }
 
             return ret;
