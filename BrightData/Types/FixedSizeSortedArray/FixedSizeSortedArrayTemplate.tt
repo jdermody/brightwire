@@ -29,7 +29,7 @@ namespace BrightData.Types
         /// Max size of the array
         /// </summary>
         public const int MaxSize = <#= i #>;
-        byte IFixedSizeSortedArray<V, W>.MaxSize => MaxSize;
+        readonly byte IFixedSizeSortedArray<V, W>.MaxSize => MaxSize;
 
         [InlineArray(MaxSize)]
         internal struct ValueArray
@@ -48,7 +48,7 @@ namespace BrightData.Types
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public byte Size => _size;
+        public readonly byte Size => _size;
 
         /// <summary>
         /// Sorted list of values

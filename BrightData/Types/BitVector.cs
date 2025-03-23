@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Types
 {
@@ -92,6 +93,17 @@ namespace BrightData.Types
         }
 
         /// <summary>
+        /// Gets or sets an item in the vector
+        /// </summary>
+        /// <param name="bitIndex"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public bool this[uint bitIndex]
+        {
+            get => this[(int)bitIndex];
+            set => this[(int)bitIndex] = value;
+        }
+
+        /// <summary>
         /// Sets a range of bits
         /// </summary>
         /// <param name="range"></param>
@@ -154,5 +166,8 @@ namespace BrightData.Types
                 sb.Append("...");
             return sb.ToString();
         }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes => AsSpan().AsBytes();
     }
 }

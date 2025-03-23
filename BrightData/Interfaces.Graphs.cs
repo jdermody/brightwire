@@ -1,9 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace BrightData
 {
+    public interface IGraph : IHaveSize
+    {
+
+    }
+
+    public interface IGraph<out T> : IGraph
+        where T: unmanaged
+    {
+        /// <summary>
+        /// Returns the value associated with the node
+        /// </summary>
+        /// <param name="nodeIndex"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        //bool TryGetValue(uint nodeIndex, [NotNullWhen(true)] out T? value);
+    }
+
+    public interface IBuildGraphs<T>
+        where T: unmanaged
+    {
+        /// <summary>
+        /// Add a new node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        uint Add(T node);
+
+        /// <summary>
+        /// Adds an edge between two nodes
+        /// </summary>
+        /// <param name="fromNodeIndex"></param>
+        /// <param name="toNodeIndex"></param>
+        /// <returns></returns>
+        bool AddEdge(uint fromNodeIndex, uint toNodeIndex);
+
+
+    }
+
     /// <summary>
     /// A graph node
     /// </summary>
@@ -69,8 +108,8 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="W"></typeparam>
-    public interface IWeightedGraph<out T, W> : IHaveSize
-        where T: IHaveSingleIndex
+    public interface IWeightedGraph<out T, W> : IGraph<T>
+        where T: unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
         /// <summary>
@@ -131,7 +170,7 @@ namespace BrightData
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="W"></typeparam>
     public interface IWeightedDynamicGraph<T, W> : IWeightedGraph<T, W>
-        where T: IHaveSingleIndex
+        where T : unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
         /// <summary>

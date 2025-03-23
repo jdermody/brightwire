@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Types
 {
@@ -26,7 +27,7 @@ namespace BrightData.Types
         /// <summary>
         /// Underlying data
         /// </summary>
-        public ReadOnlySpan<ulong> Data { get; }
+        public ReadOnlySpan<ulong> Data { get; } 
 
         /// <inheritdoc />
         public uint Size { get; }
@@ -57,5 +58,8 @@ namespace BrightData.Types
                 sb.Append("...");
             return sb.ToString();
         }
+
+        /// <inheritdoc />
+        public ReadOnlySpan<byte> DataAsBytes => AsSpan().AsBytes();
     }
 }

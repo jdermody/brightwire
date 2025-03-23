@@ -615,7 +615,7 @@ namespace BrightData
         uint Offset { get; }
     }
 
-    public interface IBitVector : IHaveSize
+    public interface IBitVector : IHaveSize, IHaveDataAsReadOnlyByteSpan
     {
         /// <summary>
         /// Gets the value of a bit within the vector

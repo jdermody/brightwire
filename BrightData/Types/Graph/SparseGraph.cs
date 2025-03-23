@@ -9,34 +9,27 @@ namespace BrightData.Types.Graph
     /// Directed graph
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly record struct DirectedGraph<T> : IHaveDataAsReadOnlyByteSpan, IHaveSize
-        where T: unmanaged, IHaveSingleIndex
+    public readonly record struct SparseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
+        where T: unmanaged
     {
         const int HeaderSize = 8;
 
-        internal readonly record struct Node(T Value, int EdgeIndex, int EdgeCount)
-        {
-            
-        }
-        class NodeComparer(uint nodeIndex) : IComparable<Node>
-        {
-            public int CompareTo(Node other) => nodeIndex.CompareTo(other.Value.Index);
-        }
+        internal readonly record struct Node(T Value, int EdgeIndex, int EdgeCount);
         readonly Node[] _nodes;
-        readonly int[] _edges;
+        readonly uint[] _edges;
 
         /// <summary>
         /// Creates a directed graph from graph data
         /// </summary>
         /// <param name="data"></param>
-        public DirectedGraph(ReadOnlySpan<byte> data)
+        public SparseGraph(ReadOnlySpan<byte> data)
         {
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);
             _nodes = MemoryMarshal.Cast<byte, Node>(data[HeaderSize..(int)header[0]]).ToArray();
-            _edges = MemoryMarshal.Cast<byte, int>(data[(int)header[0]..(int)header[1]]).ToArray();
+            _edges = MemoryMarshal.Cast<byte, uint>(data[(int)header[0]..(int)header[1]]).ToArray();
         }
 
-        internal DirectedGraph(ReadOnlySpan<Node> nodes, ReadOnlySpan<int> edges)
+        internal SparseGraph(ReadOnlySpan<Node> nodes, ReadOnlySpan<uint> edges)
         {
             _nodes = nodes.ToArray();
             _edges = edges.ToArray();
@@ -73,14 +66,13 @@ namespace BrightData.Types.Graph
         /// <returns></returns>
         public bool TryGetValue(uint nodeIndex, [NotNullWhen(true)]out T? value)
         {
-            var nodeSpan = _nodes.AsSpan();
-            var index = nodeSpan.BinarySearch(new NodeComparer(nodeIndex));
-            if (index < 0) {
-                value = null;
-                return false;
+            if (nodeIndex < _nodes.Length) {
+                value = _nodes[nodeIndex].Value;
+                return true;
             }
-            value = nodeSpan[index].Value;
-            return true;
+
+            value = null;
+            return false;
         }
 
         /// <summary>
@@ -88,12 +80,10 @@ namespace BrightData.Types.Graph
         /// </summary>
         /// <param name="nodeIndex"></param>
         /// <returns></returns>
-        public IEnumerable<T> EnumerateConnectedNodes(uint nodeIndex)
+        public IEnumerable<T> EnumerateDirectlyConnectedNodes(uint nodeIndex)
         {
-            var nodeSpan = _nodes.AsSpan();
-            var index = nodeSpan.BinarySearch(new NodeComparer(nodeIndex));
-            if (index >= 0) {
-                var (_, edgeIndex, edgeCount) = nodeSpan[index];
+            if (nodeIndex < _nodes.Length) {
+                var (_, edgeIndex, edgeCount) = _nodes[nodeIndex];
                 foreach (var connectedTo in _edges[edgeIndex..(edgeIndex+edgeCount)])
                     yield return _nodes[connectedTo].Value;
             }
