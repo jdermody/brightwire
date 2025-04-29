@@ -87,7 +87,7 @@ namespace BrightData.Types
                 value = _values[arrayIndex];
                 return true;
             }
-            value = default;
+            value = null;
             return false;
         }
     }

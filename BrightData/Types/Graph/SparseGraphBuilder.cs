@@ -25,7 +25,7 @@ namespace BrightData.Types.Graph
             public IEnumerable<uint> ConnectedToNodeOffsets => _edges ?? Enumerable.Empty<uint>();
             public int NumEdges => _edges?.Count ?? 0;
         }
-        readonly List<Node> _nodes = new();
+        readonly List<Node> _nodes = [];
 
         /// <inheritdoc />
         public uint Add(T node)

@@ -16,6 +16,11 @@ namespace BrightData.Helper.StringTables
         readonly ReadOnlyMemory<OffsetAndSize> _stringTable = stringTable;
         readonly ReadOnlyMemory<byte> _stringData = stringData;
 
+        /// <summary>
+        /// Creates a string table from bytes
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static StringTable Create(ReadOnlyMemory<byte> data)
         {
             var blocks = data.GetTupleFromBlockHeader<OffsetAndSize, byte>();
@@ -25,6 +30,11 @@ namespace BrightData.Helper.StringTables
             );
         }
 
+        /// <summary>
+        /// Creates a string table from a file
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static async Task<StringTable> Create(string filePath)
         {
             return Create(await File.ReadAllBytesAsync(filePath));
@@ -65,13 +75,15 @@ namespace BrightData.Helper.StringTables
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<IIndexStrings> GetStringIndexer(StringIndexType type = StringIndexType.Dictionary, int maxStringSize = 1024)
+        public Task<IIndexStrings> GetStringIndexer(StringIndexType type = StringIndexType.Dictionary, int maxStringSize = 1024)
         {
             var span = _stringTable.Span;
             var dataSpan = _stringData.Span;
+            IIndexStrings ret;
             switch (type) {
                 case StringIndexType.Dictionary: {
-                    return new FrozenDictionaryStringIndexer(span, dataSpan, maxStringSize);
+                    ret = new FrozenDictionaryStringIndexer(span, dataSpan, maxStringSize);
+                    break;
                 }
                 case StringIndexType.Trie: {
                     using var buffer = SpanOwner<char>.Allocate(maxStringSize);
@@ -82,11 +94,14 @@ namespace BrightData.Helper.StringTables
                         var bufferSize = Encoding.UTF8.GetChars(utf8, bufferSpan);
                         trieBuilder.Add(bufferSpan[..bufferSize], i);
                     }
-                    return new TrieStringIndexer(trieBuilder.Build(), this);
+                    ret = new TrieStringIndexer(trieBuilder.Build(), this);
+                    break;
                 }
                 default:
                     throw new NotImplementedException(type.ToString());
             }
+
+            return Task.FromResult(ret);
         }
 
         /// <summary>
@@ -95,7 +110,7 @@ namespace BrightData.Helper.StringTables
         /// <param name="tokenizer"></param>
         /// <param name="maxStringSize"></param>
         /// <returns></returns>
-        public async Task<IIndexStrings> GetStringIndexer(Func<ReadOnlySpan<char>, ReadOnlySpan<int>> tokenizer, int maxStringSize = 1024)
+        public Task<IIndexStrings> GetStringIndexer(Func<ReadOnlySpan<char>, ReadOnlySpan<int>> tokenizer, int maxStringSize = 1024)
         {
             // build the tokenized trie
             using var buffer = SpanOwner<char>.Allocate(maxStringSize);
@@ -109,7 +124,8 @@ namespace BrightData.Helper.StringTables
                 trieBuilder.Add(tokenizer(bufferSpan[..bufferSize]), i);
             }
 
-            return new TokenizedTrieStringIndexer(trieBuilder.Build(), this, tokenizer);
+            IIndexStrings ret = new TokenizedTrieStringIndexer(trieBuilder.Build(), this, tokenizer);
+            return Task.FromResult(ret);
         }
     }
 }

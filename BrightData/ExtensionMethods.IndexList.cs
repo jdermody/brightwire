@@ -146,7 +146,7 @@ namespace BrightData
             var index = 0;
             foreach(ref var item in data) {
                 ret[index++] = item with { Data = WeightedIndexList.Create(
-                    item.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
+                    item.Data.Indices.Select(wi => wi with { Weight = wi.Weight / maxWeight }).ToArray()
                 )};
             }
 

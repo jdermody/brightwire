@@ -10,7 +10,7 @@ namespace BrightData.Types.Graph
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public readonly record struct SparseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
-        where T: unmanaged
+        where T : unmanaged
     {
         const int HeaderSize = 8;
 
@@ -64,7 +64,7 @@ namespace BrightData.Types.Graph
         /// <param name="nodeIndex"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public bool TryGetValue(uint nodeIndex, [NotNullWhen(true)]out T? value)
+        public bool TryGetValue(uint nodeIndex, [NotNullWhen(true)] out T? value)
         {
             if (nodeIndex < _nodes.Length) {
                 value = _nodes[nodeIndex].Value;
@@ -84,8 +84,55 @@ namespace BrightData.Types.Graph
         {
             if (nodeIndex < _nodes.Length) {
                 var (_, edgeIndex, edgeCount) = _nodes[nodeIndex];
-                foreach (var connectedTo in _edges[edgeIndex..(edgeIndex+edgeCount)])
+                foreach (var connectedTo in _edges[edgeIndex..(edgeIndex + edgeCount)])
                     yield return _nodes[connectedTo].Value;
+            }
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<T> DepthFirstSearch(T start)
+        {
+            var startIndex = Array.FindIndex(_nodes, n => EqualityComparer<T>.Default.Equals(n.Value, start));
+            if (startIndex == -1) 
+                yield break;
+
+            var stack = new Stack<int>();
+            stack.Push(startIndex);
+
+            var visited = new HashSet<int>();
+            while (stack.Count > 0) {
+                var index = stack.Pop();
+                if (!visited.Add(index)) 
+                    continue;
+                yield return _nodes[index].Value;
+
+                for (int edgeIndex = _nodes[index].EdgeIndex, i = edgeIndex + _nodes[index].EdgeCount - 1; i >= edgeIndex; i--) {
+                    stack.Push((int)_edges[i]);
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<T> BreadthFirstSearch(T start)
+        {
+            var queue = new Queue<int>();
+            var visited = new HashSet<int>();
+            var startIndex = Array.FindIndex(_nodes, n => EqualityComparer<T>.Default.Equals(n.Value, start));
+            if (startIndex == -1) yield break;
+
+            queue.Enqueue(startIndex);
+            visited.Add(startIndex);
+
+            while (queue.Count > 0) {
+                var index = queue.Dequeue();
+                yield return _nodes[index].Value;
+
+                for (var i = _nodes[index].EdgeIndex; i < _nodes[index].EdgeIndex + _nodes[index].EdgeCount; i++) {
+                    var neighbor = (int)_edges[i];
+                    if (visited.Add(neighbor)) {
+                        queue.Enqueue(neighbor);
+                    }
+                }
             }
         }
     }

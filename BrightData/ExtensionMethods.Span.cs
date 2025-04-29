@@ -196,7 +196,7 @@ namespace BrightData
                 else {
                     var xp = xfp;
                     var zp = zfp;
-                    for (uint i = 0; i < size; i++)
+                    for (var i = 0; i < size; i++)
                         *zp++ = transformer(*xp++);
                 }
             }

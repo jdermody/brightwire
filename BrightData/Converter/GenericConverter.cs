@@ -8,7 +8,7 @@ namespace BrightData.Converter
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="fallback"></param>
-    internal class GenericConverter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T? fallback = default)
+    internal class GenericConverter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]T? fallback = null)
         where T : struct
     {
 	    readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(T));

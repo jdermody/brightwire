@@ -9030,6 +9030,21 @@
             <param name="name">New column name</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IBuildGraphs`1.Add(`0)">
+            <summary>
+            Add a new node
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IBuildGraphs`1.AddEdge(System.UInt32,System.UInt32)">
+            <summary>
+            Adds an edge between two nodes
+            </summary>
+            <param name="fromNodeIndex"></param>
+            <param name="toNodeIndex"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IGraphNode">
             <summary>
             A graph node
@@ -13776,6 +13791,13 @@
             <param name="bitIndex"></param>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
+        <member name="P:BrightData.Types.BitVector.Item(System.UInt32)">
+            <summary>
+            Gets or sets an item in the vector
+            </summary>
+            <param name="bitIndex"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
         <member name="M:BrightData.Types.BitVector.SetBits(System.Range)">
             <summary>
             Sets a range of bits
@@ -13812,6 +13834,9 @@
             <param name="other"></param>
         </member>
         <member name="M:BrightData.Types.BitVector.ToString">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.BitVector.DataAsBytes">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.FixedSizeSortedAscending1Array`2">
@@ -19318,6 +19343,18 @@
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
             <inheritdoc />
         </member>
+        <member name="P:BrightData.Types.Graph.DenseGraph`1.DataAsBytes">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.DenseGraph`1.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DenseGraphBuilder`1.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DenseGraphBuilder`1.AddEdge(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
             <summary>
             A fixed size weighted graph
@@ -19618,19 +19655,10 @@
             <typeparam name="T"></typeparam>
         </member>
         <member name="M:BrightData.Types.Graph.SparseGraphBuilder`1.Add(`0)">
-            <summary>
-            Add a new node
-            </summary>
-            <param name="node"></param>
-            <returns></returns>
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.SparseGraphBuilder`1.AddEdge(System.UInt32,System.UInt32)">
-            <summary>
-            Adds an edge between two nodes
-            </summary>
-            <param name="fromNodeIndex"></param>
-            <param name="toNodeIndex"></param>
-            <returns></returns>
+            <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.SparseGraphBuilder`1.Build">
             <summary>
@@ -20065,6 +20093,9 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.ReadOnlyBitVector.ToString">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.ReadOnlyBitVector.DataAsBytes">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.SingleTypeSpanTuple">

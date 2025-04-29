@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace BrightData.Types.Graph
 {
     public readonly record struct DenseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
-        where T: unmanaged
+        where T : unmanaged
     {
         const int HeaderSize = 8;
 
@@ -49,5 +50,49 @@ namespace BrightData.Types.Graph
         public uint Size => (uint)_nodes.Length;
 
         public static uint GetEdgeIndex(uint from, uint to, uint numNodes) => from * numNodes + to;
+
+        public IEnumerable<T> DepthFirstSearch(T start)
+        {
+            var startIndex = Array.IndexOf(_nodes, start);
+            if (startIndex == -1)
+                yield break;
+
+            var stack = new Stack<int>();
+            stack.Push(startIndex);
+            var visited = new HashSet<int>();
+            while (stack.Count > 0) {
+                var index = stack.Pop();
+                if (!visited.Add(index))
+                    continue;
+                yield return _nodes[index];
+
+                for (var i = _nodes.Length - 1; i >= 0; i--) {
+                    if (_edges[index * _nodes.Length + i]) // Check adjacency matrix
+                        stack.Push(i);
+                }
+            }
+        }
+
+        public IEnumerable<T> BreadthFirstSearch(T start)
+        {
+            var startIndex = Array.IndexOf(_nodes, start);
+            if (startIndex == -1)
+                yield break;
+
+            var queue = new Queue<int>();
+            queue.Enqueue(startIndex);
+            var visited = new HashSet<int> { startIndex };
+
+            while (queue.Count > 0) {
+                var index = queue.Dequeue();
+                yield return _nodes[index];
+
+                for (var i = 0; i < _nodes.Length; i++) {
+                    if (_edges[index * _nodes.Length + i] && visited.Add(i)) {
+                        queue.Enqueue(i);
+                    }
+                }
+            }
+        }
     }
 }

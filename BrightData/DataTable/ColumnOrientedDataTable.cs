@@ -187,11 +187,11 @@ namespace BrightData.DataTable
             return Copy(block, (in DataRangeColumnType item) => new WeightedIndexList(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
-        public async Task<ReadOnlyMemory<float>> GetTensorData() => _tensors ??= await GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes);
-        public async Task<ReadOnlyMemory<byte>> GetBinaryData() => _binaryData ??= await GetBlock<byte>(_header.BinaryDataOffset, _header.BinaryDataSizeBytes);
-        public async Task<ReadOnlyMemory<uint>> GetIndices() => _indices ??= await GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes);
-        public async Task<ReadOnlyMemory<WeightedIndexList.Item>> GetWeightedIndices() => _weightedIndices ??= await GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes);
-        public async Task<List<string>> GetStringData() => _strings ??= await ReadStrings(_header.StringOffset, _header.StringSizeBytes);
+        public async ValueTask<ReadOnlyMemory<float>> GetTensorData() => _tensors ??= await GetBlock<float>(_header.TensorOffset, _header.TensorSizeBytes);
+        public async ValueTask<ReadOnlyMemory<byte>> GetBinaryData() => _binaryData ??= await GetBlock<byte>(_header.BinaryDataOffset, _header.BinaryDataSizeBytes);
+        public async ValueTask<ReadOnlyMemory<uint>> GetIndices() => _indices ??= await GetBlock<uint>(_header.IndexOffset, _header.IndexSizeBytes);
+        public async ValueTask<ReadOnlyMemory<WeightedIndexList.Item>> GetWeightedIndices() => _weightedIndices ??= await GetBlock<WeightedIndexList.Item>(_header.WeightedIndexOffset, _header.WeightedIndexSizeBytes);
+        public async ValueTask<List<string>> GetStringData() => _strings ??= await ReadStrings(_header.StringOffset, _header.StringSizeBytes);
 
         public uint RowCount => _header.RowCount;
         public uint ColumnCount => _header.ColumnCount;

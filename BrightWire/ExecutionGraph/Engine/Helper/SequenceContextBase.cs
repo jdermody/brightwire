@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void SetData(string name, string type, IGraphData data)
         {
             if (!_namedData.TryGetValue(type, out var list))
-                _namedData.Add(type, list = new List<(string, IGraphData)>());
+                _namedData.Add(type, list = []);
             list.Add((name, data));
         }
 

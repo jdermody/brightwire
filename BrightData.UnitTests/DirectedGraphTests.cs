@@ -14,18 +14,20 @@ namespace BrightData.UnitTests
         [Fact]
         public void SimpleTest()
         {
-            var builder = new DirectedGraphBuilder<GraphNodeIndex>();
-            builder.Add(new(100));
-            builder.Add(new(200));
-            builder.AddEdge(200, 100);
+            var builder = new SparseGraphBuilder<GraphNodeIndex>();
+            var firstNodeIndex = builder.Add(new(100));
+            var secondNodeIndex = builder.Add(new(200));
+            builder.AddEdge(secondNodeIndex, firstNodeIndex);
 
             var graph = builder.Build();
             graph.Size.Should().Be(2);
-            graph.TryGetValue(100, out _).Should().BeTrue();
-            graph.TryGetValue(200, out _).Should().BeTrue();
-            graph.TryGetValue(300, out _).Should().BeFalse();
-            graph.EnumerateConnectedNodes(200).Should().HaveCount(1);
-            graph.EnumerateConnectedNodes(100).Should().BeEmpty();
+            graph.TryGetValue(firstNodeIndex, out var val).Should().BeTrue();
+            val.Value.Index.Should().Be(100);
+            graph.TryGetValue(secondNodeIndex, out val).Should().BeTrue();
+            val.Value.Index.Should().Be(200);
+            graph.TryGetValue(3, out _).Should().BeFalse();
+            graph.EnumerateDirectlyConnectedNodes(secondNodeIndex).Should().HaveCount(1);
+            graph.EnumerateDirectlyConnectedNodes(firstNodeIndex).Should().BeEmpty();
         }
     }
 }

@@ -319,7 +319,7 @@ namespace BrightData
         /// Returns the entire block of tensor data
         /// </summary>
         /// <returns></returns>
-        Task<ReadOnlyMemory<float>> GetTensorData();
+        ValueTask<ReadOnlyMemory<float>> GetTensorData();
 
         /// <summary>
         /// Sets the tensor mapping functions

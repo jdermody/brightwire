@@ -11,9 +11,9 @@ namespace BrightData.Types.Graph
     {
         readonly record struct NodeIndexPair(uint FirstNodeIndex, uint SecondNodeIndex);
 
-        readonly List<T> _nodes = new();
-        readonly HashSet<NodeIndexPair> _edges = new();
-        readonly HashSet<uint> _validIndices = new();
+        readonly List<T> _nodes = [];
+        readonly HashSet<NodeIndexPair> _edges = [];
+        readonly HashSet<uint> _validIndices = [];
 
         /// <inheritdoc />
         public uint Add(T node)

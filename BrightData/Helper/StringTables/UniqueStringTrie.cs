@@ -203,6 +203,11 @@ namespace BrightData.Helper.StringTables
             _data = data;
         }
 
+        /// <summary>
+        /// Loads a string trie from a file
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static async Task<UniqueIndexedStringTrie<T>> Load(string filePath)
         {
             var data = await File.ReadAllBytesAsync(filePath);
@@ -252,10 +257,15 @@ namespace BrightData.Helper.StringTables
                 return true;
             }
 
-            ret = default;
+            ret = 0;
             return false;
         }
 
+        /// <summary>
+        /// Searches the trie for a prefix
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns>The indices that match the prefix</returns>
         public IEnumerable<uint> Search(ReadOnlySpan<T> prefix)
         {
             var isValid = true;

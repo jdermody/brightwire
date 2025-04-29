@@ -451,7 +451,7 @@ namespace BrightData.Types
 
         public WeightedIndexList Normalize(NormalisationModel model)
         {
-            return Create(Indices.Select(x => new Item(x.Index, (float)model.Normalize(x.Weight))));
+            return Create(Indices.Select(x => x with { Weight = (float)model.Normalize(x.Weight) }));
         }
 
         /// <summary>

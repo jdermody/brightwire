@@ -10,19 +10,14 @@ namespace BrightData
 
     }
 
-    public interface IGraph<out T> : IGraph
+    public interface IGraph<T> : IGraph
         where T: unmanaged
     {
-        /// <summary>
-        /// Returns the value associated with the node
-        /// </summary>
-        /// <param name="nodeIndex"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        //bool TryGetValue(uint nodeIndex, [NotNullWhen(true)] out T? value);
+        //IEnumerable<T> DepthFirstSearch(T start);
+        //IEnumerable<T> BreadthFirstSearch(T start);
     }
 
-    public interface IBuildGraphs<T>
+    public interface IBuildGraphs<in T>
         where T: unmanaged
     {
         /// <summary>
@@ -108,7 +103,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="W"></typeparam>
-    public interface IWeightedGraph<out T, W> : IGraph<T>
+    public interface IWeightedGraph<T, W> : IGraph<T>
         where T: unmanaged, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {

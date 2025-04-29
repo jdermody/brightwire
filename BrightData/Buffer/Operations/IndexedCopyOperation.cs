@@ -27,7 +27,7 @@ namespace BrightData.Buffer.Operations
 
             Guid? id = null;
             if (notify is not null) {
-                id = new Guid();
+                id = Guid.NewGuid();
                 notify.OnStartOperation(id.Value, msg);
             }
 

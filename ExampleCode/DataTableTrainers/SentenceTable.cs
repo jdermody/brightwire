@@ -77,7 +77,7 @@ namespace ExampleCode.DataTableTrainers
 
             for (var i = 0; i < count; i++) {
                 var sb = new StringBuilder();
-                uint prevPrev = default, prev = default, curr = default;
+                uint prevPrev = 0, prev = 0, curr = 0;
                 for (var j = 0; j < 1024; j++) {
                     var transitions = table.GetTransitions(prevPrev, prev, curr);
                     if (transitions == null)
