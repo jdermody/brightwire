@@ -5,11 +5,18 @@ using System.Numerics;
 
 namespace BrightData
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IGraph : IHaveSize
     {
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IGraph<T> : IGraph
         where T: unmanaged
     {
@@ -17,6 +24,10 @@ namespace BrightData
         //IEnumerable<T> BreadthFirstSearch(T start);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IBuildGraphs<in T>
         where T: unmanaged
     {

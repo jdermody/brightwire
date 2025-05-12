@@ -8,7 +8,8 @@ namespace BrightData.Buffer.ByteBlockReaders
     /// <summary>
     /// Reads from a stream
     /// </summary>
-    /// <param name="stream"></param>
+    /// <param name="stream">Stream to read from</param>
+    /// <param name="shouldDispose">True to dispose the stream when the reader is disposed</param>
     internal class StreamByteBlockReader(Stream stream, bool shouldDispose) : IByteBlockReader
     {
         readonly SemaphoreSlim _semaphore = new(1);

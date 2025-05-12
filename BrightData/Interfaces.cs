@@ -318,7 +318,7 @@ namespace BrightData
         /// <summary>
         /// Gets the total number of possible string indices
         /// </summary>
-        [Obsolete]public uint OutputSize => Size;
+        [Obsolete("Use Size instead")]public uint OutputSize => Size;
 
         /// <summary>
         /// Returns the list of strings, ordered by string index
@@ -615,6 +615,9 @@ namespace BrightData
         uint Offset { get; }
     }
 
+    /// <summary>
+    /// Array of bits
+    /// </summary>
     public interface IBitVector : IHaveSize, IHaveDataAsReadOnlyByteSpan
     {
         /// <summary>

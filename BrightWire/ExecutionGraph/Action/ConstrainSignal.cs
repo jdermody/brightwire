@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Action
         public IGraphData Execute(IGraphData input, IGraphContext context, NodeBase node)
         {
             var matrix = input.GetMatrix();
-            matrix.ConstrainInPlace(min, max);
+            matrix.ConstrainInPlace(_min, _max);
             return input;
         }
 

@@ -15,6 +15,9 @@ namespace BrightData.Helper
         readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         readonly HashSet<T> _hashSet = capacity.HasValue ? new(capacity.Value) : [];
 
+        /// <summary>
+        /// Finalizer
+        /// </summary>
         ~ThreadSafeHashSet()
         {
             DisposeInternal();

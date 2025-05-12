@@ -4,6 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Types.Graph
 {
+    /// <summary>
+    /// A dense graph implementation
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public readonly record struct DenseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
         where T : unmanaged
     {
@@ -12,12 +16,21 @@ namespace BrightData.Types.Graph
         readonly T[] _nodes;
         readonly BitVector _edges;
 
+        /// <summary>
+        /// Creates a graph from the given nodes and edges
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="edges"></param>
         public DenseGraph(T[] nodes, BitVector edges)
         {
             _nodes = nodes;
             _edges = edges;
         }
 
+        /// <summary>
+        /// Creates a graph from a serialized byte array
+        /// </summary>
+        /// <param name="data"></param>
         public DenseGraph(ReadOnlySpan<byte> data)
         {
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);
@@ -49,6 +62,13 @@ namespace BrightData.Types.Graph
         /// <inheritdoc />
         public uint Size => (uint)_nodes.Length;
 
+        /// <summary>
+        /// Finds the index of an edge in the adjacency matrix
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="numNodes"></param>
+        /// <returns></returns>
         public static uint GetEdgeIndex(uint from, uint to, uint numNodes) => from * numNodes + to;
 
         public IEnumerable<T> DepthFirstSearch(T start)

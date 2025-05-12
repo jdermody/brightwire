@@ -59,14 +59,14 @@ namespace BrightData.Helper.StringTables
                     this[i] = str[i];
             }
 
-            public int CompareTo(FixedSizePrefixArray other)
+            public readonly int CompareTo(FixedSizePrefixArray other)
             {
                 ReadOnlySpan<T> data = this;
                 ReadOnlySpan<T> data2 = other;
                 return data.SequenceCompareTo(data2);
             }
 
-            public override bool Equals([NotNullWhen(true)] object? obj)
+            public readonly override bool Equals([NotNullWhen(true)] object? obj)
             {
                 if (obj is FixedSizePrefixArray other) {
                     ReadOnlySpan<T> data = this;
@@ -77,7 +77,7 @@ namespace BrightData.Helper.StringTables
             }
 
             [SkipLocalsInit]
-            public override string ToString()
+            public readonly override string ToString()
             {
                 Span<T> buffer = stackalloc T[PREFIX_SIZE];
                 for (var i = 0; i < PREFIX_SIZE; i++)
@@ -85,7 +85,7 @@ namespace BrightData.Helper.StringTables
                 return buffer.ToString();
             }
 
-            public override int GetHashCode()
+            public readonly override int GetHashCode()
             {
                 var hashCode = new HashCode();
                 foreach (var item in this)
@@ -304,6 +304,11 @@ namespace BrightData.Helper.StringTables
             return [];
         }
 
+        /// <summary>
+        /// Finds all possible completions of a prefix
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
         public IReadOnlyList<(T[] Item, uint Index)> Complete(ReadOnlySpan<T> prefix)
         {
             var isValid = true;
