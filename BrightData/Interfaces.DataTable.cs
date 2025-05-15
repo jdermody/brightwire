@@ -308,7 +308,7 @@ namespace BrightData
     /// <typeparam name="T"></typeparam>
     /// <param name="span"></param>
     /// <returns></returns>
-    public delegate Task<ReadOnlyMemory<T>> BlockMapper<FT, T>(ReadOnlyMemory<FT> span);
+    public delegate ValueTask<ReadOnlyMemory<T>> BlockMapper<FT, T>(ReadOnlyMemory<FT> span);
 
     /// <summary>
     /// Provides tensor data

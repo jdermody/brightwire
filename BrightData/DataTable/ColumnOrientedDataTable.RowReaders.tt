@@ -35,7 +35,7 @@ namespace BrightData
 <# for(var j = 0; j < i; j++) { #>
             <#= j #> => Column<#= j+1 #>,
 <# } #>
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
 <# } #>
@@ -151,7 +151,7 @@ namespace BrightData
 <# } #>
 <# for(var j = 2; j <= i; j++) { #>
                 if (block1.Length != block<#= j #>.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block<#= j #>:{block<#= j #>.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block<#= j #>:{block<#= j #>.Length})");
 <# } #>
                 var ret = new TableRow<<#= typeString #>>[block1.Length];
                 Copy(blockIndex * _blockSize, <#= allBlockSpans #>, ret);
@@ -205,7 +205,7 @@ namespace BrightData
                 var len = a1.Length;
 <# for(var j = 2; j <= i; j++) { #>
                 if (len != a<#= j #>.Length)
-                    throw new Exception($"Expected blocks to have same size - block {<#= j #>} had length {a<#= j #>.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {<#= j #>} had length {a<#= j #>.Length} but expected {len}");
 <# } #>
                 var ret = new TableRow<<#= typeString #>>[len];
                 var offset = blockIndex * _blockSize;

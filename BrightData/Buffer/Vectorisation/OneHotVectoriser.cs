@@ -23,7 +23,7 @@ namespace BrightData.Buffer.Vectorisation
             {
                 _table.Add(str, index = (uint)_table.Count);
                 if (index >= buffer.Length)
-                    throw new Exception("Expected max size of vectorisation to be able to handle all possible values");
+                    throw new ArgumentException("Expected max size of vectorisation to be able to handle all possible values", nameof(buffer));
             }
             buffer[(int)index] = 1f;
         }

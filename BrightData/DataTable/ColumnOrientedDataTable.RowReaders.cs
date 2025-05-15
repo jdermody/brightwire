@@ -20,7 +20,7 @@ namespace BrightData
         /// <inheritdoc />
         protected override object Get(uint columnIndex) => columnIndex switch {
             0 => Column1,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -36,7 +36,7 @@ namespace BrightData
         protected override object Get(uint columnIndex) => columnIndex switch {
             0 => Column1,
             1 => Column2,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -53,7 +53,7 @@ namespace BrightData
             0 => Column1,
             1 => Column2,
             2 => Column3,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -71,7 +71,7 @@ namespace BrightData
             1 => Column2,
             2 => Column3,
             3 => Column4,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -90,7 +90,7 @@ namespace BrightData
             2 => Column3,
             3 => Column4,
             4 => Column5,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -110,7 +110,7 @@ namespace BrightData
             3 => Column4,
             4 => Column5,
             5 => Column6,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -131,7 +131,7 @@ namespace BrightData
             4 => Column5,
             5 => Column6,
             6 => Column7,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -153,7 +153,7 @@ namespace BrightData
             5 => Column6,
             6 => Column7,
             7 => Column8,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -176,7 +176,7 @@ namespace BrightData
             6 => Column7,
             7 => Column8,
             8 => Column9,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
     /// <summary>
@@ -200,7 +200,7 @@ namespace BrightData
             7 => Column8,
             8 => Column9,
             9 => Column10,
-            _ => throw new Exception("Column index was out of range")
+            _ => throw new ArgumentOutOfRangeException(nameof(columnIndex), "Column index was out of range")
         };
     }
 }
@@ -458,7 +458,7 @@ namespace BrightData
                 var block1 = b1.Result;
                 var block2 = b2.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 var ret = new TableRow<T1, T2>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, ret);
                 return ret;
@@ -506,7 +506,7 @@ namespace BrightData
                 var a2 = (T2[])b2.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 var ret = new TableRow<T1, T2>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -667,9 +667,9 @@ namespace BrightData
                 var block2 = b2.Result;
                 var block3 = b3.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 var ret = new TableRow<T1, T2, T3>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, ret);
                 return ret;
@@ -721,9 +721,9 @@ namespace BrightData
                 var a3 = (T3[])b3.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -906,11 +906,11 @@ namespace BrightData
                 var block3 = b3.Result;
                 var block4 = b4.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 var ret = new TableRow<T1, T2, T3, T4>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, ret);
                 return ret;
@@ -966,11 +966,11 @@ namespace BrightData
                 var a4 = (T4[])b4.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -1175,13 +1175,13 @@ namespace BrightData
                 var block4 = b4.Result;
                 var block5 = b5.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, ret);
                 return ret;
@@ -1241,13 +1241,13 @@ namespace BrightData
                 var a5 = (T5[])b5.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -1474,15 +1474,15 @@ namespace BrightData
                 var block5 = b5.Result;
                 var block6 = b6.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, ret);
                 return ret;
@@ -1546,15 +1546,15 @@ namespace BrightData
                 var a6 = (T6[])b6.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 if (len != a6.Length)
-                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -1803,17 +1803,17 @@ namespace BrightData
                 var block6 = b6.Result;
                 var block7 = b7.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 if (block1.Length != block7.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, ret);
                 return ret;
@@ -1881,17 +1881,17 @@ namespace BrightData
                 var a7 = (T7[])b7.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 if (len != a6.Length)
-                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 if (len != a7.Length)
-                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -2162,19 +2162,19 @@ namespace BrightData
                 var block7 = b7.Result;
                 var block8 = b8.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 if (block1.Length != block7.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 if (block1.Length != block8.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, ret);
                 return ret;
@@ -2246,19 +2246,19 @@ namespace BrightData
                 var a8 = (T8[])b8.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 if (len != a6.Length)
-                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 if (len != a7.Length)
-                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
                 if (len != a8.Length)
-                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -2551,21 +2551,21 @@ namespace BrightData
                 var block8 = b8.Result;
                 var block9 = b9.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 if (block1.Length != block7.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 if (block1.Length != block8.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
                 if (block1.Length != block9.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, ret);
                 return ret;
@@ -2641,21 +2641,21 @@ namespace BrightData
                 var a9 = (T9[])b9.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 if (len != a6.Length)
-                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 if (len != a7.Length)
-                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
                 if (len != a8.Length)
-                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
                 if (len != a9.Length)
-                    throw new Exception($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)
@@ -2970,23 +2970,23 @@ namespace BrightData
                 var block9 = b9.Result;
                 var block10 = b10.Result;
                 if (block1.Length != block2.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block2:{block2.Length})");
                 if (block1.Length != block3.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block3:{block3.Length})");
                 if (block1.Length != block4.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block4:{block4.Length})");
                 if (block1.Length != block5.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block5:{block5.Length})");
                 if (block1.Length != block6.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block6:{block6.Length})");
                 if (block1.Length != block7.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block7:{block7.Length})");
                 if (block1.Length != block8.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block8:{block8.Length})");
                 if (block1.Length != block9.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block9:{block9.Length})");
                 if (block1.Length != block10.Length)
-                    throw new Exception($"Expected all blocks to have same size (block1:{block1.Length} vs block10:{block10.Length})");
+                    throw new InvalidOperationException($"Expected all blocks to have same size (block1:{block1.Length} vs block10:{block10.Length})");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[block1.Length];
                 Copy(blockIndex * _blockSize, block1.Span, block2.Span, block3.Span, block4.Span, block5.Span, block6.Span, block7.Span, block8.Span, block9.Span, block10.Span, ret);
                 return ret;
@@ -3066,23 +3066,23 @@ namespace BrightData
                 var a10 = (T10[])b10.Result;
                 var len = a1.Length;
                 if (len != a2.Length)
-                    throw new Exception($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {2} had length {a2.Length} but expected {len}");
                 if (len != a3.Length)
-                    throw new Exception($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {3} had length {a3.Length} but expected {len}");
                 if (len != a4.Length)
-                    throw new Exception($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {4} had length {a4.Length} but expected {len}");
                 if (len != a5.Length)
-                    throw new Exception($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {5} had length {a5.Length} but expected {len}");
                 if (len != a6.Length)
-                    throw new Exception($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {6} had length {a6.Length} but expected {len}");
                 if (len != a7.Length)
-                    throw new Exception($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {7} had length {a7.Length} but expected {len}");
                 if (len != a8.Length)
-                    throw new Exception($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {8} had length {a8.Length} but expected {len}");
                 if (len != a9.Length)
-                    throw new Exception($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {9} had length {a9.Length} but expected {len}");
                 if (len != a10.Length)
-                    throw new Exception($"Expected blocks to have same size - block {10} had length {a10.Length} but expected {len}");
+                    throw new InvalidOperationException($"Expected blocks to have same size - block {10} had length {a10.Length} but expected {len}");
                 var ret = new TableRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[len];
                 var offset = blockIndex * _blockSize;
                 for (uint i = 0; i < len; i++)

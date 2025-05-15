@@ -46,7 +46,7 @@ namespace BrightData.Helper.StringTables
                         if (lookup.TryGetValue(lowerStr, out ret))
                             return ret;
                         if (!lookup.TryAdd(lowerStr, ret = (uint)_index.Count))
-                            throw new Exception($"Not able to add {lowerStr} to dictionary");
+                            throw new ArgumentException($"Not able to add {lowerStr} to dictionary");
                     }
                 }
                 return ret;
@@ -60,7 +60,7 @@ namespace BrightData.Helper.StringTables
                 if (_index.TryGetValue(str2, out ret))
                     return ret;
                 if (!_index.TryAdd(str2, ret = (uint)_index.Count))
-                    throw new Exception($"Not able to add {str2} to dictionary");
+                    throw new ArgumentException($"Not able to add {str2} to dictionary");
             }
             return ret;
         }

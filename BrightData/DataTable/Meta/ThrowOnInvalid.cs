@@ -15,7 +15,7 @@ namespace BrightData.DataTable.Meta
         public bool Allow(in T item)
         {
             if (!predicate(item))
-                throw new Exception($"Failed constraint validation: {item}");
+                throw new ArgumentException($"Failed constraint validation: {item}", nameof(item));
             return true;
         }
     }

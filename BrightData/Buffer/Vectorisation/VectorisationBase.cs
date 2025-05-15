@@ -23,7 +23,7 @@ namespace BrightData.Buffer.Vectorisation
         public async Task WriteBlock(IReadOnlyBuffer buffer, uint blockIndex, uint offset, float[,] output)
         {
             if (buffer is not IReadOnlyBuffer<T> typedBuffer)
-                throw new Exception($"Expected read only buffer of {typeof(T)}");
+                throw new ArgumentException($"Expected read only buffer of {typeof(T)}", nameof(buffer));
             var block = await typedBuffer.GetTypedBlock(blockIndex);
             WriteBlock(block.Span, offset, output.AsSpan2D());
         }
@@ -50,11 +50,11 @@ namespace BrightData.Buffer.Vectorisation
         {
             var type = (VectorisationType)metaData.Get(Consts.VectorisationType, (byte)VectorisationType.Unknown);
             if (type != VectorisationType.Unknown && type != Type)
-                throw new Exception($"Previously created vectorisation differs from current vectorisation type (previous: {type}, current: {Type})");
+                throw new ArgumentException($"Previously created vectorisation differs from current vectorisation type (previous: {type}, current: {Type})");
 
             var size = metaData.Get(Consts.VectorisationSize, (uint)0);
             if (size > 0 && size != OutputSize)
-                throw new Exception($"Previously created vectorisation differs from current vectorisation size (previous: {size}, current: {OutputSize})");
+                throw new ArgumentException($"Previously created vectorisation differs from current vectorisation size (previous: {size}, current: {OutputSize})");
         }
 
         public virtual void WriteTo(MetaData metaData)

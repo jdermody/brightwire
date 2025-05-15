@@ -33,7 +33,7 @@ namespace BrightData.Helper.StringTables
             foreach (var str in stringIndexer.OrderedStrings) {
                 var offset = (uint)_dataWriter.WrittenCount;
                 if (!Encoding.UTF8.TryGetBytes(str, buffer, out var size))
-                    throw new Exception($"String was too large to encode in {maxStringSizeInBytes:N0} bytes: \"{str[..32]}...\" ({str.Length} characters)");
+                    throw new ArgumentException($"String was too large to encode in {maxStringSizeInBytes:N0} bytes: \"{str[..32]}...\" ({str.Length} characters)");
                 _dataWriter.Write(buffer[..size]);
                 _stringTable.Write(new OffsetAndSize(offset, (uint)size));
             }

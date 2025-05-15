@@ -143,7 +143,7 @@ namespace BrightData.LinearAlgebra
         public virtual IVector<T> GetDiagonal()
         {
             if (RowCount != ColumnCount)
-                throw new Exception("Diagonal can only be found from square matrices");
+                throw new InvalidOperationException("Diagonal can only be found from square matrices");
             return Lap.CreateVector(RowCount, i => this[i, i]);
         }
 
@@ -173,7 +173,7 @@ namespace BrightData.LinearAlgebra
         public virtual IMatrix<T> Multiply(IMatrix<T> other)
         {
             if (ColumnCount != other.RowCount)
-                throw new Exception("Matrix sizes do not agree");
+                throw new ArgumentException("Matrix sizes do not agree");
 
             // transpose so that we can get contiguous vectors
             using var transposedThis = Transpose();
@@ -184,7 +184,7 @@ namespace BrightData.LinearAlgebra
         public virtual IMatrix<T> TransposeAndMultiply(IMatrix<T> other)
         {
             if (ColumnCount != other.ColumnCount)
-                throw new Exception("Matrix sizes do not agree");
+                throw new ArgumentException("Matrix sizes do not agree");
             using var transposed = other.Transpose();
             return Multiply(transposed);
         }
@@ -193,7 +193,7 @@ namespace BrightData.LinearAlgebra
         public virtual IMatrix<T> TransposeThisAndMultiply(IMatrix<T> other)
         {
             if (RowCount != other.RowCount)
-                throw new Exception("Matrix sizes do not agree");
+                throw new ArgumentException("Matrix sizes do not agree");
             return MultiplyWithThisTransposed(Lap, this, other);
         }
 

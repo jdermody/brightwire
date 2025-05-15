@@ -414,7 +414,7 @@ namespace BrightData
             var ret       = new T[size];
             var bytesRead = stream.Read(MemoryMarshal.AsBytes(ret.AsSpan()));
             if (bytesRead != Unsafe.SizeOf<T>() * size)
-                throw new Exception("Unexpected end of file");
+                throw new ArgumentException("Unexpected end of file", nameof(stream));
             return ret;
         }
 
@@ -655,7 +655,7 @@ namespace BrightData
             if (DateTime.TryParseExact(str, "yyyyMMdd", formatInfo, styles, out ret))
                 return ret;
 
-            throw new Exception($"{str} was not recognised as a valid date");
+            throw new ArgumentException($"{str} was not recognised as a valid date");
         }
 
         /// <summary>
@@ -769,7 +769,7 @@ namespace BrightData
             await using var enumerator = items.GetAsyncEnumerator();
             if (await enumerator.MoveNextAsync())
                 return enumerator.Current;
-            throw new Exception("Enumerator contained no elements");
+            throw new ArgumentException("Enumerator contained no elements");
         }
 
         /// <summary>

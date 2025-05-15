@@ -771,7 +771,7 @@ namespace BrightData.LinearAlgebra
         protected static uint GetSize(IReadOnlyNumericSegment<T> tensor, IReadOnlyNumericSegment<T> tensor2)
         {
             if (tensor.Size != tensor2.Size)
-                throw new Exception("Expected tensors to have same size");
+                throw new ArgumentException("Expected tensors to have same size");
             return tensor.Size;
         }
 

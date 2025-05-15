@@ -22,8 +22,8 @@ namespace Benchmarks
         public void GlobalSetup()
         {
             _dataContext = new BrightDataContext();
-            _housePricesParquet = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.parquet") ?? throw new Exception($"Not able to find embedded resource");
-            _housePricesDataTable = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.dat") ?? throw new Exception($"Not able to find embedded resource");
+            _housePricesParquet = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.parquet") ?? throw new InvalidOperationException($"Not able to find embedded resource");
+            _housePricesDataTable = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.dat") ?? throw new InvalidOperationException($"Not able to find embedded resource");
         }
 
         public async Task SaveDataTable(string outputPath)

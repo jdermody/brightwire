@@ -299,7 +299,7 @@ namespace BrightData
                 return await context.BuildDataTable(metaData, buffers, fileOutputPath);
             }
 
-            throw new Exception("Invalid CSV");
+            throw new ArgumentException("Invalid CSV", nameof(reader));
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace BrightData
         /// <returns></returns>
         public static uint GetTargetColumnOrThrow(this IDataTable table)
         {
-            return GetTargetColumn(table) ?? throw new Exception("No target column was set on the table");
+            return GetTargetColumn(table) ?? throw new ArgumentException("No target column was set on the table");
         }
 
         /// <summary>
@@ -1655,7 +1655,7 @@ namespace BrightData
                     foreach (var item in result) {
                         var type = item.GetType().GetBrightDataType();
                         if (type == BrightDataType.Unknown)
-                            throw new Exception($"{item.GetType()} cannot be stored in a data table");
+                            throw new ArgumentException($"{item.GetType()} cannot be stored in a data table");
                         builder.CreateColumn(type);
                     }
                     isFirst = false;

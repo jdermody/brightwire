@@ -22,7 +22,7 @@ namespace BrightData.Helper
             var ret = Activator.CreateInstance(type, args);
             return ret != null
                 ? (T)ret
-                : throw new Exception($"Could not create object of type: {type}")
+                : throw new ArgumentException($"Could not create object of type: {type}", nameof(type))
             ;
         }
 

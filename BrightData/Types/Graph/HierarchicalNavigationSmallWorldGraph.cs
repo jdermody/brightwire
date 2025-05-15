@@ -88,7 +88,7 @@ namespace BrightData.Types.Graph
         /// <exception cref="Exception"></exception>
         public AT KnnSearch(uint q, ICalculateNodeWeights<W> distanceCalculator)
         {
-            var entryPoint = _entryPoint ?? throw new Exception("No nodes in graph");
+            var entryPoint = _entryPoint ?? throw new InvalidOperationException("No nodes in graph");
             for (var i = (int)entryPoint.LayerIndex; i > 0; i--) {
                 var layer = _layers[i];
                 var w = layer.ProbabilisticSearch<AT, BLAT>(q, entryPoint.Index, distanceCalculator);

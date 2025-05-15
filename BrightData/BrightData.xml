@@ -644,13 +644,15 @@
             <summary>
             Reads from a stream
             </summary>
-            <param name="stream"></param>
+            <param name="stream">Stream to read from</param>
+            <param name="shouldDispose">True to dispose the stream when the reader is disposed</param>
         </member>
         <member name="M:BrightData.Buffer.ByteBlockReaders.StreamByteBlockReader.#ctor(System.IO.Stream,System.Boolean)">
             <summary>
             Reads from a stream
             </summary>
-            <param name="stream"></param>
+            <param name="stream">Stream to read from</param>
+            <param name="shouldDispose">True to dispose the stream when the reader is disposed</param>
         </member>
         <member name="T:BrightData.Buffer.Composite.CompositeBufferBase`2">
             <summary>
@@ -6887,6 +6889,20 @@
             File based string table that has been created with InMemoryStringTableBuilder
             </summary>
         </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.Create(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Creates a string table from bytes
+            </summary>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.StringTable.Create(System.String)">
+            <summary>
+            Creates a string table from a file
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
         <member name="P:BrightData.Helper.StringTables.StringTable.ReadOnlyMemory">
             <inheritdoc />
         </member>
@@ -7000,12 +7016,33 @@
             </summary>
             <param name="data"></param>
         </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Load(System.String)">
+            <summary>
+            Loads a string trie from a file
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.TryGetIndex(System.ReadOnlySpan{`0},System.UInt32@)">
             <summary>
             Searches the trie for an index from the specified string
             </summary>
             <param name="str"></param>
             <param name="ret"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Search(System.ReadOnlySpan{`0})">
+            <summary>
+            Searches the trie for a prefix
+            </summary>
+            <param name="prefix"></param>
+            <returns>The indices that match the prefix</returns>
+        </member>
+        <member name="M:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.Complete(System.ReadOnlySpan{`0})">
+            <summary>
+            Finds all possible completions of a prefix
+            </summary>
+            <param name="prefix"></param>
             <returns></returns>
         </member>
         <member name="P:BrightData.Helper.StringTables.UniqueIndexedStringTrie`1.DataAsBytes">
@@ -7034,6 +7071,11 @@
             A hash set that can be used by more than one thread
             </summary>
             <typeparam name="T">The wrapped type</typeparam>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeHashSet`1.Finalize">
+            <summary>
+            Finalizer
+            </summary>
         </member>
         <member name="M:BrightData.Helper.ThreadSafeHashSet`1.Dispose">
             <inheritdoc />
@@ -7901,6 +7943,11 @@
         <member name="P:BrightData.IHaveOffset.Offset">
             <summary>
             Offset into a buffer
+            </summary>
+        </member>
+        <member name="T:BrightData.IBitVector">
+            <summary>
+            Array of bits
             </summary>
         </member>
         <member name="P:BrightData.IBitVector.Item(System.Int32)">
@@ -9029,6 +9076,23 @@
             <param name="columns">Number of columns</param>
             <param name="name">New column name</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.IGraph">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:BrightData.IGraph`1">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.IBuildGraphs`1">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="M:BrightData.IBuildGraphs`1.Add(`0)">
             <summary>
@@ -19343,11 +19407,39 @@
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Types.Graph.DenseGraph`1">
+            <summary>
+            A dense graph implementation
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.DenseGraph`1.#ctor(`0[],BrightData.Types.BitVector)">
+            <summary>
+            Creates a graph from the given nodes and edges
+            </summary>
+            <param name="nodes"></param>
+            <param name="edges"></param>
+        </member>
+        <member name="M:BrightData.Types.Graph.DenseGraph`1.#ctor(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Creates a graph from a serialized byte array
+            </summary>
+            <param name="data"></param>
+        </member>
         <member name="P:BrightData.Types.Graph.DenseGraph`1.DataAsBytes">
             <inheritdoc />
         </member>
         <member name="P:BrightData.Types.Graph.DenseGraph`1.Size">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DenseGraph`1.GetEdgeIndex(System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Finds the index of an edge in the adjacency matrix
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+            <param name="numNodes"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.Types.Graph.DenseGraphBuilder`1.Add(`0)">
             <inheritdoc />
@@ -19647,6 +19739,12 @@
             </summary>
             <param name="nodeIndex"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.SparseGraph`1.DepthFirstSearch(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.SparseGraph`1.BreadthFirstSearch(`0)">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.SparseGraphBuilder`1">
             <summary>

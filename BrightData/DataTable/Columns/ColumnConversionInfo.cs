@@ -41,7 +41,7 @@ namespace BrightData.DataTable.Columns
         {
             var column = dataTable.GetColumn(ColumnIndex);
             if (column.DataType != typeof(FT))
-                throw new Exception($"Expected column {ColumnIndex} to be of type {typeof(FT)} but found {column.DataType}");
+                throw new ArgumentException($"Expected column {ColumnIndex} to be of type {typeof(FT)} but found {column.DataType}");
             var output = (ICompositeBuffer<TT>)column.DataType.GetBrightDataType().CreateCompositeBuffer();
             var converter = (IReadOnlyBuffer<TT>)GenericTypeMapping.TypeConverter(typeof(TT), column, new CustomConversionFunction<FT, TT>(Converter));
             var conversion = new BufferCopyOperation<TT>(converter, output, null);

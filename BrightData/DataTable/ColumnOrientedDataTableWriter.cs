@@ -30,7 +30,7 @@ namespace BrightData.DataTable
             var firstColumn = buffers[0];
             foreach (var otherColumn in buffers.Skip(1)) {
                 if (firstColumn.Size != otherColumn.Size)
-                    throw new Exception("Columns have different sizes");
+                    throw new ArgumentException("Columns have different sizes", nameof(buffers));
             }
 
             // write the header
@@ -166,10 +166,13 @@ namespace BrightData.DataTable
             var ret = new ColumnOrientedDataTable.Column[buffers.Length];
             var index = 0;
             foreach (var columnSegment in buffers) {
-                ref var c = ref ret[index++];
-                c.DataType = columnSegment.DataType.GetBrightDataType();
-                (_, c.DataTypeSize) = c.DataType.GetColumnType();
-                columnSegment.MetaData.SetType(c.DataType);
+                var dataType = columnSegment.DataType.GetBrightDataType();
+                var (_, dataTypeSize) = dataType.GetColumnType();
+                ret[index++] = new ColumnOrientedDataTable.Column {
+                    DataType = dataType,
+                    DataTypeSize = dataTypeSize
+                };
+                columnSegment.MetaData.SetType(dataType);
                 columnSegment.MetaData.WriteTo(metaDataWriter);
             }
             return ret;

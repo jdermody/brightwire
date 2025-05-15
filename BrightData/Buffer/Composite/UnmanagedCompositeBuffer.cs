@@ -90,7 +90,7 @@ namespace BrightData.Buffer.Composite
             // then from the current block
             if (_currBlock is not null && currentIndex == blockIndex)
                 return _currBlock.WrittenMemory;
-            throw new Exception("Unexpected");
+            throw new InvalidOperationException("Unexpected");
         }
 
         public override void Append(ReadOnlySpan<T> inputBlock)

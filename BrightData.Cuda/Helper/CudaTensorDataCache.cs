@@ -38,7 +38,7 @@ namespace BrightData.Cuda.Helper
             return new(lap, table, tensorData);
         }
 
-        Task<ReadOnlyMemory<ReadOnlyVector<float>>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
+        ValueTask<ReadOnlyMemory<ReadOnlyVector<float>>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var index = 0;
             var ret = new ReadOnlyVector<float>[block.Length];
@@ -47,10 +47,10 @@ namespace BrightData.Cuda.Helper
                 var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment);
             }
-            return Task.FromResult(new ReadOnlyMemory<ReadOnlyVector<float>>(ret));
+            return ValueTask.FromResult(new ReadOnlyMemory<ReadOnlyVector<float>>(ret));
         }
 
-        Task<ReadOnlyMemory<ReadOnlyMatrix<float>>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
+        ValueTask<ReadOnlyMemory<ReadOnlyMatrix<float>>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
         {
             var index = 0;
             var ret = new ReadOnlyMatrix<float>[block.Length];
@@ -59,10 +59,10 @@ namespace BrightData.Cuda.Helper
                 var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.RowCount, item.ColumnCount);
             }
-            return Task.FromResult(new ReadOnlyMemory<ReadOnlyMatrix<float>>(ret));
+            return ValueTask.FromResult(new ReadOnlyMemory<ReadOnlyMatrix<float>>(ret));
         }
 
-        Task<ReadOnlyMemory<ReadOnlyTensor3D<float>>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
+        ValueTask<ReadOnlyMemory<ReadOnlyTensor3D<float>>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
         {
             var index = 0;
             var ret = new ReadOnlyTensor3D<float>[block.Length];
@@ -71,10 +71,10 @@ namespace BrightData.Cuda.Helper
                 var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.Depth, item.RowCount, item.ColumnCount);
             }
-            return Task.FromResult(new ReadOnlyMemory<ReadOnlyTensor3D<float>>(ret));
+            return ValueTask.FromResult(new ReadOnlyMemory<ReadOnlyTensor3D<float>>(ret));
         }
 
-        Task<ReadOnlyMemory<ReadOnlyTensor4D<float>>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
+        ValueTask<ReadOnlyMemory<ReadOnlyTensor4D<float>>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
         {
             var index = 0;
             var ret = new ReadOnlyTensor4D<float>[block.Length];
@@ -83,7 +83,7 @@ namespace BrightData.Cuda.Helper
                 var segment = new CudaTensorSegment(devicePtr, _lap.Provider);
                 ret[index++] = new(segment, item.Count, item.Depth, item.RowCount, item.ColumnCount);
             }
-            return Task.FromResult(new ReadOnlyMemory<ReadOnlyTensor4D<float>>(ret));
+            return ValueTask.FromResult(new ReadOnlyMemory<ReadOnlyTensor4D<float>>(ret));
         }
 
         /// <inheritdoc />

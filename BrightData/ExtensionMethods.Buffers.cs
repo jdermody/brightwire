@@ -1052,7 +1052,7 @@ namespace BrightData
                     await metaData.Analyse(false, buffer).Execute();
                     size = metaData.GetIndexAnalysis().MaxIndex ?? 0;
                     if (size == 0)
-                        throw new Exception("Expected to find a max index size");
+                        throw new ArgumentException("Expected to find a max index size", nameof(metaData));
                 }
 
                 if(buffer.DataType == typeof(IndexList))
@@ -1069,7 +1069,7 @@ namespace BrightData
                     await metaData.Analyse(false, buffer).Execute();
                     size = metaData.Get<uint>(Consts.NumDistinct, 0);
                     if (size == 0)
-                        throw new Exception("Expected to find a distinct size of items");
+                        throw new ArgumentException("Expected to find a distinct size of items", nameof(metaData));
                 }
 
                 return GenericTypeMapping.OneHotVectoriser(buffer.DataType, size);
@@ -1082,7 +1082,7 @@ namespace BrightData
                     await metaData.Analyse(false, buffer).Execute();
                     size = metaData.GetDimensionAnalysis().Size;
                     if (size == 0)
-                        throw new Exception("Expected to find non empty tensors");
+                        throw new ArgumentException("Expected to find non empty tensors", nameof(metaData));
                 }
 
                 return CreateTensorVectoriser(buffer.DataType, size);

@@ -12,10 +12,10 @@ namespace BrightWire.ExecutionGraph.Node.Attention
     internal class SimpleAttention : NodeBase
     {
         LinearAlgebraProvider<float> _lap;
-        string _encoderName, _decoderName;
-        uint _inputSize, _encoderSize, _decoderSize, _blockSize;
+        string                       _encoderName, _decoderName;
+        uint                         _inputSize, _encoderSize, _decoderSize, _blockSize;
         IGradientDescentOptimisation _updater;
-        IMatrix<float> _attention;
+        IMatrix<float>               _attention;
 
         class Backpropagation(SimpleAttention source, uint position, uint sequenceSize, IMatrix<float> inputMatrix, INumericSegment<float>[] softmax)
             : SingleBackpropagationBase<SimpleAttention>(source)
@@ -67,14 +67,14 @@ namespace BrightWire.ExecutionGraph.Node.Attention
             string? id = null
         ) : base(name, id)
         {
-            _lap = lap;
+            _lap         = lap;
             _encoderName = encoderName;
             _decoderName = decoderName;
-            _inputSize = inputSize;
+            _inputSize   = inputSize;
             _encoderSize = encoderSize;
             _decoderSize = decoderSize;
-            _attention = weightInit.CreateWeight(1, _blockSize = _inputSize + _encoderSize + _decoderSize);
-            _updater = updater(_attention);
+            _attention   = weightInit.CreateWeight(1, _blockSize = _inputSize + _encoderSize + _decoderSize);
+            _updater     = updater(_attention);
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphContext context, NodeBase? source)

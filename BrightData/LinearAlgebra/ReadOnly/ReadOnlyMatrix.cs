@@ -109,7 +109,7 @@ namespace BrightData.LinearAlgebra.ReadOnly
         {
             var size = reader.ReadInt32();
             if (size != 2)
-                throw new Exception("Unexpected array size");
+                throw new ArgumentException("Unexpected array size");
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
             ReadOnlySegment = new ReadOnlyTensorSegment<T>(reader.BaseStream.ReadArray<T>(ColumnCount * RowCount));

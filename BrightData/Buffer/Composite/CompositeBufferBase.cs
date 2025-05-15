@@ -183,7 +183,7 @@ namespace BrightData.Buffer.Composite
             // then from the current block
             if (_currBlock is not null && currentIndex == blockIndex)
                 return _currBlock.WrittenMemory;
-            throw new Exception("Unexpected - failed to find block");
+            throw new InvalidOperationException("Unexpected - failed to find block");
         }
 
         public virtual void Append(in T item)

@@ -125,7 +125,7 @@ namespace BrightData.Types
         {
             if (_values.TryGetValue(name, out var obj))
                 return (T)obj;
-            throw new Exception("Named value not found");
+            throw new ArgumentException("Named value not found");
         }
 
         /// <summary>

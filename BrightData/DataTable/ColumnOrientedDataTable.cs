@@ -24,11 +24,11 @@ namespace BrightData.DataTable
     internal class ColumnOrientedDataTable : IDataTable, ITensorDataProvider
     {
         const int ReaderBlockSize = 128;
-        internal struct Column
+        internal readonly struct Column
         {
-            public BrightDataType DataType;
-            public uint DataTypeSize;
-            public readonly override string ToString() => $"{DataType} ({DataTypeSize})";
+            public BrightDataType DataType { get; init; }
+            public uint DataTypeSize { get; init; }
+            public override string ToString() => $"{DataType} ({DataTypeSize})";
         }
         protected readonly IByteBlockReader                      _reader;
         protected readonly TableHeader                           _header;
@@ -52,11 +52,11 @@ namespace BrightData.DataTable
             _header = header;
             _columns = columns;
             if (_header.Orientation != DataTableOrientation.ColumnOriented)
-                throw new ArgumentException("Expected to read a column oriented table");
+                throw new ArgumentException("Expected to read a column oriented table", nameof(header));
             if (_header.ColumnCount == 0)
-                throw new Exception("Expected data table to contain at least one column");
+                throw new ArgumentException("Expected data table to contain at least one column", nameof(header));
             if (_header.RowCount == 0)
-                throw new Exception("Expected data table to contain at least one row");
+                throw new ArgumentException("Expected data table to contain at least one row", nameof(header));
 
             // default tensor creators
             _vectorMapper   = GetVectors;
@@ -69,7 +69,7 @@ namespace BrightData.DataTable
             for(var i = 0; i < ColumnCount; i++)
                 ColumnTypes[i] = _columns[i].DataType;
 
-            // read the meta data
+            // read the metadata
             _columnMetaData = new MetaData[ColumnCount];
             var metadataReader = new BinaryReader(metaData.AsStream(), Encoding.UTF8, true);
             for (var i = 0; i < ColumnCount + 1; i++) {
@@ -139,49 +139,49 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        protected async Task<ReadOnlyMemory<string>> GetStrings(ReadOnlyMemory<uint> block)
+        protected async ValueTask<ReadOnlyMemory<string>> GetStrings(ReadOnlyMemory<uint> block)
         {
             var data = await GetStringData();
             return Copy(block, (in uint item) => data[(int)item]);
         }
 
-        protected async Task<ReadOnlyMemory<BinaryData>> GetBinaryData(ReadOnlyMemory<DataRangeColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<BinaryData>> GetBinaryData(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var data = await GetBinaryData();
             return Copy(block, (in DataRangeColumnType item) => new BinaryData(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
-        protected async Task<ReadOnlyMemory<ReadOnlyVector<float>>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<ReadOnlyVector<float>>> GetVectors(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var data = await GetTensorData();
             return Copy(block, (in DataRangeColumnType item) => new ReadOnlyVector<float>(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
-        protected async Task<ReadOnlyMemory<ReadOnlyMatrix<float>>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<ReadOnlyMatrix<float>>> GetMatrices(ReadOnlyMemory<MatrixColumnType> block)
         {
             var data = await GetTensorData();
             return Copy(block, (in MatrixColumnType item) => new ReadOnlyMatrix<float>(data.Slice((int)item.StartIndex, (int)item.Size), item.RowCount, item.ColumnCount));
         }
 
-        protected async Task<ReadOnlyMemory<ReadOnlyTensor3D<float>>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<ReadOnlyTensor3D<float>>> Get3DTensors(ReadOnlyMemory<Tensor3DColumnType> block)
         {
             var data = await GetTensorData();
             return Copy(block, (in Tensor3DColumnType item) => new ReadOnlyTensor3D<float>(data.Slice((int)item.StartIndex, (int)item.Size), item.Depth, item.RowCount, item.ColumnCount));
         }
 
-        protected async Task<ReadOnlyMemory<ReadOnlyTensor4D<float>>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<ReadOnlyTensor4D<float>>> Get4DTensors(ReadOnlyMemory<Tensor4DColumnType> block)
         {
             var data = await GetTensorData();
             return Copy(block, (in Tensor4DColumnType item) => new ReadOnlyTensor4D<float>(data.Slice((int)item.StartIndex, (int)item.Size), item.Count, item.Depth, item.RowCount, item.ColumnCount));
         }
 
-        protected async Task<ReadOnlyMemory<IndexList>> GetIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<IndexList>> GetIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var data = await GetIndices();
             return Copy(block, (in DataRangeColumnType item) => new IndexList(data.Slice((int)item.StartIndex, (int)item.Size)));
         }
 
-        protected async Task<ReadOnlyMemory<WeightedIndexList>> GetWeightedIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
+        protected async ValueTask<ReadOnlyMemory<WeightedIndexList>> GetWeightedIndexLists(ReadOnlyMemory<DataRangeColumnType> block)
         {
             var data = await GetWeightedIndices();
             return Copy(block, (in DataRangeColumnType item) => new WeightedIndexList(data.Slice((int)item.StartIndex, (int)item.Size)));

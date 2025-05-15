@@ -85,7 +85,7 @@ namespace BrightData.Buffer
             // then from the current block
             if (_currBlock is not null && currentIndex == blockIndex)
                 return Task.FromResult(_currBlock.WrittenMemory);
-            throw new Exception("Unexpected - failed to find block");
+            throw new InvalidOperationException("Unexpected - failed to find block");
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
