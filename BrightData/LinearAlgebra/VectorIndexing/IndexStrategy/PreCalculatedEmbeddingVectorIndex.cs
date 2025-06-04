@@ -1,10 +1,7 @@
 ﻿using BrightData.LinearAlgebra.VectorIndexing.Storage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 {

@@ -142,7 +142,7 @@ namespace BrightData.UnitTests
             }
         }
 
-        WeightedIndexList GetWordCount(IEnumerable<string> words, Dictionary<string, uint> stringTable)
+        static WeightedIndexList GetWordCount(IEnumerable<string> words, Dictionary<string, uint> stringTable)
         {
             return WeightedIndexList.Create(GetStringIndices(words, stringTable).GroupBy(w => w).Select(g => new WeightedIndexList.Item(g.Key, g.Count())));
         }

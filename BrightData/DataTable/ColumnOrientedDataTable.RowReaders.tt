@@ -112,7 +112,7 @@ namespace BrightData
                 BlockSizes = input1.BlockSizes;
 <# for(var j = 2; j <= i; j++) { #>
                 if (!BlockSizes.SequenceEqual(input<#= j #>.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
 <# } #>
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];

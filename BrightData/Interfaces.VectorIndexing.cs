@@ -13,7 +13,12 @@ namespace BrightData
         /// <summary>
         /// Vectors are stored in memory
         /// </summary>
-        InMemory
+        InMemory,
+
+        /// <summary>
+        /// Vectors are stored on disk
+        /// </summary>
+        OnDisk
     }
 
     /// <summary>

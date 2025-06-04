@@ -13,9 +13,6 @@ namespace BrightData.Helper.StringTables
     /// </summary>
     public class StringTable(ReadOnlyMemory<OffsetAndSize> stringTable, ReadOnlyMemory<byte> stringData) : IStringTableInMemory, IHaveMemory<byte>
     {
-        readonly ReadOnlyMemory<OffsetAndSize> _stringTable = stringTable;
-        readonly ReadOnlyMemory<byte> _stringData = stringData;
-
         /// <summary>
         /// Creates a string table from bytes
         /// </summary>
@@ -42,21 +39,21 @@ namespace BrightData.Helper.StringTables
 
         /// <inheritdoc />
         public ReadOnlyMemory<byte> ReadOnlyMemory => BlockHeader.Combine(ReadOnlyMultiTypeSpanTuple.Create(
-            _stringTable.Span,
-            _stringData.Span
+            stringTable.Span,
+            stringData.Span
         ));
 
         /// <inheritdoc />
         public string GetString(uint stringIndex) => Encoding.UTF8.GetString(GetUtf8(stringIndex));
 
         /// <inheritdoc />
-        public ReadOnlySpan<byte> GetUtf8(uint stringIndex) => _stringTable.Span[(int)stringIndex].GetSpan(_stringData.Span);
+        public ReadOnlySpan<byte> GetUtf8(uint stringIndex) => stringTable.Span[(int)stringIndex].GetSpan(stringData.Span);
 
         /// <inheritdoc />
         public string[] GetAll(int maxStringSize = 1024)
         {
-            var span = _stringTable.Span;
-            var dataSpan = _stringData.Span;
+            var span = stringTable.Span;
+            var dataSpan = stringData.Span;
 
             var ret = new string[Size];
             for (var i = 0U; i < Size; i++)
@@ -65,7 +62,7 @@ namespace BrightData.Helper.StringTables
         }
 
         /// <inheritdoc />
-        public uint Size => (uint)_stringTable.Length;
+        public uint Size => (uint)stringTable.Length;
 
         /// <summary>
         /// Creates a string indexer
@@ -77,8 +74,8 @@ namespace BrightData.Helper.StringTables
         /// <exception cref="NotImplementedException"></exception>
         public Task<IIndexStrings> GetStringIndexer(StringIndexType type = StringIndexType.Dictionary, int maxStringSize = 1024)
         {
-            var span = _stringTable.Span;
-            var dataSpan = _stringData.Span;
+            var span = stringTable.Span;
+            var dataSpan = stringData.Span;
             IIndexStrings ret;
             switch (type) {
                 case StringIndexType.Dictionary: {
@@ -115,8 +112,8 @@ namespace BrightData.Helper.StringTables
             // build the tokenized trie
             using var buffer = SpanOwner<char>.Allocate(maxStringSize);
             var bufferSpan = buffer.Span;
-            var span = _stringTable.Span;
-            var dataSpan = _stringData.Span;
+            var span = stringTable.Span;
+            var dataSpan = stringData.Span;
             var trieBuilder = new UniqueIndexedStringTrie<int>.Builder();
             for (var i = 0U; i < Size; i++) {
                 var utf8 = span[(int)i].GetSpan(dataSpan);

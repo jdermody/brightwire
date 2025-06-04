@@ -22,7 +22,7 @@ namespace BrightData.UnitTests
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
 
-            var firstColumn = result![0];
+            var firstColumn = result[0];
             firstColumn.MetaData.GetName().Should().Be("Name");
             var firstColumnData = await firstColumn.ToArray();
             firstColumnData.Should().NotBeNull();
@@ -57,7 +57,7 @@ namespace BrightData.UnitTests
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
 
-            var firstColumn = result![0];
+            var firstColumn = result[0];
             var firstColumnData = await firstColumn.ToArray();
             firstColumnData.Should().NotBeNull();
             firstColumnData.Should().HaveCount(3);

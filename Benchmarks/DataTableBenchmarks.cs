@@ -1,15 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using BrightData;
 using BrightData.Parquet;
 using Parquet;
 using Parquet.Data;
-using Parquet.Schema;
 
 namespace Benchmarks
 {
@@ -22,8 +16,8 @@ namespace Benchmarks
         public void GlobalSetup()
         {
             _dataContext = new BrightDataContext();
-            _housePricesParquet = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.parquet") ?? throw new InvalidOperationException($"Not able to find embedded resource");
-            _housePricesDataTable = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.dat") ?? throw new InvalidOperationException($"Not able to find embedded resource");
+            _housePricesParquet = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.parquet") ?? throw new InvalidOperationException("Not able to find embedded resource");
+            _housePricesDataTable = Assembly.GetExecutingAssembly().GetManifestResourceStream("Benchmarks.Data.house-price.dat") ?? throw new InvalidOperationException("Not able to find embedded resource");
         }
 
         public async Task SaveDataTable(string outputPath)

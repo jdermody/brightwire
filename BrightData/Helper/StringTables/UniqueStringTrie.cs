@@ -328,8 +328,8 @@ namespace BrightData.Helper.StringTables
                 prefix = prefix[1..];
             }
 
-            var ret = new List<(T[] Item, uint Index)>();
             if (isValid) {
+                var ret = new List<(T[] Item, uint Index)>();
                 var indices = new Stack<(uint Index, T[] Prefix)>();
                 indices.Push((curr.Index, prefixData));
                 if (curr.ValueIndex != uint.MaxValue)
@@ -347,7 +347,7 @@ namespace BrightData.Helper.StringTables
                 }
                 return ret;
             }
-            return ret;
+            return [];
         }
 
         /// <inheritdoc />

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.Analysis;
-using System.Linq;
 
 namespace BrightData.DataFrame
 {
@@ -14,16 +13,16 @@ namespace BrightData.DataFrame
 
                     return (DataFrameColumn)(dataType switch {
                         BrightDataType.Boolean => new BooleanDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<bool>((uint)i).Enumerate()),
-                        BrightDataType.Date => new DateTimeDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<DateTime>((uint)i).Enumerate()),
-                        BrightDataType.Double => new DoubleDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<double>((uint)i).Enumerate()),
+                        BrightDataType.Date    => new DateTimeDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<DateTime>((uint)i).Enumerate()),
+                        BrightDataType.Double  => new DoubleDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<double>((uint)i).Enumerate()),
                         BrightDataType.Decimal => new DecimalDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<decimal>((uint)i).Enumerate()),
-                        BrightDataType.Float => new SingleDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<float>((uint)i).Enumerate()),
-                        BrightDataType.Int => new Int32DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<int>((uint)i).Enumerate()),
-                        BrightDataType.Long => new Int64DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<long>((uint)i).Enumerate()),
-                        BrightDataType.SByte => new SByteDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<sbyte>((uint)i).Enumerate()),
-                        BrightDataType.Short => new Int16DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<short>((uint)i).Enumerate()),
-                        BrightDataType.String => new StringDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<string>((uint)i).Enumerate()),
-                        _ => throw new NotSupportedException($"{dataType} cannot be converted to data frame column")
+                        BrightDataType.Float   => new SingleDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<float>((uint)i).Enumerate()),
+                        BrightDataType.Int     => new Int32DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<int>((uint)i).Enumerate()),
+                        BrightDataType.Long    => new Int64DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<long>((uint)i).Enumerate()),
+                        BrightDataType.SByte   => new SByteDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<sbyte>((uint)i).Enumerate()),
+                        BrightDataType.Short   => new Int16DataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<short>((uint)i).Enumerate()),
+                        BrightDataType.String  => new StringDataFrameColumn(metaData.GetName(defaultName), dataTable.GetColumn<string>((uint)i).Enumerate()),
+                        _                      => throw new NotSupportedException($"{dataType} cannot be converted to data frame column")
                     });
                 })
             );

@@ -67,7 +67,6 @@ namespace BrightWire.TreeBased.Training
                             ret.Add(val, temp = []);
                         temp.Add(item);
                     }
-                    return ret;
                 }else {
                     var splitVal = _split ?? 0;
                     foreach (var item in rows) {

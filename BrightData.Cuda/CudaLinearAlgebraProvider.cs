@@ -9,7 +9,6 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BrightData.Cuda
 {

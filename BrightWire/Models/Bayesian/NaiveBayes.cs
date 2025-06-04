@@ -1,5 +1,4 @@
-﻿using System;
-using BrightWire.Bayesian;
+﻿using BrightWire.Bayesian;
 using System.IO;
 using BrightData;
 using BrightWire.Helper;

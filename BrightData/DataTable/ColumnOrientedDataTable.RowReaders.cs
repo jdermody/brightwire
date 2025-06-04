@@ -424,7 +424,7 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -628,9 +628,9 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -862,11 +862,11 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -1126,13 +1126,13 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -1420,15 +1420,15 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input6.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -1744,17 +1744,17 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input6.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input7.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -2098,19 +2098,19 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input6.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input7.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input8.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -2482,21 +2482,21 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input6.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input7.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input8.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input9.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;
@@ -2896,23 +2896,23 @@ namespace BrightData
                 _dataTable = dataTable;
                 BlockSizes = input1.BlockSizes;
                 if (!BlockSizes.SequenceEqual(input2.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input3.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input4.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input5.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input6.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input7.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input8.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input9.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 if (!BlockSizes.SequenceEqual(input10.BlockSizes))
-                    throw new ArgumentException($"Expected all buffers to have same block sizes");
+                    throw new ArgumentException("Expected all buffers to have same block sizes");
                 _blockCount = (uint)BlockSizes.Length;
                 _blockSize = BlockSizes[0];
                 Size = input1.Size;

@@ -36,7 +36,7 @@ namespace BrightData.Cuda.CudaToolkit.Types
                 return s;
             }
         }
-        public ulong Id
+        public readonly ulong Id
         {
             get
             {

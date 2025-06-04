@@ -420,7 +420,7 @@ namespace BrightData.Types
                     max = item.Index;
                 indices.Add(item.Index, item.Weight);
             }
-            return indices.Any()
+            return indices.Count > 0
                 ? new ReadOnlyVector<float>(maxIndex ?? max + 1, i => indices.GetValueOrDefault(i, 0f))
                 : new ReadOnlyVector<float>(maxIndex ?? 0, _ => 0f);
         }

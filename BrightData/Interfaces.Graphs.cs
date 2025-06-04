@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace BrightData
@@ -8,10 +7,7 @@ namespace BrightData
     /// <summary>
     /// 
     /// </summary>
-    public interface IGraph : IHaveSize
-    {
-
-    }
+    public interface IGraph : IHaveSize;
 
     /// <summary>
     /// 

@@ -3,7 +3,6 @@ using BrightData.Helper;
 using BrightData.UnitTests.Fixtures;
 using Xunit;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using BrightData.Types;
 
 namespace BrightData.UnitTests

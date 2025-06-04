@@ -158,7 +158,7 @@ namespace BrightData.Types
         /// Max size of the array
         /// </summary>
         public const int MaxSize = <#= i #>;
-        byte IFixedSizeSortedArray<V, W>.MaxSize => MaxSize;
+        readonly byte IFixedSizeSortedArray<V, W>.MaxSize => MaxSize;
 
         [InlineArray(MaxSize)]
         internal struct ValueArray
@@ -177,7 +177,7 @@ namespace BrightData.Types
         /// <summary>
         /// Current number of elements
         /// </summary>
-        public byte Size => _size;
+        public readonly byte Size => _size;
 
         /// <summary>
         /// Sorted list of values
@@ -260,7 +260,7 @@ namespace BrightData.Types
         public V RemoveAt(byte index)
         {
             if(index >= _size)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             var values = MemoryMarshal.CreateSpan(ref Unsafe.As<ValueArray, V>(ref Unsafe.AsRef(ref _values)), _size);
             var weights = MemoryMarshal.CreateSpan(ref Unsafe.As<WeightArray, W>(ref Unsafe.AsRef(ref _weights)), _size);
             var ret = values[index];

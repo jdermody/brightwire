@@ -91,9 +91,9 @@ namespace BrightData
         /// <returns></returns>
         public static ReadOnlyVector<float> CreateReadOnlyVector(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyVector<float>));
+            var ret = GenericActivator.CreateUninitialized<ReadOnlyVector<float>>();
             ret.Initialize(context, reader);
-            return (ReadOnlyVector<float>)ret;
+            return ret;
         }
 
 
@@ -131,9 +131,9 @@ namespace BrightData
         /// <returns></returns>
         public static ReadOnlyMatrix<float> CreateReadOnlyMatrix(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyMatrix<float>));
+            var ret = GenericActivator.CreateUninitialized<ReadOnlyMatrix<float>>();
             ret.Initialize(context, reader);
-            return (ReadOnlyMatrix<float>)ret;
+            return ret;
         }
 
         /// <summary>
@@ -212,9 +212,9 @@ namespace BrightData
         /// <returns></returns>
         public static ReadOnlyTensor3D<float> CreateReadOnlyTensor3D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor3D<float>));
+            var ret = GenericActivator.CreateUninitialized<ReadOnlyTensor3D<float>>();
             ret.Initialize(context, reader);
-            return (ReadOnlyTensor3D<float>)ret;
+            return ret;
         }
 
         /// <summary>
@@ -233,9 +233,9 @@ namespace BrightData
         /// <returns></returns>
         public static ReadOnlyTensor4D<float> CreateReadOnlyTensor4D(this BrightDataContext context, BinaryReader reader)
         {
-            var ret = GenericActivator.CreateUninitialized<ICanInitializeFromBinaryReader>(typeof(ReadOnlyTensor4D<float>));
+            var ret = GenericActivator.CreateUninitialized<ReadOnlyTensor4D<float>>();
             ret.Initialize(context, reader);
-            return (ReadOnlyTensor4D<float>)ret;
+            return ret;
         }
 
         /// <summary>

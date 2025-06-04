@@ -1,6 +1,5 @@
 ﻿using BrightData.UnitTests.Helper;
 using System.Linq;
-using BrightData.Helper;
 using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.VectorIndexing;
 using BrightData.Types;
@@ -18,7 +17,7 @@ namespace BrightData.UnitTests
             using var set = VectorSet<float>.CreateFlat(4);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
-            var average = set.GetAverage([0U, 1U]);
+            var average = set.GetAverage(0U, 1U);
             average.Should().AllBeEquivalentTo(0.5f);
         }
 
@@ -48,11 +47,11 @@ namespace BrightData.UnitTests
             using var set = VectorSet<float>.CreateFlat(4, DistanceMetric.Euclidean);
             set.Add(_context.CreateReadOnlyVector(0, 0, 0, 0));
             set.Add(_context.CreateReadOnlyVector(1, 1, 1, 1));
-            var score = set.Closest([
+            var score = set.Closest(
                 _context.CreateReadOnlyVector(0.5f, 0.5f, 0.5f, 0.5f), // 0
                 _context.CreateReadOnlyVector(0.9f, 0.9f, 0.9f, 0.9f), // 1
-                _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f, 0.1f), // 2
-            ]);
+                _context.CreateReadOnlyVector(0.1f, 0.1f, 0.1f, 0.1f)  // 2
+            );
             score[0].Should().Be(2);
             score[1].Should().Be(1);
         }

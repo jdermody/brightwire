@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         readonly ArrayBufferWriter<T> _data;
+        readonly Lock _writeLock = new();
 
         public InMemoryVectorStorage(uint vectorSize, uint? capacity)
         {
@@ -30,16 +30,20 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
         public uint VectorSize { get; }
         public uint Size => (uint)(_data.WrittenCount / VectorSize);
         public ReadOnlySpan<T> this[uint index] => _data.WrittenSpan.Slice((int)(index * VectorSize), (int)VectorSize);
+        public ReadOnlyMemory<T> Get(uint index) => _data.WrittenMemory.Slice((int)(index * VectorSize), (int)VectorSize);
 
         public uint Add(ReadOnlySpan<T> vector)
         {
             if (vector.Length != VectorSize)
                 throw new ArgumentException($"Expected vector to be size {VectorSize} but received {vector.Length}", nameof(vector));
-            var index = Size;
-            var span = _data.GetSpan((int)VectorSize);
-            vector.CopyTo(span);
-            _data.Advance((int)VectorSize);
-            return index;
+
+            lock (_writeLock) {
+                var index = Size;
+                var span = _data.GetSpan((int)VectorSize);
+                vector.CopyTo(span);
+                _data.Advance((int)VectorSize);
+                return index;
+            }
         }
 
         public void ForEach(IndexedSpanCallbackWithVectorIndex<T> callback, CancellationToken ct)
@@ -80,7 +84,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
             var size = Size;
             var ret = new ReadOnlyMemory<T>[size];
             for(var i = 0U; i < size; i++)
-                ret[i] = this[i].ToArray();
+                ret[i] = Get(i);
             return ret;
         }
     }

@@ -1,5 +1,4 @@
 ﻿using BrightData.Helper;
-using System;
 using System.Numerics;
 
 namespace BrightData.LinearAlgebra.CostFunctions

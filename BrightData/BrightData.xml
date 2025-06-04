@@ -10914,6 +10914,11 @@
             Vectors are stored in memory
             </summary>
         </member>
+        <member name="F:BrightData.VectorStorageType.OnDisk">
+            <summary>
+            Vectors are stored on disk
+            </summary>
+        </member>
         <member name="T:BrightData.IStoreVectors">
             <summary>
             Responsible for storing vectors
@@ -19739,12 +19744,6 @@
             </summary>
             <param name="nodeIndex"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.SparseGraph`1.DepthFirstSearch(`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.SparseGraph`1.BreadthFirstSearch(`0)">
-            <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.SparseGraphBuilder`1">
             <summary>

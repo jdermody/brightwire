@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using ExtensionMethods = BrightData.ExtensionMethods;
 
 namespace ExampleCode.DataTableTrainers
 {

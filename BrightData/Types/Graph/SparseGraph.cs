@@ -89,7 +89,6 @@ namespace BrightData.Types.Graph
             }
         }
 
-        /// <inheritdoc />
         public IEnumerable<T> DepthFirstSearch(T start)
         {
             var startIndex = Array.FindIndex(_nodes, n => EqualityComparer<T>.Default.Equals(n.Value, start));
@@ -112,7 +111,6 @@ namespace BrightData.Types.Graph
             }
         }
 
-        /// <inheritdoc />
         public IEnumerable<T> BreadthFirstSearch(T start)
         {
             var queue = new Queue<int>();

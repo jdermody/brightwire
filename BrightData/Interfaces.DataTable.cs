@@ -678,9 +678,7 @@ namespace BrightData
     /// A buffer that can be appended
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IAppendableBuffer<T> : IReadOnlyBuffer<T>, IAppendToBuffer<T> where T : notnull
-    {
-    }
+    public interface IAppendableBuffer<T> : IReadOnlyBuffer<T>, IAppendToBuffer<T> where T : notnull;
 
     /// <summary>
     /// Reads blocks of data

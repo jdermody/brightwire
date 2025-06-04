@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
-using BrightData.Helper;
 using BrightData.Helper.StringTables;
 using BrightData.Types;
 using BrightWire;
@@ -166,7 +165,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateExecutionEngine(engine.Graph);
         }
 
-        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, IIndexStrings indexer, IndexListWithLabel<string>[] data)
+        static Task<IDataTable> GetTable(BrightDataContext context, uint maxIndex, DictionaryStringIndexer indexer, IndexListWithLabel<string>[] data)
         {
             var builder = context.CreateTableBuilder();
             var addColumns = true;
@@ -220,7 +219,7 @@ namespace ExampleCode.DataTableTrainers
             return builder.BuildInMemory();
         }
 
-        static IIndexStrings GetIndexer() => new DictionaryStringIndexer("negative", "positive");
+        static DictionaryStringIndexer GetIndexer() => new("negative", "positive");
 
         public async Task TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
