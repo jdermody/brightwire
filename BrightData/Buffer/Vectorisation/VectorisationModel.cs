@@ -131,7 +131,7 @@ namespace BrightData.Buffer.Vectorisation
         /// <returns></returns>
         public async IAsyncEnumerable<float[,]> Vectorise(IReadOnlyBufferWithMetaData[] buffers)
         {
-            await foreach (var item in DoVectorise(buffers, buffers.Select(x => x.MetaData).ToArray()))
+            await foreach (var item in DoVectorise(buffers, [.. buffers.Select(x => x.MetaData)]))
                 yield return item;
         }
 

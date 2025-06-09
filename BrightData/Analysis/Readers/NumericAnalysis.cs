@@ -29,9 +29,10 @@ namespace BrightData.Analysis.Readers
 
         static (string Label, double value)[] Get(string prefix, MetaData metaData)
         {
-            return metaData.GetStringsWithPrefix(prefix)
+            return [
+                ..metaData.GetStringsWithPrefix(prefix)
                 .Select(k => (Label: k[prefix.Length..], Value: metaData.GetOrThrow<double>(k)))
-                .ToArray();
+            ];
         }
 
         /// <summary>

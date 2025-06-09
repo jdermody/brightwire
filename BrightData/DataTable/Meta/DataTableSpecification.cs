@@ -10,8 +10,9 @@ namespace BrightData.DataTable.Meta
         dataTable.MetaData.GetName(),
         DataSpecificationType.Composite,
         false,
-        dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)
+        [
+            ..dataTable.ColumnTypes.Zip(dataTable.ColumnMetaData)
             .Select(ct => ct.First.AsDataFieldSpecification(ct.Second.GetName()))
-            .ToArray()
+        ]
     );
 }

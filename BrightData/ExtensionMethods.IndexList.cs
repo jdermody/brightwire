@@ -67,23 +67,23 @@ namespace BrightData
         {
             if (groupByClassification)
             {
-                return data.GroupBy(c => c.Label)
+                return [
+                    ..data.GroupBy(c => c.Label)
                     .Select(g => new WeightedIndexListWithLabel<T>(g.Key, WeightedIndexList.Create(g.SelectMany(d => d.Data.Indices)
                         .GroupBy(d => d)
                         .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
                         .ToArray()
                     )))
-                    .ToArray()
-                ;
+                ];
             }
-            return data
+            return [
+                ..data
                 .Select(d => new WeightedIndexListWithLabel<T>(d.Label, WeightedIndexList.Create(d.Data.Indices
                     .GroupBy(i => i)
                     .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
                     .ToArray()
                 )))
-                .ToArray()
-            ;
+            ];
         }
 
         /// <summary>

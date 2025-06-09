@@ -321,7 +321,7 @@ namespace BrightData.Types
                 indices.Add(item);
             }
 
-            return indices.Any()
+            return indices.Count > 0
                 ? new ReadOnlyVector<float>(max + 1, i => indices.Contains(i) ? 1f : 0f)
                 : new ReadOnlyVector<float>(maxIndex ?? 0);
         }

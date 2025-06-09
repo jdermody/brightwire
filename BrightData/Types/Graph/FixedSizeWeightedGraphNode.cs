@@ -6,6 +6,7 @@ namespace BrightData.Types.Graph
 {
     /// <summary>
     /// A graph node with a (fixed size) maximum number of neighbours
+    /// NOTE: this should not be readonly, as it is mutable
     /// </summary>
     public record struct FixedSizeWeightedGraphNode<T, W, AT>(T Value) : IWeightedGraphNode<T, W>, IComparable<FixedSizeWeightedGraphNode<T, W, AT>>
         where T : unmanaged, IHaveSingleIndex
@@ -102,7 +103,5 @@ namespace BrightData.Types.Graph
 
         /// <inheritdoc />
         public override string ToString() => $"{Value}: {_neighbours}";
-
-        
     }
 }

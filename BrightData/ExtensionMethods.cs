@@ -151,10 +151,10 @@ namespace BrightData
         /// <returns></returns>
         public static T[] Bag<T>(this T[] list, uint count, Random rnd)
         {
-            return count.AsRange()
+            return [
+                ..count.AsRange()
                 .Select(_ => list[rnd.Next(0, list.Length)])
-                .ToArray()
-            ;
+            ];
         }
 
         /// <summary>

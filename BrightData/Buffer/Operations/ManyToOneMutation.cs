@@ -17,7 +17,7 @@ namespace BrightData.Buffer.Operations
 
         public ManyToOneMutation(IEnumerable<IReadOnlyBuffer<FT>> from, IAppendToBuffer<TT> to, Func<FT[], TT> mutator)
         {
-            _from = from.ToArray();
+            _from = [.. from];
             _size = _from.First().Size;
             if (_from.Any(x => x.Size != _size))
                 throw new ArgumentException("Expected all input buffers to have the same size", nameof(from));

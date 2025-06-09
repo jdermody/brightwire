@@ -367,7 +367,7 @@ namespace BrightData
             var (u, vector, vt) = matrixT.Svd();
 
             try {
-                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix(vector.Segment.Values.Take((int)dimensions).ToArray());
+                using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix([..vector.Segment.Values.Take((int)dimensions)]);
                 using var v2 = vt.GetNewMatrixFromRows(dimensions.AsRange());
                 return s.Multiply(v2);
             }
@@ -516,7 +516,7 @@ namespace BrightData
             if (!hasFoundNull && nonNullTotal != total)
                 throw new ArgumentException($"Invalid shape arguments: {String.Join("x", shape)} == {nonNullTotal:N0} but expected to be {total:N0}");
 
-            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
+            return [.. shape.Select(v => v ?? total / nonNullTotal)];
         }
 
         /// <summary>

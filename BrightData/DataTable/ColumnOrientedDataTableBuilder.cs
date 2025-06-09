@@ -25,7 +25,7 @@ namespace BrightData.DataTable
         readonly List<ICompositeBuffer> _columns = [];
 
         public MetaData TableMetaData { get; } = new();
-        public MetaData[] ColumnMetaData => _columns.Select(x => x.MetaData).ToArray();
+        public MetaData[] ColumnMetaData => [.._columns.Select(x => x.MetaData)];
         public uint RowCount { get; private set; }
         public uint ColumnCount => (uint)_columns.Count;
         public BrightDataContext Context { get; } = context;
@@ -82,12 +82,12 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers)
         {
-            return buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData)).ToArray();
+            return [.. buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData))];
         }
 
         public ICompositeBuffer[] CreateColumnsFrom(IEnumerable<IReadOnlyBufferWithMetaData> buffers)
         {
-            return buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData)).ToArray();
+            return [.. buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData))];
         }
 
         public ICompositeBuffer<T> CreateColumn<T>(string? name = null)
@@ -123,7 +123,7 @@ namespace BrightData.DataTable
             var writer = new ColumnOrientedDataTableWriter(tempData, blockSize, maxBlockSize, maxInMemoryBlocks);
             return writer.Write(
                 TableMetaData,
-                _columns.Cast<IReadOnlyBufferWithMetaData>().ToArray(),
+                [.._columns],
                 stream
             );
         }

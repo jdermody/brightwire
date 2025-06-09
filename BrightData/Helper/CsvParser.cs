@@ -217,7 +217,7 @@ namespace BrightData.Helper
                 if (++lineCount == maxLines)
                     break;
             }
-            parseState.FinishLine(ReadOnlySpan<char>.Empty, true);
+            parseState.FinishLine([], true);
 
             // signal complete
             OnComplete?.Invoke();

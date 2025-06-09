@@ -63,7 +63,7 @@ namespace BrightData
                 throw new ArgumentException("Expected data table and type info column count to match");
 
             var ret = new HashSet<uint>();
-            var ops = dataTable.CopyTo(typeInfo.Children.Select((ts, ci) => GenericTypeMapping.ColumnFilter(ts.UnderlyingType, (uint)ci, dataTable.ColumnTypes[ci], ret, ts)).ToArray());
+            var ops = dataTable.CopyTo([.. typeInfo.Children.Select((ts, ci) => GenericTypeMapping.ColumnFilter(ts.UnderlyingType, (uint)ci, dataTable.ColumnTypes[ci], ret, ts))]);
             await ops.ExecuteAllAsOne();
             return ret;
         }

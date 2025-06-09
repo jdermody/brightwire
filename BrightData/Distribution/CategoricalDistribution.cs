@@ -15,7 +15,7 @@ namespace BrightData.Distribution
             _context = context;
 
             float cumulativeTotal = 0;
-            CumulativeValues = categoricalValues.Select(v => cumulativeTotal += v).ToArray();
+            CumulativeValues = [.. categoricalValues.Select(v => cumulativeTotal += v)];
             CumulativeTotal = cumulativeTotal;
         }
 

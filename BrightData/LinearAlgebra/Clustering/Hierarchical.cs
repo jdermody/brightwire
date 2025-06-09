@@ -26,7 +26,7 @@ namespace BrightData.LinearAlgebra.Clustering
                 Vector = segment.Multiply(0.5f);
             }
             public IReadOnlyVector<float> Vector { get; }
-            public uint[] GetIndices() => _indices.ToArray();
+            public uint[] GetIndices() => [.._indices];
         }
         record NodePair(LinkedListNode<Node> Left, LinkedListNode<Node> Right);
 

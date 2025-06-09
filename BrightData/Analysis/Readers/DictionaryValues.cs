@@ -15,11 +15,11 @@ namespace BrightData.Analysis.Readers
         internal DictionaryValues(MetaData metaData)
         {
             var len = Consts.CategoryPrefix.Length;
-            _table = metaData.GetStringsWithPrefix(Consts.CategoryPrefix)
+            _table = [..metaData.GetStringsWithPrefix(Consts.CategoryPrefix)
                 .Select(key => (Key: Int32.Parse(key[len..]), Value: metaData.Get(key, "")))
                 .OrderBy(d => d.Key)
                 .Select(d => d.Value)
-                .ToList();
+            ];
         }
 
         /// <summary>

@@ -7,8 +7,8 @@ namespace BrightData.Helper
 	/// </summary>
 	public static class ConvolutionHelper
 	{
-		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> LeftToRightCache = new();
-		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> TopToBottomCache = new();
+		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> LeftToRightCache = [];
+		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> TopToBottomCache = [];
 
 		/// <summary>
 		/// Generates convolution indices from left to right

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace BrightData.DataTable.Rows
 {
@@ -36,6 +37,7 @@ namespace BrightData.DataTable.Rows
         public void Dispose()
         {
             // nop
+            GC.SuppressFinalize(this);
         }
 
         /// <inheritdoc />

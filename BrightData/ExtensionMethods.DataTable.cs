@@ -503,7 +503,7 @@ namespace BrightData
         public static async Task<ReadOnlyMatrix<float>> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
         {
             if (columnIndices.Length == 0)
-                columnIndices = dataTable.ColumnCount.AsRange().ToArray();
+                columnIndices = [..dataTable.ColumnCount.AsRange()];
 
             // consider the simple case
             if (columnIndices.Length == 1) {
@@ -1589,10 +1589,10 @@ namespace BrightData
         /// <returns></returns>
         public static IOperation[] CopyTo(this IDataTable dataTable, params IAppendBlocks[] buffers)
         {
-            return dataTable.ColumnCount.AsRange()
+            return [
+                ..dataTable.ColumnCount.AsRange()
                 .Select(i => dataTable.GetColumn(i).CreateBufferCopyOperation(buffers[i]))
-                .ToArray()
-            ;
+            ];
         }
 
         /// <summary>
@@ -1630,7 +1630,7 @@ namespace BrightData
         /// <returns></returns>
         public static Task<GenericTableRow[]> GetSlice(this IDataTable dataTable, uint start, uint count)
         {
-            return dataTable.GetRows(count.AsRange(start).Where(x => x < dataTable.RowCount).ToArray());
+            return dataTable.GetRows([..count.AsRange(start).Where(x => x < dataTable.RowCount)]);
         }
 
         /// <summary>
@@ -1747,7 +1747,7 @@ namespace BrightData
                 var operations = AllOrSpecifiedColumnIndices(dataTable, true, columnIndices).Select(i => columnMetaData[i].Analyse(false, dataTable.GetColumn(i))).ToArray();
                 await operations.ExecuteAllAsOne();
             }
-            return AllOrSpecifiedColumnIndices(dataTable, false, columnIndices).Select(x => columnMetaData[x]).ToArray();
+            return [.. AllOrSpecifiedColumnIndices(dataTable, false, columnIndices).Select(x => columnMetaData[x])];
         }
 
         /// <summary>
@@ -1794,7 +1794,7 @@ namespace BrightData
         /// <returns></returns>
         public static IReadOnlyBufferWithMetaData[] GetColumns(this IDataTable dataTable, IEnumerable<uint> columnIndices)
         {
-            return columnIndices.Select(dataTable.GetColumn).ToArray();
+            return [..columnIndices.Select(dataTable.GetColumn)];
         }
 
         /// <summary>
@@ -1821,7 +1821,7 @@ namespace BrightData
         {
             var writer = new ColumnOrientedDataTableBuilder(dataTable.Context);
             var newColumns = writer.CreateColumnsFrom(dataTable);
-            var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : dataTable.RowCount.AsRange().ToArray();
+            var wantedRowIndices = rowIndices.Length > 0 ? rowIndices : [..dataTable.RowCount.AsRange()];
             var operations = newColumns
                 .Select((x, i) => GenericTypeMapping.IndexedCopyOperation(dataTable.GetColumn((uint)i), x, wantedRowIndices))
                 .ToArray();
@@ -1835,7 +1835,7 @@ namespace BrightData
         /// <param name="dataTable"></param>
         /// <param name="rowCount">Number of rows to return</param>
         /// <returns></returns>
-        public static GenericTableRow[] GetHead(this IDataTable dataTable, int rowCount = 5) => dataTable.EnumerateRows().ToBlockingEnumerable().Take(rowCount).ToArray();
+        public static GenericTableRow[] GetHead(this IDataTable dataTable, int rowCount = 5) => [.. dataTable.EnumerateRows().ToBlockingEnumerable().Take(rowCount)];
 
         /// <summary>
         /// Enumerates the rows in a data table
@@ -1873,7 +1873,7 @@ namespace BrightData
             var columns = dataTable.Dimensions.Select(x => x.GetBuffer<object>()).ToArray();
             var fetchTasks = columns.Select(x => x.GetItem(index)).ToArray();
             await Task.WhenAll(fetchTasks);
-            return new GenericTableRow(dataTable, index, fetchTasks.Select(x => x.Result).ToArray());
+            return new GenericTableRow(dataTable, index, [..fetchTasks.Select(x => x.Result)]);
         }
 
         /// <summary>
@@ -1925,8 +1925,8 @@ namespace BrightData
             var blockTasks = new Task[blocks.Length];
             foreach (var block in blocks) {
                 blockTasks[index++] = copyBlock(block.Key, cb => {
-                    foreach (var item in block) {
-                        cb(item.SourceIndex, item.RelativeBlockIndex, ref ret[item.SourceIndex]);
+                    foreach (var (_, _, relativeBlockIndex, sourceIndex) in block) {
+                        cb(sourceIndex, relativeBlockIndex, ref ret[sourceIndex]);
                     }
                 });
             }

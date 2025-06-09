@@ -18,9 +18,7 @@ namespace BrightWire.Helper
                 (assembly, typeName2, caseInsensitive) => assembly?.GetType(typeName2, false, caseInsensitive),
                 true
             );
-            if(type == null)
-				throw new ArgumentException($"Unable to find: {typeName}");
-			return type;
+			return type ?? throw new ArgumentException($"Unable to find: {typeName}");
 	    }
 
 		[return:DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
