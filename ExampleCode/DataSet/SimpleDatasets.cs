@@ -93,10 +93,10 @@ namespace ExampleCode.DataSet
         public static async Task<Mnist> Mnist(this BrightDataContext context, uint numToLoad = uint.MaxValue)
         {
             var streams = new[] {
-                GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
-                GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz"),
-                GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
-                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
+                GetStream(context, "t10k-labels.idx1-ubyte", "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz"),
+                GetStream(context, "t10k-images.idx3-ubyte", "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz"),
+                GetStream(context, "train-labels.idx1-ubyte", "https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz"),
+                GetStream(context, "train-images.idx3-ubyte", "https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz")
             };
             await Task.WhenAll(streams);
 
@@ -115,10 +115,10 @@ namespace ExampleCode.DataSet
             return new Mnist(context, train.Result, test.Result);
         }
 
-        public static SentimentDataTrainer SentimentData(this BrightDataContext context)
+        public static async Task<SentimentDataTrainer> SentimentData(this BrightDataContext context)
         {
             // http://dkotzias.com/papers/GICF.pdf
-            var directory = ExtractToDirectory(context, "sentiment", "sentiment.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip");
+            var directory = await ExtractToDirectory(context, "sentiment", "sentiment.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip");
             return new SentimentDataTrainer(context, directory);
         }
 
@@ -269,7 +269,7 @@ namespace ExampleCode.DataSet
 
         public static async Task<BicyclesTrainer> Bicycles(this BrightDataContext context)
         {
-            var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
+            var directory = await ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
             using var completeTable = await context.ParseCsv(hoursData, true);
 
@@ -287,7 +287,7 @@ namespace ExampleCode.DataSet
 
         public static async Task<EmotionsTrainer> Emotions(this BrightDataContext context)
         {
-            var directory = ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
+            var directory = await ExtractToDirectory(context, "emotions", "emotions.rar", "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar");
             var table = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
             var test = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
             var training = await EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
@@ -428,7 +428,7 @@ namespace ExampleCode.DataSet
             return new FileStream(filePath, FileMode.Open, FileAccess.Read);
         }
 
-        static DirectoryInfo ExtractToDirectory(BrightDataContext context, string directoryName, string localName, string remoteUrl)
+        static async Task<DirectoryInfo> ExtractToDirectory(BrightDataContext context, string directoryName, string localName, string remoteUrl)
         {
             var directoryPath = GetDataFilePath(context, directoryName);
             if (!Directory.Exists(directoryPath))
@@ -460,7 +460,7 @@ namespace ExampleCode.DataSet
             if (extractor == null)
                 throw new Exception("Could not create an extractor");
 
-            using var output = GetStream(context, localName, remoteUrl, filePath => extractor(filePath));
+            using var output = await GetStream(context, localName, remoteUrl, filePath => extractor(filePath));
             return new DirectoryInfo(directoryPath);
         }
     }

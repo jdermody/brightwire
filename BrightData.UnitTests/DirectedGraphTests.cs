@@ -17,9 +17,9 @@ namespace BrightData.UnitTests
             var graph = builder.Build();
             graph.Size.Should().Be(2);
             graph.TryGetValue(firstNodeIndex, out var val).Should().BeTrue();
-            val.Value.Index.Should().Be(100);
+            val!.Value.Index.Should().Be(100);
             graph.TryGetValue(secondNodeIndex, out val).Should().BeTrue();
-            val.Value.Index.Should().Be(200);
+            val!.Value.Index.Should().Be(200);
             graph.TryGetValue(3, out _).Should().BeFalse();
             graph.EnumerateDirectlyConnectedNodes(secondNodeIndex).Should().HaveCount(1);
             graph.EnumerateDirectlyConnectedNodes(firstNodeIndex).Should().BeEmpty();

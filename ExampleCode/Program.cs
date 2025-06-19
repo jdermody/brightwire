@@ -163,7 +163,7 @@ namespace ExampleCode
         static async Task SentimentClassification(BrightDataContext context, bool useMkl)
         {
             Start(context, useMkl);
-            var sentiment = context.SentimentData();
+            var sentiment = await context.SentimentData();
 
             // train a bernoulli naive bayes classifier
             var bernoulli = sentiment.TrainBernoulli().CreateClassifier();
