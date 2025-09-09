@@ -60,7 +60,7 @@ namespace BrightData.Buffer.Composite
 
             public static void Encode(string str, BlockCallback<byte> callback)
             {
-                if (str.Length <= 124 / 3)
+                if (str.Length <= 124 / 4)
                 {
                     Span<byte> buffer = stackalloc byte[128];
                     var actualByteCount = Encoding.UTF8.GetBytes(str, buffer[4..]);
@@ -70,7 +70,7 @@ namespace BrightData.Buffer.Composite
                 }
                 else
                 {
-                    using var buffer = SpanOwner<byte>.Allocate(str.Length * 3 + 2);
+                    using var buffer = SpanOwner<byte>.Allocate(str.Length * 4 + 4);
                     var actualByteCount = Encoding.UTF8.GetBytes(str, buffer.Span[4..]);
                     BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span, (ushort)str.Length);
                     BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span[2..], (ushort)actualByteCount);
@@ -100,13 +100,6 @@ namespace BrightData.Buffer.Composite
                     data = data[byteSize..];
                 } while (data.Length > 0);
             }
-        }
-
-        public override Task<ReadOnlyMemory<string>> GetTypedBlock(uint blockIndex)
-        {
-            if (blockIndex >= BlockCount)
-                throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
-            return base.GetTypedBlock(blockIndex);
         }
 
         public override void Append(in string item)

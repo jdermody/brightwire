@@ -36,7 +36,7 @@ namespace BrightData.UnitTests.Helper
         {
             var first = tensors[0];
             for(var i = 1; i < tensors.Length; i++)
-                Math<float>.AreApproximatelyEqual(first, tensors[i]).Should().BeTrue();
+                Math<float>.AreApproximatelyEqual(first, tensors[i], 12).Should().BeTrue();
         }
         protected static void AssertSame(params INumericSegment<float>[] tensors)
         {

@@ -51,30 +51,24 @@ namespace BrightData.Buffer.Composite
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
             if (blockIndex >= BlockCount)
-                throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Must be less than {BlockCount}");
+                throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Block index {blockIndex} exceeds total block count {BlockCount}");
             uint currentIndex = 0;
-            var blocksInFile = (uint)(_fileBlockSizes?.Count ?? 0);
+            var inMemoryBlocks = (uint)(_inMemoryBlocks?.Count ?? 0);
+            var inFileBlocks = (uint)(_fileBlockSizes?.Count ?? 0);
 
-            // read from the in memory blocks
-            if (_inMemoryBlocks is not null)
-            {
-                if (blockIndex < blocksInFile + (uint)_inMemoryBlocks.Count)
-                {
-                    foreach (var block in _inMemoryBlocks)
-                    {
-                        if (currentIndex++ == blockIndex)
-                            return block.WrittenMemory;
-                    }
+            // check in memory blocks
+            if (_inMemoryBlocks is not null) {
+                if (blockIndex < inMemoryBlocks) {
+                    var inMemoryBlock = _inMemoryBlocks[(int)blockIndex];
+                    return inMemoryBlock.WrittenMemory;
                 }
-                else
-                    currentIndex = blocksInFile + (uint)_inMemoryBlocks.Count;
+                currentIndex = inMemoryBlocks;
             }
 
-            // read from the file
+            // check file blocks
             if (_currentDataBlock != null && _fileBlockSizes != null) {
                 var fileBlockIndex = 0;
-                if (blockIndex < blocksInFile)
-                {
+                if (blockIndex < inMemoryBlocks + inFileBlocks)  {
                     uint fileLength = _currentDataBlock.Size, offset = 0;
                     while (offset < fileLength) {
                         var blockSize = _fileBlockSizes[fileBlockIndex++];
@@ -83,14 +77,10 @@ namespace BrightData.Buffer.Composite
                         offset += (uint)(blockSize * _sizeOfT);
                     }
                 }
-                else
-                    currentIndex = blocksInFile;
             }
 
-            // then from the current block
-            if (_currBlock is not null && currentIndex == blockIndex)
-                return _currBlock.WrittenMemory;
-            throw new InvalidOperationException("Unexpected");
+            // check current block
+            return _currBlock?.WrittenMemory ?? throw new InvalidOperationException("Unexpected - failed to find block");
         }
 
         public override void Append(ReadOnlySpan<T> inputBlock)

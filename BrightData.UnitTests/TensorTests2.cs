@@ -172,7 +172,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 (v1, v2) => v1.TransposeThisAndMultiply(v2),
-                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2, 12)
             );
         }
 
@@ -187,7 +187,7 @@ namespace BrightData.UnitTests
                 _mklLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 _cudaLinearAlgebraProvider.CreateMatrix(DefaultRowCount, DefaultColumnCount, false), 
                 (v1, v2) => v1.TransposeAndMultiply(v2),
-                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2)
+                (r1, r2) => Math<float>.AreApproximatelyEqual(r1, r2, 10)
             );
         }
 

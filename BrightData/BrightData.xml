@@ -19567,11 +19567,13 @@
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3">
             <summary>
             A graph node with a (fixed size) maximum number of neighbours
+            NOTE: this should not be readonly, as it is mutable
             </summary>
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.#ctor(`0)">
             <summary>
             A graph node with a (fixed size) maximum number of neighbours
+            NOTE: this should not be readonly, as it is mutable
             </summary>
         </member>
         <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Index">

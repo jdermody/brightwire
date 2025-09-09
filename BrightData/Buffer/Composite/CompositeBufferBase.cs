@@ -149,26 +149,26 @@ namespace BrightData.Buffer.Composite
 
         public override async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
+            if (blockIndex >= BlockCount)
+                throw new ArgumentOutOfRangeException(nameof(blockIndex), $"Block index {blockIndex} exceeds total block count {BlockCount}");
+            
             uint currentIndex = 0;
-            var blocksInFile = (uint)(_fileBlockSizes?.Count ?? 0);
+            var inMemoryBlocks = (uint)(_inMemoryBlocks?.Count ?? 0);
+            var inFileBlocks = (uint)(_fileBlockSizes?.Count ?? 0);
 
-            // read from in memory blocks
+            // check in memory blocks
             if (_inMemoryBlocks is not null) {
-                if (blockIndex < blocksInFile + (uint)_inMemoryBlocks.Count) {
-                    foreach (var block in _inMemoryBlocks) {
-                        if (currentIndex++ == blockIndex) {
-                            return block.WrittenMemory;
-                        }
-                    }
+                if (blockIndex < inMemoryBlocks) {
+                    var inMemoryBlock = _inMemoryBlocks[(int)blockIndex];
+                    return inMemoryBlock.WrittenMemory;
                 }
-                else
-                    currentIndex = blocksInFile + (uint)_inMemoryBlocks.Count;
+                currentIndex = inMemoryBlocks;
             }
 
-            // read from the file
+            // check file blocks
             if (_currentDataBlock != null && _fileBlockSizes != null) {
                 var fileBlockIndex = 0;
-                if (blockIndex < blocksInFile) {
+                if (blockIndex < inMemoryBlocks + inFileBlocks) {
                     uint fileLength = _currentDataBlock.Size, byteOffset = 0;
                     while (byteOffset < fileLength) {
                         if (currentIndex++ == blockIndex)
@@ -176,14 +176,13 @@ namespace BrightData.Buffer.Composite
                         byteOffset += await SkipFileBlock(_currentDataBlock, byteOffset, _fileBlockSizes[fileBlockIndex++]);
                     }
                 }
-                else
-                    currentIndex = blocksInFile;
             }
 
-            // then from the current block
-            if (_currBlock is not null && currentIndex == blockIndex)
-                return _currBlock.WrittenMemory;
-            throw new InvalidOperationException("Unexpected - failed to find block");
+            // check current block
+            return _currBlock is not null 
+                ? _currBlock.WrittenMemory 
+                : throw new InvalidOperationException("Unexpected - failed to find block")
+            ;
         }
 
         public virtual void Append(in T item)
