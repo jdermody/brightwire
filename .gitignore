@@ -69,3 +69,4 @@
 /BrightData.Parquet/obj
 /BrightData.DataFrame/obj
 /BrightData.DataFrame/bin
+.aider*

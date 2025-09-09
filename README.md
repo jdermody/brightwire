@@ -4,14 +4,14 @@
 
 ## Getting Started
 
-*Bright Wire* is a .net 8 class library.
+*Bright Wire* is a .net 9 class library.
 
 The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire-v2
 
 *Bright Wire* runs "out of the box" with its own vectorised linear algebra library.
 
 If you have a NVIDIA GPU then you can also use GPU based computation. You will need to install
-[NVIDIA CUDA Toolkit 12](https://developer.nvidia.com/cuda-downloads) 
+[NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) 
 (and have a [Kepler or better NVIDIA GPU](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
 To enable higher performance CPU based computation on Intel hardware, *Bright Wire* also supports the Intel Math Kernel Library (MKL).
