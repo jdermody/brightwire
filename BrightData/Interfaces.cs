@@ -474,7 +474,8 @@ namespace BrightData
     internal interface IMutableBufferBlock<T>
     {
         uint Size { get; }
-        Task<uint> WriteTo(IByteBlockSource file);
+        Task<uint> WriteToAsync(IByteBlockSource file);
+        uint WriteTo(IByteBlockSource file);
         bool HasFreeCapacity { get; }
         ReadOnlySpan<T> WrittenSpan { get; }
         ReadOnlyMemory<T> WrittenMemory { get; }

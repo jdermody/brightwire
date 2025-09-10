@@ -190,7 +190,7 @@ namespace BrightData.Buffer.Composite
             if (ConstraintValidator?.Allow(item) == false)
                 return;
 
-            var block = EnsureCurrentBlock().GetAwaiter().GetResult();
+            var block = EnsureCurrentBlock();
             block.GetNext() = item;
             if (_distinct?.Add(item) == true && _distinct.Count > _maxDistinctItems)
                 _distinct = null;
@@ -206,14 +206,14 @@ namespace BrightData.Buffer.Composite
         public IReadOnlySet<T>? DistinctSet => _distinct;
         public IConstraintValidator<T>? ConstraintValidator { get; set; }
 
-        protected async Task<BT> EnsureCurrentBlock()
+        protected BT EnsureCurrentBlock()
         {
             if (_currBlock?.HasFreeCapacity != true) {
                 if (_currBlock is not null) {
                     if (_maxInMemoryBlocks.HasValue && (_inMemoryBlocks?.Count ?? 0) >= _maxInMemoryBlocks.Value) {
                         _currentDataBlock ??= (_dataBlockProvider ??= new TempFileProvider()).Get(Id);
                         (_fileBlockSizes ??= []).Add(_currBlock.Size);
-                        await _currBlock.WriteTo(_currentDataBlock);
+                        _currBlock.WriteTo(_currentDataBlock);
                     }
                     else
                         (_inMemoryBlocks ??= []).Add(_currBlock);
@@ -253,7 +253,7 @@ namespace BrightData.Buffer.Composite
             // write from in memory blocks
             if (_inMemoryBlocks is not null) {
                 foreach (var block in _inMemoryBlocks) {
-                    var blockSize = await block.WriteTo(dataBlock);
+                    var blockSize = await block.WriteToAsync(dataBlock);
                     blockPositions[index++] = (pos, blockSize, block.Size);
                     pos += blockSize;
                 }
@@ -268,7 +268,7 @@ namespace BrightData.Buffer.Composite
                     byteOffset += size;
 
                     var block = _existingBlockFactory(blockData);
-                    var writeSize = await block.WriteTo(dataBlock);
+                    var writeSize = await block.WriteToAsync(dataBlock);
                     blockPositions[index++] = (pos, writeSize, block.Size);
                     pos += writeSize;
                 }
@@ -276,7 +276,7 @@ namespace BrightData.Buffer.Composite
 
             // write current block
             if (_currBlock is not null) {
-                var blockSize = await _currBlock.WriteTo(dataBlock);
+                var blockSize = await _currBlock.WriteToAsync(dataBlock);
                 blockPositions[index] = (pos, blockSize, _currBlock.Size);
             }
 

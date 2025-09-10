@@ -38,7 +38,8 @@ namespace BrightData.Buffer.Composite
             public ReadOnlyMemory<string> WrittenMemory => Data[..(int)Size];
 
             public const int HeaderSize = 8;
-            public async Task<uint> WriteTo(IByteBlockSource file)
+            public Task<uint> WriteToAsync(IByteBlockSource file) => Task.FromResult(WriteTo(file));
+            public uint WriteTo(IByteBlockSource file)
             {
                 var offset = file.Size;
                 var startOffset = offset += HeaderSize;
@@ -51,10 +52,10 @@ namespace BrightData.Buffer.Composite
                     });
                 }
                 var blockSize = offset - startOffset;
-                Memory<byte> lengthBytes = new byte[HeaderSize];
-                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span, blockSize);
-                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes.Span[4..], Size);
-                await file.WriteAsync(lengthBytes, startOffset - HeaderSize);
+                Span<byte> lengthBytes = stackalloc byte[HeaderSize];
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes, blockSize);
+                BinaryPrimitives.WriteUInt32LittleEndian(lengthBytes[4..], Size);
+                file.Write(lengthBytes, startOffset - HeaderSize);
                 return blockSize + HeaderSize;
             }
 

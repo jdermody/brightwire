@@ -32,7 +32,13 @@ namespace BrightData.Buffer.Composite
             public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
             public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
 
-            public async Task<uint> WriteTo(IByteBlockSource file)
+            public uint WriteTo(IByteBlockSource file)
+            {
+                var bytes = WrittenMemory.Span.Cast<T, byte>();
+                file.Write(bytes, file.Size);
+                return (uint)bytes.Length;
+            }
+            public async Task<uint> WriteToAsync(IByteBlockSource file)
             {
                 var bytes = WrittenMemory.Cast<T, byte>();
                 await file.WriteAsync(bytes, file.Size);
@@ -87,7 +93,7 @@ namespace BrightData.Buffer.Composite
         {
             while (inputBlock.Length > 0)
             {
-                var block = EnsureCurrentBlock().GetAwaiter().GetResult();
+                var block = EnsureCurrentBlock();
                 var countToWrite = Math.Min(inputBlock.Length, (int)block.AvailableCapacity);
                 var itemsToWrite = inputBlock[..countToWrite];
                 block.Write(itemsToWrite);

@@ -38,24 +38,33 @@ namespace BrightData.Buffer.Composite
             public const int HeaderSize = 8;
             public uint Size { get; private set; }
             public ref T GetNext() => ref Data.Span[(int)Size++];
+            public uint WriteTo(IByteBlockSource file)
+            {
+                var (writer, size) = Write();
+                try
+                {
+                    file.Write(writer.WrittenSpan, file.Size);
+                    return size + HeaderSize;
+                }
+                finally
+                {
+                    writer.Dispose();
+                }
+            }
             public bool HasFreeCapacity => Size < Data.Length;
             public ReadOnlySpan<T> WrittenSpan => Data.Span[..(int)Size];
             public ReadOnlyMemory<T> WrittenMemory => Data[..(int)Size];
 
-            public async Task<uint> WriteTo(IByteBlockSource file)
+            public async Task<uint> WriteToAsync(IByteBlockSource file)
             {
-                var offset = file.Size;
-                using var writer = new ArrayPoolBufferWriter<byte>();
-                writer.Advance(HeaderSize);
-                uint size = 0;
-                for (var i = 0; i < Size; i++)
-                    size += WriteBlock(Data.Span[i].DataAsBytes, writer);
-
-                IMemoryOwner<byte> memoryOwner = writer;
-                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, Size);
-                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], size);
-                await file.WriteAsync(writer.WrittenMemory, offset);
-                return size + HeaderSize;
+                var (writer, size) = Write();
+                try {
+                    await file.WriteAsync(writer.WrittenMemory, file.Size);
+                    return size + HeaderSize;
+                }
+                finally {
+                    writer.Dispose();
+                }
             }
 
             static uint WriteBlock(ReadOnlySpan<byte> itemData, ArrayPoolBufferWriter<byte> writer)
@@ -65,6 +74,20 @@ namespace BrightData.Buffer.Composite
                 itemData.CopyTo(span[4..]);
                 writer.Advance(itemData.Length + 4);
                 return (uint)itemData.Length + 4;
+            }
+
+            (ArrayPoolBufferWriter<byte> Buffer, uint Size) Write()
+            {
+                var writer = new ArrayPoolBufferWriter<byte>();
+                writer.Advance(HeaderSize);
+                uint size = 0;
+                for (var i = 0; i < Size; i++)
+                    size += WriteBlock(Data.Span[i].DataAsBytes, writer);
+
+                IMemoryOwner<byte> memoryOwner = writer;
+                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span, Size);
+                BinaryPrimitives.WriteUInt32LittleEndian(memoryOwner.Memory.Span[4..], size);
+                return (writer, size);
             }
         }
         protected override async Task<uint> SkipFileBlock(IByteBlockSource file, uint offset, uint numItemsInBlock)

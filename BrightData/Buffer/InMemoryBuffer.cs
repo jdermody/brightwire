@@ -18,7 +18,12 @@ namespace BrightData.Buffer
             }
 
             public uint Size { get; private set; }
-            public Task<uint> WriteTo(IByteBlockSource file)
+            public Task<uint> WriteToAsync(IByteBlockSource file)
+            {
+                throw new NotImplementedException();
+            }
+
+            public uint WriteTo(IByteBlockSource file)
             {
                 throw new NotImplementedException();
             }
