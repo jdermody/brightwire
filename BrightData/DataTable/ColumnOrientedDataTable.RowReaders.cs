@@ -227,7 +227,7 @@ namespace BrightData
             while (!ct.IsCancellationRequested && isValid) {
                 currentTasks[0] = e1.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -300,7 +300,7 @@ namespace BrightData
                 while (isValid) {
                     currentTasks[0] = e1.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -399,7 +399,7 @@ namespace BrightData
                 currentTasks[0] = e1.MoveNextAsync();
                 currentTasks[1] = e2.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -483,7 +483,7 @@ namespace BrightData
                     currentTasks[0] = e1.MoveNextAsync();
                     currentTasks[1] = e2.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -601,7 +601,7 @@ namespace BrightData
                 currentTasks[1] = e2.MoveNextAsync();
                 currentTasks[2] = e3.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -696,7 +696,7 @@ namespace BrightData
                     currentTasks[1] = e2.MoveNextAsync();
                     currentTasks[2] = e3.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -833,7 +833,7 @@ namespace BrightData
                 currentTasks[2] = e3.MoveNextAsync();
                 currentTasks[3] = e4.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -939,7 +939,7 @@ namespace BrightData
                     currentTasks[2] = e3.MoveNextAsync();
                     currentTasks[3] = e4.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -1095,7 +1095,7 @@ namespace BrightData
                 currentTasks[3] = e4.MoveNextAsync();
                 currentTasks[4] = e5.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -1212,7 +1212,7 @@ namespace BrightData
                     currentTasks[3] = e4.MoveNextAsync();
                     currentTasks[4] = e5.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -1387,7 +1387,7 @@ namespace BrightData
                 currentTasks[4] = e5.MoveNextAsync();
                 currentTasks[5] = e6.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -1515,7 +1515,7 @@ namespace BrightData
                     currentTasks[4] = e5.MoveNextAsync();
                     currentTasks[5] = e6.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -1709,7 +1709,7 @@ namespace BrightData
                 currentTasks[5] = e6.MoveNextAsync();
                 currentTasks[6] = e7.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -1848,7 +1848,7 @@ namespace BrightData
                     currentTasks[5] = e6.MoveNextAsync();
                     currentTasks[6] = e7.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -2061,7 +2061,7 @@ namespace BrightData
                 currentTasks[6] = e7.MoveNextAsync();
                 currentTasks[7] = e8.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -2211,7 +2211,7 @@ namespace BrightData
                     currentTasks[6] = e7.MoveNextAsync();
                     currentTasks[7] = e8.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -2443,7 +2443,7 @@ namespace BrightData
                 currentTasks[7] = e8.MoveNextAsync();
                 currentTasks[8] = e9.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -2604,7 +2604,7 @@ namespace BrightData
                     currentTasks[7] = e8.MoveNextAsync();
                     currentTasks[8] = e9.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }
@@ -2855,7 +2855,7 @@ namespace BrightData
                 currentTasks[8] = e9.MoveNextAsync();
                 currentTasks[9] = e10.MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
@@ -3027,7 +3027,7 @@ namespace BrightData
                     currentTasks[8] = e9.MoveNextAsync();
                     currentTasks[9] = e10.MoveNextAsync();
                     for (var i = 0; i < size; i++) {
-                        if (await currentTasks[i] != true) {
+                        if (!await currentTasks[i]) {
                             isValid = false;
                             break;
                         }

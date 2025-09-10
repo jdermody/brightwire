@@ -41,7 +41,7 @@ namespace BrightData.Buffer.Operations
                 for (var i = 0; i < _size; i++)
                     currentTasks[i] = enumerators[i].MoveNextAsync();
                 for (var i = 0; i < _size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }

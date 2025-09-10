@@ -43,9 +43,9 @@ namespace BrightData.Buffer.ReadOnly.Converter
         public override async Task<ReadOnlyMemory<TT>> GetTypedBlock(uint blockIndex)
         {
             var block = await from.GetTypedBlock(blockIndex);
-            var ret = new Memory<TT>(new TT[block.Length]);
+            var ret = new TT[block.Length];
             for (var i = 0; i < block.Length; i++)
-                ret.Span[i] = Convert(block.Span[i]);
+                ret[i] = Convert(block.Span[i]);
             return ret;
         }
 

@@ -1357,7 +1357,7 @@ namespace BrightData
                 var path = fileStream.Name;
                 if(shouldTakeOwnershipOfStream)
                     fileStream.Close();
-                return context.LoadTableFromFile(path, false);
+                return context.LoadTableFromFile(path, loadIntoMemory:false);
             }
 
             if(stream is MemoryStream memoryStream)
@@ -1771,7 +1771,7 @@ namespace BrightData
                 for (var i = 0; i < size; i++)
                     currentTasks[i] = enumerators[i].MoveNextAsync();
                 for (var i = 0; i < size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }

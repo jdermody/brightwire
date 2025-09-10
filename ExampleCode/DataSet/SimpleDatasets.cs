@@ -460,7 +460,7 @@ namespace ExampleCode.DataSet
             if (extractor == null)
                 throw new Exception("Could not create an extractor");
 
-            using var output = await GetStream(context, localName, remoteUrl, filePath => extractor(filePath));
+            await using var output = await GetStream(context, localName, remoteUrl, filePath => extractor(filePath));
             return new DirectoryInfo(directoryPath);
         }
     }

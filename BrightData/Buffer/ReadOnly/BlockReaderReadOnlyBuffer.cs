@@ -21,6 +21,11 @@ namespace BrightData.Buffer.ReadOnly
 
         public BlockReaderReadOnlyBuffer(IByteBlockReader reader, MetaData metadata, uint offset, uint byteSize, uint blockSize)
         {
+            if (byteSize == 0)
+                throw new ArgumentException("Byte size must be greater than zero", nameof(byteSize));
+            if (blockSize == 0)
+                throw new ArgumentException("Block size must be greater than zero", nameof(blockSize));
+
             MetaData = metadata;
             _reader = reader;
             _offset = offset;

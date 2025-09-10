@@ -41,7 +41,7 @@ namespace BrightData.LinearAlgebra.VectorIndexing.Storage
 
         public void Dispose()
         {
-            _fileHandle?.Dispose();
+            _fileHandle.Dispose();
         }
 
         public VectorStorageType StorageType => VectorStorageType.OnDisk;

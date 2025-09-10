@@ -22,7 +22,7 @@ namespace BrightData.Buffer.Operations
             if (_from.Any(x => x.Size != size))
                 throw new ArgumentException("Expected all input buffers to have the same size", nameof(from));
             _size = (uint)_from.Count;
-            _blockSize = (uint)_from.Average((IReadOnlyBuffer x) => x.BlockSizes.Average(y => y));
+            _blockSize = (uint)_from.Average(x=> x.BlockSizes.Average(y => y));
             _to = to;
         }
 
@@ -42,7 +42,7 @@ namespace BrightData.Buffer.Operations
                 for (var i = 0; i < _size; i++)
                     currentTasks[i] = enumerators[i].MoveNextAsync();
                 for (var i = 0; i < _size; i++) {
-                    if (await currentTasks[i] != true) {
+                    if (!await currentTasks[i]) {
                         isValid = false;
                         break;
                     }
