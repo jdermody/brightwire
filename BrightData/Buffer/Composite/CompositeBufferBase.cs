@@ -176,6 +176,7 @@ namespace BrightData.Buffer.Composite
                         byteOffset += await SkipFileBlock(_currentDataBlock, byteOffset, _fileBlockSizes[fileBlockIndex++]);
                     }
                 }
+                currentIndex = inMemoryBlocks + inFileBlocks;
             }
 
             // check current block

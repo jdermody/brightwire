@@ -80,7 +80,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public INumericSegment<T> GetRow(uint index)
         {
-            if (index > RowCount)
+            if (index >= RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
             return new MutableTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
@@ -88,7 +88,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual INumericSegment<T> GetColumn(uint index)
         {
-            if (index > ColumnCount)
+            if (index >= ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
             return new MutableTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
@@ -96,7 +96,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual IReadOnlyNumericSegment<T> GetReadOnlyRow(uint index)
         {
-            if (index > RowCount)
+            if (index >= RowCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of rows is {RowCount} but index {index} was requested");
             return new ReadOnlyTensorSegmentWrapper<T>(Segment, index, RowCount, ColumnCount);
         }
@@ -104,7 +104,7 @@ namespace BrightData.LinearAlgebra
         /// <inheritdoc />
         public virtual IReadOnlyNumericSegment<T> GetReadOnlyColumn(uint index)
         {
-            if (index > ColumnCount)
+            if (index >= ColumnCount)
                 throw new ArgumentOutOfRangeException(nameof(index), $"Number of columns is {ColumnCount} but index {index} was requested");
             return new ReadOnlyTensorSegmentWrapper<T>(Segment, index * RowCount, 1, RowCount);
         }
