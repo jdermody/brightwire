@@ -916,6 +916,8 @@ namespace BrightData
         public static T Average<T>(this ReadOnlySpan<T> vector)
             where T : unmanaged, INumber<T>
         {
+            if (vector.Length == 0)
+                return T.Zero;
             return Sum(vector) / T.CreateSaturating(vector.Length);
         }
 
@@ -1014,6 +1016,8 @@ namespace BrightData
         /// <returns></returns>
         public static T MeanSquaredDistance<T>(this ReadOnlySpan<T> tensor, ReadOnlySpan<T> other) where T : unmanaged, INumber<T>, IRootFunctions<T>
         {
+            if (tensor.Length == 0)
+                throw new ArgumentException("Zero length", nameof(tensor));
             var diff = Subtract(tensor, other);
             try {
                 var num = L2Norm<T>(diff.Span);
@@ -1811,9 +1815,9 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <param name="other"></param>
-        public static void Or<T>(Span<ulong> data, ReadOnlySpan<ulong> other) => data.MutateVectorized(
+        public static void Or<T>(Span<T> data, ReadOnlySpan<T> other) where T : unmanaged, IBitwiseOperators<T, T, T> => data.MutateVectorized(
             other,
-            (in Vector<ulong> a, in Vector<ulong> b, out Vector<ulong> r) => r = Vector.BitwiseOr(a, b),
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = Vector.BitwiseOr(a, b),
             (a, b) => a | b
         );
 
@@ -1823,9 +1827,9 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <param name="other"></param>
-        public static void And<T>(Span<ulong> data, ReadOnlySpan<ulong> other) => data.MutateVectorized(
+        public static void And<T>(Span<T> data, ReadOnlySpan<T> other) where T : unmanaged, IBitwiseOperators<T, T, T> => data.MutateVectorized(
             other,
-            (in Vector<ulong> a, in Vector<ulong> b, out Vector<ulong> r) => r = Vector.BitwiseAnd(a, b),
+            (in Vector<T> a, in Vector<T> b, out Vector<T> r) => r = Vector.BitwiseAnd(a, b),
             (a, b) => a & b
         );
 

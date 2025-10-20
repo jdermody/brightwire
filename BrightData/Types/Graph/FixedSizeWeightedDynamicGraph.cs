@@ -1,8 +1,9 @@
-﻿using System;
+﻿using BrightData.Types.Graph.Helper;
+using BrightData.Types.Helper;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using BrightData.Types.Helper;
 
 namespace BrightData.Types.Graph
 {
@@ -12,12 +13,20 @@ namespace BrightData.Types.Graph
     /// <typeparam name="T">Type to store in each node</typeparam>
     /// <typeparam name="W">Type to describe weights</typeparam>
     /// <typeparam name="AT">Array type (fixed size)</typeparam>
-    public class FixedSizeWeightedDynamicGraph<T, W, AT> : IWeightedDynamicGraph<T, W>
-        where T : unmanaged, IHaveSingleIndex
+    public readonly struct FixedSizeWeightedDynamicGraph<T, W, AT> : IWeightedGraph<T, W>
+        where T : unmanaged, IEquatable<T>, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>
     {
         readonly IndexedSortedArray<FixedSizeWeightedGraphNode<T, W, AT>> _nodes = new();
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public FixedSizeWeightedDynamicGraph()
+        {
+
+        }
 
         /// <inheritdoc />
         public void Add(T value)
@@ -35,16 +44,19 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public T Find(uint nodeIndex)
+        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<FixedSizeWeightedDynamicGraph<T, W, AT>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
+        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<FixedSizeWeightedDynamicGraph<T, W, AT>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
+        public T Get(uint nodeIndex)
         {
             ref var node = ref _nodes.Find(nodeIndex);
             if (!Unsafe.IsNullRef(ref node))
                 return node.Value;
             throw new ArgumentException($"Node with index {nodeIndex} was not found");
         }
-
-        /// <inheritdoc />
-        public T this[uint nodePosition] => _nodes[nodePosition].Value;
 
         /// <inheritdoc />
         public ReadOnlySpan<uint> GetNeighbours(uint nodeIndex)
@@ -84,6 +96,13 @@ namespace BrightData.Types.Graph
             where CAT : struct, IFixedSizeSortedArray<uint, W>
         {
             return WeightedGraphHelper.SearchFixedSize<W, RAT, CAT>(q, entryPoint, distanceCalculator, GetNeighbours);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
+        {
+            ref var node = ref _nodes.Find(nodeIndex);
+            return !Unsafe.IsNullRef(ref node) ? node.Neighbours : [];
         }
     }
 }

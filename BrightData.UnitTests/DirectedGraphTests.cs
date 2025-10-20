@@ -9,7 +9,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void SimpleTest()
         {
-            var builder = new SparseGraphBuilder<GraphNodeIndex>();
+            var builder = new UndirectedSparseGraph<GraphNodeIndex>();
             var firstNodeIndex = builder.Add(new(100));
             var secondNodeIndex = builder.Add(new(200));
             builder.AddEdge(secondNodeIndex, firstNodeIndex);

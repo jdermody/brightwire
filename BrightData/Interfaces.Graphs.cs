@@ -5,27 +5,107 @@ using System.Numerics;
 namespace BrightData
 {
     /// <summary>
-    /// 
+    /// Read only graph
     /// </summary>
-    public interface IGraph : IHaveSize;
+    public interface IReadOnlyGraph : IHaveSize
+    {
+        /// <summary>
+        /// Gets the set of connected nodes from the specified node index
+        /// </summary>
+        /// <param name="nodeIndex"></param>
+        /// <returns></returns>
+        IEnumerable<uint> GetConnectedNodes(uint nodeIndex);
+    }
 
     /// <summary>
-    /// 
+    /// Strongly typed read only graph
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IGraph<T> : IGraph
-        where T: unmanaged
+    public interface IReadOnlyGraph<out T> : IReadOnlyGraph
+        where T: unmanaged, IEquatable<T>
     {
-        //IEnumerable<T> DepthFirstSearch(T start);
-        //IEnumerable<T> BreadthFirstSearch(T start);
+        /// <summary>
+        /// Returns connected node indices in depth first order
+        /// </summary>
+        /// <param name="startNodeIndex">Node index at which to start search</param>
+        /// <returns></returns>
+        IEnumerable<uint> DepthFirstSearch(uint startNodeIndex);
+
+        /// <summary>
+        /// Returns connected node indices in breadth first order
+        /// </summary>
+        /// <param name="startNodeIndex">Node index at which to start search</param>
+        /// <returns></returns>
+        IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex);
+
+        /// <summary>
+        /// Gets the value of a node based on index
+        /// </summary>
+        /// <param name="nodeIndex"></param>
+        /// <returns></returns>
+        T Get(uint nodeIndex);
+    }
+
+    /// <summary>
+    /// Read only directed graph
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IReadOnlyDirectedGraph<out T> : IReadOnlyGraph<T>
+        where T : unmanaged, IEquatable<T>
+    {
+        /// <summary>
+        /// Gets the number of vertices that connect to the specified node index
+        /// </summary>
+        /// <param name="nodeIndex">Node index</param>
+        /// <returns></returns>
+        uint GetInDegree(uint nodeIndex);
+
+        /// <summary>
+        /// Gets the number of vertices from the specified node index
+        /// </summary>
+        /// <param name="nodeIndex">Node index</param>
+        /// <returns></returns>
+        uint GetOutDegree(uint nodeIndex);
+
+        /// <summary>
+        /// Returns a valid ordering of the nodes in a DAG (or empty if there is a cycle in the graph)
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<uint> TopologicalSort();
+    }
+
+    /// <summary>
+    /// Directed graph
+    /// </summary>
+    /// <typeparam name="NT"></typeparam>
+    /// <typeparam name="ET"></typeparam>
+    public interface IDirectedGraph<NT, in ET> : IReadOnlyDirectedGraph<NT>
+        where NT : unmanaged, IEquatable<NT>
+        where ET : unmanaged
+    {
+        /// <summary>
+        /// Adds a node to the graph
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        uint Add(NT node);
+
+        /// <summary>
+        /// Adds a vertex between two nodes
+        /// </summary>
+        /// <param name="fromNodeIndex"></param>
+        /// <param name="toNodeIndex"></param>
+        /// <param name="edge"></param>
+        /// <returns></returns>
+        uint AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge);
     }
 
     /// <summary>
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IBuildGraphs<in T>
-        where T: unmanaged
+    public interface IUndirectedGraphs<T> : IReadOnlyGraph<T>
+        where T: unmanaged, IEquatable<T>
     {
         /// <summary>
         /// Add a new node
@@ -41,14 +121,12 @@ namespace BrightData
         /// <param name="toNodeIndex"></param>
         /// <returns></returns>
         bool AddEdge(uint fromNodeIndex, uint toNodeIndex);
-
-
     }
 
     /// <summary>
     /// A graph node
     /// </summary>
-    public interface IGraphNode : IHaveSingleIndex
+    public interface IUndirectedGraphNode : IHaveSingleIndex
     {
         /// <summary>
         /// Span of neighbour indices
@@ -66,7 +144,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T">Type of value to store</typeparam>
     /// <typeparam name="W">Type of weight</typeparam>
-    public interface IWeightedGraphNode<out T, W> : IGraphNode
+    public interface IWeightedGraphNode<out T, W> : IUndirectedGraphNode
         where T: IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
@@ -110,24 +188,10 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="W"></typeparam>
-    public interface IWeightedGraph<T, W> : IGraph<T>
-        where T: unmanaged, IHaveSingleIndex
+    public interface IReadOnlyWeightedGraph<T, W> : IReadOnlyGraph<T>
+        where T: unmanaged, IEquatable<T>, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
-        /// <summary>
-        /// Finds the value of a node based on index
-        /// </summary>
-        /// <param name="nodeIndex"></param>
-        /// <returns></returns>
-        T Find(uint nodeIndex);
-
-        /// <summary>
-        /// Finds the value based on node position within the graph
-        /// </summary>
-        /// <param name="nodePosition"></param>
-        /// <returns></returns>
-        T this[uint nodePosition] { get; }
-
         /// <summary>
         /// Performs a probabilistic search between two nodes
         /// </summary>
@@ -171,8 +235,8 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="W"></typeparam>
-    public interface IWeightedDynamicGraph<T, W> : IWeightedGraph<T, W>
-        where T : unmanaged, IHaveSingleIndex
+    public interface IWeightedGraph<T, W> : IReadOnlyWeightedGraph<T, W>
+        where T : unmanaged, IEquatable<T>, IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {
         /// <summary>

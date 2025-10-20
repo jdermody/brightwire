@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BrightData.Types.Graph.Helper;
 
 namespace BrightData.Types.Graph
 {
@@ -8,8 +10,8 @@ namespace BrightData.Types.Graph
     /// A dense graph implementation
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly record struct DenseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
-        where T : unmanaged
+    public readonly record struct ReadOnlyUndirectedGraph<T> : IReadOnlyGraph<T>, IHaveDataAsReadOnlyByteSpan
+        where T : unmanaged, IEquatable<T>
     {
         const int HeaderSize = 8;
 
@@ -21,7 +23,7 @@ namespace BrightData.Types.Graph
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="edges"></param>
-        public DenseGraph(T[] nodes, BitVector edges)
+        public ReadOnlyUndirectedGraph(T[] nodes, BitVector edges)
         {
             _nodes = nodes;
             _edges = edges;
@@ -31,7 +33,7 @@ namespace BrightData.Types.Graph
         /// Creates a graph from a serialized byte array
         /// </summary>
         /// <param name="data"></param>
-        public DenseGraph(ReadOnlySpan<byte> data)
+        public ReadOnlyUndirectedGraph(ReadOnlySpan<byte> data)
         {
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);
             _nodes = MemoryMarshal.Cast<byte, T>(data[HeaderSize..(int)header[0]]).ToArray();
@@ -62,6 +64,20 @@ namespace BrightData.Types.Graph
         /// <inheritdoc />
         public uint Size => (uint)_nodes.Length;
 
+        /// <inheritdoc />
+        public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
+        {
+            if (nodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(nodeIndex));
+
+            var start = nodeIndex * Size;
+            for (uint i = 0; i < Size; i++)
+            {
+                if (_edges[start + i])
+                    yield return i;
+            }
+        }
+
         /// <summary>
         /// Finds the index of an edge in the adjacency matrix
         /// </summary>
@@ -71,48 +87,13 @@ namespace BrightData.Types.Graph
         /// <returns></returns>
         public static uint GetEdgeIndex(uint from, uint to, uint numNodes) => from * numNodes + to;
 
-        public IEnumerable<T> DepthFirstSearch(T start)
-        {
-            var startIndex = Array.IndexOf(_nodes, start);
-            if (startIndex == -1)
-                yield break;
+        /// <inheritdoc />
+        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedGraph<T>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
-            var stack = new Stack<int>();
-            stack.Push(startIndex);
-            var visited = new HashSet<int>();
-            while (stack.Count > 0) {
-                var index = stack.Pop();
-                if (!visited.Add(index))
-                    continue;
-                yield return _nodes[index];
+        /// <inheritdoc />
+        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedGraph<T>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
-                for (var i = _nodes.Length - 1; i >= 0; i--) {
-                    if (_edges[index * _nodes.Length + i]) // Check adjacency matrix
-                        stack.Push(i);
-                }
-            }
-        }
-
-        public IEnumerable<T> BreadthFirstSearch(T start)
-        {
-            var startIndex = Array.IndexOf(_nodes, start);
-            if (startIndex == -1)
-                yield break;
-
-            var queue = new Queue<int>();
-            queue.Enqueue(startIndex);
-            var visited = new HashSet<int> { startIndex };
-
-            while (queue.Count > 0) {
-                var index = queue.Dequeue();
-                yield return _nodes[index];
-
-                for (var i = 0; i < _nodes.Length; i++) {
-                    if (_edges[index * _nodes.Length + i] && visited.Add(i)) {
-                        queue.Enqueue(i);
-                    }
-                }
-            }
-        }
+        /// <inheritdoc />
+        public T Get(uint nodeIndex) => _nodes[nodeIndex];
     }
 }

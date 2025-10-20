@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance;
 using System.Threading.Tasks;
+using BrightData.Types.Graph.Helper;
 using BrightData.Types.Helper;
 
 namespace BrightData.Types.Graph
@@ -14,7 +15,7 @@ namespace BrightData.Types.Graph
     /// </summary>
     /// <typeparam name="W"></typeparam>
     /// <typeparam name="AT"></typeparam>
-    public class FixedSizeWeightedGraph<W, AT> : IWeightedGraph<GraphNodeIndex, W>
+    public readonly struct FixedSizeWeightedGraph<W, AT> : IReadOnlyWeightedGraph<GraphNodeIndex, W>
         where W : unmanaged, IBinaryFloatingPointIeee754<W>, IMinMaxValue<W>
         where AT : unmanaged, IFixedSizeSortedArray<uint, W>
     {
@@ -76,7 +77,13 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public GraphNodeIndex Find(uint nodeIndex)
+        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<FixedSizeWeightedGraph<W, AT>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
+        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<FixedSizeWeightedGraph<W, AT>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
+        public GraphNodeIndex Get(uint nodeIndex)
         {
             ref var node = ref _nodes[nodeIndex];
             if (!Unsafe.IsNullRef(ref node))
@@ -84,8 +91,14 @@ namespace BrightData.Types.Graph
             throw new ArgumentException($"Node with index {nodeIndex} was not found");
         }
 
+
         /// <inheritdoc />
-        public GraphNodeIndex this[uint nodePosition] => _nodes[nodePosition].Value;
+        public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
+        {
+            ref var node = ref _nodes[nodeIndex];
+            return !Unsafe.IsNullRef(ref node) ? node.Neighbours : [];
+        }
+
 
         /// <summary>
         /// Creates 

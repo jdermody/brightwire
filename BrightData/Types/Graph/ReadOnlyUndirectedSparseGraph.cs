@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BrightData.Types.Graph.Helper;
 
 namespace BrightData.Types.Graph
 {
@@ -9,8 +11,8 @@ namespace BrightData.Types.Graph
     /// Directed graph
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public readonly record struct SparseGraph<T> : IGraph<T>, IHaveDataAsReadOnlyByteSpan
-        where T : unmanaged
+    public readonly record struct ReadOnlyUndirectedSparseGraph<T> : IReadOnlyGraph<T>, IHaveDataAsReadOnlyByteSpan
+        where T : unmanaged, IEquatable<T>
     {
         const int HeaderSize = 8;
 
@@ -22,14 +24,14 @@ namespace BrightData.Types.Graph
         /// Creates a directed graph from graph data
         /// </summary>
         /// <param name="data"></param>
-        public SparseGraph(ReadOnlySpan<byte> data)
+        public ReadOnlyUndirectedSparseGraph(ReadOnlySpan<byte> data)
         {
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);
             _nodes = MemoryMarshal.Cast<byte, Node>(data[HeaderSize..(int)header[0]]).ToArray();
             _edges = MemoryMarshal.Cast<byte, uint>(data[(int)header[0]..(int)header[1]]).ToArray();
         }
 
-        internal SparseGraph(ReadOnlySpan<Node> nodes, ReadOnlySpan<uint> edges)
+        internal ReadOnlyUndirectedSparseGraph(ReadOnlySpan<Node> nodes, ReadOnlySpan<uint> edges)
         {
             _nodes = nodes.ToArray();
             _edges = edges.ToArray();
@@ -89,49 +91,23 @@ namespace BrightData.Types.Graph
             }
         }
 
-        public IEnumerable<T> DepthFirstSearch(T start)
+        /// <inheritdoc />
+        public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
         {
-            var startIndex = Array.FindIndex(_nodes, n => EqualityComparer<T>.Default.Equals(n.Value, start));
-            if (startIndex == -1) 
-                yield break;
-
-            var stack = new Stack<int>();
-            stack.Push(startIndex);
-
-            var visited = new HashSet<int>();
-            while (stack.Count > 0) {
-                var index = stack.Pop();
-                if (!visited.Add(index)) 
-                    continue;
-                yield return _nodes[index].Value;
-
-                for (int edgeIndex = _nodes[index].EdgeIndex, i = edgeIndex + _nodes[index].EdgeCount - 1; i >= edgeIndex; i--) {
-                    stack.Push((int)_edges[i]);
-                }
+            if (nodeIndex < _nodes.Length) {
+                var (_, edgeIndex, edgeCount) = _nodes[nodeIndex];
+                foreach (var connectedTo in _edges[edgeIndex..(edgeIndex + edgeCount)])
+                    yield return connectedTo;
             }
         }
 
-        public IEnumerable<T> BreadthFirstSearch(T start)
-        {
-            var queue = new Queue<int>();
-            var visited = new HashSet<int>();
-            var startIndex = Array.FindIndex(_nodes, n => EqualityComparer<T>.Default.Equals(n.Value, start));
-            if (startIndex == -1) yield break;
+        /// <inheritdoc />
+        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedSparseGraph<T>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
-            queue.Enqueue(startIndex);
-            visited.Add(startIndex);
+        /// <inheritdoc />
+        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedSparseGraph<T>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
-            while (queue.Count > 0) {
-                var index = queue.Dequeue();
-                yield return _nodes[index].Value;
-
-                for (var i = _nodes[index].EdgeIndex; i < _nodes[index].EdgeIndex + _nodes[index].EdgeCount; i++) {
-                    var neighbor = (int)_edges[i];
-                    if (visited.Add(neighbor)) {
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-        }
+        /// <inheritdoc />
+        public T Get(uint nodeIndex) => _nodes[nodeIndex].Value;
     }
 }
