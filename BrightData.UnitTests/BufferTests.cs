@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -192,12 +193,11 @@ namespace BrightData.UnitTests
                     item.Should().Be(++index);
             }
             var table = await _context.CreateTableInMemory(null, intBuffer);
-            var column = await table.GetColumn<int>(0).AsReadOnlySequence();
+            var column = (await table.GetColumn<int>(0).AsReadOnlySequence()).ToArray();
             index = 0;
-            foreach (var block in column) {
-                foreach (var item in block.ToArray()) {
-                    item.Should().Be(++index);
-                }
+            foreach (var item in column)
+            {
+                item.Should().Be(++index);
             }
         }
 
