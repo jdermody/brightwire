@@ -98,6 +98,11 @@ namespace BrightData
         /// <param name="edge"></param>
         /// <returns></returns>
         uint AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge);
+
+        /// <summary>
+        /// Clears all nodes and vertices from the graph
+        /// </summary>
+        void Clear();
     }
 
     /// <summary>

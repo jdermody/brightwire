@@ -7,7 +7,12 @@ using BrightData.Types.Graph.Helper;
 
 namespace BrightData.Types.Graph
 {
-    internal readonly struct DirectedGraph<NT, ET> : IDirectedGraph<NT, ET>, IDisposable
+    /// <summary>
+    /// Directed graph implementation
+    /// </summary>
+    /// <typeparam name="NT">Node type</typeparam>
+    /// <typeparam name="ET">Edge type</typeparam>
+    public readonly struct DirectedGraph<NT, ET> : IDirectedGraph<NT, ET>, IDisposable
         where NT : unmanaged, IEquatable<NT>
         where ET : unmanaged
     {
@@ -15,24 +20,33 @@ namespace BrightData.Types.Graph
         readonly ArrayPoolBufferWriter<NT> _nodes = new();
         readonly ArrayPoolBufferWriter<Edge> _edges = new();
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public DirectedGraph()
         {
 
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _nodes.Dispose();
             _edges.Dispose();
         }
 
+        /// <inheritdoc />
         public uint Size => (uint)_nodes.WrittenCount;
+
+        /// <inheritdoc />
         public uint Add(NT node)
         {
             var ret = Size;
             _nodes.Write(node);
             return ret;
         }
+
+        /// <inheritdoc />
         public uint AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge)
         {
             var ret = (uint)_edges.WrittenCount;
@@ -40,6 +54,7 @@ namespace BrightData.Types.Graph
             return ret;
         }
 
+        /// <inheritdoc />
         public uint GetInDegree(uint nodeIndex)
         {
             uint ret = 0;
@@ -49,6 +64,7 @@ namespace BrightData.Types.Graph
             return ret;
         }
 
+        /// <inheritdoc />
         public uint GetOutDegree(uint nodeIndex)
         {
             uint ret = 0;
@@ -58,8 +74,10 @@ namespace BrightData.Types.Graph
             return ret;
         }
 
+        /// <inheritdoc />
         public IEnumerable<uint> TopologicalSort() => DirectedGraphHelper<DirectedGraph<NT, ET>, NT>.TopologicalSort(ref Unsafe.AsRef(in this));
 
+        /// <inheritdoc />
         public void Clear()
         {
             _nodes.Clear();
@@ -77,6 +95,7 @@ namespace BrightData.Types.Graph
             throw new ArgumentException("Edge not found");
         }
 
+        /// <inheritdoc />
         public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
         {
             if (nodeIndex >= Size)
@@ -92,8 +111,13 @@ namespace BrightData.Types.Graph
             return list;
         }
 
+        /// <inheritdoc />
         public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<DirectedGraph<NT, ET>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
         public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<DirectedGraph<NT, ET>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+
+        /// <inheritdoc />
         public NT Get(uint nodeIndex) => _nodes.WrittenSpan[(int)nodeIndex];
     }
 }

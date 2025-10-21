@@ -9165,6 +9165,11 @@
             <param name="edge"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.IDirectedGraph`2.Clear">
+            <summary>
+            Clears all nodes and vertices from the graph
+            </summary>
+        </member>
         <member name="T:BrightData.IUndirectedGraphs`1">
             <summary>
             
@@ -19475,6 +19480,54 @@
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Types.Graph.DirectedGraph`2">
+            <summary>
+            Directed graph implementation
+            </summary>
+            <typeparam name="NT">Node type</typeparam>
+            <typeparam name="ET">Edge type</typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.DirectedGraph`2.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.AddEdge(System.UInt32,System.UInt32,`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetInDegree(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetOutDegree(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.TopologicalSort">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetConnectedNodes(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.DepthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.BreadthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
             <summary>
             A fixed size weighted graph
@@ -19897,7 +19950,7 @@
         <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.AddEdge(System.UInt32,System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.Build">
+        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.AsReadOnly">
             <summary>
             Builds the graph
             </summary>

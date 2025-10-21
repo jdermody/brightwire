@@ -60,7 +60,7 @@ namespace BrightData.Types.Graph
         /// Builds the graph
         /// </summary>
         /// <returns></returns>
-        public ReadOnlyUndirectedSparseGraph<T> Build()
+        public ReadOnlyUndirectedSparseGraph<T> AsReadOnly()
         {
             using var nodes = new ArrayPoolBufferWriter<ReadOnlyUndirectedSparseGraph<T>.Node>(_nodes.Count);
             using var edges = new ArrayPoolBufferWriter<uint>();
