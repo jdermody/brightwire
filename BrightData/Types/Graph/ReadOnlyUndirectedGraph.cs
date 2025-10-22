@@ -15,7 +15,7 @@ namespace BrightData.Types.Graph
     {
         const int HeaderSize = 8;
 
-        readonly T[] _nodes;
+        readonly ReadOnlyMemory<T> _nodes;
         readonly BitVector _edges;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace BrightData.Types.Graph
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="edges"></param>
-        public ReadOnlyUndirectedGraph(T[] nodes, BitVector edges)
+        public ReadOnlyUndirectedGraph(ReadOnlyMemory<T> nodes, BitVector edges)
         {
             _nodes = nodes;
             _edges = edges;
@@ -45,7 +45,7 @@ namespace BrightData.Types.Graph
         {
             get
             {
-                var nodeBytes = MemoryMarshal.AsBytes(_nodes.AsSpan());
+                var nodeBytes = MemoryMarshal.AsBytes(_nodes.Span);
                 var edgesBytes = _edges.DataAsBytes;
                 Span<uint> header = [
                     (uint)(HeaderSize + nodeBytes.Length),
@@ -94,6 +94,15 @@ namespace BrightData.Types.Graph
         public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedGraph<T>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
         /// <inheritdoc />
-        public T Get(uint nodeIndex) => _nodes[nodeIndex];
+        public T Get(uint nodeIndex) => _nodes.Span[(int)nodeIndex];
+
+        /// <inheritdoc />
+        public uint GetNodeIndex(T node)
+        {
+            var ret = _nodes.Span.IndexOf(node);
+            if (ret >= 0)
+                return (uint)ret;
+            throw new ArgumentException("Node not found", nameof(node));
+        }
     }
 }

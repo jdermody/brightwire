@@ -1,17 +1,23 @@
-﻿using System;
+﻿using BrightData.Types.Graph.Helper;
+using CommunityToolkit.HighPerformance.Buffers;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using BrightData.Types.Graph.Helper;
+using CommunityToolkit.HighPerformance;
 
 namespace BrightData.Types.Graph
 {
-    /// <inheritdoc />
-    public readonly struct UndirectedGraph<T> : IUndirectedGraphs<T>
+
+    /// <summary>
+    /// Mutable undirected graph
+    /// </summary>
+    /// <typeparam name="T">Node type</typeparam>
+    public readonly struct UndirectedGraph<T> : IMutableGraph<T>, IReadOnlyGraph<T>, IDisposable
         where T: unmanaged, IEquatable<T>
     {
         readonly record struct NodeIndexPair(uint FirstNodeIndex, uint SecondNodeIndex);
 
-        readonly List<T> _nodes = [];
+        readonly ArrayPoolBufferWriter<T> _nodes = new();
         readonly HashSet<NodeIndexPair> _edges = [];
 
         /// <summary>
@@ -22,10 +28,16 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
+        public void Dispose()
+        {
+            _nodes.Dispose();
+        }
+
+        /// <inheritdoc />
         public uint Add(T node)
         {
-            var nodeIndex = (uint)_nodes.Count;
-            _nodes.Add(node);
+            var nodeIndex = (uint)_nodes.WrittenCount;
+            _nodes.Write(node);
             return nodeIndex;
         }
 
@@ -42,22 +54,30 @@ namespace BrightData.Types.Graph
             return false;
         }
 
+        /// <inheritdoc />
+        public void Clear()
+        {
+            _nodes.Clear();
+            _edges.Clear();
+        }
+
         /// <summary>
         /// Converts to a read only graph
         /// </summary>
         /// <returns></returns>
         public ReadOnlyUndirectedGraph<T> ToReadOnly()
         {
-            var nodeCount = (uint)_nodes.Count;
+            var nodeCount = (uint)_nodes.WrittenCount;
             var edges = new BitVector(nodeCount * nodeCount);
             foreach (var (from, to) in _edges) {
                 edges[ReadOnlyUndirectedGraph<T>.GetEdgeIndex(from, to, nodeCount)] = true;
+                edges[ReadOnlyUndirectedGraph<T>.GetEdgeIndex(to, from, nodeCount)] = true;
             }
-            return new ReadOnlyUndirectedGraph<T>(_nodes.ToArray(), edges);
+            return new ReadOnlyUndirectedGraph<T>(_nodes.WrittenMemory, edges);
         }
 
         /// <inheritdoc />
-        public uint Size => (uint)_nodes.Count;
+        public uint Size => (uint)_nodes.WrittenCount;
 
         /// <inheritdoc />
         public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
@@ -82,6 +102,15 @@ namespace BrightData.Types.Graph
         public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<UndirectedGraph<T>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
         /// <inheritdoc />
-        public T Get(uint nodeIndex) => _nodes[(int)nodeIndex];
+        public T Get(uint nodeIndex) => _nodes.WrittenSpan[(int)nodeIndex];
+
+        /// <inheritdoc />
+        public uint GetNodeIndex(T node)
+        {
+            var ret = _nodes.WrittenSpan.IndexOf(node);
+            if (ret >= 0)
+                return (uint)ret;
+            throw new ArgumentException("Node not found", nameof(node));
+        }
     }
 }

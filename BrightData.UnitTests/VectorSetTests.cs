@@ -6,6 +6,7 @@ using BrightData.Types;
 using BrightData.Types.Graph;
 using FluentAssertions;
 using Xunit;
+using BrightData.Types.Graph.Helper;
 
 namespace BrightData.UnitTests
 {

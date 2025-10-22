@@ -4,9 +4,8 @@ using System.Linq;
 
 namespace BrightData.Types.Graph.Helper
 {
-    internal static class DirectedGraphHelper<GT, NT>
-        where GT: struct, IReadOnlyDirectedGraph<NT>
-        where NT : unmanaged, IEquatable<NT>
+    internal static class DirectedGraphHelper<GT>
+        where GT: struct, IReadOnlyDirectedGraph
     {
         public static IEnumerable<uint> TopologicalSort(ref GT graph)
         {

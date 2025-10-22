@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BrightData.Types.Graph
+namespace BrightData.Types.Graph.Helper
 {
     /// <summary>
     /// Index only graph node value

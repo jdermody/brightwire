@@ -7,6 +7,7 @@ using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.VectorIndexing.Storage;
 using BrightData.Types;
 using BrightData.Types.Graph;
+using BrightData.Types.Graph.Helper;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 {

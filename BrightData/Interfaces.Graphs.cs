@@ -15,15 +15,7 @@ namespace BrightData
         /// <param name="nodeIndex"></param>
         /// <returns></returns>
         IEnumerable<uint> GetConnectedNodes(uint nodeIndex);
-    }
 
-    /// <summary>
-    /// Strongly typed read only graph
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IReadOnlyGraph<out T> : IReadOnlyGraph
-        where T: unmanaged, IEquatable<T>
-    {
         /// <summary>
         /// Returns connected node indices in depth first order
         /// </summary>
@@ -37,21 +29,34 @@ namespace BrightData
         /// <param name="startNodeIndex">Node index at which to start search</param>
         /// <returns></returns>
         IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex);
+    }
 
+    /// <summary>
+    /// Strongly typed read only graph
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IReadOnlyGraph<T> : IReadOnlyGraph
+        where T: unmanaged, IEquatable<T>
+    {
         /// <summary>
         /// Gets the value of a node based on index
         /// </summary>
         /// <param name="nodeIndex"></param>
         /// <returns></returns>
         T Get(uint nodeIndex);
+
+        /// <summary>
+        /// Gets the node index of the specified node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        uint GetNodeIndex(T node);
     }
 
     /// <summary>
     /// Read only directed graph
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IReadOnlyDirectedGraph<out T> : IReadOnlyGraph<T>
-        where T : unmanaged, IEquatable<T>
+    public interface IReadOnlyDirectedGraph : IReadOnlyGraph
     {
         /// <summary>
         /// Gets the number of vertices that connect to the specified node index
@@ -75,29 +80,42 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Directed graph
+    /// A directed graph that allows multiple edges between nodes
     /// </summary>
-    /// <typeparam name="NT"></typeparam>
-    /// <typeparam name="ET"></typeparam>
-    public interface IDirectedGraph<NT, in ET> : IReadOnlyDirectedGraph<NT>
+    public interface IReadOnlyMultiDirectedGraph<NT, ET> : IReadOnlyDirectedGraph, IReadOnlyGraph<NT>
         where NT : unmanaged, IEquatable<NT>
         where ET : unmanaged
     {
         /// <summary>
+        /// Return the edges between two nodes
+        /// </summary>
+        /// <param name="fromNodeIndex"></param>
+        /// <param name="toNodeIndex"></param>
+        /// <returns></returns>
+        List<(ET Data, uint Index)> GetEdges(uint fromNodeIndex, uint toNodeIndex);
+    }
+
+    /// <summary>
+    /// Mutable graph
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IMutableGraph<in T>
+        where T : unmanaged, IEquatable<T>
+    {
+        /// <summary>
         /// Adds a node to the graph
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        uint Add(NT node);
+        /// <param name="node">Node data to add</param>
+        /// <returns>Node index</returns>
+        uint Add(T node);
 
         /// <summary>
         /// Adds a vertex between two nodes
         /// </summary>
         /// <param name="fromNodeIndex"></param>
         /// <param name="toNodeIndex"></param>
-        /// <param name="edge"></param>
         /// <returns></returns>
-        uint AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge);
+        bool AddEdge(uint fromNodeIndex, uint toNodeIndex);
 
         /// <summary>
         /// Clears all nodes and vertices from the graph
@@ -106,32 +124,28 @@ namespace BrightData
     }
 
     /// <summary>
-    /// 
+    /// Mutable graph with edges with an associated data type
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IUndirectedGraphs<T> : IReadOnlyGraph<T>
-        where T: unmanaged, IEquatable<T>
+    /// <typeparam name="NT">Node type</typeparam>
+    /// <typeparam name="ET">Edge type</typeparam>
+    public interface IMutableGraphWithEdgeData<in NT, in ET> : IMutableGraph<NT>
+        where NT : unmanaged, IEquatable<NT>
+        where ET : unmanaged
     {
         /// <summary>
-        /// Add a new node
-        /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        uint Add(T node);
-
-        /// <summary>
-        /// Adds an edge between two nodes
+        /// Adds a vertex between two nodes
         /// </summary>
         /// <param name="fromNodeIndex"></param>
         /// <param name="toNodeIndex"></param>
+        /// <param name="edgeData"></param>
         /// <returns></returns>
-        bool AddEdge(uint fromNodeIndex, uint toNodeIndex);
+        bool AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edgeData);
     }
 
     /// <summary>
     /// A graph node
     /// </summary>
-    public interface IUndirectedGraphNode : IHaveSingleIndex
+    public interface IUndirectedWeightedGraphNode : IHaveSingleIndex
     {
         /// <summary>
         /// Span of neighbour indices
@@ -149,7 +163,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T">Type of value to store</typeparam>
     /// <typeparam name="W">Type of weight</typeparam>
-    public interface IWeightedGraphNode<out T, W> : IUndirectedGraphNode
+    public interface IWeightedGraphNode<out T, W> : IUndirectedWeightedGraphNode
         where T: IHaveSingleIndex
         where W : unmanaged, INumber<W>, IMinMaxValue<W>
     {

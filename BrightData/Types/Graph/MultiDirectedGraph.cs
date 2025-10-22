@@ -1,18 +1,18 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using BrightData.Types.Graph.Helper;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using BrightData.Types.Graph.Helper;
 
 namespace BrightData.Types.Graph
 {
     /// <summary>
-    /// Directed graph implementation
+    /// Mutable directed graph
     /// </summary>
     /// <typeparam name="NT">Node type</typeparam>
     /// <typeparam name="ET">Edge type</typeparam>
-    public readonly struct DirectedGraph<NT, ET> : IDirectedGraph<NT, ET>, IDisposable
+    public readonly struct MultiDirectedGraph<NT, ET> : IMutableGraphWithEdgeData<NT, ET>, IReadOnlyMultiDirectedGraph<NT, ET>, IDisposable
         where NT : unmanaged, IEquatable<NT>
         where ET : unmanaged
     {
@@ -23,7 +23,7 @@ namespace BrightData.Types.Graph
         /// <summary>
         /// Default constructor
         /// </summary>
-        public DirectedGraph()
+        public MultiDirectedGraph()
         {
 
         }
@@ -47,11 +47,13 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public uint AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge)
+        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex) => AddEdge(fromNodeIndex, toNodeIndex, default(ET));
+
+        /// <inheritdoc />
+        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge)
         {
-            var ret = (uint)_edges.WrittenCount;
             _edges.Write(new(fromNodeIndex, toNodeIndex, edge));
-            return ret;
+            return true;
         }
 
         /// <inheritdoc />
@@ -75,7 +77,7 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public IEnumerable<uint> TopologicalSort() => DirectedGraphHelper<DirectedGraph<NT, ET>, NT>.TopologicalSort(ref Unsafe.AsRef(in this));
+        public IEnumerable<uint> TopologicalSort() => DirectedGraphHelper<MultiDirectedGraph<NT, ET>>.TopologicalSort(ref Unsafe.AsRef(in this));
 
         /// <inheritdoc />
         public void Clear()
@@ -84,15 +86,22 @@ namespace BrightData.Types.Graph
             _edges.Clear();
         }
 
-        public (ET Data, uint Index) GetEdge(uint fromNodeIndex, uint toNodeIndex)
+        /// <inheritdoc />
+        public List<(ET Data, uint Index)> GetEdges(uint fromNodeIndex, uint toNodeIndex)
         {
+            if (fromNodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(fromNodeIndex));
+            if (toNodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(toNodeIndex));
+
             var index = 0U;
-            foreach (ref readonly var edge in _edges.WrittenSpan) {
+            var ret = new List<(ET Data, uint Index)>();
+            foreach (var edge in _edges.WrittenSpan) {
                 if (edge.FromNodeIndex == fromNodeIndex && edge.ToNodeIndex == toNodeIndex)
-                    return (edge.Data, index);
+                    ret.Add((edge.Data, index));
                 ++index;
             }
-            throw new ArgumentException("Edge not found");
+            return ret;
         }
 
         /// <inheritdoc />
@@ -101,23 +110,32 @@ namespace BrightData.Types.Graph
             if (nodeIndex >= Size)
                 throw new ArgumentOutOfRangeException(nameof(nodeIndex));
 
-            var list = new List<uint>();
+            var ret = new List<uint>();
+            var visited = new HashSet<uint>();
             foreach (var edge in _edges.WrittenSpan)
             {
-                if (edge.FromNodeIndex == nodeIndex)
-                    list.Add(edge.ToNodeIndex);
+                if (edge.FromNodeIndex == nodeIndex && visited.Add(edge.ToNodeIndex))
+                    ret.Add(edge.ToNodeIndex);
             }
-
-            return list;
+            return ret;
         }
 
         /// <inheritdoc />
-        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<DirectedGraph<NT, ET>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+        public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<MultiDirectedGraph<NT, ET>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
         /// <inheritdoc />
-        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<DirectedGraph<NT, ET>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
+        public IEnumerable<uint> BreadthFirstSearch(uint startNodeIndex) => GraphHelper<MultiDirectedGraph<NT, ET>>.BreadthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
 
         /// <inheritdoc />
         public NT Get(uint nodeIndex) => _nodes.WrittenSpan[(int)nodeIndex];
+
+        /// <inheritdoc />
+        public uint GetNodeIndex(NT node)
+        {
+            var ret = _nodes.WrittenSpan.IndexOf(node);
+            if (ret >= 0)
+                return (uint)ret;
+            throw new ArgumentException("Node not found", nameof(node));
+        }
     }
 }

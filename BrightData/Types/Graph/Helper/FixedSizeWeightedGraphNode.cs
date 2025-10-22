@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace BrightData.Types.Graph
+namespace BrightData.Types.Graph.Helper
 {
     /// <summary>
     /// A graph node with a (fixed size) maximum number of neighbours
