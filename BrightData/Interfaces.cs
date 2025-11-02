@@ -1,10 +1,12 @@
-﻿using System;
+﻿using BrightData.Buffer;
+using BrightData.Buffer.ByteDataProviders;
+using BrightData.Types;
+using CommunityToolkit.HighPerformance.Buffers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
-using BrightData.Types;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData
 {
@@ -633,5 +635,26 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         ReadOnlySpan<ulong> AsSpan();
+    }
+
+    /// <summary>
+    /// Accesses byte data
+    /// </summary>
+    public interface IByteDataProvider : IDisposable
+    {
+        /// <summary>
+        /// Access a span of bytes
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        ByteDataBlock GetDataSpan(uint offset, uint size);
+
+        /// <summary>
+        /// Access a span of bytes
+        /// </summary>
+        /// <param name="offsetAndSize"></param>
+        /// <returns></returns>
+        public ByteDataBlock GetDataSpan(OffsetAndSize offsetAndSize) => GetDataSpan(offsetAndSize.StartOffset, offsetAndSize.Size);
     }
 }

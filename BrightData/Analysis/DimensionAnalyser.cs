@@ -19,14 +19,8 @@ namespace BrightData.Analysis
         public void Add(IReadOnlyTensor<float> obj)
         {
             uint x = 0, y = 0, z = 0, c = 0;
-            if (obj is IHaveTensor4DDimensions tensor4D) {
-                if (TensorCount == null || tensor4D.Count > TensorCount)
-                    TensorCount = c = tensor4D.ColumnCount;
-            }
-            if (obj is IHaveTensor3DDimensions tensor3D) {
-                if (ZDimension == null || tensor3D.Depth > ZDimension)
-                    ZDimension = z = tensor3D.Depth;
-            }
+            if (obj is IHaveTensor4DDimensions tensor4D && (TensorCount == null || tensor4D.Count > TensorCount)) TensorCount = c = tensor4D.ColumnCount;
+            if (obj is IHaveTensor3DDimensions tensor3D && (ZDimension == null || tensor3D.Depth > ZDimension)) ZDimension = z = tensor3D.Depth;
             if (obj is IHaveMatrixDimensions matrix) {
                 if (XDimension == null || matrix.ColumnCount > XDimension)
                     XDimension = x = matrix.ColumnCount;

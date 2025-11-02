@@ -20,7 +20,7 @@ namespace BrightData.Buffer.ReadOnly
             var numStrings = BinaryPrimitives.ReadUInt32LittleEndian(span[4..]);
             var ret = new string[numStrings];
             var index = 0;
-            StringCompositeBuffer.Block.Decode(span[StringCompositeBuffer.Block.HeaderSize..], charSpan => ret[index++] = _stringPool.GetOrAdd(charSpan));
+            StringCompositeBuffer.Block.Decode2(span[StringCompositeBuffer.Block.HeaderSize..], charSpan => ret[index++] = _stringPool.GetOrAdd(charSpan));
             return ret;
         }
     }

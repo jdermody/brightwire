@@ -45,7 +45,7 @@ namespace BrightData.Buffer.Composite
                 var startOffset = offset += HeaderSize;
                 for (var i = 0; i < Size; i++)
                 {
-                    Encode(Data.Span[i], bytes =>
+                    Encode2(Data.Span[i], bytes =>
                     {
                         file.Write(bytes, offset);
                         offset += (uint)bytes.Length;
@@ -59,7 +59,7 @@ namespace BrightData.Buffer.Composite
                 return blockSize + HeaderSize;
             }
 
-            public static void Encode(string str, BlockCallback<byte> callback)
+            public static void Encode2(string str, BlockCallback<byte> callback)
             {
                 if (str.Length <= 124 / 4)
                 {
@@ -73,33 +73,98 @@ namespace BrightData.Buffer.Composite
                 {
                     using var buffer = SpanOwner<byte>.Allocate(str.Length * 4 + 4);
                     var actualByteCount = Encoding.UTF8.GetBytes(str, buffer.Span[4..]);
+                    if(actualByteCount > ushort.MaxValue)
+                        throw new InvalidOperationException($"String is too large to encode (byte length {actualByteCount} exceeds {ushort.MaxValue})");
                     BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span, (ushort)str.Length);
                     BinaryPrimitives.WriteUInt16LittleEndian(buffer.Span[2..], (ushort)actualByteCount);
                     callback(buffer.Span[..(actualByteCount + 4)]);
                 }
             }
 
-            public static void Decode(ReadOnlySpan<byte> data, BlockCallback<char> callback)
+            public static void Encode4(string str, BlockCallback<byte> callback)
+            {
+                if (str.Length <= 120 / 4)
+                {
+                    Span<byte> buffer = stackalloc byte[128];
+                    var actualByteCount = Encoding.UTF8.GetBytes(str, buffer[8..]);
+                    BinaryPrimitives.WriteUInt32LittleEndian(buffer, (ushort)str.Length);
+                    BinaryPrimitives.WriteUInt32LittleEndian(buffer[4..], (ushort)actualByteCount);
+                    callback(buffer[..(actualByteCount + 8)]);
+                }
+                else
+                {
+                    using var buffer = SpanOwner<byte>.Allocate(str.Length * 4 + 8);
+                    var actualByteCount = Encoding.UTF8.GetBytes(str, buffer.Span[8..]);
+                    BinaryPrimitives.WriteUInt32LittleEndian(buffer.Span, (ushort)str.Length);
+                    BinaryPrimitives.WriteUInt32LittleEndian(buffer.Span[4..], (ushort)actualByteCount);
+                    callback(buffer.Span[..(actualByteCount + 8)]);
+                }
+            }
+
+            public static void Decode2(ReadOnlySpan<byte> data, BlockCallback<char> callback)
             {
                 Span<char> localBuffer = stackalloc char[128];
-                do
+                var largeBuffer = SpanOwner<char>.Empty;
+                try {
+                    do {
+                        var charSize = BinaryPrimitives.ReadUInt16LittleEndian(data);
+                        var byteSize = BinaryPrimitives.ReadUInt16LittleEndian(data[2..]);
+                        data = data[4..];
+                        if (charSize <= 128) {
+                            Encoding.UTF8.GetChars(data[..byteSize], localBuffer[..charSize]);
+                            callback(localBuffer[..charSize]);
+                        }
+                        else {
+                            // ensure buffer is large enough
+                            if (largeBuffer.Length < charSize) {
+                                largeBuffer.Dispose();
+                                largeBuffer = SpanOwner<char>.Allocate(charSize);
+                            }
+                            var size = Encoding.UTF8.GetChars(data[..byteSize], largeBuffer.Span);
+                            callback(largeBuffer.Span[..size]);
+                        }
+                        data = data[byteSize..];
+                    } while (data.Length > 0);
+                }
+                finally {
+                    largeBuffer.Dispose();
+                }
+            }
+
+            public static void Decode4(ReadOnlySpan<byte> data, BlockCallback<char> callback)
+            {
+                Span<char> localBuffer = stackalloc char[128];
+                var largeBuffer = SpanOwner<char>.Empty;
+                try
                 {
-                    var charSize = BinaryPrimitives.ReadUInt16LittleEndian(data);
-                    var byteSize = BinaryPrimitives.ReadUInt16LittleEndian(data[2..]);
-                    data = data[4..];
-                    if (charSize <= 128)
+                    do
                     {
-                        Encoding.UTF8.GetChars(data[..byteSize], localBuffer[..charSize]);
-                        callback(localBuffer[..charSize]);
-                    }
-                    else
-                    {
-                        using var buffer = SpanOwner<char>.Allocate(charSize);
-                        Encoding.UTF8.GetChars(data[..byteSize], buffer.Span);
-                        callback(buffer.Span);
-                    }
-                    data = data[byteSize..];
-                } while (data.Length > 0);
+                        var charSize = BinaryPrimitives.ReadUInt32LittleEndian(data);
+                        var byteSize = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
+                        data = data[8..];
+                        if (charSize <= 128)
+                        {
+                            Encoding.UTF8.GetChars(data[..(int)byteSize], localBuffer[..(int)charSize]);
+                            callback(localBuffer[..(int)charSize]);
+                        }
+                        else
+                        {
+                            // ensure buffer is large enough
+                            if (largeBuffer.Length < charSize)
+                            {
+                                largeBuffer.Dispose();
+                                largeBuffer = SpanOwner<char>.Allocate((int)charSize);
+                            }
+                            var size = Encoding.UTF8.GetChars(data[..(int)byteSize], largeBuffer.Span);
+                            callback(largeBuffer.Span[..size]);
+                        }
+                        data = data[(int)byteSize..];
+                    } while (data.Length > 0);
+                }
+                finally
+                {
+                    largeBuffer.Dispose();
+                }
             }
         }
 
@@ -124,7 +189,7 @@ namespace BrightData.Buffer.Composite
             {
                 var index = 0;
                 var buffer = new Memory<string>(new string[(int)numStrings]);
-                Block.Decode(block.Span, chars =>
+                Block.Decode2(block.Span, chars =>
                 {
                     // ReSharper disable once AccessToDisposedClosure
                     buffer.Span[index++] = new string(chars);

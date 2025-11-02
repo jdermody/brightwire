@@ -16,9 +16,9 @@ namespace BrightData.Analysis
 
         public NumericAnalyser<double> Analysis { get; } = new(writeCount);
 
-        public void Add(T val)
+        public void Add(T obj)
         {
-            Analysis.Add(_converter.Convert(val));
+            Analysis.Add(_converter.Convert(obj));
         }
 
         public void AddObject(object obj)

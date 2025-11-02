@@ -36,7 +36,7 @@ namespace BrightData.DataTable
             // write the header
             var header = new TableHeader();
             output.Write(MemoryMarshal.CreateReadOnlySpan(ref header, 1).AsBytes());
-            header.Version = 1;
+            header.Version = 2;
             header.Orientation = DataTableOrientation.ColumnOriented;
             header.ColumnCount = (uint)buffers.Length;
             header.RowCount = firstColumn.Size;
@@ -93,7 +93,7 @@ namespace BrightData.DataTable
                 header.StringOffset = (uint)output.Position;
                 await stringWriter.Value.ForEachBlock(block => {
                     foreach (var str in block) {
-                        StringCompositeBuffer.Block.Encode(str, bytes => {
+                        StringCompositeBuffer.Block.Encode4(str, bytes => {
                             output.Write(bytes);
                             totalSize += (uint)bytes.Length;
                         });

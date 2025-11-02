@@ -17,30 +17,30 @@ namespace BrightData.Analysis
 		T _mode, _l2;
 		ulong _highestCount;
 
-        public override void Add(T val)
+        public override void Add(T value)
 		{
-			base.Add(val);
+			base.Add(value);
 
 			// find the min and the max
-			if (val < Min)
-				Min = val;
-			if (val > Max)
-				Max = val;
+			if (value < Min)
+				Min = value;
+			if (value > Max)
+				Max = value;
 
 			// add to distinct values
-            if (_distinct.TryGetValue(val, out var count))
-                _distinct[val] = ++count;
+            if (_distinct.TryGetValue(value, out var count))
+                _distinct[value] = ++count;
             else
-                _distinct.Add(val, count = 1);
+                _distinct.Add(value, count = 1);
 
             if (count > _highestCount) {
                 _highestCount = count;
-                _mode = val;
+                _mode = value;
             }
 
 			// calculate norms
-			L1Norm += T.Abs(val);
-			_l2 += val * val;
+			L1Norm += T.Abs(value);
+			_l2 += value * value;
 		}
 
         public void Append(ReadOnlySpan<T> span)

@@ -8,6 +8,6 @@
         /// <summary>
         /// The array of indexed strings
         /// </summary>
-        public string[] Data { get; set; } = [];
+        public string[] Data { get; init; } = [];
     }
 }

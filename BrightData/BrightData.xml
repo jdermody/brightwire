@@ -6494,6 +6494,16 @@
             <param name="writer">Destination</param>
             <param name="values">Array to write</param>
         </member>
+        <member name="T:BrightData.Helper.DataStore">
+            <summary>
+            Stores data in indexed tables
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.DataStore.#ctor(BrightData.Buffer.OffsetAndSize,BrightData.IByteDataProvider)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
         <member name="T:BrightData.Helper.GenericActivator">
             <summary>
             Generic object creator
@@ -7963,6 +7973,26 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:BrightData.IByteDataProvider">
+            <summary>
+            Accesses byte data
+            </summary>
+        </member>
+        <member name="M:BrightData.IByteDataProvider.GetDataSpan(System.UInt32,System.UInt32)">
+            <summary>
+            Access a span of bytes
+            </summary>
+            <param name="offset"></param>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IByteDataProvider.GetDataSpan(BrightData.Buffer.OffsetAndSize)">
+            <summary>
+            Access a span of bytes
+            </summary>
+            <param name="offsetAndSize"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IDataAnalyser`1">
             <summary>
             Typed data analyser
@@ -9089,25 +9119,25 @@
             <param name="nodeIndex"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IReadOnlyGraph`1">
-            <summary>
-            Strongly typed read only graph
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IReadOnlyGraph`1.DepthFirstSearch(System.UInt32)">
+        <member name="M:BrightData.IReadOnlyGraph.DepthFirstSearch(System.UInt32)">
             <summary>
             Returns connected node indices in depth first order
             </summary>
             <param name="startNodeIndex">Node index at which to start search</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IReadOnlyGraph`1.BreadthFirstSearch(System.UInt32)">
+        <member name="M:BrightData.IReadOnlyGraph.BreadthFirstSearch(System.UInt32)">
             <summary>
             Returns connected node indices in breadth first order
             </summary>
             <param name="startNodeIndex">Node index at which to start search</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.IReadOnlyGraph`1">
+            <summary>
+            Strongly typed read only graph
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="M:BrightData.IReadOnlyGraph`1.Get(System.UInt32)">
             <summary>
@@ -9116,92 +9146,104 @@
             <param name="nodeIndex"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IReadOnlyDirectedGraph`1">
+        <member name="M:BrightData.IReadOnlyGraph`1.GetNodeIndex(`0)">
+            <summary>
+            Gets the node index of the specified node
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IReadOnlyDirectedGraph">
             <summary>
             Read only directed graph
             </summary>
-            <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.IReadOnlyDirectedGraph`1.GetInDegree(System.UInt32)">
+        <member name="M:BrightData.IReadOnlyDirectedGraph.GetInDegree(System.UInt32)">
             <summary>
             Gets the number of vertices that connect to the specified node index
             </summary>
             <param name="nodeIndex">Node index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IReadOnlyDirectedGraph`1.GetOutDegree(System.UInt32)">
+        <member name="M:BrightData.IReadOnlyDirectedGraph.GetOutDegree(System.UInt32)">
             <summary>
             Gets the number of vertices from the specified node index
             </summary>
             <param name="nodeIndex">Node index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IReadOnlyDirectedGraph`1.TopologicalSort">
+        <member name="M:BrightData.IReadOnlyDirectedGraph.TopologicalSort">
             <summary>
             Returns a valid ordering of the nodes in a DAG (or empty if there is a cycle in the graph)
             </summary>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IDirectedGraph`2">
+        <member name="T:BrightData.IReadOnlyMultiDirectedGraph`2">
             <summary>
-            Directed graph
+            A directed graph that allows multiple edges between nodes
             </summary>
-            <typeparam name="NT"></typeparam>
-            <typeparam name="ET"></typeparam>
         </member>
-        <member name="M:BrightData.IDirectedGraph`2.Add(`0)">
+        <member name="M:BrightData.IReadOnlyMultiDirectedGraph`2.GetEdges(System.UInt32,System.UInt32)">
+            <summary>
+            Return the edges between two nodes
+            </summary>
+            <param name="fromNodeIndex"></param>
+            <param name="toNodeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.IMutableGraph`1">
+            <summary>
+            Mutable graph
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IMutableGraph`1.Add(`0)">
             <summary>
             Adds a node to the graph
             </summary>
-            <param name="node"></param>
-            <returns></returns>
+            <param name="node">Node data to add</param>
+            <returns>Node index</returns>
         </member>
-        <member name="M:BrightData.IDirectedGraph`2.AddEdge(System.UInt32,System.UInt32,`1)">
+        <member name="M:BrightData.IMutableGraph`1.AddEdge(System.UInt32,System.UInt32)">
             <summary>
             Adds a vertex between two nodes
             </summary>
             <param name="fromNodeIndex"></param>
             <param name="toNodeIndex"></param>
-            <param name="edge"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IDirectedGraph`2.Clear">
+        <member name="M:BrightData.IMutableGraph`1.Clear">
             <summary>
             Clears all nodes and vertices from the graph
             </summary>
         </member>
-        <member name="T:BrightData.IUndirectedGraphs`1">
+        <member name="T:BrightData.IMutableGraphWithEdgeData`2">
             <summary>
-            
+            Mutable graph with edges with an associated data type
             </summary>
-            <typeparam name="T"></typeparam>
+            <typeparam name="NT">Node type</typeparam>
+            <typeparam name="ET">Edge type</typeparam>
         </member>
-        <member name="M:BrightData.IUndirectedGraphs`1.Add(`0)">
+        <member name="M:BrightData.IMutableGraphWithEdgeData`2.AddEdge(System.UInt32,System.UInt32,`1)">
             <summary>
-            Add a new node
-            </summary>
-            <param name="node"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.IUndirectedGraphs`1.AddEdge(System.UInt32,System.UInt32)">
-            <summary>
-            Adds an edge between two nodes
+            Adds a vertex between two nodes
             </summary>
             <param name="fromNodeIndex"></param>
             <param name="toNodeIndex"></param>
+            <param name="edgeData"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.IUndirectedGraphNode">
+        <member name="T:BrightData.IUndirectedWeightedGraphNode">
             <summary>
             A graph node
             </summary>
         </member>
-        <member name="P:BrightData.IUndirectedGraphNode.NeighbourSpan">
+        <member name="P:BrightData.IUndirectedWeightedGraphNode.NeighbourSpan">
             <summary>
             Span of neighbour indices
             </summary>
         </member>
-        <member name="P:BrightData.IUndirectedGraphNode.Neighbours">
+        <member name="P:BrightData.IUndirectedWeightedGraphNode.Neighbours">
             <summary>
             Enumerable of neighbour indices
             </summary>
@@ -19480,55 +19522,7 @@
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Types.Graph.DirectedGraph`2">
-            <summary>
-            Directed graph implementation
-            </summary>
-            <typeparam name="NT">Node type</typeparam>
-            <typeparam name="ET">Edge type</typeparam>
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.#ctor">
-            <summary>
-            Default constructor
-            </summary>
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Types.Graph.DirectedGraph`2.Size">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Add(`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.AddEdge(System.UInt32,System.UInt32,`1)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetInDegree(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetOutDegree(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.TopologicalSort">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Clear">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.GetConnectedNodes(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.DepthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.BreadthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.DirectedGraph`2.Get(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3">
+        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraph`3">
             <summary>
             A fixed size weighted graph
             </summary>
@@ -19536,233 +19530,159 @@
             <typeparam name="W">Type to describe weights</typeparam>
             <typeparam name="AT">Array type (fixed size)</typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.#ctor">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.#ctor">
             <summary>
             Default constructor
             </summary>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Add(`0)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Add(`0,System.ReadOnlySpan{System.ValueTuple{System.UInt32,`1}})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.DepthFirstSearch(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.DepthFirstSearch(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.BreadthFirstSearch(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.BreadthFirstSearch(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Get(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Get(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.GetNeighbours(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetNodeIndex(`0)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.EnumerateNeighbours(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetNeighbours(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.EnumerateNeighbours(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.Size">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Size">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedDynamicGraph`3.GetConnectedNodes(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraph`2">
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetConnectedNodes(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.ToReadOnly">
             <summary>
-            Fixed size weighted graph
+            Converts to a read only graph
             </summary>
-            <typeparam name="W"></typeparam>
-            <typeparam name="AT"></typeparam>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.#ctor(BrightData.Types.Graph.FixedSizeWeightedGraphNode{BrightData.Types.Graph.GraphNodeIndex,`0,`1}[])">
-            <summary>
-            Creates a vector graph from an array of nodes
-            </summary>
-            <param name="nodes"></param>
-        </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Size">
-            <summary>
-            Number of nodes in the graph
-            </summary>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetNeighbours(System.UInt32)">
-            <summary>
-            Gets the neighbours for a node, sorted by distance
-            </summary>
-            <param name="vectorIndex"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.EnumerateNeighbours(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetNeighbourWeights(System.UInt32)">
-            <summary>
-            Gets the weights for the node's neighbours
-            </summary>
-            <param name="vectorIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetWeightedNeighbours(System.UInt32)">
-            <summary>
-            Enumerates the neighbour indices and their weights in ascending order
-            </summary>
-            <param name="vectorIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.AddNeighbour(System.UInt32,System.UInt32,`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.DepthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.BreadthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Get(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.GetConnectedNodes(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.Build(BrightData.IStoreVectors{`0},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
-            <summary>
-            Creates 
-            </summary>
-            <param name="vectors"></param>
-            <param name="distanceMetric"></param>
-            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
-            <param name="onNode"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.WriteToDisk(System.String)">
-            <summary>
-            Writes the graph to disk
-            </summary>
-            <param name="filePath"></param>
-        </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`2.LoadFromDisk(System.String)">
-            <summary>
-            Loads a vector graph from disk
-            </summary>
-            <param name="filePath"></param>
-            <returns></returns>
-        </member>
-        <member name="T:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3">
+        <member name="T:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3">
             <summary>
             A graph node with a (fixed size) maximum number of neighbours
             NOTE: this should not be readonly, as it is mutable
             </summary>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.#ctor(`0)">
+        <member name="M:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.#ctor(`0)">
             <summary>
             A graph node with a (fixed size) maximum number of neighbours
             NOTE: this should not be readonly, as it is mutable
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Index">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.Index">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxNeighbours">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.MaxNeighbours">
             <summary>
             Max number of neighbours
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourCount">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.NeighbourCount">
             <summary>
             Current number of neighbours
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MinWeight">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.MinWeight">
             <summary>
             The smallest neighbour weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxWeight">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.MaxWeight">
             <summary>
             The largest neighbour weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MinNeighbourIndex">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.MinNeighbourIndex">
             <summary>
             The index of the neighbour with the smallest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.MaxNeighbourIndex">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.MaxNeighbourIndex">
             <summary>
             The index of the neighbour with the largest weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourIndices">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.NeighbourIndices">
             <summary>
             Sorted list of neighbour indices
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourWeights">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.NeighbourWeights">
             <summary>
             Sorted list of neighbour weights
             </summary>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.TryAddNeighbour(System.UInt32,`1)">
+        <member name="M:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.TryAddNeighbour(System.UInt32,`1)">
             <summary>
             Tries to add a new neighbour
             </summary>
             <param name="index">Index of neighbour</param>
             <param name="weight">Neighbour weight</param>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Item(System.UInt32)">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.Item(System.UInt32)">
             <summary>
             Returns a neighbour weight
             </summary>
             <param name="position">Position of neighbour to return</param>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.WeightedNeighbours">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.WeightedNeighbours">
             <inheritdoc />
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.NeighbourSpan">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.NeighbourSpan">
             <summary>
             Ordered span of neighbours by weight
             </summary>
         </member>
-        <member name="P:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.Neighbours">
+        <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.Neighbours">
             <summary>
             Enumerates the neighbours by weight
             </summary>
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.CompareTo(BrightData.Types.Graph.FixedSizeWeightedGraphNode{`0,`1,`2})">
+        <member name="M:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.CompareTo(BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode{`0,`1,`2})">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraphNode`3.ToString">
+        <member name="M:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.ToString">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Types.Graph.GraphNodeIndex">
+        <member name="T:BrightData.Types.Graph.Helper.GraphNodeIndex">
             <summary>
             Index only graph node value
             </summary>
             <param name="Index"></param>
         </member>
-        <member name="M:BrightData.Types.Graph.GraphNodeIndex.#ctor(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.Helper.GraphNodeIndex.#ctor(System.UInt32)">
             <summary>
             Index only graph node value
             </summary>
             <param name="Index"></param>
         </member>
-        <member name="P:BrightData.Types.Graph.GraphNodeIndex.Index">
+        <member name="P:BrightData.Types.Graph.Helper.GraphNodeIndex.Index">
             <summary></summary>
         </member>
-        <member name="M:BrightData.Types.Graph.GraphNodeIndex.CompareTo(BrightData.Types.Graph.GraphNodeIndex)">
+        <member name="M:BrightData.Types.Graph.Helper.GraphNodeIndex.CompareTo(BrightData.Types.Graph.Helper.GraphNodeIndex)">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Types.Graph.GraphNodeIndex.ToString">
+        <member name="M:BrightData.Types.Graph.Helper.GraphNodeIndex.ToString">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4">
@@ -19810,13 +19730,157 @@
             <param name="index">Start node index</param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Types.Graph.MultiDirectedGraph`2">
+            <summary>
+            Mutable directed graph
+            </summary>
+            <typeparam name="NT">Node type</typeparam>
+            <typeparam name="ET">Edge type</typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Types.Graph.MultiDirectedGraph`2.Size">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.AddEdge(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.AddEdge(System.UInt32,System.UInt32,`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.GetInDegree(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.GetOutDegree(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.TopologicalSort">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.GetEdges(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.GetConnectedNodes(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.DepthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.BreadthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.MultiDirectedGraph`2.GetNodeIndex(`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3">
+            <summary>
+            Fixed size weighted graph
+            </summary>
+            <typeparam name="W"></typeparam>
+            <typeparam name="AT"></typeparam>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.#ctor(BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode{`0,`1,`2}[])">
+            <summary>
+            Creates a vector graph from an array of nodes
+            </summary>
+            <param name="nodes"></param>
+        </member>
+        <member name="P:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Size">
+            <summary>
+            Number of nodes in the graph
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetNeighbours(System.UInt32)">
+            <summary>
+            Gets the neighbours for a node, sorted by distance
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.EnumerateNeighbours(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetNeighbourWeights(System.UInt32)">
+            <summary>
+            Gets the weights for the node's neighbours
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetWeightedNeighbours(System.UInt32)">
+            <summary>
+            Enumerates the neighbour indices and their weights in ascending order
+            </summary>
+            <param name="vectorIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.AddNeighbour(System.UInt32,System.UInt32,`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.DepthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.BreadthFirstSearch(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Get(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetNodeIndex(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetConnectedNodes(System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Build(BrightData.IStoreVectors{`1},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
+            <summary>
+            Creates 
+            </summary>
+            <param name="vectors"></param>
+            <param name="distanceMetric"></param>
+            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
+            <param name="onNode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.WriteToDisk(System.String)">
+            <summary>
+            Writes the graph to disk
+            </summary>
+            <param name="filePath"></param>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.LoadFromDisk(System.String)">
+            <summary>
+            Loads a vector graph from disk
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1">
             <summary>
             A dense graph implementation
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1.#ctor(`0[],BrightData.Types.BitVector)">
+        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1.#ctor(System.ReadOnlyMemory{`0},BrightData.Types.BitVector)">
             <summary>
             Creates a graph from the given nodes and edges
             </summary>
@@ -19856,60 +19920,30 @@
         <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1.Get(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1">
-            <summary>
-            Directed graph
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.#ctor(System.ReadOnlySpan{System.Byte})">
-            <summary>
-            Creates a directed graph from graph data
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="P:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.Size">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.TryGetValue(System.UInt32,System.Nullable{`0}@)">
-            <summary>
-            Returns the value associated with the node
-            </summary>
-            <param name="nodeIndex"></param>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.EnumerateDirectlyConnectedNodes(System.UInt32)">
-            <summary>
-            Enumerates the connected nodes from a single node
-            </summary>
-            <param name="nodeIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.GetConnectedNodes(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.DepthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.BreadthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedSparseGraph`1.Get(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1.GetNodeIndex(`0)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Graph.UndirectedGraph`1">
-            <inheritdoc />
+            <summary>
+            Mutable undirected graph
+            </summary>
+            <typeparam name="T">Node type</typeparam>
         </member>
         <member name="M:BrightData.Types.Graph.UndirectedGraph`1.#ctor">
             <summary>
             Default constructor
             </summary>
         </member>
+        <member name="M:BrightData.Types.Graph.UndirectedGraph`1.Dispose">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Types.Graph.UndirectedGraph`1.Add(`0)">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.UndirectedGraph`1.AddEdge(System.UInt32,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.UndirectedGraph`1.Clear">
             <inheritdoc />
         </member>
         <member name="M:BrightData.Types.Graph.UndirectedGraph`1.ToReadOnly">
@@ -19933,42 +19967,7 @@
         <member name="M:BrightData.Types.Graph.UndirectedGraph`1.Get(System.UInt32)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Types.Graph.UndirectedSparseGraph`1">
-            <summary>
-            Builds a directed graph
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.#ctor">
-            <summary>
-            Default constructor
-            </summary>
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.Add(`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.AddEdge(System.UInt32,System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.AsReadOnly">
-            <summary>
-            Builds the graph
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.Types.Graph.UndirectedSparseGraph`1.Size">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.GetConnectedNodes(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.DepthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.BreadthFirstSearch(System.UInt32)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Types.Graph.UndirectedSparseGraph`1.Get(System.UInt32)">
+        <member name="M:BrightData.Types.Graph.UndirectedGraph`1.GetNodeIndex(`0)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Types.Helper.SortedArrayHelper">

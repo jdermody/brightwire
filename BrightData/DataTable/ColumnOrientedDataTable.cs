@@ -118,7 +118,10 @@ namespace BrightData.DataTable
             var ret = new List<string>();
             if (headerStringSizeBytes > 0) {
                 var data = await _reader.GetBlock(headerStringOffset, headerStringSizeBytes);
-                StringCompositeBuffer.Block.Decode(data.Span, str => ret.Add(new string(str)));
+                if(_header.Version == 1)
+                    StringCompositeBuffer.Block.Decode2(data.Span, str => ret.Add(new string(str)));
+                else
+                    StringCompositeBuffer.Block.Decode4(data.Span, str => ret.Add(new string(str)));
             }
             return ret;
         }

@@ -114,14 +114,15 @@ namespace BrightData.Helper
                             if (text.StartsWith(parser._quote) && text.EndsWith(parser._quote))
                                 text = text[1..^1];
 
-                            while ((Columns ??= []).Count <= j)
-                                Columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxBlockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
+                            var columns = Columns ??= [];
+                            while ((columns ??= []).Count <= j)
+                                columns.Add(new StringCompositeBuffer(parser._tempStreams, parser._blockSize, parser._maxBlockSize, parser._maxInMemoryBlocks, parser._maxDistinctItems));
 
                             // set the column name if needed
                             if (_isFirstRow && parser._firstRowIsHeader)
-                                Columns[j].MetaData.SetName(text.Trim());
+                                columns[j].MetaData.SetName(text.Trim());
                             else
-                                Columns[j].Append(text);
+                                columns[j].Append(text);
                             sb.Clear();
                         }
 

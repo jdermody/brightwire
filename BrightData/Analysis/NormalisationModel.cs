@@ -43,7 +43,7 @@ namespace BrightData.Analysis
                     throw new NotImplementedException();
             }
             else
-                throw new Exception("Metadata did not indicate numeric data that has been analyzed");
+                throw new InvalidOperationException("Metadata did not indicate numeric data that has been analyzed");
 
             Divide = divide;
             Subtract = subtract;
