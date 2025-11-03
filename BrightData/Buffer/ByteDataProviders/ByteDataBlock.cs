@@ -9,7 +9,7 @@ namespace BrightData.Buffer.ByteDataProviders;
 /// <summary>
 /// A block of byte data
 /// </summary>
-public ref struct ByteDataBlock(ReadOnlySpan<byte> data, IDisposable? disposable) : IHaveByteData
+public ref struct ByteDataBlock(ReadOnlySpan<byte> data, IDisposable? disposable)
 {
     readonly ReadOnlySpan<byte> _data = data;
 

@@ -1,7 +1,8 @@
 ﻿using BrightData.Buffer;
+using BrightData.Buffer.ByteDataProviders;
 using BrightData.Types;
-using System;
 using CommunityToolkit.HighPerformance;
+using System;
 
 namespace BrightData.Helper
 {
@@ -37,7 +38,8 @@ namespace BrightData.Helper
         public DataStore(OffsetAndSize dataTypes, IByteDataProvider dataProvider)
         {
             _dataProvider = dataProvider;
-            _dataTypes = dataProvider.GetDataSpan(dataTypes).Cast<byte, DataType>().ToArray();
+            using var dataTypesBlock = dataProvider.GetDataSpan(dataTypes);
+            _dataTypes = dataTypesBlock.ByteData.Cast<byte, DataType>().ToArray();
 
             // create the data types
             var index = 0;
@@ -54,9 +56,9 @@ namespace BrightData.Helper
             return default;
         }
 
-        ReadOnlySpan<byte> GetData(uint index)
+        ByteDataBlock GetData(uint index)
         {
-            var (type, offset, size) = _dataTypes.Span[(int)index];
+            var (_, offset, size) = _dataTypes.Span[(int)index];
             return _dataProvider.GetDataSpan(offset, size);
         }
     }
