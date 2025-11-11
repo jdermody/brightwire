@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Version>4.0.0</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
@@ -29,6 +29,11 @@
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />
     <None Remove="cuda\brightwire.ptx" />
+    <None Remove="cuda\brightwire_100.ptx" />
+    <None Remove="cuda\brightwire_103.ptx" />
+    <None Remove="cuda\brightwire_110.ptx" />
+    <None Remove="cuda\brightwire_120.ptx" />
+    <None Remove="cuda\brightwire_121.ptx" />
     <None Remove="cuda\brightwire_50.ptx" />
     <None Remove="cuda\brightwire_52.ptx" />
     <None Remove="cuda\brightwire_53.ptx" />
@@ -44,6 +49,21 @@
     <Content Include="cuda\brightwire.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+    <Content Include="cuda\brightwire_100.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_103.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_110.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_120.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_121.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="cuda\brightwire_50.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -654,6 +654,39 @@
             <param name="stream">Stream to read from</param>
             <param name="shouldDispose">True to dispose the stream when the reader is disposed</param>
         </member>
+        <member name="T:BrightData.Buffer.ByteDataProviders.ByteDataBlock">
+            <summary>
+            A block of byte data
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffer.ByteDataProviders.ByteDataBlock.#ctor(System.ReadOnlySpan{System.Byte},System.IDisposable)">
+            <summary>
+            A block of byte data
+            </summary>
+        </member>
+        <member name="P:BrightData.Buffer.ByteDataProviders.ByteDataBlock.ByteData">
+            <inheritdoc/>
+        </member>
+        <member name="M:BrightData.Buffer.ByteDataProviders.ByteDataBlock.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:BrightData.Buffer.ByteDataProviders.FileByteDataProvider">
+            <summary>
+            Byte data provider based on memory mapped file
+            </summary>
+        </member>
+        <member name="T:BrightData.Buffer.ByteDataProviders.MemoryByteDataProvider">
+            <summary>
+            Byte data provider based on read only memory
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.Buffer.ByteDataProviders.MemoryByteDataProvider.#ctor(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Byte data provider based on read only memory
+            </summary>
+            <param name="data"></param>
+        </member>
         <member name="T:BrightData.Buffer.Composite.CompositeBufferBase`2">
             <summary>
             Base class for composite buffers
@@ -3415,15 +3448,6 @@
             <typeparam name="T"></typeparam>
             <param name="enumerable"></param>
             <param name="size"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.ToListAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.Threading.CancellationToken)">
-            <summary>
-            Writes items from an async enumerable to a list
-            </summary>
-            <param name="items"></param>
-            <param name="ct"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.FirstOrDefault``1(System.Collections.Generic.IAsyncEnumerable{``0})">
