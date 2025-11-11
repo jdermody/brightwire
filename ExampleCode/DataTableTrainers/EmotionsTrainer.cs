@@ -18,12 +18,13 @@ namespace ExampleCode.DataTableTrainers
 
             // read the data as CSV, skipping the header
             using var reader = new StreamReader(filePath);
-            while (!reader.EndOfStream)
-            {
+            do {
                 var line = await reader.ReadLineAsync();
+                if(line is null)
+                    throw new InvalidDataException("No @data line found");
                 if (line == "@data")
                     break;
-            }
+            } while (true);
             using var table = await context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
@@ -162,7 +163,7 @@ namespace ExampleCode.DataTableTrainers
                 Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
                     .Classify(naiveBayes)
                     .ToBlockingEnumerable()
-                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification[0].Label ? 1.0 : 0.0)
                 );
 
                 // train a logistic regression classifier
@@ -181,7 +182,7 @@ namespace ExampleCode.DataTableTrainers
                 Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
                     .Classify(knn)
                     .ToBlockingEnumerable()
-                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                    .Average(d => d.Row.Get<string>(targetColumn) == d.Classification[0].Label ? 1.0 : 0.0)
                 );
 
                 // create a training engine

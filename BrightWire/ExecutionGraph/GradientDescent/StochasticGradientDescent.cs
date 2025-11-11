@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             Update(source, delta, context, 1f, context.LearningRate);
         }
 
-        protected void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext _, float coefficient1, float coefficient2)
+        protected static void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext _, float coefficient1, float coefficient2)
         {
             source.AddInPlace(delta, coefficient1, coefficient2);
         }

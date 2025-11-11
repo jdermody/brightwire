@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         public override void Update(IMatrix<float> source, IMatrix<float> delta, ILearningContext context)
         {
             var l2 = 1.0f - (context.LearningRate * _lambda);
-            Update(source, delta, context, l2, context.LearningRate);
+            StochasticGradientDescent.Update(source, delta, context, l2, context.LearningRate);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

@@ -130,7 +130,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 yield return Train(executionContext, learningContext, batch.CurrentSequence);
         }
 
-        IEnumerable<IGraphContext> Continue(MiniBatch batch, GraphExecutionContext executionContext, Func<MiniBatch.Sequence, IGraphContext> lookupContext, ILearningContext? learningContext, CancellationToken ct)
+        static IEnumerable<IGraphContext> Continue(MiniBatch batch, GraphExecutionContext executionContext, Func<MiniBatch.Sequence, IGraphContext> lookupContext, ILearningContext? learningContext, CancellationToken ct)
         {
             while (executionContext.HasContinuations && !ct.IsCancellationRequested) {
                 var additionalContext = new List<(IGraphContext Context, Action<IGraphContext[]> OnEnd)>();
