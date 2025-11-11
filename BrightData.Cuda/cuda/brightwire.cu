@@ -308,7 +308,13 @@ extern "C"
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
             float val = a[index * ai];
-			a[index * ai] = val - ((val > 0 ? 1 : val < 0 ? -1 : 0) * coefficient);
+            float absVal = abs(val);
+            if(absVal < coefficient)
+                a[index * ai] = 0;
+            else {
+                float reduced = absVal - coefficient;
+                a[index * ai] = (val > 0) ? reduced : -reduced;
+            }
         }
 	}
 

@@ -1382,9 +1382,20 @@ namespace BrightData
         public static void L1Regularization<T>(this Span<T> segment, T coefficient)
             where T : unmanaged, INumber<T>
         {
+            coefficient = T.Abs(coefficient);
+            if (T.IsZero(coefficient))
+                return;
+
             for (int i = 0, len = segment.Length; i < len; i++) {
                 var val = segment[i];
-                segment[i] = val - (val > T.Zero ? T.One : val < T.Zero ? -T.One : T.Zero) * coefficient;
+                var abs = T.Abs(val);
+                if (abs <= coefficient) {
+                    segment[i] = T.Zero;
+                }
+                else {
+                    var reduced = abs - coefficient;
+                    segment[i] = val > T.Zero ? reduced : -reduced;
+                }
             }
         }
 

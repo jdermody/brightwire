@@ -1808,7 +1808,7 @@ $L__BB29_3:
 )
 {
 	.reg .pred 	%p<5>;
-	.reg .f32 	%f<7>;
+	.reg .f32 	%f<8>;
 	.reg .b32 	%r<13>;
 	.reg .b64 	%rd<5>;
 
@@ -1833,13 +1833,14 @@ $L__BB30_2:
 	mul.wide.u32 	%rd3, %r11, 4;
 	add.s64 	%rd4, %rd1, %rd3;
 	ld.global.f32 	%f2, [%rd4];
-	setp.gt.ftz.f32 	%p2, %f2, 0f00000000;
-	setp.lt.ftz.f32 	%p3, %f2, 0f00000000;
-	selp.f32 	%f3, 0fBF800000, 0f00000000, %p3;
-	selp.f32 	%f4, 0f3F800000, %f3, %p2;
-	mul.ftz.f32 	%f5, %f4, %f1;
-	sub.ftz.f32 	%f6, %f2, %f5;
-	st.global.f32 	[%rd4], %f6;
+	abs.ftz.f32 	%f3, %f2;
+	setp.lt.ftz.f32 	%p2, %f3, %f1;
+	sub.ftz.f32 	%f4, %f3, %f1;
+	setp.gt.ftz.f32 	%p3, %f2, 0f00000000;
+	neg.ftz.f32 	%f5, %f4;
+	selp.f32 	%f6, %f4, %f5, %p3;
+	selp.f32 	%f7, 0f00000000, %f6, %p2;
+	st.global.f32 	[%rd4], %f7;
 	add.s32 	%r12, %r12, %r3;
 	setp.lt.u32 	%p4, %r12, %r6;
 	@%p4 bra 	$L__BB30_2;
