@@ -2,6 +2,7 @@ nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_75 -o brightwire_75.ptx -a
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_80 -o brightwire_80.ptx -allow-unsupported-compiler
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_86 -o brightwire_86.ptx -allow-unsupported-compiler
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_87 -o brightwire_87.ptx -allow-unsupported-compiler
+nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_88 -o brightwire_88.ptx -allow-unsupported-compiler
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_89 -o brightwire_89.ptx -allow-unsupported-compiler
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_90 -o brightwire_90.ptx -allow-unsupported-compiler
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_100 -o brightwire_100.ptx -allow-unsupported-compiler
