@@ -109,6 +109,11 @@ namespace BrightData.Types
         {
             var start = range.Start.GetOffset((int)Size);
             var end = range.End.GetOffset((int)Size);
+            
+            // Handle negative ranges properly
+            if (start < 0 || end < 0 || start >= Size || end > Size)
+                throw new ArgumentException("Invalid range", nameof(range));
+                
             var keys = Enumerable.Range(start, end-start)
                 .Select(x => (Index: x / NumBitsPerItem, Mask: 1UL << x))
                 .GroupBy(x => x.Index)

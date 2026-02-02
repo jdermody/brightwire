@@ -271,7 +271,8 @@ namespace BrightData.Types
             var sb = new StringBuilder();
             var settings = new XmlWriterSettings
             {
-                OmitXmlDeclaration = true
+                OmitXmlDeclaration = true,
+                Encoding = Encoding.UTF8
             };
             using var writer = XmlWriter.Create(sb, settings);
             WriteTo(null, writer);
@@ -341,7 +342,7 @@ namespace BrightData.Types
         public float OverlapSimilarity(IndexList other)
         {
             var set = new HashSet<uint>(Indices);
-            var overlap = other.Indices.Where(set.Contains).Count();
+            var overlap = other.Indices.Count(set.Contains);
             return (float)overlap / Math.Min(Size, other.Size);
         }
 

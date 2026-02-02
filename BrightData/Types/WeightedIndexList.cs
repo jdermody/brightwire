@@ -297,7 +297,8 @@ namespace BrightData.Types
             var sb = new StringBuilder();
             var settings = new XmlWriterSettings
             {
-                OmitXmlDeclaration = true
+                OmitXmlDeclaration = true,
+                Encoding = Encoding.UTF8
             };
             using var writer = XmlWriter.Create(sb, settings);
             WriteTo(null, writer);

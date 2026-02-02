@@ -47,12 +47,17 @@ namespace BrightData.Types.Graph
         }
 
         /// <inheritdoc />
-        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex) => AddEdge(fromNodeIndex, toNodeIndex, default(ET));
+        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex) => AddEdge(fromNodeIndex, toNodeIndex, default);
 
         /// <inheritdoc />
-        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edge)
+        public bool AddEdge(uint fromNodeIndex, uint toNodeIndex, ET edgeData)
         {
-            _edges.Write(new(fromNodeIndex, toNodeIndex, edge));
+            if (fromNodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(fromNodeIndex), "From node index must be within node range.");
+            if (toNodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(toNodeIndex), "To node index must be within node range.");
+
+            _edges.Write(new(fromNodeIndex, toNodeIndex, edgeData));
             return true;
         }
 

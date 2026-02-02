@@ -5068,6 +5068,23 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHingeLossCostFunction``1(BrightData.LinearAlgebra.LinearAlgebraProvider{``0})">
+            <summary>
+            Creates a hinge loss cost function for SVM and classification tasks
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="lap"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHuberLossCostFunction``1(BrightData.LinearAlgebra.LinearAlgebraProvider{``0},System.Nullable{``0})">
+            <summary>
+            Creates a huber loss cost function for robust regression
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="lap"></param>
+            <param name="delta">Delta parameter (default is 1.0)</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.IReadOnlyVector{System.Single})">
             <summary>
             Converts the vector to a sparse format (only non-zero entries are preserved)
@@ -11207,6 +11224,119 @@
             Non-negative matrix factorisation based clustering
             https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
             </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.CostFunctions.CrossEntropyCostFunction`1">
+            <summary>
+            Cross-entropy cost function for binary classification problems.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.CrossEntropyCostFunction`1.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{`0})">
+            <summary>
+            Cross-entropy cost function for binary classification problems.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.CrossEntropyCostFunction`1.Cost(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the cross-entropy loss between predicted and expected values.
+            </summary>
+            <param name="predicted">Predicted probability values</param>
+            <param name="expected">Expected binary labels (0 or 1)</param>
+            <returns>Cross-entropy loss value</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.CrossEntropyCostFunction`1.Gradient(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the gradient of cross-entropy loss with respect to predicted values.
+            </summary>
+            <param name="predicted">Predicted probability values</param>
+            <param name="expected">Expected binary labels (0 or 1)</param>
+            <returns>Gradient vector</returns>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1">
+            <summary>
+            Hinge loss cost function for support vector machines (SVM) and other classification tasks.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{`0})">
+            <summary>
+            Hinge loss cost function for support vector machines (SVM) and other classification tasks.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1.Cost(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the hingle loss between predicted and expected values.
+            </summary>
+            <param name="predicted">Predicted values (typically -1 or 1 for binary classification)</param>
+            <param name="expected">Expected labels (-1 or 1 for binary classification)</param>
+            <returns>Hinge loss value</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1.Gradient(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the gradient of hingle loss with respect to predicted values.
+            </summary>
+            <param name="predicted">Predicted values (typically -1 or 1 for binary classification)</param>
+            <param name="expected">Expected labels (-1 or 1 for binary classification)</param>
+            <returns>Gradient vector</returns>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.CostFunctions.HuberLossCostFunction`1">
+            <summary>
+            Huber loss cost function for robust regression that combines MSE and MAE.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HuberLossCostFunction`1.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{`0},System.Nullable{`0})">
+            <summary>
+            Creates a new Huber loss cost function with specified delta parameter.
+            </summary>
+            <param name="lap">Linear algebra provider</param>
+            <param name="delta">Delta parameter for the huber loss (default is 1.0)</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HuberLossCostFunction`1.Cost(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the huber loss between predicted and expected values.
+            </summary>
+            <param name="predicted">Predicted values</param>
+            <param name="expected">Expected values</param>
+            <returns>Huber loss value</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.HuberLossCostFunction`1.Gradient(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the gradient of huber loss with respect to predicted values.
+            </summary>
+            <param name="predicted">Predicted values</param>
+            <param name="expected">Expected values</param>
+            <returns>Gradient vector</returns>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.CostFunctions.MeanSquaredErrorCostFunction`1">
+            <summary>
+            Mean squared error cost function for regression problems.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.MeanSquaredErrorCostFunction`1.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{`0})">
+            <summary>
+            Mean squared error cost function for regression problems.
+            </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.MeanSquaredErrorCostFunction`1.Cost(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the mean squared error between predicted and expected values.
+            </summary>
+            <param name="predicted">Predicted values</param>
+            <param name="expected">Expected values</param>
+            <returns>Mean squared error value</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.CostFunctions.MeanSquaredErrorCostFunction`1.Gradient(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Calculates the gradient of mean squared error with respect to predicted values.
+            </summary>
+            <param name="predicted">Predicted values</param>
+            <param name="expected">Expected values</param>
+            <returns>Gradient vector</returns>
         </member>
         <member name="T:BrightData.LinearAlgebra.LinearAlgebraProvider`1">
             <summary>

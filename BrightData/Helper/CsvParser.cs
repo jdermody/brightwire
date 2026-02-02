@@ -204,9 +204,11 @@ namespace BrightData.Helper
             var parseState = new ParseState(this);
             using var buffer = MemoryOwner<char>.Allocate(_blockSize);
             var lineCount = 0;
-            while (!reader.EndOfStream)
+            while (true)
             {
                 var line = await reader.ReadLineAsync(ct);
+                if (line == null)
+                    break;
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
 

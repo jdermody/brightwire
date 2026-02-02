@@ -544,7 +544,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives each value from the segment</param>
         /// <returns></returns>
-        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
+        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper) where T: unmanaged, INumber<T>
         {
             var ret = segment.ApplyReadOnlySpan(x => x.MapParallel(mapper));
             return new ArrayPoolTensorSegment<T>(ret);
@@ -555,7 +555,7 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives each value from the segment</param>
-        public static void MapParallelInPlace<T>(this INumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
+        public static void MapParallelInPlace<T>(this INumericSegment<T> segment, Func<T /* value */, T /* new value */> mapper) where T: unmanaged, INumber<T>
         {
             segment.ApplySpan(true, x => x.MutateInPlace(mapper));
         }
@@ -566,7 +566,7 @@ namespace BrightData
         /// <param name="segment"></param>
         /// <param name="mapper">Mapping function that receives the index and each value from the segment</param>
         /// <returns></returns>
-        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<uint /* index */, T /* value */, T /* new value */> mapper)where T: unmanaged, INumber<T>
+        public static INumericSegment<T> MapParallel<T>(this IReadOnlyNumericSegment<T> segment, Func<uint /* index */, T /* value */, T /* new value */> mapper) where T: unmanaged, INumber<T>
         {
             var ret = segment.ApplyReadOnlySpan(x => x.MapParallel(mapper));
             return new ArrayPoolTensorSegment<T>(ret);

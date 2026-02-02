@@ -612,6 +612,31 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Creates a hinge loss cost function for SVM and classification tasks
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lap"></param>
+        /// <returns></returns>
+        public static ICostFunction<T> CreateHingeLossCostFunction<T>(this LinearAlgebraProvider<T> lap)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new HingeLossCostFunction<T>(lap);
+        }
+
+        /// <summary>
+        /// Creates a huber loss cost function for robust regression
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lap"></param>
+        /// <param name="delta">Delta parameter (default is 1.0)</param>
+        /// <returns></returns>
+        public static ICostFunction<T> CreateHuberLossCostFunction<T>(this LinearAlgebraProvider<T> lap, T? delta = null)
+            where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
+        {
+            return new HuberLossCostFunction<T>(lap, delta);
+        }
+
+        /// <summary>
         /// Converts the vector to a sparse format (only non-zero entries are preserved)
         /// </summary>
         /// <param name="vector"></param>
