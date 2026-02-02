@@ -6,7 +6,7 @@ namespace BrightData.Cuda.CudaToolkit
 {
     internal static partial class CudaBlasNativeMethods
     {
-        internal const string CublasApiDllName = "cublas64_12";
+        internal const string CublasApiDllName = DriverApiNativeMethods.CublasApiDllName;
 
         static CudaBlasNativeMethods()
         {

@@ -9,8 +9,8 @@ namespace BrightData.Cuda.CudaToolkit
     internal static partial class DriverApiNativeMethods
     {
         internal const string CudaDriverApiDllName = "nvcuda";
-        internal const string CublasApiDllName = "cublas64_12";
-        internal const string CusolveApiDllName = "cusolver64_11.dll";
+        internal const string CublasApiDllName = "cublas64_13";
+        internal const string CusolveApiDllName = "cusolver64_12.dll";
         internal const string CudaObsolet92 = "Don't use this CUDA API call with CUDA version >= 9.2.";
         internal const string CudaObsolet11 = "Don't use this CUDA API call with CUDA version >= 11";
         internal const string CudaObsolet12 = "Don't use this CUDA API call with CUDA version >= 12";

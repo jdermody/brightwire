@@ -9,7 +9,6 @@
 
 #include <cuda.h>
 #include <device_launch_parameters.h>
-#include <texture_fetch_functions.h>
 #include "float.h"
 #include <builtin_types.h>
 #include <vector_functions.h>

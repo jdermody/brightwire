@@ -11267,7 +11267,7 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1.Cost(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
             <summary>
-            Calculates the hingle loss between predicted and expected values.
+            Calculates the hinge loss between predicted and expected values.
             </summary>
             <param name="predicted">Predicted values (typically -1 or 1 for binary classification)</param>
             <param name="expected">Expected labels (-1 or 1 for binary classification)</param>
@@ -11275,7 +11275,7 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.CostFunctions.HingeLossCostFunction`1.Gradient(BrightData.IReadOnlyNumericSegment{`0},BrightData.IReadOnlyNumericSegment{`0})">
             <summary>
-            Calculates the gradient of hingle loss with respect to predicted values.
+            Calculates the gradient of hinge loss with respect to predicted values.
             </summary>
             <param name="predicted">Predicted values (typically -1 or 1 for binary classification)</param>
             <param name="expected">Expected labels (-1 or 1 for binary classification)</param>
@@ -11286,11 +11286,20 @@
             Huber loss cost function for robust regression that combines MSE and MAE.
             </summary>
             <typeparam name="T">Numeric type (typically float or double)</typeparam>
+            <remarks>
+            Creates a new Huber loss cost function with specified delta parameter.
+            </remarks>
+            <param name="lap">Linear algebra provider</param>
+            <param name="delta">Delta parameter for the huber loss (default is 1.0)</param>
         </member>
         <member name="M:BrightData.LinearAlgebra.CostFunctions.HuberLossCostFunction`1.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{`0},System.Nullable{`0})">
             <summary>
-            Creates a new Huber loss cost function with specified delta parameter.
+            Huber loss cost function for robust regression that combines MSE and MAE.
             </summary>
+            <typeparam name="T">Numeric type (typically float or double)</typeparam>
+            <remarks>
+            Creates a new Huber loss cost function with specified delta parameter.
+            </remarks>
             <param name="lap">Linear algebra provider</param>
             <param name="delta">Delta parameter for the huber loss (default is 1.0)</param>
         </member>

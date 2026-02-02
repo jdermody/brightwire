@@ -34,14 +34,6 @@
     <None Remove="cuda\brightwire_110.ptx" />
     <None Remove="cuda\brightwire_120.ptx" />
     <None Remove="cuda\brightwire_121.ptx" />
-    <None Remove="cuda\brightwire_50.ptx" />
-    <None Remove="cuda\brightwire_52.ptx" />
-    <None Remove="cuda\brightwire_53.ptx" />
-    <None Remove="cuda\brightwire_60.ptx" />
-    <None Remove="cuda\brightwire_61.ptx" />
-    <None Remove="cuda\brightwire_62.ptx" />
-    <None Remove="cuda\brightwire_70.ptx" />
-    <None Remove="cuda\brightwire_72.ptx" />
     <None Remove="cuda\brightwire_75.ptx" />
     <None Remove="cuda\brightwire_80.ptx" />
 	<None Remove="cuda\brightwire_86.ptx" />
@@ -64,38 +56,6 @@
     </Content>
     <Content Include="cuda\brightwire_121.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="cuda\brightwire_50.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_52.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_53.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_60.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_61.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_62.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_70.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-    <Content Include="cuda\brightwire_72.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
     <Content Include="cuda\brightwire_75.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

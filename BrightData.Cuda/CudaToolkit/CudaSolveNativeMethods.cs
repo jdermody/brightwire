@@ -6,7 +6,7 @@ namespace BrightData.Cuda.CudaToolkit
 {
     internal static class CudaSolveNativeMethods
     {
-        internal const string CuSolveApiDllName = "cusolver64_11.dll";
+        internal const string CuSolveApiDllName = DriverApiNativeMethods.CusolveApiDllName;
 
         public static class Dense
         {
