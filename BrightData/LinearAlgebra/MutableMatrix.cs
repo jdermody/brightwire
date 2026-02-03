@@ -1,14 +1,16 @@
-﻿using System;
+﻿using BrightData.LinearAlgebra.ReadOnly;
+using BrightData.LinearAlgebra.Segments;
+using CommunityToolkit.HighPerformance.Buffers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
-using BrightData.LinearAlgebra.ReadOnly;
-using BrightData.LinearAlgebra.Segments;
-using CommunityToolkit.HighPerformance.Buffers;
 
 namespace BrightData.LinearAlgebra
 {
@@ -318,7 +320,10 @@ namespace BrightData.LinearAlgebra
                 fixed (T* matrixPtr = matrixSpan)
                 fixed (T* otherPtr = otherSpan)
                 fixed (T* retPtr = retSpan) {
-                    MatrixMultiplyTiled3(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
+                    if (typeof(T) == typeof(float) && Avx2.IsSupported && Fma.IsSupported)
+                        MatrixMultiplyFloat((float*)matrixPtr, (float*)otherPtr, lda, (int)rowCount, (int)columnCount, (float*)retPtr);
+                    else
+                        MatrixMultiplyTiled3(matrixPtr, otherPtr, lda, rowCount, columnCount, retPtr);
                 }
             }
             finally {
@@ -496,7 +501,7 @@ namespace BrightData.LinearAlgebra
                             for (uint jj = j, jLen = Math.Min(j + L1BlockSize, cols); jj < jLen; jj++) {
                                 var yPtr = &b[jj * size];
                                 var vSum = Vector<T>.Zero;
-                                for (var z = 0; z < numVectors; z++) 
+                                for (var z = 0; z < numVectors; z++)
                                     vSum += Vector.Load(xPtr + z * vectorSize) * Vector.Load(yPtr + z * vectorSize);
 
                                 var sum = Vector.Dot(vSum, Vector<T>.One);
@@ -510,8 +515,7 @@ namespace BrightData.LinearAlgebra
             }
 
             if (rows * cols >= Consts.MinimumSizeForParallel) {
-                Parallel.For(0, (int)Math.Ceiling((double)rows / L2BlockSize), rowTile =>
-                {
+                Parallel.For(0, (int)Math.Ceiling((double)rows / L2BlockSize), rowTile => {
                     var rowStart = (uint)rowTile * L2BlockSize;
                     var rowEnd = rowStart + L2BlockSize;
                     for (var colTile = 0U; colTile < cols; colTile += L2BlockSize)
@@ -543,5 +547,100 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         protected override IMatrix<T> Create(MemoryOwner<T> memory) => new MutableMatrix<T, LAP>(new ArrayPoolTensorSegment<T>(memory), RowCount, ColumnCount, Lap);
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        static unsafe void MatrixMultiplyFloat(float* a, float* b, int K, int M, int N, float* ret)
+        {
+            const int BLOCK_SIZE = 64;
+
+            Parallel.For(0, (int)Math.Ceiling((double)N / BLOCK_SIZE), jBlockIndex =>
+            {
+                var jjStart = jBlockIndex * BLOCK_SIZE;
+                var jjEnd = Math.Min(jjStart + BLOCK_SIZE, N);
+                for (int iiStart = 0; iiStart < M; iiStart += BLOCK_SIZE) {
+                    int iiEnd = Math.Min(iiStart + BLOCK_SIZE, M);
+                    ProcessBlock(a, b, ret, K, M, iiStart, iiEnd, jjStart, jjEnd);
+                }
+            });
+
+            [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+            static unsafe void ProcessBlock(float* a, float* b, float* ret, int K, int strideRet, int iStart, int iEnd, int jStart, int jEnd)
+            {
+                for (var jj = jStart; jj < jEnd; jj++) {
+                    var ptrB = b + (long)jj * K;
+                    var ii = iStart;
+
+                    for (; ii < iEnd - 3; ii += 4) {
+                        var ptrA0 = a + (long)ii * K;
+                        var ptrA1 = a + (long)(ii + 1) * K;
+                        var ptrA2 = a + (long)(ii + 2) * K;
+                        var ptrA3 = a + (long)(ii + 3) * K;
+
+                        var sum0 = Vector256<float>.Zero;
+                        var sum1 = Vector256<float>.Zero;
+                        var sum2 = Vector256<float>.Zero;
+                        var sum3 = Vector256<float>.Zero;
+
+                        var k = 0;
+                        var kLimit = K - 15;
+                        for (; k < kLimit; k += 16) {
+                            var bVec1 = Avx.LoadVector256(ptrB + k);
+                            var bVec2 = Avx.LoadVector256(ptrB + k + 8);
+
+                            sum0 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA0 + k), bVec1, sum0);
+                            sum0 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA0 + k + 8), bVec2, sum0);
+                            sum1 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA1 + k), bVec1, sum1);
+                            sum1 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA1 + k + 8), bVec2, sum1);
+                            sum2 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA2 + k), bVec1, sum2);
+                            sum2 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA2 + k + 8), bVec2, sum2);
+                            sum3 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA3 + k), bVec1, sum3);
+                            sum3 = Fma.MultiplyAdd(Avx.LoadVector256(ptrA3 + k + 8), bVec2, sum3);
+                        }
+                        var s0 = HorizontalAdd(sum0);
+                        var s1 = HorizontalAdd(sum1);
+                        var s2 = HorizontalAdd(sum2);
+                        var s3 = HorizontalAdd(sum3);
+
+                        for (; k < K; k++) {
+                            var bVal = ptrB[k];
+                            s0 += ptrA0[k] * bVal;
+                            s1 += ptrA1[k] * bVal;
+                            s2 += ptrA2[k] * bVal;
+                            s3 += ptrA3[k] * bVal;
+                        }
+
+                        var baseIdx = (long)jj * strideRet + ii;
+                        ret[baseIdx] = s0;
+                        ret[baseIdx + 1] = s1;
+                        ret[baseIdx + 2] = s2;
+                        ret[baseIdx + 3] = s3;
+                    }
+
+                    for (; ii < iEnd; ii++) {
+                        var ptrA = a + (long)ii * K;
+                        var vSum = Vector256<float>.Zero;
+                        var k = 0;
+                        for (; k <= K - 8; k += 8)
+                            vSum = Fma.MultiplyAdd(Avx.LoadVector256(ptrA + k), Avx.LoadVector256(ptrB + k), vSum);
+
+                        var sum = HorizontalAdd(vSum);
+                        for (; k < K; k++) 
+                            sum += ptrA[k] * ptrB[k];
+                        ret[(long)jj * strideRet + ii] = sum;
+                    }
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static float HorizontalAdd(Vector256<float> v)
+            {
+                var vLow = v.GetLower();
+                var vHigh = Avx.ExtractVector128(v, 1);
+                var v128 = Sse.Add(vLow, vHigh);
+                v128 = Sse3.HorizontalAdd(v128, v128);
+                v128 = Sse3.HorizontalAdd(v128, v128);
+                return v128.ToScalar();
+            }
+        }
     }
 }
