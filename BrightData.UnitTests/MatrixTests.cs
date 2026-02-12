@@ -1025,5 +1025,145 @@ namespace BrightData.UnitTests
 
             AssertSame(matrix2, gpuMatrix2, mklMatrix2);
         }
+
+        [Fact]
+        public void MatrixSvdBasic()
+        {
+            // Test basic SVD correctness with a simple 2x2 matrix
+            using var a = _cpu.CreateMatrix(2, 2, false);
+            a[0, 0] = 4f;
+            a[1, 0] = 7f;
+            a[0, 1] = 2f;
+            a[1, 1] = 6f;
+
+            var (u, s, vt) = a.Svd();
+
+            try {
+                // Verify singular values are positive
+                for (uint i = 0; i < s.Size; i++) {
+                    s[i].Should().BeGreaterThan(0f);
+                }
+
+                // Verify singular values are sorted in descending order
+                if (s.Size > 1) {
+                    for (uint i = 0; i < s.Size - 1; i++) {
+                        s[i].Should().BeGreaterThan(s[i + 1] - Math<float>.AlmostZero);
+                    }
+                }
+
+                // Reconstruct original matrix: A = U * S * V^T
+                using var sDiag = _cpu.CreateDiagonalMatrix([..s.Segment.Values]);
+                using var reconstructed = u.Multiply(sDiag).Multiply(vt);
+
+                Math<float>.AreApproximatelyEqual(a, reconstructed, 5).Should().BeTrue();
+            }
+            finally {
+                u.Dispose();
+                s.Dispose();
+                vt.Dispose();
+            }
+        }
+
+        [Fact]
+        public void MatrixSvdRectangular()
+        {
+            // Test SVD with a rectangular matrix (3x2)
+            using var a = _cpu.CreateMatrix(3, 2, false);
+            a[0, 0] = 1f; a[1, 0] = 2f; a[2, 0] = 3f;
+            a[0, 1] = 4f; a[1, 1] = 5f; a[2, 1] = 6f;
+
+            var (u, s, vt) = a.Svd();
+
+            try {
+                // Verify singular values are positive
+                for (uint i = 0; i < s.Size; i++) {
+                    s[i].Should().BeGreaterThan(0f);
+                }
+
+                // Reconstruct original matrix: A = U * S * V^T
+                using var sDiag = _cpu.CreateDiagonalMatrix([..s.Segment.Values]);
+                using var reconstructed = u.Multiply(sDiag).Multiply(vt);
+
+                Math<float>.AreApproximatelyEqual(a, reconstructed, 5).Should().BeTrue();
+            }
+            finally {
+                u.Dispose();
+                s.Dispose();
+                vt.Dispose();
+            }
+        }
+
+        [Fact]
+        public void MatrixSvdIdentity()
+        {
+            // Test SVD with identity matrix (should have singular values of 1)
+            var size = 4u;
+            using var a = _cpu.CreateIdentityMatrix(size);
+
+            var (u, s, vt) = a.Svd();
+
+            try {
+                // All singular values should be 1 for identity matrix
+                for (uint i = 0; i < size; i++) {
+                    Math<float>.AreApproximatelyEqual(s[i], 1f).Should().BeTrue();
+                }
+
+                // Reconstruct original matrix: A = U * S * V^T
+                using var sDiag = _cpu.CreateDiagonalMatrix([..s.Segment.Values]);
+                using var reconstructed = u.Multiply(sDiag).Multiply(vt);
+
+                Math<float>.AreApproximatelyEqual(a, reconstructed, 5).Should().BeTrue();
+            }
+            finally {
+                u.Dispose();
+                s.Dispose();
+                vt.Dispose();
+            }
+        }
+
+        [Fact]
+        public void MatrixSvdRandom()
+        {
+            // Test SVD with random matrices to verify reconstruction
+            var rand = new Random(42);
+            
+            for (int testNum = 0; testNum < 3; testNum++) {
+                using var a = _cpu.CreateMatrix(5, 4, (_, _) => Convert.ToSingle(rand.NextDouble()));
+
+                var (u, s, vt) = a.Svd();
+
+                try {
+                    // Verify singular values are positive
+                    for (uint i = 0; i < s.Size; i++) {
+                        s[i].Should().BeGreaterThan(0f);
+                    }
+
+                    // Reconstruct and verify
+                    using var sDiag = _cpu.CreateDiagonalMatrix([..s.Segment.Values]);
+                    using var reconstructed = u.Multiply(sDiag).Multiply(vt);
+
+                    Math<float>.AreApproximatelyEqual(a, reconstructed, 10).Should().BeTrue();
+                }
+                finally {
+                    u.Dispose();
+                    s.Dispose();
+                    vt.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void MatrixReduceDimensionsWithSvd()
+        {
+            // Test dimensionality reduction using SVD
+            using var a = _cpu.CreateMatrix(5, 3, (x, y) => x * 2 + y + 1f);
+
+            // Reduce to 2 dimensions
+            using var reduced = a.ReduceDimensionsWithSvd(2);
+
+            // Check that the result has correct dimensions
+            reduced.RowCount.Should().Be(2u);
+            reduced.ColumnCount.Should().Be(a.ColumnCount);
+        }
     }
 }

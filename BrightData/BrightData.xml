@@ -5407,14 +5407,14 @@
             <summary>
             Finds the average value in this vector
             </summary>
-            <param name="vector">This tensor</param>
+            <param name="segment">This tensor</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.L1Norm``1(System.ReadOnlySpan{``0})">
             <summary>
             Calculates the L1 norm of this vector
             </summary>
-            <param name="vector">This tensor</param>
+            <param name="segment">This tensor</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.L2Norm``1(System.ReadOnlySpan{``0})">
@@ -12356,7 +12356,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.MutableMatrix`2">
             <summary>
-            Row major matrix type
+            Column major matrix type
             </summary>
             <typeparam name="LAP"></typeparam>
             <typeparam name="T"></typeparam>
@@ -12370,7 +12370,7 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.#ctor(BrightData.INumericSegment{`0},System.UInt32,System.UInt32,`1)">
             <summary>
-            Row major matrix type
+            Column major matrix type
             </summary>
             <typeparam name="LAP"></typeparam>
             <typeparam name="T"></typeparam>
@@ -12469,6 +12469,18 @@
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.Svd">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.ComputeEigenDecomposition(BrightData.IMatrix{`0})">
+            <summary>
+            Computes eigenvalue decomposition of a symmetric matrix using Jacobi method
+            </summary>
+            <param name="matrix">Symmetric matrix</param>
+            <returns>Tuple of (eigenvalues, eigenvectors)</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.ApplyJacobiRotation(BrightData.IMatrix{`0},BrightData.IMatrix{`0},System.UInt32,System.UInt32,`0,`0,System.UInt32)">
+            <summary>
+            Applies Jacobi rotation to matrix
+            </summary>
+        </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.GetNewMatrixFromRows(System.Collections.Generic.IEnumerable{System.UInt32})">
             <inheritdoc />
         </member>
@@ -12507,7 +12519,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.MutableTensor3D`2">
             <summary>
-            Row major 3D tensor
+            Column major 3D tensor
             </summary>
             <typeparam name="LAP"></typeparam>
             <typeparam name="T"></typeparam>
@@ -12642,7 +12654,7 @@
         </member>
         <member name="T:BrightData.LinearAlgebra.MutableTensor4D`2">
             <summary>
-            Row major 4D tensor
+            Column major 4D tensor
             </summary>
             <typeparam name="LAP"></typeparam>
             <typeparam name="T"></typeparam>
@@ -20228,6 +20240,12 @@
             Get enumerator
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.IndexList.ItemIterator.Reset">
+            <inheritdoc/>
+        </member>
+        <member name="M:BrightData.Types.IndexList.ItemIterator.Dispose">
+            <inheritdoc/>
         </member>
         <member name="M:BrightData.Types.IndexList.GetEnumerator">
             <summary>

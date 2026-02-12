@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace BrightData.Types
         /// <summary>
         /// Index iterator
         /// </summary>
-        public ref struct ItemIterator
+        public ref struct ItemIterator : IEnumerator<uint>
         {
             readonly ReadOnlySpan<uint> _items;
             int _pos = -1;
@@ -50,6 +51,8 @@ namespace BrightData.Types
                 }
             }
 
+            readonly object IEnumerator.Current => Current;
+
             /// <summary>
             /// Advances the iterator
             /// </summary>
@@ -61,6 +64,17 @@ namespace BrightData.Types
             /// </summary>
             /// <returns></returns>
             public readonly ItemIterator GetEnumerator() => this;
+
+            /// <inheritdoc/>
+            public void Reset()
+            {
+                _pos = -1;
+            }
+
+            /// <inheritdoc/>
+            public readonly void Dispose()
+            {
+            }
         }
 
         /// <summary>
@@ -313,7 +327,7 @@ namespace BrightData.Types
         public ReadOnlyVector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
-            var max = maxIndex ?? uint.MinValue;
+            var max = maxIndex ?? 0;
 
             foreach (var item in Indices)
             {

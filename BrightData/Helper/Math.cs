@@ -11,8 +11,9 @@ namespace BrightData.Helper
     {
 #pragma warning disable 1591
         public static readonly T AlmostZero = T.CreateSaturating(1E-08f);
-        public static readonly T TooSmall = T.CreateSaturating(-1.0E20f);
-        public static readonly T TooBig = T.CreateSaturating(1.0E20f);
+        public static readonly T TooSmall   = T.CreateSaturating(-1.0E20f);
+        public static readonly T TooBig     = T.CreateSaturating(1.0E20f);
+        public static readonly T Two        = T.One + T.One;
 
         public static T Log(T val) => Constrain(T.Log(val));
         public static T Exp(T val) => Constrain(T.Exp(val));
@@ -34,6 +35,10 @@ namespace BrightData.Helper
         }
 
         public static T Next(Random rand) => Constrain(T.CreateSaturating(rand.NextDouble()));
+
+        public static T Max(T val1, T val2) => val1 > val2 ? val1 : val2;
+        public static T Abs(T val) => T.Abs(val);
+        public static T Sign(T val) => T.CreateSaturating(T.Sign(val));
 
         //class EqualityComparer(T tolerance) : IEqualityComparer<T>
         //{

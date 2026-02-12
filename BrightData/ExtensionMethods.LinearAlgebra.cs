@@ -363,8 +363,8 @@ namespace BrightData
         /// <returns></returns>
         public static IMatrix<float> ReduceDimensionsWithSvd(this IMatrix<float> matrix, uint dimensions)
         {
-            using var matrixT = matrix.Transpose();
-            var (u, vector, vt) = matrixT.Svd();
+            //using var matrixT = matrix.Transpose();
+            var (u, vector, vt) = matrix.Svd();
 
             try {
                 using var s = matrix.LinearAlgebraProvider.CreateDiagonalMatrix([..vector.Segment.Values.Take((int)dimensions)]);

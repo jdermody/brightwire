@@ -10,7 +10,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// Row major 3D tensor
+    /// Column major 3D tensor
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
     /// <typeparam name="T"></typeparam>

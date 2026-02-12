@@ -31,6 +31,9 @@ namespace BrightData.Parquet
 
         public Task<DataColumn> GetColumn(uint rowGroup, int columnIndex)
         {
+            if (columnIndex < 0 || columnIndex >= Reader.Schema.DataFields.Length)
+                throw new ArgumentOutOfRangeException(nameof(columnIndex));
+                
             var rowGroupReader = GetRowGroupReader(rowGroup);
             return _columnData.GetOrAdd((uint)columnIndex, _ => new(() => rowGroupReader.ReadColumnAsync(Reader.Schema.DataFields[columnIndex]))).Value;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -911,25 +912,25 @@ namespace BrightData
         /// <summary>
         /// Finds the average value in this vector
         /// </summary>
-        /// <param name="vector">This tensor</param>
+        /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static T Average<T>(this ReadOnlySpan<T> vector)
+        public static T Average<T>(this ReadOnlySpan<T> segment)
             where T : unmanaged, INumber<T>
         {
-            if (vector.Length == 0)
+            if (segment.Length == 0)
                 return T.Zero;
-            return Sum(vector) / T.CreateSaturating(vector.Length);
+            return Sum(segment) / T.CreateSaturating(segment.Length);
         }
 
         /// <summary>
         /// Calculates the L1 norm of this vector
         /// </summary>
-        /// <param name="vector">This tensor</param>
+        /// <param name="segment">This tensor</param>
         /// <returns></returns>
-        public static T L1Norm<T>(this ReadOnlySpan<T> vector)
+        public static T L1Norm<T>(this ReadOnlySpan<T> segment)
             where T : unmanaged, INumber<T>
         {
-            using var abs = Abs(vector);
+            using var abs = Abs(segment);
             return Sum(abs.Span.AsReadOnly());
         }
 
@@ -1001,6 +1002,9 @@ namespace BrightData
         /// <returns></returns>
         public static unsafe MemoryOwner<T> Reverse<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T>
         {
+            if(span.Length == 0)
+                return MemoryOwner<T>.Empty;
+
             var len = span.Length - 1;
             fixed (T* fp = span) {
                 var p = fp;
@@ -1099,7 +1103,7 @@ namespace BrightData
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MemoryOwner<T> Abs<T>(this ReadOnlySpan<T> tensor) where T : unmanaged, INumber<T> => TransformVectorized(tensor,
-            (in Vector<T> a, out Vector<T> r) => r = Vector.Abs(a),
+            (in a, out r) => r = Vector.Abs(a),
             T.Abs
         );
 
@@ -1137,7 +1141,7 @@ namespace BrightData
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MemoryOwner<T> Squared<T>(this ReadOnlySpan<T> span) where T : unmanaged, INumber<T> => TransformVectorized(
             span,
-            (in Vector<T> a, out Vector<T> r) => r = a * a,
+            (in a, out r) => r = a * a,
             a => a * a
         );
 
@@ -1154,7 +1158,7 @@ namespace BrightData
             var avgVector = new Vector<T>(avg);
             var result = TransformVectorized(
                 segment,
-                (in Vector<T> a, out Vector<T> r) => {
+                (in a, out r) => {
                     var s = a - avgVector;
                     r = s * s;
                 }, a => {
@@ -1354,6 +1358,13 @@ namespace BrightData
         /// <returns></returns>
         public static MemoryOwner<T> CherryPickIndices<T>(this ReadOnlySpan<T> span, ReadOnlySpan<uint> indices)
         {
+            // first check indices are valid
+            var size = (uint)span.Length;
+            foreach(var index in indices) {
+                if(index >= size)
+                    throw new ArgumentException("Indices are invalid", nameof(indices));
+            }
+
             var ret = MemoryOwner<T>.Allocate(indices.Length);
             var ptr = ret.Span;
             for (int i = 0, len = indices.Length; i < len; i++)
@@ -1625,19 +1636,16 @@ namespace BrightData
         /// <param name="value">Value to find</param>
         /// <param name="tolerance">Degree of tolerance</param>
         /// <returns></returns>
-        public static GenericIndexedEnumerator<T> Search<T>(this ReadOnlySpan<T> segment, T value, T? tolerance = null)
+        public static IReadOnlyCollection<uint> Search<T>(this ReadOnlySpan<T> segment, T value, T? tolerance = null)
             where T : unmanaged, INumber<T>
         {
-            var results = new List<uint>();
-            var spinLock = new SpinLock();
+            var results = new ConcurrentBag<uint>();
             tolerance ??= T.CreateSaturating(1E-08f);
             Analyse(segment, (v, index) => {
-                if (T.Abs(value - v) < tolerance) {
-                    using var l = spinLock.Enter();
+                if (T.Abs(value - v) < tolerance)
                     results.Add(index);
-                }
             });
-            return new(segment, CollectionsMarshal.AsSpan(results));
+            return [.. results];
         }
 
         /// <summary>

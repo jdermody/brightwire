@@ -1,4 +1,5 @@
-﻿using BrightData.LinearAlgebra.ReadOnly;
+﻿using BrightData.Helper;
+using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
 using System;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 namespace BrightData.LinearAlgebra
 {
     /// <summary>
-    /// Row major matrix type
+    /// Column major matrix type
     /// </summary>
     /// <typeparam name="LAP"></typeparam>
     /// <typeparam name="T"></typeparam>
@@ -252,7 +253,260 @@ namespace BrightData.LinearAlgebra
         }
 
         /// <inheritdoc />
-        public virtual (IMatrix<T> U, IVector<T> S, IMatrix<T> VT) Svd() => throw new NotImplementedException();
+        public virtual (IMatrix<T> U, IVector<T> S, IMatrix<T> VT) Svd()
+        {
+            // For a matrix A, compute SVD: A = U * S * V^T
+            // Using Jacobi eigenvalue decomposition on A^T * A to find V and singular values
+            // Then U is computed from A * V * S^-1
+            
+            if (RowCount == 0 || ColumnCount == 0)
+                throw new InvalidOperationException("Cannot compute SVD of empty matrix");
+
+            uint eigenSize = Math.Min(RowCount, ColumnCount);
+            
+            // Compute A^T * A for eigenvectors using direct element access
+            IMatrix<T>? AtA = null;
+            try {
+                AtA = Lap.CreateMatrix(ColumnCount, ColumnCount, true);
+                
+                // Directly compute A^T * A[i,j] = sum over k of A[k,i] * A[k,j]
+                // For column-major: A[k,i] = data[i * RowCount + k]
+                for (uint i = 0; i < ColumnCount; i++) {
+                    for (uint j = 0; j <= i; j++) {
+                        T sum = T.Zero;
+                        for (uint k = 0; k < RowCount; k++) {
+                            sum += this[k, i] * this[k, j];
+                        }
+                        AtA[j, i] = sum;
+                        if (i != j) {
+                            AtA[i, j] = sum; // Symmetric matrix
+                        }
+                    }
+                }
+            } catch {
+                AtA?.Dispose();
+                throw;
+            }
+            
+            try {
+                // Compute eigenvalues and eigenvectors of the symmetric matrix A^T * A
+                var (eigenValues, eigenVectors) = ComputeEigenDecomposition(AtA);
+                
+                try {
+                    // Singular values are square roots of eigenvalues
+                    using var singularValues = Lap.CreateVector(eigenSize, false);
+                    for (uint i = 0; i < eigenSize; i++) {
+                        var ev = eigenValues[i];
+                        singularValues[i] = Math<T>.Sqrt(Math<T>.Max(ev, T.Zero));
+                    }
+                    
+                    // Sort singular values in descending order
+                    var sortedIndices = Enumerable.Range(0, (int)eigenSize)
+                        .OrderByDescending(i => singularValues[(uint)i])
+                        .Select(i => (uint)i)
+                        .ToArray();
+                    
+                    // Reorder singular values and eigenvectors (V)
+                    var sortedSingularValues = Lap.CreateVector(eigenSize, false);
+                    IMatrix<T> sortedEigenVectors;
+
+                    using (eigenVectors) {
+                        sortedEigenVectors = Lap.CreateMatrix(eigenSize, eigenSize, false);
+                        for (uint i = 0; i < eigenSize; i++) {
+                            var origIdx = sortedIndices[i];
+                            // Use the singular values (square roots) for the reordered values
+                            sortedSingularValues[i] = singularValues[origIdx];
+                            using var col = eigenVectors.GetColumn(origIdx);
+                            col.CopyTo(sortedEigenVectors.GetColumn(i));
+                        }
+                    }
+
+                    // V is the matrix of eigenvectors (from A^T * A)
+                    IMatrix<T> vMatrix = sortedEigenVectors;
+                    IVector<T> singularValuesVec = sortedSingularValues;
+                    
+                    // Compute U from A * V * S^-1
+                    // First compute AV = A * V, then divide each column by corresponding singular value
+                    using var tempV = vMatrix;
+                    IMatrix<T> av = Multiply(tempV);
+                    
+                    try {
+                        var uMatrix = Lap.CreateMatrix(RowCount, eigenSize, false);
+                        for (uint i = 0; i < eigenSize; i++) {
+                            var sVal = singularValuesVec[i];
+                            if (Math<T>.IsZero(sVal)) {
+                                // Handle zero singular value
+                                uMatrix.GetColumn(i).Clear();
+                            } else {
+                                using var col = av.GetColumn(i);
+                                col.ApplySpan(true, x => x.MultiplyInPlace(T.One / sVal));
+                                col.CopyTo(uMatrix.GetColumn(i));
+                            }
+                        }
+                        
+                        return (uMatrix, singularValuesVec, vMatrix.Transpose());
+                    }
+                    finally {
+                        av.Dispose();
+                    }
+                }finally
+                {
+                    eigenValues.Dispose();
+                }
+            }
+            finally {
+                AtA.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Computes eigenvalue decomposition of a symmetric matrix using Jacobi method
+        /// </summary>
+        /// <param name="matrix">Symmetric matrix</param>
+        /// <returns>Tuple of (eigenvalues, eigenvectors)</returns>
+        (IVector<T> EigenValues, IMatrix<T> EigenVectors) ComputeEigenDecomposition(IMatrix<T> matrix)
+        {
+            var size = matrix.RowCount;
+            
+            if (size == 0)
+                throw new ArgumentException("Matrix size must be greater than 0");
+            
+            if (matrix.ColumnCount != size)
+                throw new ArgumentException("Matrix must be square");
+            
+            // Initialize eigenvector matrix as identity
+            IMatrix<T> v = Lap.CreateMatrix(size, size, true);
+            try {
+                for (uint i = 0; i < size; i++)
+                    v[i, i] = T.One;
+                
+                // Copy input matrix to work on it
+                using var a = Lap.CreateMatrix(size, size, false);
+                matrix.CopyTo(a);
+                
+                // Jacobi eigenvalue decomposition
+                const int MaxIterations = 100;
+                T Epsilon = ComputeTolerance(matrix);
+                
+                for (int iter = 0; iter < MaxIterations; iter++) {
+                    // Find largest off-diagonal element
+                    T maxVal = T.Zero;
+                    uint p = 0, q = 0;
+                    
+                    for (uint i = 0; i < size - 1; i++) {
+                        for (uint j = i + 1; j < size; j++) {
+                            var val = Math<T>.Abs(a[i, j]);
+                            if (val > maxVal) {
+                                maxVal = val;
+                                p = i;
+                                q = j;
+                            }
+                        }
+                    }
+                    
+                    // Check convergence
+                    if (maxVal < Epsilon)
+                        break;
+                    
+                    // Compute rotation angle
+                    var app = a[p, p];
+                    var aqq = a[q, q];
+                    var apq = a[p, q];
+                    
+                    var phi = (aqq - app) / ((T.One + T.One) * apq);
+                    var tau = Math<T>.Sign(phi) / (Math<T>.Abs(phi) + Math<T>.Sqrt(T.One + phi * phi));
+                    var c = T.One / Math<T>.Sqrt(T.One + tau * tau);
+                    var s = tau * c;
+                    
+                    // Apply Jacobi rotation
+                    ApplyJacobiRotation(a, v, p, q, c, s, size);
+                }
+                
+                // Extract eigenvalues from diagonal
+                var eigenValues = Lap.CreateVector(size, false);
+                for (uint i = 0; i < size; i++)
+                    eigenValues[i] = a[i, i];
+                
+                return (eigenValues, v);
+            }
+            catch {
+                v.Dispose();
+                throw;
+            }
+
+            static T ComputeTolerance(IMatrix<T> matrix)
+            {
+                // Use the Frobenius norm of the off-diagonal elements as the tolerance
+                var size = matrix.RowCount;
+                T sumOfSquares = T.Zero;
+                int count = 0;
+                
+                for (uint i = 0; i < size; i++)
+                {
+                    for (uint j = 0; j < size; j++)
+                    {
+                        if (i != j) // Off-diagonal elements
+                        {
+                            var val = matrix[i, j];
+                            sumOfSquares += val * val;
+                            count++;
+                        }
+                    }
+                }
+                
+                if (count == 0) 
+                    return T.Zero;
+                
+                // Root mean square of off-diagonal elements
+                var rms = Math<T>.Sqrt(sumOfSquares / T.CreateSaturating(count));
+                
+                // Use a small multiple of machine epsilon scaled by the matrix norm
+                return rms * Math<T>.AlmostZero * T.CreateSaturating(100);
+            }
+        }
+
+        /// <summary>
+        /// Applies Jacobi rotation to matrix
+        /// </summary>
+        static void ApplyJacobiRotation(IMatrix<T> a, IMatrix<T> v, uint p, uint q, T c, T s, uint size)
+        {
+            // Store affected elements before modification
+            var app = a[p, p];
+            var aqq = a[q, q];
+            var apq = a[p, q];
+            
+            // Compute rotated diagonal elements using standard Jacobi formulas
+            var sin2 = c * s;
+
+            // new_app = c^2*app - 2*c*s*apq + s^2*aqq
+            // new_aqq = s^2*app + 2*c*s*apq + c^2*aqq
+            a[p, p] = app * c * c - apq * Math<T>.Two * sin2 + aqq * s * s;
+            a[q, q] = app * s * s + apq * Math<T>.Two * sin2 + aqq * c * c;
+            a[p, q] = T.Zero;
+            a[q, p] = T.Zero;
+            
+            // Compute rotated off-diagonal elements
+            for (uint i = 0; i < size; i++) {
+                if (i != p && i != q) {
+                    var ap_i = a[p, i];
+                    var aq_i = a[q, i];
+                    
+                    a[p, i] = c * ap_i + s * aq_i;
+                    a[q, i] = -s * ap_i + c * aq_i;
+                    a[i, p] = a[p, i];
+                    a[i, q] = a[q, i];
+                }
+            }
+            
+            // Update eigenvector matrix
+            for (uint i = 0; i < size; i++) {
+                var vip = v[i, p];
+                var viq = v[i, q];
+                
+                v[i, p] = c * vip + s * viq;
+                v[i, q] = -s * vip + c * viq;
+            }
+        }
 
         /// <inheritdoc />
         public virtual IMatrix<T> GetNewMatrixFromRows(IEnumerable<uint> rowIndices) => Lap.CreateMatrixFromRows(rowIndices.Select(GetRow).ToArray());
@@ -501,8 +755,12 @@ namespace BrightData.LinearAlgebra
                             for (uint jj = j, jLen = Math.Min(j + L1BlockSize, cols); jj < jLen; jj++) {
                                 var yPtr = &b[jj * size];
                                 var vSum = Vector<T>.Zero;
+                                //for (var z = 0; z < numVectors; z++)
+                                //    vSum += Vector.Load(xPtr + z * vectorSize) * Vector.Load(yPtr + z * vectorSize);
+                                var xVecs = MemoryMarshal.Cast<T, Vector<T>>(new ReadOnlySpan<T>(xPtr, size));
+                                var yVecs = MemoryMarshal.Cast<T, Vector<T>>(new ReadOnlySpan<T>(yPtr, size));
                                 for (var z = 0; z < numVectors; z++)
-                                    vSum += Vector.Load(xPtr + z * vectorSize) * Vector.Load(yPtr + z * vectorSize);
+                                    vSum += xVecs[z] * yVecs[z];
 
                                 var sum = Vector.Dot(vSum, Vector<T>.One);
                                 for (var z = ceiling; z < size; z++)
