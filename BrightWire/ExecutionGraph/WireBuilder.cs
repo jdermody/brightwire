@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
@@ -486,6 +486,18 @@ namespace BrightWire.ExecutionGraph
             var weightInit = _factory.GetWeightInitialisation();
             SetNode(new SimpleAttention(_factory.LinearAlgebraProvider, encoderName, decoderName, _initialWidth, encoderSize, decoderSize, weightInit, _factory.CreateWeightUpdater, name));
             SetNewSize(_width + newSize);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a Transformer-style self-attention layer (scaled dot-product attention)
+        /// </summary>
+        /// <param name="attentionSize">Size of the attention projection (Q/K/V dimension)</param>
+        /// <param name="name">Optional name to give the node</param>
+        public WireBuilder AddSelfAttention(uint attentionSize, string? name = null)
+        {
+            SetNode(_factory.CreateSelfAttention(CurrentSize, attentionSize, name));
+            SetNewSize(attentionSize);
             return this;
         }
 

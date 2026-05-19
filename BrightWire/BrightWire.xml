@@ -746,6 +746,15 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSelfAttention(System.UInt32,System.UInt32,System.String)">
+            <summary>
+            Creates a self-attention layer (Transformer-style scaled dot-product attention)
+            </summary>
+            <param name="inputSize">Number of incoming connections</param>
+            <param name="attentionSize">Size of the attention projection</param>
+            <param name="name">Optional name to give the node</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDropConnect(System.Single,System.UInt32,System.UInt32,System.String)">
             <summary>
             Creates a new drop connect layer (a feed forward layer with drop out applied to the weights)
@@ -1579,6 +1588,24 @@
         <member name="P:BrightWire.ExecutionGraph.Helper.WireToNode.Channel">
             <summary>
             The channel to send the signal on
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Attention.SelfAttention">
+            <summary>
+            Single-head scaled dot-product self-attention layer (Transformer-style)
+            https://arxiv.org/abs/1706.03762
+            
+            Forward:
+              Q = X * Wq, K = X * Wk, V = X * Wv
+              scores = (Q * K^T) / sqrt(d_k)
+              weights = softmax(scores)
+              attention = weights * V
+              output = attention * Wo
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Attention.SelfAttention.Backpropagation">
+            <summary>
+            Backpropagation for self-attention
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Attention.TensorFeedForward">
@@ -2603,6 +2630,13 @@
             <param name="decoderName">Name of decoder node (must be same size as encoder)</param>
             <param name="encoderSize">Size of the encoder</param>
             <param name="decoderSize">Size of the decoder</param>
+            <param name="name">Optional name to give the node</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSelfAttention(System.UInt32,System.String)">
+            <summary>
+            Adds a Transformer-style self-attention layer (scaled dot-product attention)
+            </summary>
+            <param name="attentionSize">Size of the attention projection (Q/K/V dimension)</param>
             <param name="name">Optional name to give the node</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.JoinInputWithMemory(System.String,System.UInt32,System.String)">
@@ -4055,6 +4089,26 @@
         <member name="F:BrightWire.NodeErrorType.Weight">
             <summary>
             Error in node weights
+            </summary>
+        </member>
+        <member name="F:BrightWire.NodeErrorType.SelfAttentionQ">
+            <summary>
+            Error in self-attention query weights (Wq)
+            </summary>
+        </member>
+        <member name="F:BrightWire.NodeErrorType.SelfAttentionK">
+            <summary>
+            Error in self-attention key weights (Wk)
+            </summary>
+        </member>
+        <member name="F:BrightWire.NodeErrorType.SelfAttentionV">
+            <summary>
+            Error in self-attention value weights (Wv)
+            </summary>
+        </member>
+        <member name="F:BrightWire.NodeErrorType.SelfAttentionO">
+            <summary>
+            Error in self-attention output weights (Wo)
             </summary>
         </member>
         <member name="T:BrightWire.Models.Bayesian.BernoulliNaiveBayes">

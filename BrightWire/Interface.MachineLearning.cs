@@ -1,4 +1,4 @@
-﻿using BrightData;
+using BrightData;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -526,6 +526,26 @@ namespace BrightWire
 		/// <summary>
 		/// Error in node weights
 		/// </summary>
-		Weight
+		Weight,
+
+		/// <summary>
+		/// Error in self-attention query weights (Wq)
+		/// </summary>
+		SelfAttentionQ,
+
+		/// <summary>
+		/// Error in self-attention key weights (Wk)
+		/// </summary>
+		SelfAttentionK,
+
+		/// <summary>
+		/// Error in self-attention value weights (Wv)
+		/// </summary>
+		SelfAttentionV,
+
+		/// <summary>
+		/// Error in self-attention output weights (Wo)
+		/// </summary>
+		SelfAttentionO
     }
 }

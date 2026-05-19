@@ -762,6 +762,27 @@ namespace BrightData
         );
 
         /// <summary>
+        /// Creates a new buffer that contains each value multiplied by a scalar
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="span"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemoryOwner<T> SubtractInPlace<T>(
+            this Span<T> span,
+            T scalar
+        ) where T : unmanaged, INumber<T>
+        {
+            var scalarVector = new Vector<T>(scalar);
+            return TransformVectorized(
+                span,
+                (in Vector<T> a, out Vector<T> r) => r = a - scalarVector,
+                a => a - scalar
+            );
+        }
+
+        /// <summary>
         /// Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -5342,6 +5342,15 @@
             <param name="coefficient1">Coefficient to apply to each value in this span</param>
             <param name="coefficient2">Coefficient to apply to each value in the other span</param>
         </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace``1(System.Span{``0},``0)">
+            <summary>
+            Creates a new buffer that contains each value multiplied by a scalar
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="span"></param>
+            <param name="scalar"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.PointwiseMultiply``1(System.ReadOnlySpan{``0},System.ReadOnlySpan{``0})">
             <summary>
             Creates a new buffer in which each value in this span is multiplied by the pairwise value from another span
@@ -6429,6 +6438,13 @@
             <param name="other">Other tensor segment</param>
             <param name="coefficient1">Coefficient to apply to each value in this tensor segment</param>
             <param name="coefficient2">Coefficient to apply to each value in the other tensor segment</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SubtractInPlace``1(BrightData.INumericSegment{``0},``0)">
+            <summary>
+            Multiplies each value by a scalar
+            </summary>
+            <param name="segment"></param>
+            <param name="scalar"></param>
         </member>
         <member name="M:BrightData.ExtensionMethods.PointwiseMultiply``1(BrightData.IReadOnlyNumericSegment{``0},BrightData.IReadOnlyNumericSegment{``0})">
             <summary>

@@ -503,6 +503,17 @@
         <member name="M:BrightData.Cuda.CudaTensor4D.ColumnSums">
             <inheritdoc />
         </member>
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.CuBlasStatus" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.Operation" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.CudaDataType" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.FillMode" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.DiagType" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.SideMode" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.PointerMode" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.AtomicsMode" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.GemmAlgo" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.Math" -->
+        <!-- Badly formed XML comment ignored for member "T:BrightData.Cuda.CudaToolkit.ComputeType" -->
         <member name="T:BrightData.Cuda.ExtensionMethods">
             <summary>
             Provides a GPU based linear algebra provider

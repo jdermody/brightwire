@@ -149,7 +149,6 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(hiddenLayerSize, "encoder2")
                 .Add(graph.ReluActivation())
                 .AddSequenceToSequencePivot("encoder2", "decoder")
-                //.AddSelfAttention("encoder2", "decoder", HIDDEN_LAYER_SIZE, HIDDEN_LAYER_SIZE, "self-attention")
                 .AddGru(hiddenLayerSize, "decoder")
                 .AddRecurrentBridge("decoder", "decoder2")
                 .AddGru(hiddenLayerSize, "decoder2")

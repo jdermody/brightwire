@@ -987,6 +987,19 @@ namespace BrightData
         }
 
         /// <summary>
+        /// Multiplies each value by a scalar
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="scalar"></param>
+        public static void SubtractInPlace<T>(
+            this INumericSegment<T> segment,
+            T scalar
+        ) where T : unmanaged, INumber<T>
+        {
+            segment.ApplySpan(true, x => x.SubtractInPlace(scalar));
+        }
+
+        /// <summary>
         /// Creates a new tensor segment in which each value in this tensor segment is multiplied by the pairwise value from another tensor segment
         /// </summary>
         /// <param name="segment">This tensor segment</param>

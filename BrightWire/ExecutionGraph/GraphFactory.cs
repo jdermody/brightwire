@@ -1,4 +1,4 @@
-﻿using BrightWire.Descriptor;
+using BrightWire.Descriptor;
 using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.DataTableAdapter;
 using BrightWire.ExecutionGraph.Engine;
@@ -277,6 +277,19 @@ namespace BrightWire.ExecutionGraph
 
 			// create the layer
 			return new FeedForward(inputSize, outputSize, bias, weight, optimisation, name);
+		}
+
+		/// <summary>
+		/// Creates a self-attention layer (Transformer-style scaled dot-product attention)
+		/// </summary>
+		/// <param name="inputSize">Number of incoming connections</param>
+		/// <param name="attentionSize">Size of the attention projection</param>
+		/// <param name="name">Optional name to give the node</param>
+		/// <returns></returns>
+		public NodeBase CreateSelfAttention(uint inputSize, uint attentionSize, string? name = null)
+		{
+			var weightInit = GetWeightInitialisation();
+			return new Node.Attention.SelfAttention(LinearAlgebraProvider, inputSize, attentionSize, weightInit, CreateWeightUpdater, name);
 		}
 
 		/// <summary>
