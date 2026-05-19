@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightData.LinearAlgebra.Clustering
@@ -15,6 +15,7 @@ namespace BrightData.LinearAlgebra.Clustering
             public Node(IReadOnlyVector<float> vector, uint index)
             {
                 Vector = vector;
+                Count = 1;
                 _indices.Add(index);
             }
 
@@ -22,34 +23,36 @@ namespace BrightData.LinearAlgebra.Clustering
             {
                 _indices.AddRange(left._indices);
                 _indices.AddRange(right._indices);
-                var segment = left.Vector.Add(right.Vector);
-                Vector = segment.Multiply(0.5f);
+                Count = left.Count + right.Count;
+                Vector = left.Vector.Multiply(left.Count).Add(right.Vector.Multiply(right.Count))
+                    .Multiply(1f / Count);
             }
+
             public IReadOnlyVector<float> Vector { get; }
+            public int Count { get; }
             public uint[] GetIndices() => [.._indices];
         }
-        record NodePair(LinkedListNode<Node> Left, LinkedListNode<Node> Right);
-
         public uint[][] Cluster(IReadOnlyVector<float>[] vectors, uint numClusters, DistanceMetric metric)
         {
             var nodes = new LinkedList<Node>(vectors.Select((x, i) => new Node(x, (uint)i)));
-            var cache = new Dictionary<NodePair, float>();
             while (nodes.Count > numClusters)
             {
-                var closest = FindMinimumDistance(nodes, metric, cache);
+                var closest = FindMinimumDistance(nodes, metric);
                 if (closest is null)
                     break;
 
-                nodes.AddAfter(closest.Left, new Node(closest.Left.Value, closest.Right.Value));
-                nodes.Remove(closest.Left);
-                nodes.Remove(closest.Right);
+                var (left, right) = closest.Value;
+                nodes.AddAfter(left, new Node(left.Value, right.Value));
+                nodes.Remove(left);
+                nodes.Remove(right);
             }
             return nodes.Select(x => x.GetIndices()).ToArray();
         }
 
-        static NodePair? FindMinimumDistance(LinkedList<Node> nodes, DistanceMetric metric, Dictionary<NodePair, float> cache)
+        static (LinkedListNode<Node> Left, LinkedListNode<Node> Right)? FindMinimumDistance(
+            LinkedList<Node> nodes, DistanceMetric metric)
         {
-            NodePair? ret = null;
+            (LinkedListNode<Node> Left, LinkedListNode<Node> Right)? best = null;
             var node = nodes.First;
             var shortestDistance = float.MaxValue;
 
@@ -62,26 +65,18 @@ namespace BrightData.LinearAlgebra.Clustering
                 var p = next;
                 while (p is not null)
                 {
-                    var pair = new NodePair(node, p);
-                    var distance = GetDistance(pair, metric, cache);
+                    var distance = node.Value.Vector.FindDistance(p.Value.Vector, metric);
                     if (distance < shortestDistance)
                     {
                         shortestDistance = distance;
-                        ret = pair;
+                        best = (node, p);
                     }
                     p = p.Next;
                 }
                 node = next;
             }
 
-            return ret;
-        }
-
-        static float GetDistance(NodePair pair, DistanceMetric metric, Dictionary<NodePair, float> cache)
-        {
-            if (!cache.TryGetValue(pair, out var distance))
-                cache.Add(pair, distance = pair.Left.Value.Vector.FindDistance(pair.Right.Value.Vector, metric));
-            return distance;
+            return best;
         }
     }
 }
