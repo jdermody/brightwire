@@ -105,19 +105,22 @@ namespace BrightData.Cuda.CudaToolkit
         ErrorUnknown = 999,
     }
     
-    internal enum CuBlasStatus
-    {
-        Success = 0,
-        NotInitialized = 1,
-        AllocFailed = 3,
-        InvalidValue = 7,
-        ArchMismatch = 8,
-        MappingError = 11,
-        ExecutionFailed = 13,
-        InternalError = 14,
-        NotSupported = 15,
-        LicenseError = 16
-    }
+/// <summary>
+/// Corresponds to cuBLAS <cublasStatus_t> enumeration.
+/// </summary>
+internal enum CuBlasStatus
+{
+    Success = 0,
+    NotInitialized = 1,
+    AllocFailed = 3,
+    InvalidValue = 7,
+    ArchMismatch = 8,
+    MappingError = 11,
+    ExecutionFailed = 13,
+    InternalError = 14,
+    NotSupported = 15,
+    LicenseError = 16
+}
     [Flags]
     public enum CuMemAllocationHandleType
     {
@@ -566,18 +569,24 @@ namespace BrightData.Cuda.CudaToolkit
         Default = 0,
         DisableCachingOverride = 1
     }
-    internal enum Operation
-    {
+/// <summary>
+/// Corresponds to cuBLAS <cublasOperation_t> enumeration.
+/// </summary>
+internal enum Operation
+{
         NonTranspose = 0,
         Transpose = 1,
         ConjugateTransposeHermitan = 2,
         Conjugate = 3
-    }
+}
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaBlasHandle
     {
         public nint Pointer;
     }
+    /// <summary>
+    /// Corresponds to cuBLAS <cublasComputeType_t> enumeration.
+    /// </summary>
     internal enum CudaDataType
     {
         CudaR16F = 2,
@@ -609,34 +618,52 @@ namespace BrightData.Cuda.CudaToolkit
         CudaR64U = 26,
         CudaC64U = 27
     }
-    internal enum FillMode
-    {
+/// <summary>
+/// Corresponds to cuBLAS <cublasFillMode_t> enumeration.
+/// </summary>
+internal enum FillMode
+{
         Lower = 0,
         Upper = 1,
         Full = 2
-    }
-    internal enum DiagType
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasDiagType_t> enumeration.
+/// </summary>
+internal enum DiagType
+{
         NonUnit = 0,
         Unit = 1
-    }
-    internal enum SideMode
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasSideMode_t> enumeration.
+/// </summary>
+internal enum SideMode
+{
         Left = 0,
         Right = 1
-    }
-    internal enum PointerMode
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasPointerMode_t> enumeration.
+/// </summary>
+internal enum PointerMode
+{
         Host = 0,
         Device = 1
-    }
-    internal enum AtomicsMode
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasAtomicsMode_t> enumeration.
+/// </summary>
+internal enum AtomicsMode
+{
         NotAllowed = 0,
         Allowed = 1
-    }
-    internal enum GemmAlgo
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasGemmAlgo_t> enumeration.
+/// </summary>
+internal enum GemmAlgo
+{
         Default = -1,
         Algo0 = 0,
         Algo1 = 1,
@@ -679,18 +706,28 @@ namespace BrightData.Cuda.CudaToolkit
         Algo13TensorOp = 113,
         Algo14TensorOp = 114,
         Algo15TensorOp = 115
-    }
-    internal enum Math
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasMath_t> enumeration.
+/// </summary>
+internal enum Math
+{
         DefaultMath = 0,
-        [Obsolete("deprecated, same effect as using CUBLAS_COMPUTE_32F_FAST_16F, will be removed in a future release")]
+        [Obsolete("deprecated, same effect as using CUBLAS_COMPUTE_32F_FAST_16F, will be removed in a future release")] 
         TensorOpMath = 1,
         PedanticMath = 2,
         Tf32TensorOpMath = 3,
+        /* allow accelerating single precision routines using the BF16x9 algorithm */
+        EMULATEDBF16X9MATH = 4,
+        /* allow accelerating double precision routines using fixed-point emulation */
+        FP64EMULATEDFIXEDPOINTMATH = 8,
         DisallowReducedPrecisionReduction = 16
-    }
-    internal enum ComputeType
-    {
+}
+/// <summary>
+/// Corresponds to cuBLAS <cublasComputeType_t> enumeration.
+/// </summary>
+internal enum ComputeType
+{
         Compute16F = 64,
         Compute16FPedantic = 65,
         Compute32F = 68,
@@ -702,20 +739,8 @@ namespace BrightData.Cuda.CudaToolkit
         Compute64FPedantic = 71,
         Compute32I = 72,
         Compute32IPedantic = 73,
-    }
-    internal enum DataType
-    {
-        CudaR16F = 2,
-        CudaC16F = 6,
-        CudaR32F = 0,
-        CudaC32F = 4,
-        CudaR64F = 1,
-        CudaC64F = 5,
-        CudaR8I = 3,
-        CudaC8I = 7,
-        CudaR8U = 8,
-        CudaC8U = 9
-    }
+}
+
     internal delegate void CublasLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
     [StructLayout(LayoutKind.Sequential)]
     internal struct CuSparseMatDescriptor

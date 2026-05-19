@@ -270,7 +270,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             int incy,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
             int n,
@@ -357,7 +357,7 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             IntPtr result,
             CudaDataType resultType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
@@ -431,7 +431,7 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr c,
             IntPtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
             ref float a,
@@ -452,7 +452,7 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr c,
             IntPtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
             int n,
@@ -482,7 +482,7 @@ namespace BrightData.Cuda.CudaToolkit
             int incy,
             IntPtr param,
             CudaDataType paramType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
             ref float d1,
@@ -511,7 +511,7 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType y1Type,
             IntPtr param,
             CudaDataType paramType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasNrm2Ex(CudaBlasHandle handle,
@@ -674,7 +674,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             int incy,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSaxpy_v2(CudaBlasHandle handle,
             int n,
@@ -777,7 +777,7 @@ namespace BrightData.Cuda.CudaToolkit
             int incx,
             CuDevicePtr result,
             CudaDataType resultType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSasum_v2(CudaBlasHandle handle,
@@ -869,7 +869,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CuDevicePtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotg_v2(CudaBlasHandle handle,
             CuDevicePtr a,
@@ -902,7 +902,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CuDevicePtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotm_v2(CudaBlasHandle handle,
             int n,
@@ -930,7 +930,7 @@ namespace BrightData.Cuda.CudaToolkit
             int incy,
             CuDevicePtr param,
             CudaDataType paramType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotmg_v2(CudaBlasHandle handle,
             CuDevicePtr d1,
@@ -957,7 +957,7 @@ namespace BrightData.Cuda.CudaToolkit
             CudaDataType y1Type,
             CuDevicePtr param,
             CudaDataType paramType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasStrmv_v2(CudaBlasHandle handle, FillMode uplo, Operation trans,
@@ -1968,14 +1968,14 @@ namespace BrightData.Cuda.CudaToolkit
             int k,
             ref float alpha,
             CuDevicePtr a,
-            DataType atype,
+            CudaDataType atype,
             int lda,
             CuDevicePtr b,
-            DataType btype,
+            CudaDataType btype,
             int ldb,
             ref float beta,
             CuDevicePtr c,
-            DataType ctype,
+            CudaDataType ctype,
             int ldc);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasGemmEx(CudaBlasHandle handle,
@@ -2050,14 +2050,14 @@ namespace BrightData.Cuda.CudaToolkit
             int k,
             CuDevicePtr alpha,
             CuDevicePtr a,
-            DataType atype,
+            CudaDataType atype,
             int lda,
             CuDevicePtr b,
-            DataType btype,
+            CudaDataType btype,
             int ldb,
             CuDevicePtr beta,
             CuDevicePtr c,
-            DataType ctype,
+            CudaDataType ctype,
             int ldc);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSsyrk_v2(CudaBlasHandle handle,
@@ -2103,7 +2103,7 @@ namespace BrightData.Cuda.CudaToolkit
             Operation trans,
             int n,
             int k,
-            CuDevicePtr lpha,
+            CuDevicePtr alpha,
             CuDevicePtr a,
             CudaDataType atype,
             int lda,
@@ -3483,7 +3483,7 @@ namespace BrightData.Cuda.CudaToolkit
             DiagType diag,
             int m,
             int n,
-            CuDevicePtr salpha,
+            CuDevicePtr alpha,
             CuDevicePtr a,
             int lda,
             CuDevicePtr b,
@@ -3916,7 +3916,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             long incy,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
             long n,
@@ -4003,7 +4003,7 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             IntPtr result,
             CudaDataType resultType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
@@ -4077,7 +4077,7 @@ namespace BrightData.Cuda.CudaToolkit
             IntPtr c,
             IntPtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
             long n,
@@ -4107,7 +4107,7 @@ namespace BrightData.Cuda.CudaToolkit
             long incy,
             IntPtr param,
             CudaDataType paramType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasNrm2Ex_64(CudaBlasHandle handle,
             long n,
@@ -4269,7 +4269,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr y,
             CudaDataType yType,
             long incy,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSaxpy_v2_64(CudaBlasHandle handle,
             long n,
@@ -4372,7 +4372,7 @@ namespace BrightData.Cuda.CudaToolkit
             long incx,
             CuDevicePtr result,
             CudaDataType resultType,
-            CudaDataType executiontype
+            CudaDataType executionType
         );
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSasum_v2_64(CudaBlasHandle handle,
@@ -4464,7 +4464,7 @@ namespace BrightData.Cuda.CudaToolkit
             CuDevicePtr c,
             CuDevicePtr s,
             CudaDataType csType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSrotm_v2_64(CudaBlasHandle handle,
             long n,
@@ -4492,7 +4492,7 @@ namespace BrightData.Cuda.CudaToolkit
             long incy,
             CuDevicePtr param,
             CudaDataType paramType,
-            CudaDataType executiontype);
+            CudaDataType executionType);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasStrmv_v2_64(CudaBlasHandle handle, FillMode uplo, Operation trans,
             DiagType diag, long n, CuDevicePtr a, long lda, CuDevicePtr x, long incx);
@@ -5502,14 +5502,14 @@ namespace BrightData.Cuda.CudaToolkit
             long k,
             ref float alpha,
             CuDevicePtr a,
-            DataType atype,
+            CudaDataType atype,
             long lda,
             CuDevicePtr b,
-            DataType btype,
+            CudaDataType btype,
             long ldb,
             ref float beta,
             CuDevicePtr c,
-            DataType ctype,
+            CudaDataType ctype,
             long ldc);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasGemmEx_64(CudaBlasHandle handle,
@@ -5575,14 +5575,14 @@ namespace BrightData.Cuda.CudaToolkit
             long k,
             CuDevicePtr alpha,
             CuDevicePtr a,
-            DataType atype,
+            CudaDataType atype,
             long lda,
             CuDevicePtr b,
-            DataType btype,
+            CudaDataType btype,
             long ldb,
             CuDevicePtr beta,
             CuDevicePtr c,
-            DataType ctype,
+            CudaDataType ctype,
             long ldc);
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasSsyrk_v2_64(CudaBlasHandle handle,
@@ -5628,7 +5628,7 @@ namespace BrightData.Cuda.CudaToolkit
             Operation trans,
             long n,
             long k,
-            CuDevicePtr lpha,
+            CuDevicePtr alpha,
             CuDevicePtr a,
             CudaDataType atype,
             long lda,
@@ -6925,7 +6925,7 @@ namespace BrightData.Cuda.CudaToolkit
             DiagType diag,
             long m,
             long n,
-            CuDevicePtr salpha,
+            CuDevicePtr alpha,
             CuDevicePtr a,
             long lda,
             CuDevicePtr b,
