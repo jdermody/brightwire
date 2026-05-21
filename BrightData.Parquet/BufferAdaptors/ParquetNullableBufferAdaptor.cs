@@ -3,12 +3,17 @@ using Parquet.Data;
 
 namespace BrightData.Parquet.BufferAdaptors
 {
-    internal class ParquetNullableBufferAdaptor<T>(RowGroupReaderProvider rowGroupProvider, int columnIndex, MetaData metaData, T defaultValue) : ParquetBufferAdaptor<T>(rowGroupProvider, columnIndex, metaData)
+    internal class ParquetNullableBufferAdaptor<T>(
+        RowGroupReaderProvider rowGroupProvider, 
+        int columnIndex, 
+        MetaData metaData, 
+        T defaultValue
+    ) : ParquetBufferAdaptor<T>(rowGroupProvider, columnIndex, metaData)
         where T : struct
     {
-        protected override T[] GetArray(DataColumn column)
+        protected override async ValueTask<T[]> GetData(uint blockIndex, CancellationToken ct = default)
         {
-            var data = (T?[])column.Data;
+            var data = await rowGroupProvider.GetNullableColumn<T>(blockIndex, columnIndex, ct);
             var ret = new T[data.Length];
             var index = 0;
 

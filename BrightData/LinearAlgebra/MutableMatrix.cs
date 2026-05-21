@@ -1,4 +1,4 @@
-﻿using BrightData.Helper;
+using BrightData.Helper;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.LinearAlgebra.Segments;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -525,6 +525,20 @@ namespace BrightData.LinearAlgebra
 
         /// <inheritdoc />
         public virtual void MultiplyEachColumnWith(IReadOnlyNumericSegment<T> segment) => MapIndexedInPlace((j, _, v) => v * segment[j]);
+
+        /// <inheritdoc />
+        public virtual void SubtractRowVector(IReadOnlyNumericSegment<T> rowVector)
+        {
+            // Column-major layout: data[col * RowCount + row]
+            // Subtract rowVector[row] from each element in that row
+            for (uint col = 0; col < ColumnCount; col++)
+            {
+                for (uint row = 0; row < RowCount; row++)
+                {
+                    this[row, col] -= rowVector[row];
+                }
+            }
+        }
 
         /// <inheritdoc />
         public virtual INumericSegment<T>[] SoftmaxPerRow()

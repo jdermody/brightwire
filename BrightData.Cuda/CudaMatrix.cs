@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Cuda.CudaToolkit;
@@ -142,6 +142,12 @@ namespace BrightData.Cuda
         public override void MultiplyEachRowWith(IReadOnlyNumericSegment<float> segment)
         {
             Provider.MultiplyByEachRow(Segment.GetDeviceMemoryPtr(), segment.GetDeviceMemoryPtr(), RowCount, ColumnCount);
+        }
+
+        /// <inheritdoc />
+        public override void SubtractRowVector(IReadOnlyNumericSegment<float> rowVector)
+        {
+            Provider.SubtractRowVector(Segment.GetDeviceMemoryPtr(), rowVector.GetDeviceMemoryPtr(), RowCount, ColumnCount);
         }
 
         /// <inheritdoc />

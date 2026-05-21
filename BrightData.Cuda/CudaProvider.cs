@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -139,8 +139,9 @@ namespace BrightData.Cuda
             _calculateDistances,
 			_cosineDistances,
 			_roundInPlace,
-			_scale
-		;
+            _scale,
+			_subtractRowVector
+ 		;
 		readonly ConcurrentDictionary<CuFunction, (int BlockSize, int MinGridSize)> _blockSize = new();
 		bool _disposed;
 
@@ -261,6 +262,7 @@ namespace BrightData.Cuda
             _calculateDistances      = _kernel.LoadFunction("CalculateDistances");
             _roundInPlace            = _kernel.LoadFunction("RoundInPlace");
             _scale                   = _kernel.LoadFunction("Scale");
+            _subtractRowVector       = _kernel.LoadFunction("SubtractRowVector");
         }
 
 		/// <summary>
@@ -459,6 +461,11 @@ namespace BrightData.Cuda
         internal void MultiplyByEachColumn(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns, CuStream* stream = null)
         {
             InvokeMatrix(_multiplyByEachColumn, stream, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
+        }
+
+        internal void SubtractRowVector(IDeviceMemoryPtr matrix, IDeviceMemoryPtr rowVector, uint rows, uint columns, CuStream* stream = null)
+        {
+            InvokeMatrix(_subtractRowVector, stream, rows, columns, matrix.DevicePointer, rowVector.DevicePointer, rows, columns);
         }
 
 		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, uint size, uint ai = 1, uint bi = 1, CuStream* stream = null)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using BrightData.LinearAlgebra;
@@ -1377,6 +1377,13 @@ namespace BrightData
         void MultiplyEachColumnWith(IReadOnlyNumericSegment<T> segment);
 
         /// <summary>
+        /// Subtracts a row vector from each row of this matrix (broadcasts row values).
+        /// Equivalent to: matrix[row, col] -= rowVector[row] for all row, col.
+        /// </summary>
+        /// <param name="rowVector">Vector of length RowCount</param>
+        void SubtractRowVector(IReadOnlyNumericSegment<T> rowVector);
+
+        /// <summary>
         /// Computes the per row software of this matrix
         /// </summary>
         /// <returns></returns>
@@ -1698,7 +1705,7 @@ namespace BrightData
     /// <summary>
     /// Cost functions measure the difference between predicted vs expected outputs
     /// </summary>
-    public interface ICostFunction<T> where T: unmanaged, INumber<T>
+    public interface ICostFunction<T> where T: unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
         /// <summary>
         /// Calculates the cost between the predicated vs the expected values

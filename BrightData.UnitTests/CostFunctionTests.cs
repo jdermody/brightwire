@@ -1,4 +1,4 @@
-﻿using BrightData.UnitTests.Helper;
+using BrightData.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -148,5 +148,253 @@ namespace BrightData.UnitTests
             // Since |error| = 2.0 > delta (0.5), use linear: 0.5 * (2.0 - 0.5*0.5) = 0.5 * 1.75 = 0.875
             cost.Should().Be(0.875f);
         }
+
+        // ========== MSE Gradient Tests ==========
+
+        [Fact]
+        public void MSE_Gradient_SameValues()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(0.5f, 0.5f, 0.5f);
+            var expected = lap.CreateSegment(0.5f, 0.5f, 0.5f);
+            var mse = lap.CreateMeanSquaredErrorCostFunction();
+            var gradient = mse.Gradient(predicted, expected);
+            // Gradient = (expected - predicted) / N = [0, 0, 0] / 3 = [0, 0, 0]
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0f, 1e-5f);
+        }
+
+        [Fact]
+        public void MSE_Gradient_ConstantDifference()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(0f, 0f, 0f);
+            var expected = lap.CreateSegment(1f, 1f, 1f);
+            var mse = lap.CreateMeanSquaredErrorCostFunction();
+            var gradient = mse.Gradient(predicted, expected);
+            // Gradient = (1 - 0) / 3 = 1/3 for each element
+            var expectedGrad = 1f / 3f;
+            ((float?)gradient[0]).Should().BeApproximately(expectedGrad, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(expectedGrad, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(expectedGrad, 1e-5f);
+        }
+
+        [Fact]
+        public void MSE_Gradient_MixedValues()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 2f, 3f);
+            var expected = lap.CreateSegment(4f, 5f, 6f);
+            var mse = lap.CreateMeanSquaredErrorCostFunction();
+            var gradient = mse.Gradient(predicted, expected);
+            // Gradient = (expected - predicted) / N = [3, 3, 3] / 3 = [1, 1, 1]
+            ((float?)gradient[0]).Should().BeApproximately(1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(1f, 1e-5f);
+        }
+
+        [Fact]
+        public void MSE_Gradient_NegativeDifference()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(3f, 2f, 1f);
+            var expected = lap.CreateSegment(1f, 2f, 3f);
+            var mse = lap.CreateMeanSquaredErrorCostFunction();
+            var gradient = mse.Gradient(predicted, expected);
+            // Gradient = (expected - predicted) / N = [-2, 0, 2] / 3
+            ((float?)gradient[0]).Should().BeApproximately(-2f / 3f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(2f / 3f, 1e-5f);
+        }
+
+        // ========== CrossEntropy Gradient Tests ==========
+
+        [Fact]
+        public void CrossEntropy_Gradient_SameValues()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 1f, 1f);
+            var expected = lap.CreateSegment(1f, 1f, 1f);
+            var ce = lap.CreateCrossEntropyCostFunction();
+            var gradient = ce.Gradient(predicted, expected);
+            // Gradient = expected - predicted = [0, 0, 0]
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0f, 1e-5f);
+        }
+
+        [Fact]
+        public void CrossEntropy_Gradient_AllZero()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(0f, 0f, 0f);
+            var expected = lap.CreateSegment(0f, 0f, 0f);
+            var ce = lap.CreateCrossEntropyCostFunction();
+            var gradient = ce.Gradient(predicted, expected);
+            // Gradient = expected - predicted = [0, 0, 0]
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0f, 1e-5f);
+        }
+
+        [Fact]
+        public void CrossEntropy_Gradient_MixedBinary()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(0.8f, 0.3f, 0.6f);
+            var expected = lap.CreateSegment(1f, 0f, 1f);
+            var ce = lap.CreateCrossEntropyCostFunction();
+            var gradient = ce.Gradient(predicted, expected);
+            // Gradient = expected - predicted = [0.2, -0.3, 0.4]
+            ((float?)gradient[0]).Should().BeApproximately(0.2f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-0.3f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0.4f, 1e-5f);
+        }
+
+        [Fact]
+        public void CrossEntropy_Gradient_Probabilities()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(0.9f, 0.1f, 0.5f);
+            var expected = lap.CreateSegment(1f, 0f, 0f);
+            var ce = lap.CreateCrossEntropyCostFunction();
+            var gradient = ce.Gradient(predicted, expected);
+            // Gradient = expected - predicted = [0.1, -0.1, -0.5]
+            ((float?)gradient[0]).Should().BeApproximately(0.1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-0.1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(-0.5f, 1e-5f);
+        }
+
+        // ========== HingeLoss Gradient Tests ==========
+
+        [Fact]
+        public void HingeLoss_Gradient_CorrectClassification()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(2f, 3f, 1.5f);
+            var expected = lap.CreateSegment(1f, 1f, 1f);
+            var hl = lap.CreateHingeLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // Margin = y * f(x) = [2, 3, 1.5], all >= 1, so gradient = [0, 0, 0]
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0f, 1e-5f);
+        }
+
+        [Fact]
+        public void HingeLoss_Gradient_Misclassification()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(-1f, -1f, -1f);
+            var expected = lap.CreateSegment(1f, 1f, 1f);
+            var hl = lap.CreateHingeLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // Margin = y * f(x) = [-1, -1, -1], all < 1, so gradient = -y = [-1, -1, -1]
+            ((float?)gradient[0]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(-1f, 1e-5f);
+        }
+
+        [Fact]
+        public void HingeLoss_Gradient_MixedMargin()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(2f, 0.5f, -0.5f);
+            var expected = lap.CreateSegment(1f, 1f, 1f);
+            var hl = lap.CreateHingeLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // Margin = [2, 0.5, -0.5]: first >= 1 (grad=0), rest < 1 (grad=-1)
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(-1f, 1e-5f);
+        }
+
+        [Fact]
+        public void HingeLoss_Gradient_NegativeLabels()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, -2f);
+            var expected = lap.CreateSegment(-1f, -1f);
+            var hl = lap.CreateHingeLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // Margin = y * f(x) = [-1, 2]: first < 1 (grad = -y = 1), second >= 1 (grad = 0)
+            ((float?)gradient[0]).Should().BeApproximately(1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+        }
+
+        // ========== HuberLoss Gradient Tests ==========
+
+        [Fact]
+        public void HuberLoss_Gradient_SmallError()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 1f, 1f);
+            var expected = lap.CreateSegment(1.2f, 1.1f, 1.3f);
+            var hl = lap.CreateHuberLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // diff = expected - predicted = [0.2, 0.1, 0.3], |diff| <= delta(1.0)
+            // Gradient = -diff = [-0.2, -0.1, -0.3]
+            ((float?)gradient[0]).Should().BeApproximately(-0.2f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-0.1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(-0.3f, 1e-5f);
+        }
+
+        [Fact]
+        public void HuberLoss_Gradient_LargeError()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 1f, 1f);
+            var expected = lap.CreateSegment(5f, -3f, 10f);
+            var hl = lap.CreateHuberLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // diff = [4, -4, 9], |diff| > delta(1.0) for all
+            // Gradient = -sign(diff) * delta = [-1, 1, -1]
+            ((float?)gradient[0]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(-1f, 1e-5f);
+        }
+
+        [Fact]
+        public void HuberLoss_Gradient_MixedError()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 2f, 3f);
+            var expected = lap.CreateSegment(1.5f, 5f, 2.5f);
+            var hl = lap.CreateHuberLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // diff = [0.5, 3, -0.5]: first |0.5|<=1 (grad=-0.5), second |3|>1 (grad=-1), third |-0.5|<=1 (grad=0.5)
+            ((float?)gradient[0]).Should().BeApproximately(-0.5f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0.5f, 1e-5f);
+        }
+
+        [Fact]
+        public void HuberLoss_Gradient_CustomDelta()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 1f);
+            var expected = lap.CreateSegment(2f, 5f);
+            var hl = lap.CreateHuberLossCostFunction(2.0f);
+            var gradient = hl.Gradient(predicted, expected);
+            // diff = [1, 4]: |1|<=2 (grad=-1), |4|>2 (grad=-2)
+            ((float?)gradient[0]).Should().BeApproximately(-1f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(-2f, 1e-5f);
+        }
+
+        [Fact]
+        public void HuberLoss_Gradient_ZeroError()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            var predicted = lap.CreateSegment(1f, 2f, 3f);
+            var expected = lap.CreateSegment(1f, 2f, 3f);
+            var hl = lap.CreateHuberLossCostFunction();
+            var gradient = hl.Gradient(predicted, expected);
+            // diff = [0, 0, 0], gradient = [0, 0, 0]
+            ((float?)gradient[0]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[1]).Should().BeApproximately(0f, 1e-5f);
+            ((float?)gradient[2]).Should().BeApproximately(0f, 1e-5f);
+        }
+
     }
 }

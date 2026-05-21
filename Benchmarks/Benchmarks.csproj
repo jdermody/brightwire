@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-    <PackageReference Include="Parquet.Net" Version="5.5.0" />
+    <PackageReference Include="Parquet.Net" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using BrightData.Buffer.ReadOnly.Helper;
+using BrightData.Buffer.ReadOnly.Helper;
 using BrightData.Converter;
 using BrightData.DataTable.Meta;
 using BrightData.DataTable.Rows;
@@ -36,10 +36,13 @@ namespace BrightData.Parquet
             var dataType = dataField.ClrType;
             var isNullable = dataField.IsNullable;
 
-            if (dataType == typeof(byte[])) {
+            if (dataType == typeof(byte[]))
+            {
+#pragma warning disable CS8714 // The type 'byte[]?' cannot be used as type parameter 'DT' in the generic type or method 'ParquetMappedBufferAdaptor<DT, T>'. Nullability of type argument 'byte[]?' doesn't match 'notnull' constraint.
                 return isNullable
                     ? (IReadOnlyBufferWithMetaData)new ParquetMappedBufferAdaptor<byte[]?, BinaryData>(_rowGroupReaderProvider, columnIndex, metaData, x => x is null ? new BinaryData() : new BinaryData(x))
                     : new ParquetMappedBufferAdaptor<byte[], BinaryData>(_rowGroupReaderProvider, columnIndex, metaData, x => new BinaryData(x))
+#pragma warning restore CS8714
                 ;
             }
 
@@ -95,7 +98,6 @@ namespace BrightData.Parquet
 
         public void Dispose()
         {
-            _reader.Dispose();
             _rowGroupReaderProvider.Dispose();
         }
 

@@ -84,17 +84,11 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 using var weightsDotD = _attentionWeights.PointwiseMultiply(d_weights);
                 using var rowSums = weightsDotD.RowSums();
 
-                var d_scores = _attentionWeights.Clone();
-                for (uint i = 0; i < d_scores.RowCount; i++) {
-                    using var row = d_scores.GetRow(i);
-                    var sumValue = rowSums[i];
+                // d_weights -= rowSums (broadcast row sums using vectorized SubtractRowVector)
+                d_weights.SubtractRowVector(rowSums.Segment);
 
-                    using var dWeightsRow = d_weights.GetRow(i);
-                    using var tempRow = lap.CreateSegment(dWeightsRow);
-                    tempRow.SubtractInPlace(sumValue);
-
-                    row.PointwiseMultiplyInPlace(tempRow);
-                }
+                // d_scores = attentionWeights * d_weights (element-wise), then scale
+                var d_scores = _attentionWeights.PointwiseMultiply(d_weights);
                 d_scores.MultiplyInPlace(_scale);
 
                 // d_Q = d_scores * K

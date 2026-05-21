@@ -1,4 +1,4 @@
-﻿using BrightData.Types;
+using BrightData.Types;
 using Parquet.Data;
 
 namespace BrightData.Parquet.BufferAdaptors
@@ -14,16 +14,16 @@ namespace BrightData.Parquet.BufferAdaptors
         {
             for (uint i = 0; i < rowGroupProvider.RowGroupCount; i++)
             {
-                var column = await rowGroupProvider.GetColumn(i, columnIndex);
-                foreach (var item in GetArray(column))
+                var column = await GetData(i);
+                foreach (var item in column)
                     yield return item;
             }
         }
 
         public async Task<Array> GetBlock(uint blockIndex)
         {
-            var column = await rowGroupProvider.GetColumn(blockIndex, columnIndex);
-            return GetArray(column);
+            var column = await GetData(blockIndex);
+            return column;
         }
 
         public MetaData MetaData { get; } = metaData;
@@ -32,32 +32,32 @@ namespace BrightData.Parquet.BufferAdaptors
         {
             for (uint i = 0; i < rowGroupProvider.RowGroupCount; i++)
             {
-                var column = await rowGroupProvider.GetColumn(i, columnIndex);
-                var data = GetArray(column);
-                callback(data);
+                var column = await GetData(i, ct);
+                callback(column);
             }
         }
 
         public async Task<ReadOnlyMemory<T>> GetTypedBlock(uint blockIndex)
         {
-            var column = await rowGroupProvider.GetColumn(blockIndex, columnIndex);
-            var data = GetArray(column);
-            return data;
+            var column = await GetData(blockIndex);
+            return column;
         }
 
         public async IAsyncEnumerable<T> EnumerateAllTyped()
         {
             for (uint i = 0; i < rowGroupProvider.RowGroupCount; i++)
             {
-                var column = await rowGroupProvider.GetColumn(i, columnIndex);
-                var data = GetArray(column);
-                foreach (var item in data)
+                var column = await GetData(i);
+                foreach (var item in column)
                     yield return item;
             }
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken ct = default) => EnumerateAllTyped().GetAsyncEnumerator(ct);
 
-        protected virtual T[] GetArray(DataColumn column) => (T[])column.Data;
+        protected virtual async ValueTask<T[]> GetData(uint blockIndex, CancellationToken ct = default)
+        {
+            return (T[])await rowGroupProvider.GetColumn(typeof(T), blockIndex, columnIndex, ct);
+        }
     }
 }

@@ -3,14 +3,13 @@ using System.Reflection;
 using BrightData;
 using BrightData.Parquet;
 using Parquet;
-using Parquet.Data;
 
 namespace Benchmarks
 {
     public class DataTableBenchmarks
     {
-        Stream _housePricesParquet, _housePricesDataTable;
-        BrightDataContext _dataContext;
+        Stream _housePricesParquet = null!, _housePricesDataTable = null!;
+        BrightDataContext _dataContext = null!;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -29,18 +28,20 @@ namespace Benchmarks
         [Benchmark]
         public async Task Parquet()
         {
-            using var reader = await ParquetReader.CreateAsync(_housePricesParquet);
+            await using var reader = await ParquetReader.CreateAsync(_housePricesParquet);
             var schema = reader.Schema;
             var count = 0U;
             for(var i = 0; i < reader.RowGroupCount; i++) {
                 using var rowGroupReader = reader.OpenRowGroupReader(i);
-                Count(await rowGroupReader.ReadColumnAsync(schema.DataFields[2]), 3, ref count);
+                var data = new long[rowGroupReader.RowCount];
+                await rowGroupReader.ReadAsync<long>(schema.DataFields[2], data);
+                Count(data, 3, ref count);
             }
             //Console.WriteLine(count);
 
-            static void Count(DataColumn column, long filter, ref uint count)
+            static void Count(long[] column, long filter, ref uint count)
             {
-                foreach (var bedrooms in column.AsSpan<long?>()) {
+                foreach (var bedrooms in column) {
                     if (bedrooms == filter)
                         ++count;
                 }

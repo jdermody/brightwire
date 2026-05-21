@@ -16,6 +16,6 @@ namespace BrightData.Converter
             return data != T.Zero;
         }
 
-        public Type To => typeof(T);
+        public Type To => typeof(bool);
     }
 }

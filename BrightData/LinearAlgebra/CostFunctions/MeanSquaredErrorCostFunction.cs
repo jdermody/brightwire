@@ -22,7 +22,7 @@ namespace BrightData.LinearAlgebra.CostFunctions
             using var difference = lap.Subtract(expected, predicted);
             using var squaredDifference = lap.Squared(difference);
             using var result = lap.Multiply(squaredDifference, T.CreateSaturating(0.5f));
-            return Math<T>.Constrain(lap.Sum(result));
+            return Math<T>.Constrain(lap.Average(result));
         }
 
         /// <summary>

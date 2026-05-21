@@ -109,6 +109,15 @@ extern "C"
         }
 	}
 
+	__global__ void SubtractRowVector(float* __restrict a, const float* __restrict b, uint rows, uint columns)
+	{
+        for (uint j = blockDim.x * blockIdx.x + threadIdx.x; j < columns; j += blockDim.x * gridDim.x) {
+            for (uint i = blockDim.y * blockIdx.y + threadIdx.y; i < rows; i += blockDim.y * gridDim.y) {
+                a[j * rows + i] -= b[i];
+            }
+        }
+	}
+
 	__global__ void TanH(const float* __restrict a, float* __restrict b, uint size, uint ai, uint bi)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
