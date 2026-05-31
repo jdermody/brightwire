@@ -14,7 +14,7 @@ namespace BrightData.Parquet.BufferAdaptors
     {
         protected override async ValueTask<T[]> GetData(uint blockIndex, CancellationToken ct = default)
         {
-            var data = (Array)await rowGroupProvider.GetColumn(typeof(DT), blockIndex, columnIndex, ct);
+            var data = await rowGroupProvider.GetColumn(typeof(DT), blockIndex, columnIndex, ct);
             var ret = new T[data.Length];
             var index = 0;
 

@@ -53,6 +53,17 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 _scale = scale;
             }
 
+            protected override void DisposeMemory(bool isDisposing)
+            {
+                if (isDisposing) {
+                    _Q?.Dispose();
+                    _K?.Dispose();
+                    _V?.Dispose();
+                    _attentionWeights?.Dispose();
+                    _attention?.Dispose();
+                }
+            }
+
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphContext context)
             {
                 var lap = context.GetLinearAlgebraProvider();
@@ -117,16 +128,6 @@ namespace BrightWire.ExecutionGraph.Node.Attention
                 d_scores.Dispose();
 
                 return errorSignal.ReplaceWith(d_input);
-            }
-
-            public void Dispose()
-            {
-                // Clean up the matrices passed down from the forward step
-                _Q?.Dispose();
-                _K?.Dispose();
-                _V?.Dispose();
-                _attentionWeights?.Dispose();
-                _attention?.Dispose();
             }
         }
 

@@ -44,10 +44,10 @@ namespace BrightData.Cuda.CudaToolkit
         public static partial CuBlasStatus cublasSetAtomicsMode(CudaBlasHandle handle, AtomicsMode mode);
 
         [LibraryImport(CublasApiDllName)]
-        public static partial CuBlasStatus cublasGetMathMode(CudaBlasHandle handle, ref Math mode);
+        public static partial CuBlasStatus cublasGetMathMode(CudaBlasHandle handle, ref CuBlasMathMode mode);
 
         [LibraryImport(CublasApiDllName)]
-        public static partial CuBlasStatus cublasSetMathMode(CudaBlasHandle handle, Math mode);
+        public static partial CuBlasStatus cublasSetMathMode(CudaBlasHandle handle, CuBlasMathMode mode);
 
         [LibraryImport(CublasApiDllName)]
         public static partial CuBlasStatus cublasGetSmCountTarget(CudaBlasHandle handle, ref int smCountTarget);

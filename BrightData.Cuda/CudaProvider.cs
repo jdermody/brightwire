@@ -8,7 +8,6 @@ using BrightData.Cuda.CudaToolkit;
 using BrightData.Cuda.CudaToolkit.Types;
 using BrightData.Cuda.Helper;
 using BrightData.Helper;
-using Math = BrightData.Cuda.CudaToolkit.Math;
 
 namespace BrightData.Cuda
 {
@@ -188,7 +187,7 @@ namespace BrightData.Cuda
                 if (CudaBlasNativeMethods.cublasCreate_v2(ref ret) != CuBlasStatus.Success)
                     throw new Exception("Unable to create CUDA BLAS");
                 CudaBlasNativeMethods.cublasSetStream_v2(ret, _defaultStream);
-                CudaBlasNativeMethods.cublasSetMathMode(ret, Math.Tf32TensorOpMath);
+                CudaBlasNativeMethods.cublasSetMathMode(ret, CuBlasMathMode.Tf32TensorOpMath);
                 CudaBlasNativeMethods.cublasSetAtomicsMode(ret, AtomicsMode.Allowed);
                 return ret;
             });

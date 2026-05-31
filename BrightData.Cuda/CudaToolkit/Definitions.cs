@@ -576,8 +576,7 @@ internal enum Operation
 {
         NonTranspose = 0,
         Transpose = 1,
-        ConjugateTransposeHermitan = 2,
-        Conjugate = 3
+        ConjugateTransposeHermitian = 2
 }
     [StructLayout(LayoutKind.Sequential)]
     public struct CudaBlasHandle
@@ -690,6 +689,7 @@ internal enum GemmAlgo
         Algo22 = 22,
         Algo23 = 23,
         DefaultTensorOp = 99,
+        Autotune = 1000,
         Algo0TensorOp = 100,
         Algo1TensorOp = 101,
         Algo2TensorOp = 102,
@@ -710,7 +710,7 @@ internal enum GemmAlgo
 /// <summary>
 /// Corresponds to cuBLAS <cublasMath_t> enumeration.
 /// </summary>
-internal enum Math
+internal enum CuBlasMathMode
 {
         DefaultMath = 0,
         [Obsolete("deprecated, same effect as using CUBLAS_COMPUTE_32F_FAST_16F, will be removed in a future release")] 
@@ -732,13 +732,15 @@ internal enum ComputeType
         Compute16FPedantic = 65,
         Compute32F = 68,
         Compute32FPedantic = 69,
-        Compute32FFast16F = 74,
-        Compute32FFast16Bf = 75,
-        Compute32FFastTf32 = 77,
         Compute64F = 70,
         Compute64FPedantic = 71,
         Compute32I = 72,
         Compute32IPedantic = 73,
+        Compute32FFast16F = 74,
+        Compute32FFast16Bf = 75,
+        Compute32FEmulated16BfX9 = 76,
+        Compute32FFastTf32 = 77,
+        Compute64FEmulatedFixedPoint = 78,
 }
 
     internal delegate void CublasLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
