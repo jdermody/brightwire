@@ -185,20 +185,26 @@ namespace BrightData.DataTable
                 return WriteStructs((IReadOnlyBuffer<bool>)buffer, stream);
             if (type == typeof(sbyte))
                 return WriteStructs((IReadOnlyBuffer<sbyte>)buffer, stream);
+            if (type == typeof(byte))
+                return WriteStructs((IReadOnlyBuffer<byte>)buffer, stream);
             if (type == typeof(short))
                 return WriteStructs((IReadOnlyBuffer<short>)buffer, stream);
+            if (type == typeof(ushort))
+                return WriteStructs((IReadOnlyBuffer<ushort>)buffer, stream);
             if (type == typeof(int))
                 return WriteStructs((IReadOnlyBuffer<int>)buffer, stream);
+            if (type == typeof(uint))
+                return WriteStructs((IReadOnlyBuffer<uint>)buffer, stream);
             if (type == typeof(long))
                 return WriteStructs((IReadOnlyBuffer<long>)buffer, stream);
+            if (type == typeof(ulong))
+                return WriteStructs((IReadOnlyBuffer<ulong>)buffer, stream);
             if (type == typeof(float))
                 return WriteStructs((IReadOnlyBuffer<float>)buffer, stream);
             if (type == typeof(double))
                 return WriteStructs((IReadOnlyBuffer<double>)buffer, stream);
             if (type == typeof(decimal))
                 return WriteStructs((IReadOnlyBuffer<decimal>)buffer, stream);
-            if (type == typeof(uint))
-                return WriteStructs((IReadOnlyBuffer<uint>)buffer, stream);
             if (type == typeof(DateTime))
                 return WriteStructs((IReadOnlyBuffer<DateTime>)buffer, stream);
             if (type == typeof(TimeOnly))

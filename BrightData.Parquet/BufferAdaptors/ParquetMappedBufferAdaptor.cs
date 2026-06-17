@@ -12,14 +12,16 @@ namespace BrightData.Parquet.BufferAdaptors
         where DT : notnull
         where T : notnull
     {
+        readonly RowGroupReaderProvider _rowGroupProvider = rowGroupProvider;
+        readonly int _columnIndex                         = columnIndex;
+        readonly Func<DT, T> _mappingFunction             = mappingFunction;
+
         protected override async ValueTask<T[]> GetData(uint blockIndex, CancellationToken ct = default)
         {
-            var data = await rowGroupProvider.GetColumn(typeof(DT), blockIndex, columnIndex, ct);
+            var data = (DT[])await _rowGroupProvider.GetColumn(typeof(DT), blockIndex, _columnIndex, ct);
             var ret = new T[data.Length];
-            var index = 0;
-
-            foreach (var item in data)
-                ret[index++] = mappingFunction((DT)item!);
+            for (int i = 0; i < data.Length; i++)
+                ret[i] = _mappingFunction(data[i]!);
             return ret;
         }
     }

@@ -145,7 +145,27 @@ namespace BrightData
         /// <summary>
         /// Date only
         /// </summary>
-        DateOnly
+        DateOnly,
+
+        /// <summary>
+        /// Unsigned byte values (0 to 255)
+        /// </summary>
+        Byte,
+
+        /// <summary>
+        /// Unsigned short values
+        /// </summary>
+        UShort,
+
+        /// <summary>
+        /// Unsigned integer values
+        /// </summary>
+        UInt,
+
+        /// <summary>
+        /// Unsigned long values
+        /// </summary>
+        ULong
     }
 
     /// <summary>

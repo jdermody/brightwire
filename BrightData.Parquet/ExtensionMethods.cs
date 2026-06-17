@@ -1,5 +1,6 @@
-using Parquet;
+using System.Collections.Frozen;
 using BrightData.Types;
+using Parquet;
 using Parquet.Data;
 using Parquet.Schema;
 
@@ -7,23 +8,86 @@ namespace BrightData.Parquet
 {
     public static class ExtensionMethods
     {
-        public static async Task<IDataTable> CreateTableFromParquet(this BrightDataContext context, Stream inputStream, Stream? outputStream, CancellationToken ct = default)
+        static readonly FrozenDictionary<Type, Func<ParquetRowGroupReader, DataField, Array, CancellationToken, Task>> _readers =
+            new Dictionary<Type, Func<ParquetRowGroupReader, DataField, Array, CancellationToken, Task>>()
+            {
+                { typeof(string),   (r, f, d, ct) => r.ReadAsync(f, (string[])d, null, ct).AsTask() },
+                { typeof(bool),     (r, f, d, ct) => r.ReadAsync<bool>(f, (bool[])d, null, ct).AsTask() },
+                { typeof(sbyte),    (r, f, d, ct) => r.ReadAsync<sbyte>(f, (sbyte[])d, null, ct).AsTask() },
+                { typeof(short),    (r, f, d, ct) => r.ReadAsync<short>(f, (short[])d, null, ct).AsTask() },
+                { typeof(int),      (r, f, d, ct) => r.ReadAsync<int>(f, (int[])d, null, ct).AsTask() },
+                { typeof(long),     (r, f, d, ct) => r.ReadAsync<long>(f, (long[])d, null, ct).AsTask() },
+                { typeof(float),    (r, f, d, ct) => r.ReadAsync<float>(f, (float[])d, null, ct).AsTask() },
+                { typeof(double),   (r, f, d, ct) => r.ReadAsync<double>(f, (double[])d, null, ct).AsTask() },
+                { typeof(DateTime), (r, f, d, ct) => r.ReadAsync<DateTime>(f, (DateTime[])d, null, ct).AsTask() },
+                { typeof(byte),     (r, f, d, ct) => r.ReadAsync<byte>(f, (byte[])d, null, ct).AsTask() },
+                { typeof(ushort),   (r, f, d, ct) => r.ReadAsync<ushort>(f, (ushort[])d, null, ct).AsTask() },
+                { typeof(uint),     (r, f, d, ct) => r.ReadAsync<uint>(f, (uint[])d, null, ct).AsTask() },
+                { typeof(ulong),    (r, f, d, ct) => r.ReadAsync<ulong>(f, (ulong[])d, null, ct).AsTask() },
+            }.ToFrozenDictionary();
+
+        static readonly Dictionary<BrightDataType, Func<ParquetRowGroupWriter, DataField, Array, CancellationToken, Task>> _writers =
+            new()
+            {
+                { BrightDataType.String,  (w, f, d, _) => w.WriteAsync(f, (string[])d) },
+                { BrightDataType.Boolean, (w, f, d, ct) => w.WriteAsync<bool>(f, (bool[])d, null, null, ct) },
+                { BrightDataType.SByte,   (w, f, d, ct) => w.WriteAsync<sbyte>(f, (sbyte[])d, null, null, ct) },
+                { BrightDataType.Byte,    (w, f, d, ct) => w.WriteAsync<byte>(f, (byte[])d, null, null, ct) },
+                { BrightDataType.Short,   (w, f, d, ct) => w.WriteAsync<short>(f, (short[])d, null, null, ct) },
+                { BrightDataType.UShort,  (w, f, d, ct) => w.WriteAsync<ushort>(f, (ushort[])d, null, null, ct) },
+                { BrightDataType.Int,     (w, f, d, ct) => w.WriteAsync<int>(f, (int[])d, null, null, ct) },
+                { BrightDataType.UInt,    (w, f, d, ct) => w.WriteAsync<uint>(f, (uint[])d, null, null, ct) },
+                { BrightDataType.Float,   (w, f, d, ct) => w.WriteAsync<float>(f, (float[])d, null, null, ct) },
+                { BrightDataType.Long,    (w, f, d, ct) => w.WriteAsync<long>(f, (long[])d, null, null, ct) },
+                { BrightDataType.ULong,   (w, f, d, ct) => w.WriteAsync<ulong>(f, (ulong[])d, null, null, ct) },
+                { BrightDataType.Double,  (w, f, d, ct) => w.WriteAsync<double>(f, (double[])d, null, null, ct) },
+                { BrightDataType.Date,    (w, f, d, ct) => w.WriteAsync<DateTime>(f, (DateTime[])d, null, null, ct) },
+            };
+
+        static Array CreateColumnArray(DataField field, int rowCount)
+        {
+            return field.ClrType switch
+            {
+                var t when t == typeof(string)   => new string[rowCount],
+                var t when t == typeof(bool)     => new bool[rowCount],
+                var t when t == typeof(sbyte)    => new sbyte[rowCount],
+                var t when t == typeof(short)    => new short[rowCount],
+                var t when t == typeof(int)      => new int[rowCount],
+                var t when t == typeof(long)     => new long[rowCount],
+                var t when t == typeof(float)    => new float[rowCount],
+                var t when t == typeof(double)   => new double[rowCount],
+                var t when t == typeof(DateTime) => new DateTime[rowCount],
+                var t when t == typeof(byte)     => new byte[rowCount],
+                var t when t == typeof(ushort)   => new ushort[rowCount],
+                var t when t == typeof(uint)     => new uint[rowCount],
+                var t when t == typeof(ulong)    => new ulong[rowCount],
+                _ => throw new NotSupportedException($"Unsupported Parquet column type: {field.ClrType.Name}")
+            };
+        }
+
+        public static async Task<IDataTable> LoadParquetDataTableFromStream(
+            this BrightDataContext context,
+            Stream inputStream,
+            Stream? outputStream = null,
+            CancellationToken ct = default)
         {
             var reader = await ParquetReader.CreateAsync(inputStream);
             var fields = reader.Schema.DataFields;
             var columnCount = (uint)fields.Length;
-            var columnTypes = fields.Select(x => x.ClrType).ToArray();
+            var columnTypes = fields.Select(f => f.ClrType).ToArray();
             var builder = context.CreateTableBuilder();
-            var columnMetaData = columnCount.AsRange().Select(_ => new MetaData()).ToArray();
+            var columnMetaData = new MetaData[columnCount];
+            for (int i = 0; i < columnCount; i++)
+                columnMetaData[i] = new MetaData();
             var columns = new ICompositeBuffer?[columnCount];
 
-            // read the metadata
+            // Read metadata
             foreach (var (column, field) in columnMetaData.Zip(fields))
                 column.SetName(field.Name);
             foreach (var (key, value) in reader.CustomMetadata)
                 builder.TableMetaData.Set(key, value);
 
-            // read data from each row group
+            // Read data from each row group
             for (var i = 0; i < reader.RowGroupCount; i++)
             {
                 using var rowGroupReader = reader.OpenRowGroupReader(i);
@@ -33,89 +97,32 @@ namespace BrightData.Parquet
                     var buffer = columns[j] ??= CreateColumn(rowGroupReader, field, columnMetaData[j], builder);
                     var columnType = columnTypes[j];
                     var rowCount = (int)rowGroupReader.RowCount;
+                    if (!_readers.TryGetValue(columnType, out var readAsync))
+                        throw new NotSupportedException($"Unsupported Parquet column type: {columnType.Name}");
 
-                    // Read column data using explicit type dispatch
-                    Array data;
+                    var data = CreateColumnArray(field, rowCount);
+                    await readAsync(rowGroupReader, field, data, ct).ConfigureAwait(false);
+                    // Fix #1: Typed dispatch to avoid NRE with string columns
                     if (columnType == typeof(string))
                     {
-                        var stringData = new string[rowCount];
-                        await rowGroupReader.ReadAsync(field, stringData, null, ct).ConfigureAwait(false);
-                        data = stringData;
-                    }
-                    else if (columnType == typeof(bool))
-                    {
-                        var boolData = new bool[rowCount];
-                        await rowGroupReader.ReadAsync<bool>(field, boolData, null, ct).ConfigureAwait(false);
-                        data = boolData;
-                    }
-                    else if (columnType == typeof(sbyte))
-                    {
-                        var sbData = new sbyte[rowCount];
-                        await rowGroupReader.ReadAsync<sbyte>(field, sbData, null, ct).ConfigureAwait(false);
-                        data = sbData;
-                    }
-                    else if (columnType == typeof(short))
-                    {
-                        var shData = new short[rowCount];
-                        await rowGroupReader.ReadAsync<short>(field, shData, null, ct).ConfigureAwait(false);
-                        data = shData;
-                    }
-                    else if (columnType == typeof(int))
-                    {
-                        var intData = new int[rowCount];
-                        await rowGroupReader.ReadAsync<int>(field, intData, null, ct).ConfigureAwait(false);
-                        data = intData;
-                    }
-                    else if (columnType == typeof(long))
-                    {
-                        var longData = new long[rowCount];
-                        await rowGroupReader.ReadAsync<long>(field, longData, null, ct).ConfigureAwait(false);
-                        data = longData;
-                    }
-                    else if (columnType == typeof(float))
-                    {
-                        var floatData = new float[rowCount];
-                        await rowGroupReader.ReadAsync<float>(field, floatData, null, ct).ConfigureAwait(false);
-                        data = floatData;
-                    }
-                    else if (columnType == typeof(double))
-                    {
-                        var doubleData = new double[rowCount];
-                        await rowGroupReader.ReadAsync<double>(field, doubleData, null, ct).ConfigureAwait(false);
-                        data = doubleData;
-                    }
-                    else if (columnType == typeof(DateTime))
-                    {
-                        var dtData = new DateTime[rowCount];
-                        await rowGroupReader.ReadAsync<DateTime>(field, dtData, null, ct).ConfigureAwait(false);
-                        data = dtData;
+                        var strData = (string[])data;
+                        var strBuffer = (ICompositeBuffer<string>)buffer;
+                        for (int k = 0; k < strData.Length; k++)
+                            strBuffer.Append(strData[k] ?? string.Empty);
                     }
                     else
                     {
-                        throw new NotSupportedException($"Unsupported Parquet column type: {columnType.Name}");
-                    }
-
-                    if (field.IsNullable && columnType.IsValueType)
-                    {
-                        var defaultValue = Activator.CreateInstance(columnType)!;
-                        foreach (var item in data)
-                            buffer.AppendObject(item ?? defaultValue);
-                    }
-                    else
-                    {
-                        foreach (var item in data)
-                            buffer.AppendObject(item);
+                        for (int k = 0; k < data.Length; k++)
+                            buffer.AppendObject(data.GetValue(k)!);
                     }
                 }
             }
 
-            // write to stream - use MemoryStream that stays open for reading
             var memStream = new MemoryStream();
             await builder.WriteTo(memStream);
             memStream.Position = 0;
 
-            if (outputStream != null)
-            {
+            if (outputStream != null) {
                 await memStream.CopyToAsync(outputStream, ct);
                 if (outputStream.CanSeek)
                     outputStream.Position = 0;
@@ -125,75 +132,53 @@ namespace BrightData.Parquet
             return await context.LoadTableFromStream(memStream);
         }
 
+        public static Task<IDataTable> CreateTableFromParquet(
+            this BrightDataContext context,
+            Stream inputStream,
+            Stream? outputStream,
+            CancellationToken ct = default)
+        {
+            return LoadParquetDataTableFromStream(context, inputStream, outputStream, ct);
+        }
+
         public static async Task WriteAsParquet(this IDataTable dataTable, Stream output, CancellationToken ct = default)
         {
             var dataFields = dataTable.ColumnMetaData
-                .Zip(dataTable.ColumnTypes).Select((x, i) => new DataField(x.First.GetName($"Column {i + 1}"), x.Second.GetDataType(), false, false))
+                .Zip(dataTable.ColumnTypes)
+                .Select((x, i) => new DataField(
+                    x.First.GetName($"Column {i + 1}"),
+                    x.Second.GetDataType(),
+                    false,
+                    false))
                 .ToArray();
             var schema = new ParquetSchema(dataFields.Cast<Field>().ToArray());
 
-            // create a parquet writer
+            // Create a parquet writer
             await using var writer = await ParquetWriter.CreateAsync(schema, output);
 
-            // write the meta data
+            // Write the metadata
             writer.CustomMetadata = dataTable.MetaData.AllKeys
-                .ToDictionary(x => x, x => dataTable.MetaData.Get(x)?.ToString() ?? "");
+                .ToDictionary(k => k, k => dataTable.MetaData.Get(k)?.ToString() ?? "");
 
             var columns = dataTable.GetColumns();
             var blockCount = columns[0].BlockSizes.Length;
 
-            // write each block
+            // Write each block
             for (uint i = 0; i < blockCount; i++)
             {
                 using var rowGroupWriter = writer.CreateRowGroup();
                 var columnIndex = 0;
                 foreach (var column in columns)
                 {
-                    // Get block and write using explicit type dispatch
                     var block = await column.GetBlock(i);
                     var field = dataFields[columnIndex];
                     var colType = column.MetaData.GetColumnType();
 
-                    if (colType == BrightDataType.String)
-                    {
-                        await rowGroupWriter.WriteAsync(field, (string[])block);
-                    }
-                    else if (colType == BrightDataType.Boolean)
-                    {
-                        await rowGroupWriter.WriteAsync<bool>(field, (bool[])block);
-                    }
-                    else if (colType == BrightDataType.SByte)
-                    {
-                        await rowGroupWriter.WriteAsync<sbyte>(field, (sbyte[])block);
-                    }
-                    else if (colType == BrightDataType.Short)
-                    {
-                        await rowGroupWriter.WriteAsync<short>(field, (short[])block);
-                    }
-                    else if (colType == BrightDataType.Int)
-                    {
-                        await rowGroupWriter.WriteAsync<int>(field, (int[])block);
-                    }
-                    else if (colType == BrightDataType.Long)
-                    {
-                        await rowGroupWriter.WriteAsync<long>(field, (long[])block);
-                    }
-                    else if (colType == BrightDataType.Float)
-                    {
-                        await rowGroupWriter.WriteAsync<float>(field, (float[])block);
-                    }
-                    else if (colType == BrightDataType.Double)
-                    {
-                        await rowGroupWriter.WriteAsync<double>(field, (double[])block);
-                    }
-                    else if (colType == BrightDataType.Date)
-                    {
-                        await rowGroupWriter.WriteAsync<DateTime>(field, (DateTime[])block);
-                    }
-                    else
-                    {
+                    // Fix #1: Use shared dispatcher for write
+                    if (!_writers.TryGetValue(colType, out var writeAsync))
                         throw new NotSupportedException($"Unsupported Parquet write type: {colType}");
-                    }
+
+                    await writeAsync(rowGroupWriter, field, block, ct);
                     ++columnIndex;
                 }
             }
@@ -208,11 +193,6 @@ namespace BrightData.Parquet
         {
             await using var stream = File.OpenRead(path);
             return await LoadParquetDataTableFromStream(context, stream);
-        }
-
-        public static async Task<IDataTable> LoadParquetDataTableFromStream(this BrightDataContext context, Stream stream)
-        {
-            return await ParquetDataTableAdaptor.Create(context, stream);
         }
     }
 }

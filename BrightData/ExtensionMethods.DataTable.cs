@@ -94,6 +94,18 @@ namespace BrightData
             if (typeCode == TypeCode.Int64)
                 return BrightDataType.Long;
 
+            if (typeCode == TypeCode.Byte)
+                return BrightDataType.Byte;
+
+            if (typeCode == TypeCode.UInt16)
+                return BrightDataType.UShort;
+
+            if (typeCode == TypeCode.UInt32)
+                return BrightDataType.UInt;
+
+            if (typeCode == TypeCode.UInt64)
+                return BrightDataType.ULong;
+
             if (typeCode == TypeCode.String)
                 return BrightDataType.String;
 
@@ -1387,14 +1399,18 @@ namespace BrightData
         /// <param name="dataType">Bright data type</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static (Type Type, uint Size) GetColumnType(this BrightDataType dataType) => dataType switch 
+        public static (Type Type, uint Size) GetColumnType(this BrightDataType dataType) => dataType switch
         {
             BrightDataType.BinaryData        => GetTypeAndSize<DataRangeColumnType>(),
             BrightDataType.Boolean           => GetTypeAndSize<bool>(),
             BrightDataType.SByte             => GetTypeAndSize<sbyte>(),
+            BrightDataType.Byte              => GetTypeAndSize<byte>(),
             BrightDataType.Short             => GetTypeAndSize<short>(),
+            BrightDataType.UShort            => GetTypeAndSize<ushort>(),
             BrightDataType.Int               => GetTypeAndSize<int>(),
+            BrightDataType.UInt              => GetTypeAndSize<uint>(),
             BrightDataType.Long              => GetTypeAndSize<long>(),
+            BrightDataType.ULong             => GetTypeAndSize<ulong>(),
             BrightDataType.Float             => GetTypeAndSize<float>(),
             BrightDataType.Double            => GetTypeAndSize<double>(),
             BrightDataType.Decimal           => GetTypeAndSize<decimal>(),

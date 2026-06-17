@@ -296,33 +296,39 @@ namespace BrightData.DataTable
                 reader = new BlockReaderReadOnlyBuffer<bool>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(sbyte))
                 reader = new BlockReaderReadOnlyBuffer<sbyte>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(byte))
+                reader = new BlockReaderReadOnlyBuffer<byte>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(short))
                 reader = new BlockReaderReadOnlyBuffer<short>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(ushort))
+                reader = new BlockReaderReadOnlyBuffer<ushort>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(int))
                 reader = new BlockReaderReadOnlyBuffer<int>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(uint))
+                reader = new BlockReaderReadOnlyBuffer<uint>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(long))
                 reader = new BlockReaderReadOnlyBuffer<long>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(ulong))
+                reader = new BlockReaderReadOnlyBuffer<ulong>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(float))
                 reader = new BlockReaderReadOnlyBuffer<float>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(double))
                 reader = new BlockReaderReadOnlyBuffer<double>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else if(type == typeof(decimal))
                 reader = new BlockReaderReadOnlyBuffer<decimal>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
-            else if(type == typeof(uint))
-                reader = new BlockReaderReadOnlyBuffer<uint>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
-            else if(type == typeof(DateTime))           
-                reader = new BlockReaderReadOnlyBuffer<DateTime>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
-            else if(type == typeof(TimeOnly))           
-                reader = new BlockReaderReadOnlyBuffer<TimeOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
-            else if(type == typeof(DateOnly))           
-                reader = new BlockReaderReadOnlyBuffer<DateOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);                                                                                                     
-            else if(type == typeof(DataRangeColumnType))           
+            else if(type == typeof(DateTime))
+                reader = new BlockReaderReadOnlyBuffer<DateTime>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(TimeOnly))
+                reader = new BlockReaderReadOnlyBuffer<TimeOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(DateOnly))
+                reader = new BlockReaderReadOnlyBuffer<DateOnly>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
+            else if(type == typeof(DataRangeColumnType))
                 reader = new BlockReaderReadOnlyBuffer<DataRangeColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
-            else if(type == typeof(MatrixColumnType))           
+            else if(type == typeof(MatrixColumnType))
                 reader = new BlockReaderReadOnlyBuffer<MatrixColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
-            else if(type == typeof(Tensor3DColumnType))           
+            else if(type == typeof(Tensor3DColumnType))
                 reader = new BlockReaderReadOnlyBuffer<Tensor3DColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
-            else if(type == typeof(Tensor4DColumnType))           
+            else if(type == typeof(Tensor4DColumnType))
                 reader = new BlockReaderReadOnlyBuffer<Tensor4DColumnType>(_reader, _columnMetaData[columnIndex], offset, size, ReaderBlockSize);
             else
                 throw new NotImplementedException($"{type} is not a supported column type");
