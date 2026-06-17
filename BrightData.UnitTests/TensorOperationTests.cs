@@ -1,6 +1,6 @@
 ﻿using BrightData.UnitTests.Helper;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Linq;
 
 namespace BrightData.UnitTests

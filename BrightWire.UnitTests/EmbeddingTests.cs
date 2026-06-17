@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace BrightWire.UnitTests
 {

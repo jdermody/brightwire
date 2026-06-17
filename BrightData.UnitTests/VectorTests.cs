@@ -5,7 +5,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace BrightData.UnitTests
 {

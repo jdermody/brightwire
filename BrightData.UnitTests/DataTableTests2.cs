@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.LinearAlgebra.ReadOnly;
 using BrightData.Types;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

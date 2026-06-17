@@ -4,7 +4,7 @@ using BrightData.Helper.Vectors;
 using BrightData.LinearAlgebra.VectorIndexing;
 using BrightData.Types;
 using BrightData.Types.Graph;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using BrightData.Types.Graph.Helper;
 

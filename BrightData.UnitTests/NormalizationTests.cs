@@ -1,7 +1,7 @@
 ﻿using BrightData.UnitTests.Helper;
 using System.Linq;
 using BrightData.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using System.Threading.Tasks;
 

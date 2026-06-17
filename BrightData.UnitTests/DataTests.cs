@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using BrightData.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

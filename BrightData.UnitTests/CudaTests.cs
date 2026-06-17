@@ -2,7 +2,7 @@
 using BrightData.Helper;
 using BrightData.LinearAlgebra.Segments;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

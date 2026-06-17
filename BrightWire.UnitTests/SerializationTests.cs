@@ -5,7 +5,7 @@ using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightWire.UnitTests

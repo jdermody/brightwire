@@ -3,7 +3,7 @@ using System.Linq;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using BrightWire.ExecutionGraph.Helper;
 

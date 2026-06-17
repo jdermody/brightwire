@@ -8,7 +8,7 @@ using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.MKL;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 using Xunit.Abstractions;
 

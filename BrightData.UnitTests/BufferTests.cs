@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.Types;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

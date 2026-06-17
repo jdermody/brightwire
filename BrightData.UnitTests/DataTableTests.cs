@@ -5,7 +5,7 @@ using BrightData.DataTable.Rows;
 using BrightData.Helper;
 using BrightData.UnitTests.Helper;
 using BrightWire;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

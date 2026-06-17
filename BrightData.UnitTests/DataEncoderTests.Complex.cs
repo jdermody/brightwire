@@ -2,7 +2,7 @@ using System;
 using BrightData.Helper;
 using BrightData.UnitTests.Fixtures;
 using Xunit;
-using FluentAssertions;
+using AwesomeAssertions;
 using BrightData.Types;
 
 namespace BrightData.UnitTests

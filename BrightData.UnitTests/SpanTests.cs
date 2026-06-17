@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

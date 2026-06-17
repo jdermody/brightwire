@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using BrightData.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Xunit;

@@ -59,10 +59,12 @@ namespace BrightWire.UnitTests.Helper
         }
 
 
+#pragma warning disable CS0067 // The event is never used
         public event Action<ILearningContext>? BeforeEpochStarts;
         public event Action<ILearningContext>? AfterEpochEnds;
-        public IErrorMetric? ErrorMetric { get; set; }
-        public GraphFactory? GraphFactory { get; set; }
+#pragma warning restore CS0067
+        public IErrorMetric ErrorMetric { get; set; } = null!;
+        public GraphFactory GraphFactory { get; set; } = null!;
         public void ResetEpoch()
         {
             throw new NotImplementedException();

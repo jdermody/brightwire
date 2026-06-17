@@ -1,5 +1,5 @@
 ﻿using BrightData.Types;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightData.UnitTests

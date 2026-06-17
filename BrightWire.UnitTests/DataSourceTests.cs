@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BrightData;
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightWire.UnitTests

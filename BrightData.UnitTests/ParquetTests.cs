@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using BrightData.Parquet;
-using FluentAssertions;
+using AwesomeAssertions;
 using Parquet;
 using Parquet.Data;
 using Parquet.Schema;

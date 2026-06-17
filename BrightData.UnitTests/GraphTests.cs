@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using BrightData.Types.Graph;
 using Xunit;
 using BrightData.Types.Graph.Helper;

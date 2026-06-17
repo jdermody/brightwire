@@ -2,7 +2,7 @@
 using BrightData.UnitTests.Helper;
 using BrightWire.ExecutionGraph;
 using BrightWire.UnitTests.Helper;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace BrightWire.UnitTests
