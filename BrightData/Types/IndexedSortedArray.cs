@@ -17,7 +17,7 @@ namespace BrightData.Types
     public class IndexedSortedArray<T>(int? capacity = null) : IHaveSize
         where T: unmanaged, IHaveSingleIndex
     {
-        class Comparer(uint index) : IComparable<T>
+        readonly ref struct Comparer(uint index) : IComparable<T>
         {
             public int CompareTo(T other) => index.CompareTo(other.Index);
         }

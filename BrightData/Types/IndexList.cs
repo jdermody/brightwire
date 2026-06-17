@@ -29,6 +29,11 @@ namespace BrightData.Types
         readonly ReadOnlyMemory<uint> _indices;
 
         /// <summary>
+        /// Empty index list
+        /// </summary>
+        public static readonly IndexList Empty = new();
+
+        /// <summary>
         /// Index iterator
         /// </summary>
         public ref struct ItemIterator : IEnumerator<uint>

@@ -34,8 +34,6 @@ namespace BrightData.Types
             Size = size;
         }
 
-        internal static uint GetRequiredSize(uint size) => (uint)(size / NumBitsPerItem + (size % NumBitsPerItem > 0 ? 1 : 0));
-
         /// <summary>
         /// Creates a fixed size bit vector
         /// </summary>
@@ -46,6 +44,13 @@ namespace BrightData.Types
             Data = data.ToArray();
             Size = size;
         }
+
+        /// <summary>
+        /// Empty bit vector
+        /// </summary>
+        public static readonly BitVector Empty = new(0);
+
+        internal static uint GetRequiredSize(uint size) => (uint)(size / NumBitsPerItem + (size % NumBitsPerItem > 0 ? 1 : 0));
 
         /// <summary>
         /// Underlying data

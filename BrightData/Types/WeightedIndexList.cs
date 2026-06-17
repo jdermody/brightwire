@@ -29,6 +29,11 @@ namespace BrightData.Types
         readonly ReadOnlyMemory<Item> _indices;
 
         /// <summary>
+        /// Empty weighted index list
+        /// </summary>
+        public static readonly WeightedIndexList Empty = new();
+
+        /// <summary>
         /// Creates a weighted index list from an array of indices
         /// </summary>
         /// <param name="indices">Weighted indices</param>

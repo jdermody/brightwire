@@ -51,6 +51,11 @@ namespace BrightData.Types
         /// </summary>
         public ReadOnlySpan<byte> Data => _data.AsSpan();
 
+        /// <summary>
+        /// Empty binary data
+        /// </summary>
+        public static readonly BinaryData Empty = new([]);
+
         /// <inheritdoc />
         public void Initialize(BrightDataContext context, BinaryReader reader)
         {
