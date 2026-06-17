@@ -289,6 +289,7 @@ internal enum CuBlasStatus
         MemSyncDomainMap = 9,
         MemSyncDomain = 10
     }
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
     internal struct CuLaunchAttribute
     {
         public CuLaunchAttributeId Id;
@@ -307,6 +308,7 @@ internal enum CuBlasStatus
         public CuStream HStream;
         public CuLaunchAttribute[]? Attrs;
     }
+#pragma warning restore CS0649
     [StructLayout(LayoutKind.Explicit)]
     internal struct CuLaunchAttributeValue
     {
