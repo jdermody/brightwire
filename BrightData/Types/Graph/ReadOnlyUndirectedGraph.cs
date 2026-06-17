@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -35,9 +35,22 @@ namespace BrightData.Types.Graph
         /// <param name="data"></param>
         public ReadOnlyUndirectedGraph(ReadOnlySpan<byte> data)
         {
+            if (data.Length < HeaderSize)
+                throw new ArgumentException("Data is too short to contain a valid header.", nameof(data));
+
             var header = MemoryMarshal.Cast<byte, uint>(data[..HeaderSize]);
-            _nodes = MemoryMarshal.Cast<byte, T>(data[HeaderSize..(int)header[0]]).ToArray();
-            _edges = new BitVector(MemoryMarshal.Cast<byte, ulong>(data[(int)header[0]..(int)header[1]]).ToArray().AsMemory(), (uint)_nodes.Length * (uint)_nodes.Length);
+
+            if (header[0] < (uint)HeaderSize || header[1] > (uint)data.Length || header[0] > header[1])
+                throw new ArgumentException("Invalid header: offsets are out of range.", nameof(data));
+
+            var nodesEnd = (int)header[0];
+            var edgesEnd = (int)header[1];
+            var nodesSpan = MemoryMarshal.Cast<byte, T>(data[HeaderSize..nodesEnd]);
+            var edgesSpan = MemoryMarshal.Cast<byte, ulong>(data[nodesEnd..edgesEnd]);
+
+            _nodes = nodesSpan.ToArray();
+            var nodeCount = (uint)_nodes.Length;
+            _edges = new BitVector(edgesSpan.ToArray().AsMemory(), nodeCount * nodeCount);
         }
 
         /// <inheritdoc />
@@ -70,7 +83,7 @@ namespace BrightData.Types.Graph
             if (nodeIndex >= Size)
                 throw new ArgumentOutOfRangeException(nameof(nodeIndex));
 
-            var start = nodeIndex * Size;
+            var start = checked(nodeIndex * Size);
             for (uint i = 0; i < Size; i++)
             {
                 if (_edges[start + i])
@@ -85,7 +98,7 @@ namespace BrightData.Types.Graph
         /// <param name="to"></param>
         /// <param name="numNodes"></param>
         /// <returns></returns>
-        public static uint GetEdgeIndex(uint from, uint to, uint numNodes) => from * numNodes + to;
+        public static uint GetEdgeIndex(uint from, uint to, uint numNodes) => checked(from * numNodes + to);
 
         /// <inheritdoc />
         public IEnumerable<uint> DepthFirstSearch(uint startNodeIndex) => GraphHelper<ReadOnlyUndirectedGraph<T>>.DepthFirstSearch(ref Unsafe.AsRef(in this), startNodeIndex);
@@ -102,7 +115,7 @@ namespace BrightData.Types.Graph
             var ret = _nodes.Span.IndexOf(node);
             if (ret >= 0)
                 return (uint)ret;
-            throw new ArgumentException("Node not found", nameof(node));
+            throw new KeyNotFoundException($"Node not found: {node}");
         }
     }
 }

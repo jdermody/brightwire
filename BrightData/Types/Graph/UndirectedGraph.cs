@@ -68,7 +68,7 @@ namespace BrightData.Types.Graph
         public ReadOnlyUndirectedGraph<T> ToReadOnly()
         {
             var nodeCount = (uint)_nodes.WrittenCount;
-            var edges = new BitVector(nodeCount * nodeCount);
+            var edges = new BitVector(checked(nodeCount * nodeCount));
             foreach (var (from, to) in _edges) {
                 edges[ReadOnlyUndirectedGraph<T>.GetEdgeIndex(from, to, nodeCount)] = true;
                 edges[ReadOnlyUndirectedGraph<T>.GetEdgeIndex(to, from, nodeCount)] = true;
@@ -82,16 +82,14 @@ namespace BrightData.Types.Graph
         /// <inheritdoc />
         public IEnumerable<uint> GetConnectedNodes(uint nodeIndex)
         {
-            var visited = new HashSet<uint>();
+            if (nodeIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(nodeIndex));
 
             foreach (var (first, second) in _edges) {
-                if (first == nodeIndex) {
-                    if (visited.Add(second))
-                        yield return second;
-                } else if (second == nodeIndex) {
-                    if(visited.Add(first))
-                        yield return first;
-                }
+                if (first == nodeIndex)
+                    yield return second;
+                else if (second == nodeIndex)
+                    yield return first;
             }
         }
 
@@ -110,7 +108,7 @@ namespace BrightData.Types.Graph
             var ret = _nodes.WrittenSpan.IndexOf(node);
             if (ret >= 0)
                 return (uint)ret;
-            throw new ArgumentException("Node not found", nameof(node));
+            throw new KeyNotFoundException($"Node not found: {node}");
         }
     }
 }

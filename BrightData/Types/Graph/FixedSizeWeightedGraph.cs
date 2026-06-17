@@ -1,4 +1,4 @@
-﻿using BrightData.Types.Graph.Helper;
+using BrightData.Types.Graph.Helper;
 using BrightData.Types.Helper;
 using System;
 using System.Collections.Generic;
@@ -52,10 +52,34 @@ namespace BrightData.Types.Graph
         /// <inheritdoc />
         public T Get(uint nodeIndex)
         {
+            if (TryGet(nodeIndex, out var value))
+                return value;
+            throw new IndexOutOfRangeException($"Node with index {nodeIndex} was not found");
+        }
+
+        /// <summary>
+        /// Returns true if a node with the specified index exists in the graph.
+        /// </summary>
+        /// <param name="nodeIndex">The node index to check.</param>
+        /// <returns>True if the node exists, false otherwise.</returns>
+        public bool Contains(uint nodeIndex) => _nodes.TryFind(nodeIndex, out _);
+
+        /// <summary>
+        /// Tries to retrieve the value stored at the specified node index.
+        /// </summary>
+        /// <param name="nodeIndex">The node index to look up.</param>
+        /// <param name="value">When this method returns, contains the value at the specified node index, or default(T) if the node was not found.</param>
+        /// <returns>True if the node was found, false otherwise.</returns>
+        public bool TryGet(uint nodeIndex, out T value)
+        {
             ref var node = ref _nodes.Find(nodeIndex);
             if (!Unsafe.IsNullRef(ref node))
-                return node.Value;
-            throw new ArgumentException($"Node with index {nodeIndex} was not found");
+            {
+                value = node.Value;
+                return true;
+            }
+            value = default!;
+            return false;
         }
 
         /// <inheritdoc />
@@ -67,7 +91,7 @@ namespace BrightData.Types.Graph
             ref var node = ref _nodes.Find(nodeIndex);
             if (!Unsafe.IsNullRef(ref node))
                 return node.NeighbourSpan;
-            return ReadOnlySpan<uint>.Empty;
+            return [];
         }
 
         /// <inheritdoc />

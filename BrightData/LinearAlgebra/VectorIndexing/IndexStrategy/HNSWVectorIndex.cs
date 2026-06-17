@@ -11,10 +11,10 @@ using BrightData.Types.Graph.Helper;
 
 namespace BrightData.LinearAlgebra.VectorIndexing.IndexStrategy
 {
-    internal class HNSWVectorIndex<T>(BrightDataContext context, IStoreVectors<T> storage, int numLayers = 5, DistanceMetric distanceMetric = DistanceMetric.Cosine) : IVectorIndex<T>
+    internal class HNSWVectorIndex<T>(BrightDataContext context, IStoreVectors<T> storage, int numLayers = 5, DistanceMetric distanceMetric = DistanceMetric.Cosine, T? ml = null) : IVectorIndex<T>
         where T : unmanaged, IBinaryFloatingPointIeee754<T>, IMinMaxValue<T>
     {
-        readonly HierarchicalNavigationSmallWorldGraph<GraphNodeIndex, T, FixedSizeSortedAscending16Array<uint, T>, FixedSizeSortedAscending32Array<uint, T>> _graph = new(context, numLayers);
+        readonly HierarchicalNavigationSmallWorldGraph<GraphNodeIndex, T, FixedSizeSortedAscending16Array<uint, T>, FixedSizeSortedAscending32Array<uint, T>> _graph = new(context, numLayers, ml ?? T.One);
         readonly VectorDistanceCache<T> _distanceCache = new(storage, distanceMetric);
 
         public void Dispose()

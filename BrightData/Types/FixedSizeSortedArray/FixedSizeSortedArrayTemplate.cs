@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace BrightData.Types
 {
+
     /// <summary>
     /// Fixed size sorted array of values and weights (max 1 elements)
     /// that is sorted in ascending order based on each weight
@@ -131,6 +132,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -262,9 +281,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 2 elements)
@@ -389,6 +427,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -520,9 +576,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 3 elements)
@@ -647,6 +722,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -778,9 +871,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 4 elements)
@@ -905,6 +1017,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -1036,9 +1166,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 5 elements)
@@ -1163,6 +1312,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -1294,9 +1461,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 6 elements)
@@ -1421,6 +1607,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -1552,9 +1756,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 7 elements)
@@ -1679,6 +1902,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -1810,9 +2051,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 8 elements)
@@ -1937,6 +2197,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -2068,9 +2346,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 9 elements)
@@ -2195,6 +2492,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -2326,9 +2641,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 10 elements)
@@ -2453,6 +2787,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -2584,9 +2936,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 11 elements)
@@ -2711,6 +3082,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -2842,9 +3231,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 12 elements)
@@ -2969,6 +3377,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -3100,9 +3526,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 13 elements)
@@ -3227,6 +3672,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -3358,9 +3821,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 14 elements)
@@ -3485,6 +3967,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -3616,9 +4116,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 15 elements)
@@ -3743,6 +4262,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -3874,9 +4411,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 16 elements)
@@ -4001,6 +4557,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -4132,9 +4706,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 17 elements)
@@ -4259,6 +4852,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -4390,9 +5001,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 18 elements)
@@ -4517,6 +5147,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -4648,9 +5296,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 19 elements)
@@ -4775,6 +5442,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -4906,9 +5591,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 20 elements)
@@ -5033,6 +5737,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -5164,9 +5886,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 21 elements)
@@ -5291,6 +6032,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -5422,9 +6181,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 22 elements)
@@ -5549,6 +6327,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -5680,9 +6476,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 23 elements)
@@ -5807,6 +6622,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -5938,9 +6771,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 24 elements)
@@ -6065,6 +6917,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -6196,9 +7066,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 25 elements)
@@ -6323,6 +7212,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -6454,9 +7361,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 26 elements)
@@ -6581,6 +7507,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -6712,9 +7656,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 27 elements)
@@ -6839,6 +7802,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -6970,9 +7951,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 28 elements)
@@ -7097,6 +8097,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -7228,9 +8246,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 29 elements)
@@ -7355,6 +8392,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -7486,9 +8541,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 30 elements)
@@ -7613,6 +8687,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -7744,9 +8836,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 31 elements)
@@ -7871,6 +8982,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -8002,9 +9131,28 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
     /// <summary>
     /// Fixed size sorted array of values and weights (max 32 elements)
@@ -8129,6 +9277,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -8260,8 +9426,27 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
+
 
 }

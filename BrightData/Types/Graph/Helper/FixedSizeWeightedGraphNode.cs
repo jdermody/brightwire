@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -69,6 +69,13 @@ namespace BrightData.Types.Graph.Helper
                 return _neighbours.TryAdd(index, weight);
             return false;
         }
+
+        /// <summary>
+        /// Removes a neighbour at the specified position
+        /// </summary>
+        /// <param name="position">Position of neighbour to remove</param>
+        /// <returns>The index of the removed neighbour</returns>
+        public uint RemoveAt(byte position) => _neighbours.RemoveAt(position);
 
         /// <summary>
         /// Returns a neighbour weight

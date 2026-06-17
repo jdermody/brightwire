@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
@@ -140,6 +140,24 @@ namespace BrightData.Types
             return ret;
         }
 
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
+        }
+
         /// <inheritdoc />
         public override string ToString() => string.Join(", ", Elements.Select(x => $"{x.Value}|{x.Weight}"));
     }
@@ -267,6 +285,24 @@ namespace BrightData.Types
             SortedArrayHelper.RemoveAt(index, values, weights);
             --_size;
             return ret;
+        }
+
+        /// <summary>
+        /// Clears the array, removing all elements
+        /// </summary>
+        public void Clear() => _size = 0;
+
+        /// <summary>
+        /// Checks if the array contains the specified value
+        /// </summary>
+        /// <param name="value">Value to search for</param>
+        /// <returns>True if the value exists in the array</returns>
+        public bool Contains(V value)
+        {
+            for (byte i = 0; i < Size; i++)
+                if (Values[i].CompareTo(value) == 0)
+                    return true;
+            return false;
         }
 
         /// <inheritdoc />

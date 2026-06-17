@@ -1,4 +1,4 @@
-﻿using BrightData.Types.Graph.Helper;
+using BrightData.Types.Graph.Helper;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using System;
@@ -12,13 +12,13 @@ namespace BrightData.Types.Graph
     /// </summary>
     /// <typeparam name="NT">Node type</typeparam>
     /// <typeparam name="ET">Edge type</typeparam>
-    public readonly struct MultiDirectedGraph<NT, ET> : IMutableGraphWithEdgeData<NT, ET>, IReadOnlyMultiDirectedGraph<NT, ET>, IDisposable
+    public struct MultiDirectedGraph<NT, ET> : IMutableGraphWithEdgeData<NT, ET>, IReadOnlyMultiDirectedGraph<NT, ET>, IDisposable
         where NT : unmanaged, IEquatable<NT>
         where ET : unmanaged
     {
         readonly record struct Edge(uint FromNodeIndex, uint ToNodeIndex, ET Data);
-        readonly ArrayPoolBufferWriter<NT> _nodes = new();
-        readonly ArrayPoolBufferWriter<Edge> _edges = new();
+        ArrayPoolBufferWriter<NT> _nodes = new();
+        ArrayPoolBufferWriter<Edge> _edges = new();
 
         /// <summary>
         /// Default constructor
@@ -87,8 +87,12 @@ namespace BrightData.Types.Graph
         /// <inheritdoc />
         public void Clear()
         {
-            _nodes.Clear();
-            _edges.Clear();
+            // Dispose returns the rented pool buffers to the ArrayPool,
+            // then recreate fresh writers to avoid holding onto old memory.
+            _nodes.Dispose();
+            _edges.Dispose();
+            _nodes = new();
+            _edges = new();
         }
 
         /// <inheritdoc />
