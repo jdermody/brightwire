@@ -6,9 +6,6 @@ using System;
 
 namespace BrightData.Helper
 {
-    /// <summary>
-    /// Stores data in indexed tables
-    /// </summary>
     //public class DataStore
     //{
     //    interface IResolveData<out T>
