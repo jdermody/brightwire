@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,8 +85,12 @@ namespace BrightData.Helper.Vectors
         /// <param name="vectors"></param>
         public VectorKDTree(IReadOnlyVectorStore<T> vectors)
         {
+            if (vectors.Size == 0)
+                throw new ArgumentException("Vector store must contain at least one vector", nameof(vectors));
+
             Vectors = vectors;
             _indexBuffer = new((int)vectors.Size * 3);
+            TreeDepth = 0;
             BuildTree(vectors.Size.AsRange().ToArray(), 0);
         }
 
@@ -103,25 +107,10 @@ namespace BrightData.Helper.Vectors
         /// </summary>
         public uint RootNodeIndex => 0U;
 
-        uint? BuildTree(Span<uint> vectorIndices, int depth)
-        {
-            if (vectorIndices.IsEmpty)
-                return null;
-            if (vectorIndices.Length == 1)
-                return CreateNode(vectorIndices[0]).NodeIndex;
-
-            var axis = depth % (int)Vectors.VectorSize;
-            vectorIndices.Sort((x, y) => Vectors[x][axis].CompareTo(Vectors[y][axis]));
-
-            var medianIndex = vectorIndices.Length / 2;
-            var vectorIndex = vectorIndices[medianIndex];
-            var ret = CreateNode(vectorIndex);
-            var leftSpan = vectorIndices[..medianIndex];
-            var rightSpan = vectorIndices[(medianIndex + 1)..];
-            ret.LeftNodeIndex = BuildTree(leftSpan, depth + 1);
-            ret.RightNodeIndex = BuildTree(rightSpan, depth + 1);
-            return ret.NodeIndex;
-        }
+        /// <summary>
+        /// The depth of the tree (0 for a single node, increasing with tree height)
+        /// </summary>
+        public int TreeDepth { get; private set; }
 
         TempNode CreateNode(uint vectorIndex)
         {
@@ -132,6 +121,141 @@ namespace BrightData.Helper.Vectors
             ret[2] = uint.MaxValue;
             _indexBuffer.Advance(3);
             return new TempNode(nodeIndex, ret);
+        }
+
+        /// <summary>
+        /// Builds the tree. Returns the node index of the root of the subtree.
+        /// </summary>
+        uint? BuildTree(uint[] vectorIndices, int depth)
+        {
+            if (vectorIndices.Length == 0)
+                return null;
+
+            if (vectorIndices.Length == 1)
+            {
+                var leafNode = CreateNode(vectorIndices[0]);
+                TreeDepth = System.Math.Max(TreeDepth, depth);
+                return leafNode.NodeIndex;
+            }
+
+            var axis = depth % (int)Vectors.VectorSize;
+
+            // Use quickselect to partition around the median (O(n) instead of O(n log n))
+            QuickSelectMedian(vectorIndices, 0, vectorIndices.Length, axis);
+            var medianIndex = vectorIndices.Length / 2;
+            var vectorIndex = vectorIndices[medianIndex];
+
+            var currentNode = CreateNode(vectorIndex);
+
+            // Build left subtree from elements before median
+            var leftCount = medianIndex;
+            uint? leftNodeIndex;
+            if (leftCount > 0)
+            {
+                var leftIndices = new uint[leftCount];
+                Array.Copy(vectorIndices, 0, leftIndices, 0, leftCount);
+                leftNodeIndex = BuildTree(leftIndices, depth + 1);
+            }
+            else
+            {
+                leftNodeIndex = null;
+            }
+
+            // Build right subtree from elements after median
+            var rightStart = medianIndex + 1;
+            var rightCount = vectorIndices.Length - rightStart;
+            uint? rightNodeIndex;
+            if (rightCount > 0)
+            {
+                var rightIndices = new uint[rightCount];
+                Array.Copy(vectorIndices, rightStart, rightIndices, 0, rightCount);
+                rightNodeIndex = BuildTree(rightIndices, depth + 1);
+            }
+            else
+            {
+                rightNodeIndex = null;
+            }
+
+            currentNode.LeftNodeIndex = leftNodeIndex;
+            currentNode.RightNodeIndex = rightNodeIndex;
+
+            TreeDepth = System.Math.Max(TreeDepth, depth);
+            return currentNode.NodeIndex;
+        }
+
+        /// <summary>
+        /// Partitions the span in-place using iterative quickselect so that the element
+        /// that would be at the median position ends up there, with smaller elements
+        /// before and larger elements after (sorted by axis value).
+        /// </summary>
+        void QuickSelectMedian(Span<uint> indices, int lo, int hi, int axis)
+        {
+            while (hi - lo > 1)
+            {
+                // Choose pivot using median-of-three
+                var mid = lo + (hi - lo) / 2;
+                var pivot = MedianOfThree(indices, lo, mid, hi - 1, axis);
+
+                // Partition around pivot (Lomuto-style for stability)
+                var i = lo;
+                var j = hi - 1;
+
+                while (i <= j)
+                {
+                    while (i <= j && Vectors[indices[i]][axis].CompareTo(Vectors[pivot][axis]) < 0) i++;
+                    while (i <= j && Vectors[indices[j]][axis].CompareTo(Vectors[pivot][axis]) > 0) j--;
+
+                    if (i <= j)
+                    {
+                        // Swap indices[i] and indices[j]
+                        var temp = indices[i];
+                        indices[i] = indices[j];
+                        indices[j] = temp;
+                        i++;
+                        j--;
+                    }
+                }
+
+                // Recurse into the smaller partition (iterative)
+                if (j - lo < hi - i)
+                {
+                    hi = j + 1;
+                }
+                else
+                {
+                    lo = i;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the median-of-three pivot index (by axis comparison).
+        /// </summary>
+        uint MedianOfThree(Span<uint> indices, int a, int b, int c, int axis)
+        {
+            var va = Vectors[indices[a]][axis];
+            var vb = Vectors[indices[b]][axis];
+            var vc = Vectors[indices[c]][axis];
+
+            // Simple comparison chain to find the middle value
+            if (va.CompareTo(vb) <= 0)
+            {
+                // va <= vb
+                if (vb.CompareTo(vc) <= 0)
+                    return indices[b]; // va <= vb <= vc
+                if (va.CompareTo(vc) <= 0)
+                    return indices[c]; // va <= vc < vb
+                return indices[a];     // vc < va <= vb
+            }
+            else
+            {
+                // vb < va
+                if (va.CompareTo(vc) <= 0)
+                    return indices[a]; // vb < va <= vc
+                if (vb.CompareTo(vc) <= 0)
+                    return indices[c]; // vb <= vc < va
+                return indices[b];     // vc < vb < va
+            }
         }
 
         /// <summary>
@@ -176,7 +300,7 @@ namespace BrightData.Helper.Vectors
         public (uint BestVectorIndex, T Distance) Search(ReadOnlySpan<T> query)
         {
             var temp = new FixedSizeSortedAscending1Array<uint, T>();
-            KnnSearch(query, RootNodeIndex, depth:0, ref temp);
+            KnnSearchIterative(query, RootNodeIndex, 0, ref temp);
             return (temp.MinValue, temp.MinWeight);
         }
 
@@ -190,54 +314,62 @@ namespace BrightData.Helper.Vectors
             where AT : IFixedSizeSortedArray<uint, T>, new()
         {
             var ret = new AT();
-            KnnSearch(query, RootNodeIndex, depth:0, ref ret);
+            KnnSearchIterative(query, RootNodeIndex, 0, ref ret);
             return ret;
         }
 
-        void KnnSearch<AT>(ReadOnlySpan<T> query, uint nodeIndex, int depth, ref AT results)
+        /// <summary>
+        /// Iterative KNN search using an explicit stack to avoid stack overflow.
+        /// </summary>
+        void KnnSearchIterative<AT>(ReadOnlySpan<T> query, uint rootNodeIndex, int rootDepth, ref AT results)
             where AT : IFixedSizeSortedArray<uint, T>
         {
-            while (true)
+            var stack = new Stack<(uint NodeIndex, int Depth)>();
+            stack.Push((rootNodeIndex, rootDepth));
+
+            while (stack.Count > 0)
             {
+                var (nodeIndex, depth) = stack.Pop();
                 var node = GetNodeByIndex(nodeIndex);
                 var nodeVector = Vectors[node.VectorIndex];
-                bool hasLeft = node.HasLeftBranch, hasRight = node.HasRightBranch;
 
-                // compare to node vector
+                // Compare to node vector
                 var distance = query.EuclideanDistance(nodeVector);
                 results.TryAdd(node.VectorIndex, distance);
 
-                // two branches
+                bool hasLeft = node.HasLeftBranch;
+                bool hasRight = node.HasRightBranch;
+
+                // Two branches
                 if (hasLeft && hasRight)
                 {
                     var axis = depth % (int)Vectors.VectorSize;
                     var qv = query[axis];
                     var nv = nodeVector[axis];
-                    var (bestBranch, otherBranch) = qv.CompareTo(nv) >= 0
-                        ? (node.RightNodeIndex, node.LeftNodeIndex)
-                        : (node.LeftNodeIndex, node.RightNodeIndex);
+                    var diff = T.Abs(qv - nv);
 
-                    // check the best branch
-                    KnnSearch(query, bestBranch!.Value, depth + 1, ref results);
+                    var (closestBranch, farthestBranch) = qv.CompareTo(nv) >= 0
+                        ? (node.RightNodeIndex!.Value, node.LeftNodeIndex!.Value)
+                        : (node.LeftNodeIndex!.Value, node.RightNodeIndex!.Value);
 
-                    // optionally check the other branch
-                    if (T.Abs(qv - nv) <= results.MaxWeight)
-                    {
-                        nodeIndex = otherBranch!.Value;
-                        depth += 1;
-                        continue;
-                    }
+                    // Push farthest branch first (processed last)
+                    // Only search farthest branch if it could contain closer results
+                    if (diff <= results.MaxWeight)
+                        stack.Push((farthestBranch, depth + 1));
+
+                    // Push closest branch (processed first)
+                    stack.Push((closestBranch, depth + 1));
                 }
-
-                // single branch
-                else if (hasLeft || hasRight)
+                // Single branch
+                else if (hasLeft)
                 {
-                    nodeIndex = hasLeft ? node.LeftNodeIndex!.Value : node.RightNodeIndex!.Value;
-                    depth += 1;
-                    continue;
+                    stack.Push((node.LeftNodeIndex!.Value, depth + 1));
                 }
-
-                break;
+                else if (hasRight)
+                {
+                    stack.Push((node.RightNodeIndex!.Value, depth + 1));
+                }
+                // Leaf node: nothing to push
             }
         }
 
@@ -248,21 +380,17 @@ namespace BrightData.Helper.Vectors
         /// <returns></returns>
         public IEnumerable<uint> GetAllVectorIndices(uint nodeIndex)
         {
-            while (true) {
-                var (vectorIndex, left, right) = GetNodeByIndex(nodeIndex);
-                if (left.HasValue) {
-                    foreach (var otherIndex in GetAllVectorIndices(left.Value)) 
-                        yield return otherIndex;
-                }
+            var stack = new Stack<uint>();
+            stack.Push(nodeIndex);
 
+            while (stack.Count > 0)
+            {
+                var (vectorIndex, left, right) = GetNodeByIndex(stack.Pop());
                 yield return vectorIndex;
-
-                if (right.HasValue) {
-                    nodeIndex = right.Value;
-                    continue;
-                }
-
-                break;
+                if (left.HasValue)
+                    stack.Push(left.Value);
+                if (right.HasValue)
+                    stack.Push(right.Value);
             }
         }
     }

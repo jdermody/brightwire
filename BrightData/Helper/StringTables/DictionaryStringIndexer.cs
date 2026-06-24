@@ -33,34 +33,18 @@ namespace BrightData.Helper.StringTables
         public uint GetIndex(ReadOnlySpan<char> str)
         {
             // convert to lowercase
-            uint ret;
             Span<char> temp = stackalloc char[str.Length];
             var size = str.Trim().ToLowerInvariant(temp);
 
             // fast path
-            if (size >= 0) {
-                var lookup = _index.GetAlternateLookup<ReadOnlySpan<char>>();
-                var lowerStr = temp[..size].AsReadOnly();
-                if (!lookup.TryGetValue(lowerStr, out ret)) {
-                    lock (_lock) {
-                        if (lookup.TryGetValue(lowerStr, out ret))
-                            return ret;
-                        if (!lookup.TryAdd(lowerStr, ret = (uint)_index.Count))
-                            throw new ArgumentException($"Not able to add {lowerStr} to dictionary");
-                    }
+            var lookup = _index.GetAlternateLookup<ReadOnlySpan<char>>();
+            var lowerStr = temp[..size].AsReadOnly();
+            if (!lookup.TryGetValue(lowerStr, out var ret)) {
+                // try to add it in a lock
+                lock (_lock) {
+                    if (!lookup.TryGetValue(lowerStr, out ret) && !lookup.TryAdd(lowerStr, ret = (uint)_index.Count))
+                        throw new ArgumentException($"Not able to add {lowerStr} to dictionary");
                 }
-                return ret;
-            }
-
-            // fallback
-            var str2 = str.Trim().ToString().ToLowerInvariant();
-            if (_index.TryGetValue(str2, out ret))
-                return ret;
-            lock (_lock) {
-                if (_index.TryGetValue(str2, out ret))
-                    return ret;
-                if (!_index.TryAdd(str2, ret = (uint)_index.Count))
-                    throw new ArgumentException($"Not able to add {str2} to dictionary");
             }
             return ret;
         }

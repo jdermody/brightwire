@@ -1,15 +1,18 @@
-﻿using BrightData.Types;
+using BrightData.Types;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace BrightData.Helper.Vectors
 {
     /// <summary>
-    /// Creates a ball tree for vectors
+    /// Creates a ball tree for vectors.
+    /// 
+    /// Note: The underlying KD tree uses Euclidean distance for splits.
+    /// For best results, use DistanceMetric.Euclidean. Other metrics may
+    /// produce suboptimal tree structures but will still return correct results.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class VectorBallTree<T> : IHaveSize, ISupportKnnSearch<T>
@@ -31,12 +34,12 @@ namespace BrightData.Helper.Vectors
             public uint VectorIndex => _node.VectorIndex;
 
             /// <summary>
-            /// Ball radius
+            /// Ball radius. Returns zero for leaf nodes (nodes without ball data).
             /// </summary>
             public T Radius => _data.Length > 0 ? _data[0] : T.Zero;
 
             /// <summary>
-            /// Ball centroid
+            /// Ball centroid. Returns an empty span for leaf nodes (nodes without ball data).
             /// </summary>
             public ReadOnlySpan<T> Centroid => _data.Length > 0 ? _data[1..] : [];
 
@@ -63,11 +66,11 @@ namespace BrightData.Helper.Vectors
             /// <summary>
             /// Deconstructs the node
             /// </summary>
-            /// <param name="left"></param>
-            /// <param name="right"></param>
             /// <param name="vectorIndex"></param>
             /// <param name="radius"></param>
             /// <param name="centroid"></param>
+            /// <param name="left"></param>
+            /// <param name="right"></param>
             public void Deconstruct(out uint vectorIndex, out T radius, out ReadOnlySpan<T> centroid, out uint? left, out uint? right)
             {
                 vectorIndex = VectorIndex;
@@ -83,7 +86,9 @@ namespace BrightData.Helper.Vectors
         readonly int _vectorDataSize;
 
         /// <summary>
-        /// Creates a ball tree from a store of vectors
+        /// Creates a ball tree from a store of vectors.
+        /// Note: The underlying KD tree uses Euclidean distance for splits.
+        /// For best results, use DistanceMetric.Euclidean.
         /// </summary>
         /// <param name="vectors"></param>
         /// <param name="distanceMetric"></param>
@@ -93,7 +98,10 @@ namespace BrightData.Helper.Vectors
         }
 
         /// <summary>
-        /// Creates a ball tree from a KD tree
+        /// Creates a ball tree from a KD tree.
+        /// Note: The underlying KD tree uses Euclidean distance for splits.
+        /// For best results, use DistanceMetric.Euclidean. Other metrics may
+        /// produce suboptimal tree structures but will still return correct results.
         /// </summary>
         /// <param name="kdTree"></param>
         /// <param name="distanceMetric"></param>
@@ -103,45 +111,44 @@ namespace BrightData.Helper.Vectors
             KDTree = kdTree;
             var vectors = kdTree.Vectors;
             _vectorDataSize = (int)vectors.VectorSize + 1;
-            var vectorBuffer = new ArrayBufferWriter<T>(/*(int)vectors.Size * _vectorDataSize*/);
+            var vectorBuffer = new ArrayBufferWriter<T>();
             _kdTreeNodeIndexToVectorOffset = new((int)vectors.Size);
 
-            // recursively add corresponding ball nodes
+            // BFS to add corresponding ball nodes
             var queue = new Queue<uint>();
             queue.Enqueue(KDTree.RootNodeIndex);
 
-            while (queue.Count > 0) {
+            while (queue.Count > 0)
+            {
                 var nodeIndex = queue.Dequeue();
                 var vectorIndices = KDTree.GetAllVectorIndices(nodeIndex).ToArray();
 
-                // find the centroid and distance from that centroid
-                if (vectorIndices.Length > 1) {
-                    // find centroid
+                // Find the centroid and distance from that centroid
+                if (vectorIndices.Length > 1)
+                {
+                    // Find centroid
                     var centroidBuilder = SpanAggregator<T>.GetOnlineAverage(vectors.VectorSize);
                     foreach (var index in vectorIndices)
                         centroidBuilder.Add(vectors[index]);
                     var centroid = centroidBuilder.Span;
 
-                    // calculate max distance to centroid
+                    // Calculate max distance to centroid
                     using var distances = vectors.FindDistancesFromVectorsToQuery(vectorIndices, centroid, distanceMetric);
                     var bestDistance = distances.Span.AsReadOnly().Maximum().Value;
 
-                    //var maxDistance = T.MinValue;
-                    //foreach (var vectorIndex in vectorIndices) {
-                    //    var distance = centroid.FindDistance(vectors[vectorIndex], distanceMetric);
-                    //    if (distance > maxDistance)
-                    //        maxDistance = distance;
-                    //}
+                    // Guard against NaN radius
+                    if (T.IsNaN(bestDistance))
+                        bestDistance = T.Zero;
 
-                    // write the vector node
-                    _kdTreeNodeIndexToVectorOffset.Add(nodeIndex, (uint)vectorBuffer.WrittenCount);
+                    // Write the vector node
+                    _kdTreeNodeIndexToVectorOffset[nodeIndex] = (uint)vectorBuffer.WrittenCount;
                     var vectorSpan = vectorBuffer.GetSpan(_vectorDataSize);
                     vectorSpan[0] = bestDistance;
                     centroid.CopyTo(vectorSpan[1..]);
                     vectorBuffer.Advance(_vectorDataSize);
                 }
 
-                // add children nodes
+                // Add children nodes
                 var node = KDTree.GetNodeByIndex(nodeIndex);
                 if (node.HasLeftBranch)
                     queue.Enqueue(node.LeftNodeIndex!.Value);
@@ -182,8 +189,8 @@ namespace BrightData.Helper.Vectors
         /// <returns></returns>
         public ReadOnlyNode GetNodeByIndex(uint nodeIndex)
         {
-            return _kdTreeNodeIndexToVectorOffset.TryGetValue(nodeIndex, out var vectorOffset) 
-                ? new ReadOnlyNode(_vectorBuffer.Span.Slice((int)vectorOffset, _vectorDataSize), KDTree.GetNodeByIndex(nodeIndex)) 
+            return _kdTreeNodeIndexToVectorOffset.TryGetValue(nodeIndex, out var vectorOffset)
+                ? new ReadOnlyNode(_vectorBuffer.Span.Slice((int)vectorOffset, _vectorDataSize), KDTree.GetNodeByIndex(nodeIndex))
                 : new ReadOnlyNode([], KDTree.GetNodeByIndex(nodeIndex))
             ;
         }
@@ -214,41 +221,46 @@ namespace BrightData.Helper.Vectors
             return ret;
         }
 
-        [SkipLocalsInit]
+        /// <summary>
+        /// Iterative KNN search using a dynamic stack to handle trees of any depth.
+        /// </summary>
         void KnnSearch<AT>(ReadOnlySpan<T> query, uint fromNodeIndex, ref AT results)
             where AT : IFixedSizeSortedArray<uint, T>
         {
-            const int MaxDepth = 128;
-            Span<uint> stack = stackalloc uint[MaxDepth];
-            stack[0] = fromNodeIndex;
-            var stackSize = 1;
+            var stack = new Stack<uint>();
+            stack.Push(fromNodeIndex);
 
-            while (stackSize > 0) {
-                var nodeIndex = stack[--stackSize];
+            while (stack.Count > 0)
+            {
+                var nodeIndex = stack.Pop();
                 var node = GetNodeByIndex(nodeIndex);
 
-                // check if leaf node
-                bool hasLeft = node.HasLeftBranch, hasRight = node.HasRightBranch;
+                // Check if leaf node
+                bool hasLeft = node.HasLeftBranch;
+                bool hasRight = node.HasRightBranch;
                 T distance;
-                if (!hasLeft && !hasRight) {
+
+                if (!hasLeft && !hasRight)
+                {
                     distance = Vectors[node.VectorIndex].FindDistance(query, DistanceMetric);
-                    if(!T.IsNaN(distance))
+                    if (!T.IsNaN(distance))
                         results.TryAdd(node.VectorIndex, distance);
                     continue;
                 }
 
-                // check ball radius against query distance from centroid
+                // Check ball radius against query distance from centroid
                 if (results.Size > 0 && node.Centroid.FindDistance(query, DistanceMetric) - node.Radius > results.MaxWeight)
                     continue;
 
-                // query is within the ball
+                // Query is within the ball
                 distance = Vectors[node.VectorIndex].FindDistance(query, DistanceMetric);
-                if(!T.IsNaN(distance))
+                if (!T.IsNaN(distance))
                     results.TryAdd(node.VectorIndex, distance);
-                if (hasLeft && stackSize < MaxDepth)
-                    stack[stackSize++] = node.LeftNodeIndex!.Value;
-                if (hasRight && stackSize < MaxDepth)
-                    stack[stackSize++] = node.RightNodeIndex!.Value;
+
+                if (hasLeft)
+                    stack.Push(node.LeftNodeIndex!.Value);
+                if (hasRight)
+                    stack.Push(node.RightNodeIndex!.Value);
             }
         }
     }

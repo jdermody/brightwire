@@ -7044,16 +7044,6 @@
             <param name="writer">Destination</param>
             <param name="values">Array to write</param>
         </member>
-        <member name="T:BrightData.Helper.DataStore">
-            <summary>
-            Stores data in indexed tables
-            </summary>
-        </member>
-        <member name="M:BrightData.Helper.DataStore.#ctor(BrightData.Buffer.OffsetAndSize,BrightData.IByteDataProvider)">
-            <summary>
-            Constructor
-            </summary>
-        </member>
         <member name="T:BrightData.Helper.GenericActivator">
             <summary>
             Generic object creator
@@ -7686,7 +7676,11 @@
         </member>
         <member name="T:BrightData.Helper.Vectors.VectorBallTree`1">
             <summary>
-            Creates a ball tree for vectors
+            Creates a ball tree for vectors.
+            
+            Note: The underlying KD tree uses Euclidean distance for splits.
+            For best results, use DistanceMetric.Euclidean. Other metrics may
+            produce suboptimal tree structures but will still return correct results.
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -7711,12 +7705,12 @@
         </member>
         <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.Radius">
             <summary>
-            Ball radius
+            Ball radius. Returns zero for leaf nodes (nodes without ball data).
             </summary>
         </member>
         <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.Centroid">
             <summary>
-            Ball centroid
+            Ball centroid. Returns an empty span for leaf nodes (nodes without ball data).
             </summary>
         </member>
         <member name="P:BrightData.Helper.Vectors.VectorBallTree`1.ReadOnlyNode.LeftNodeIndex">
@@ -7743,22 +7737,27 @@
             <summary>
             Deconstructs the node
             </summary>
-            <param name="left"></param>
-            <param name="right"></param>
             <param name="vectorIndex"></param>
             <param name="radius"></param>
             <param name="centroid"></param>
+            <param name="left"></param>
+            <param name="right"></param>
         </member>
         <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.#ctor(BrightData.IReadOnlyVectorStore{`0},BrightData.DistanceMetric)">
             <summary>
-            Creates a ball tree from a store of vectors
+            Creates a ball tree from a store of vectors.
+            Note: The underlying KD tree uses Euclidean distance for splits.
+            For best results, use DistanceMetric.Euclidean.
             </summary>
             <param name="vectors"></param>
             <param name="distanceMetric"></param>
         </member>
         <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.#ctor(BrightData.Helper.Vectors.VectorKDTree{`0},BrightData.DistanceMetric)">
             <summary>
-            Creates a ball tree from a KD tree
+            Creates a ball tree from a KD tree.
+            Note: The underlying KD tree uses Euclidean distance for splits.
+            For best results, use DistanceMetric.Euclidean. Other metrics may
+            produce suboptimal tree structures but will still return correct results.
             </summary>
             <param name="kdTree"></param>
             <param name="distanceMetric"></param>
@@ -7807,6 +7806,11 @@
             <typeparam name="AT"></typeparam>
             <param name="query"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorBallTree`1.KnnSearch``1(System.ReadOnlySpan{`0},System.UInt32,``0@)">
+            <summary>
+            Iterative KNN search using a dynamic stack to handle trees of any depth.
+            </summary>
         </member>
         <member name="T:BrightData.Helper.Vectors.VectorKDTree`1">
             <summary>
@@ -7878,6 +7882,28 @@
             The node index of the root node
             </summary>
         </member>
+        <member name="P:BrightData.Helper.Vectors.VectorKDTree`1.TreeDepth">
+            <summary>
+            The depth of the tree (0 for a single node, increasing with tree height)
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.BuildTree(System.UInt32[],System.Int32)">
+            <summary>
+            Builds the tree. Returns the node index of the root of the subtree.
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.QuickSelectMedian(System.Span{System.UInt32},System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Partitions the span in-place using iterative quickselect so that the element
+            that would be at the median position ends up there, with smaller elements
+            before and larger elements after (sorted by axis value).
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.MedianOfThree(System.Span{System.UInt32},System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the median-of-three pivot index (by axis comparison).
+            </summary>
+        </member>
         <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.GetNodeByIndex(System.UInt32)">
             <summary>
             Returns a node by index
@@ -7907,6 +7933,11 @@
             <typeparam name="AT"></typeparam>
             <param name="query"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.KnnSearchIterative``1(System.ReadOnlySpan{`0},System.UInt32,System.Int32,``0@)">
+            <summary>
+            Iterative KNN search using an explicit stack to avoid stack overflow.
+            </summary>
         </member>
         <member name="M:BrightData.Helper.Vectors.VectorKDTree`1.GetAllVectorIndices(System.UInt32)">
             <summary>
@@ -8866,6 +8897,26 @@
         <member name="F:BrightData.BrightDataType.DateOnly">
             <summary>
             Date only
+            </summary>
+        </member>
+        <member name="F:BrightData.BrightDataType.Byte">
+            <summary>
+            Unsigned byte values (0 to 255)
+            </summary>
+        </member>
+        <member name="F:BrightData.BrightDataType.UShort">
+            <summary>
+            Unsigned short values
+            </summary>
+        </member>
+        <member name="F:BrightData.BrightDataType.UInt">
+            <summary>
+            Unsigned integer values
+            </summary>
+        </member>
+        <member name="F:BrightData.BrightDataType.ULong">
+            <summary>
+            Unsigned long values
             </summary>
         </member>
         <member name="T:BrightData.ColumnClass">
@@ -11229,6 +11280,13 @@
             </summary>
             <param name="segment"></param>
         </member>
+        <member name="M:BrightData.IMatrix`1.SubtractRowVector(BrightData.IReadOnlyNumericSegment{`0})">
+            <summary>
+            Subtracts a row vector from each row of this matrix (broadcasts row values).
+            Equivalent to: matrix[row, col] -= rowVector[row] for all row, col.
+            </summary>
+            <param name="rowVector">Vector of length RowCount</param>
+        </member>
         <member name="M:BrightData.IMatrix`1.SoftmaxPerRow">
             <summary>
             Computes the per row software of this matrix
@@ -13015,6 +13073,9 @@
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.MultiplyEachColumnWith(BrightData.IReadOnlyNumericSegment{`0})">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.SubtractRowVector(BrightData.IReadOnlyNumericSegment{`0})">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.SoftmaxPerRow">
             <inheritdoc />
         </member>
@@ -14572,6 +14633,11 @@
             Returns the data as a span
             </summary>
         </member>
+        <member name="F:BrightData.Types.BinaryData.Empty">
+            <summary>
+            Empty binary data
+            </summary>
+        </member>
         <member name="M:BrightData.Types.BinaryData.Initialize(BrightData.BrightDataContext,System.IO.BinaryReader)">
             <inheritdoc />
         </member>
@@ -14645,6 +14711,11 @@
             </summary>
             <param name="data"></param>
             <param name="size"></param>
+        </member>
+        <member name="F:BrightData.Types.BitVector.Empty">
+            <summary>
+            Empty bit vector
+            </summary>
         </member>
         <member name="P:BrightData.Types.BitVector.Data">
             <summary>
@@ -14792,6 +14863,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending1Array`2.ToString">
             <inheritdoc />
         </member>
@@ -14877,6 +14960,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending1Array`2.ToString">
             <inheritdoc />
@@ -14964,6 +15059,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending2Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending2Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending2Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15049,6 +15156,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending2Array`2.ToString">
             <inheritdoc />
@@ -15136,6 +15255,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending3Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending3Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending3Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15221,6 +15352,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending3Array`2.ToString">
             <inheritdoc />
@@ -15308,6 +15451,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending4Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending4Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending4Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15393,6 +15548,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending4Array`2.ToString">
             <inheritdoc />
@@ -15480,6 +15647,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending5Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending5Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending5Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15565,6 +15744,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending5Array`2.ToString">
             <inheritdoc />
@@ -15652,6 +15843,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending6Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending6Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending6Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15737,6 +15940,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending6Array`2.ToString">
             <inheritdoc />
@@ -15824,6 +16039,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending7Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending7Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending7Array`2.ToString">
             <inheritdoc />
         </member>
@@ -15909,6 +16136,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending7Array`2.ToString">
             <inheritdoc />
@@ -15996,6 +16235,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending8Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending8Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending8Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16081,6 +16332,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending8Array`2.ToString">
             <inheritdoc />
@@ -16168,6 +16431,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending9Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending9Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending9Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16253,6 +16528,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending9Array`2.ToString">
             <inheritdoc />
@@ -16340,6 +16627,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending10Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending10Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending10Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16425,6 +16724,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending10Array`2.ToString">
             <inheritdoc />
@@ -16512,6 +16823,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending11Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending11Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending11Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16597,6 +16920,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending11Array`2.ToString">
             <inheritdoc />
@@ -16684,6 +17019,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending12Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending12Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending12Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16769,6 +17116,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending12Array`2.ToString">
             <inheritdoc />
@@ -16856,6 +17215,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending13Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending13Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending13Array`2.ToString">
             <inheritdoc />
         </member>
@@ -16941,6 +17312,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending13Array`2.ToString">
             <inheritdoc />
@@ -17028,6 +17411,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending14Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending14Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending14Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17113,6 +17508,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending14Array`2.ToString">
             <inheritdoc />
@@ -17200,6 +17607,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending15Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending15Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending15Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17285,6 +17704,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending15Array`2.ToString">
             <inheritdoc />
@@ -17372,6 +17803,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending16Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending16Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending16Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17457,6 +17900,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending16Array`2.ToString">
             <inheritdoc />
@@ -17544,6 +17999,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending17Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending17Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending17Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17629,6 +18096,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending17Array`2.ToString">
             <inheritdoc />
@@ -17716,6 +18195,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending18Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending18Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending18Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17801,6 +18292,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending18Array`2.ToString">
             <inheritdoc />
@@ -17888,6 +18391,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending19Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending19Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending19Array`2.ToString">
             <inheritdoc />
         </member>
@@ -17973,6 +18488,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending19Array`2.ToString">
             <inheritdoc />
@@ -18060,6 +18587,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending20Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending20Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending20Array`2.ToString">
             <inheritdoc />
         </member>
@@ -18145,6 +18684,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending20Array`2.ToString">
             <inheritdoc />
@@ -18232,6 +18783,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending21Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending21Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending21Array`2.ToString">
             <inheritdoc />
         </member>
@@ -18317,6 +18880,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending21Array`2.ToString">
             <inheritdoc />
@@ -18404,6 +18979,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending22Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending22Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending22Array`2.ToString">
             <inheritdoc />
         </member>
@@ -18489,6 +19076,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending22Array`2.ToString">
             <inheritdoc />
@@ -18576,6 +19175,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending23Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending23Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending23Array`2.ToString">
             <inheritdoc />
         </member>
@@ -18661,6 +19272,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending23Array`2.ToString">
             <inheritdoc />
@@ -18748,6 +19371,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending24Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending24Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending24Array`2.ToString">
             <inheritdoc />
         </member>
@@ -18833,6 +19468,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending24Array`2.ToString">
             <inheritdoc />
@@ -18920,6 +19567,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending25Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending25Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending25Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19005,6 +19664,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending25Array`2.ToString">
             <inheritdoc />
@@ -19092,6 +19763,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending26Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending26Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending26Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19177,6 +19860,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending26Array`2.ToString">
             <inheritdoc />
@@ -19264,6 +19959,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending27Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending27Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending27Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19349,6 +20056,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending27Array`2.ToString">
             <inheritdoc />
@@ -19436,6 +20155,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending28Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending28Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending28Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19521,6 +20252,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending28Array`2.ToString">
             <inheritdoc />
@@ -19608,6 +20351,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending29Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending29Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending29Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19693,6 +20448,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending29Array`2.ToString">
             <inheritdoc />
@@ -19780,6 +20547,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending30Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending30Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending30Array`2.ToString">
             <inheritdoc />
         </member>
@@ -19865,6 +20644,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending30Array`2.ToString">
             <inheritdoc />
@@ -19952,6 +20743,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending31Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending31Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending31Array`2.ToString">
             <inheritdoc />
         </member>
@@ -20037,6 +20840,18 @@
             </summary>
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
         </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending31Array`2.ToString">
             <inheritdoc />
@@ -20124,6 +20939,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending32Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedAscending32Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedAscending32Array`2.ToString">
             <inheritdoc />
         </member>
@@ -20210,6 +21037,18 @@
             <param name="index">Index of element to remove</param>
             <exception cref="T:System.ArgumentOutOfRangeException"></exception>
         </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.Clear">
+            <summary>
+            Clears the array, removing all elements
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.Contains(`0)">
+            <summary>
+            Checks if the array contains the specified value
+            </summary>
+            <param name="value">Value to search for</param>
+            <returns>True if the value exists in the array</returns>
+        </member>
         <member name="M:BrightData.Types.FixedSizeSortedDescending32Array`2.ToString">
             <inheritdoc />
         </member>
@@ -20240,6 +21079,21 @@
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Get(System.UInt32)">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.Contains(System.UInt32)">
+            <summary>
+            Returns true if a node with the specified index exists in the graph.
+            </summary>
+            <param name="nodeIndex">The node index to check.</param>
+            <returns>True if the node exists, false otherwise.</returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.TryGet(System.UInt32,`0@)">
+            <summary>
+            Tries to retrieve the value stored at the specified node index.
+            </summary>
+            <param name="nodeIndex">The node index to look up.</param>
+            <param name="value">When this method returns, contains the value at the specified node index, or default(T) if the node was not found.</param>
+            <returns>True if the node was found, false otherwise.</returns>
         </member>
         <member name="M:BrightData.Types.Graph.FixedSizeWeightedGraph`3.GetNodeIndex(`0)">
             <inheritdoc />
@@ -20330,6 +21184,13 @@
             <param name="index">Index of neighbour</param>
             <param name="weight">Neighbour weight</param>
         </member>
+        <member name="M:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.RemoveAt(System.Byte)">
+            <summary>
+            Removes a neighbour at the specified position
+            </summary>
+            <param name="position">Position of neighbour to remove</param>
+            <returns>The index of the removed neighbour</returns>
+        </member>
         <member name="P:BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode`3.Item(System.UInt32)">
             <summary>
             Returns a neighbour weight
@@ -20378,48 +21239,65 @@
         </member>
         <member name="T:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4">
             <summary>
-            A graph that uses multiple sub graphs as a skip list
+            A hierarchical navigation small world (HNSW) graph that uses multiple sub-graphs as a skip list
+            for efficient approximate nearest neighbour search.
             </summary>
-            <param name="context"></param>
-            <param name="maxLayers"></param>
-            <typeparam name="T"></typeparam>
-            <typeparam name="W"></typeparam>
-            <typeparam name="AT"></typeparam>
-            <typeparam name="BLAT"></typeparam>
+            <param name="context">Data context for creating distributions.</param>
+            <param name="maxLayers">Maximum number of layers in the graph (upper bound on node levels).</param>
+            <param name="ml">ML multiplier controlling the level distribution. Standard HNSW uses 1/M where M is the max connections per layer.</param>
+            <typeparam name="T">Type of node value; must be unmanaged and have a single index.</typeparam>
+            <typeparam name="W">Type of weight; must be an IEEE 754 binary floating-point number.</typeparam>
+            <typeparam name="AT">Array type used for upper layers (fixed-size sorted array of neighbours).</typeparam>
+            <typeparam name="BLAT">Array type used for the base layer (fixed-size sorted array of neighbours).</typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.#ctor(BrightData.BrightDataContext,System.Int32)">
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.#ctor(BrightData.BrightDataContext,System.Int32,`1)">
             <summary>
-            A graph that uses multiple sub graphs as a skip list
+            A hierarchical navigation small world (HNSW) graph that uses multiple sub-graphs as a skip list
+            for efficient approximate nearest neighbour search.
             </summary>
-            <param name="context"></param>
-            <param name="maxLayers"></param>
-            <typeparam name="T"></typeparam>
-            <typeparam name="W"></typeparam>
-            <typeparam name="AT"></typeparam>
-            <typeparam name="BLAT"></typeparam>
+            <param name="context">Data context for creating distributions.</param>
+            <param name="maxLayers">Maximum number of layers in the graph (upper bound on node levels).</param>
+            <param name="ml">ML multiplier controlling the level distribution. Standard HNSW uses 1/M where M is the max connections per layer.</param>
+            <typeparam name="T">Type of node value; must be unmanaged and have a single index.</typeparam>
+            <typeparam name="W">Type of weight; must be an IEEE 754 binary floating-point number.</typeparam>
+            <typeparam name="AT">Array type used for upper layers (fixed-size sorted array of neighbours).</typeparam>
+            <typeparam name="BLAT">Array type used for the base layer (fixed-size sorted array of neighbours).</typeparam>
         </member>
-        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.Add(BrightData.ICalculateNodeWeights{`1},`0[])">
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.Add(BrightData.ICalculateNodeWeights{`1},`0)">
             <summary>
-            Adds new nodes to the graph
+            Adds a single new node to the graph.
             </summary>
-            <param name="distanceCalculator"></param>
-            <param name="values">New nodes</param>
+            <param name="distanceCalculator">Calculator for computing distances (weights) between nodes.</param>
+            <param name="value">The node value to add.</param>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.Add(BrightData.ICalculateNodeWeights{`1},System.ReadOnlySpan{`0})">
+            <summary>
+            Adds multiple new nodes to the graph from a span (zero-copy).
+            </summary>
+            <param name="distanceCalculator">Calculator for computing distances (weights) between nodes.</param>
+            <param name="values">Span of node values to add.</param>
         </member>
         <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.KnnSearch(System.UInt32,BrightData.ICalculateNodeWeights{`1})">
             <summary>
-            K nearest neighbour search (probabilistic)
+            Performs a K nearest neighbour search (probabilistic) for the given query index.
             </summary>
-            <param name="q">Node to query</param>
-            <param name="distanceCalculator"></param>
-            <returns></returns>
-            <exception cref="T:System.Exception"></exception>
+            <param name="q">The query node index.</param>
+            <param name="distanceCalculator">Calculator for computing distances (weights) between nodes.</param>
+            <returns>A fixed-size sorted array of nearest neighbours and their weights.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when the graph contains no nodes.</exception>
         </member>
         <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.BreadthFirstSearch(System.UInt32)">
             <summary>
-            Breadth first search
+            Performs a breadth-first search on the base layer (layer 0) starting from the given node index.
+            Uses pooled memory for the queue and a <see cref="T:System.Collections.BitArray"/> for visited tracking to minimize allocations.
             </summary>
-            <param name="index">Start node index</param>
-            <returns></returns>
+            <param name="index">The start node index.</param>
+            <returns>An enumerable of neighbour index and weight pairs discovered by the BFS.</returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.HierarchicalNavigationSmallWorldGraph`4.GetRandomLevel">
+            <summary>
+            Generates a random layer level using the exponential distribution, clamped to the valid range.
+            </summary>
         </member>
         <member name="T:BrightData.Types.Graph.MultiDirectedGraph`2">
             <summary>
@@ -20480,7 +21358,7 @@
         </member>
         <member name="T:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3">
             <summary>
-            Fixed size weighted graph
+            Fixed size weighted graph.
             </summary>
             <typeparam name="W"></typeparam>
             <typeparam name="AT"></typeparam>
@@ -20488,13 +21366,13 @@
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.#ctor(BrightData.Types.Graph.Helper.FixedSizeWeightedGraphNode{`0,`1,`2}[])">
             <summary>
-            Creates a vector graph from an array of nodes
+            Creates a graph from an array of nodes.
             </summary>
             <param name="nodes"></param>
         </member>
         <member name="P:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Size">
             <summary>
-            Number of nodes in the graph
+            Number of nodes in the graph.
             </summary>
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.ProbabilisticSearch``2(System.UInt32,System.UInt32,BrightData.ICalculateNodeWeights{`1})">
@@ -20502,7 +21380,7 @@
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetNeighbours(System.UInt32)">
             <summary>
-            Gets the neighbours for a node, sorted by distance
+            Gets the neighbours for a node, sorted by distance.
             </summary>
             <param name="vectorIndex"></param>
             <returns></returns>
@@ -20512,14 +21390,14 @@
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetNeighbourWeights(System.UInt32)">
             <summary>
-            Gets the weights for the node's neighbours
+            Gets the weights for the node's neighbours.
             </summary>
             <param name="vectorIndex"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetWeightedNeighbours(System.UInt32)">
             <summary>
-            Enumerates the neighbour indices and their weights in ascending order
+            Enumerates the neighbour indices and their weights in ascending order.
             </summary>
             <param name="vectorIndex"></param>
             <returns></returns>
@@ -20544,26 +21422,46 @@
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Build(BrightData.IStoreVectors{`1},BrightData.DistanceMetric,System.Boolean,System.Action{System.UInt32})">
             <summary>
-            Creates 
+            Builds a fixed-size weighted graph from a set of vectors by computing pairwise distances
+            and connecting each node to its N closest neighbours.
             </summary>
-            <param name="vectors"></param>
-            <param name="distanceMetric"></param>
-            <param name="shortCircuitIfNodeNeighboursAreFull"></param>
-            <param name="onNode"></param>
-            <returns></returns>
+            <param name="vectors">The source vectors to build the graph from.</param>
+            <param name="distanceMetric">The distance metric to use for computing distances between vectors.</param>
+            <param name="shortCircuitIfNodeNeighboursAreFull">If true, skip distance computation for nodes that already have full neighbour slots.</param>
+            <param name="onNode">Optional callback invoked after each node is processed.</param>
+            <returns>A new graph connecting each vector to its closest neighbours.</returns>
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.WriteToDisk(System.String)">
             <summary>
-            Writes the graph to disk
+            Writes the graph to disk.
             </summary>
             <param name="filePath"></param>
         </member>
         <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.LoadFromDisk(System.String)">
             <summary>
-            Loads a vector graph from disk
+            Loads a graph from disk.
             </summary>
             <param name="filePath"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Equals(BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph{`0,`1,`2})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.op_Equality(BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph{`0,`1,`2},BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph{`0,`1,`2})">
+            <summary>
+            Compares two graphs for equality.
+            </summary>
+        </member>
+        <member name="M:BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph`3.op_Inequality(BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph{`0,`1,`2},BrightData.Types.Graph.ReadOnlyFixedSizeWeightedGraph{`0,`1,`2})">
+            <summary>
+            Compares two graphs for inequality.
+            </summary>
         </member>
         <member name="T:BrightData.Types.Graph.ReadOnlyUndirectedGraph`1">
             <summary>
@@ -20733,6 +21631,11 @@
         <member name="T:BrightData.Types.IndexList">
             <summary>
             Contains a list of indices
+            </summary>
+        </member>
+        <member name="F:BrightData.Types.IndexList.Empty">
+            <summary>
+            Empty index list
             </summary>
         </member>
         <member name="T:BrightData.Types.IndexList.ItemIterator">
@@ -23542,6 +24445,11 @@
         <member name="T:BrightData.Types.WeightedIndexList">
             <summary>
             A list of weighted indices is a sparse vector
+            </summary>
+        </member>
+        <member name="F:BrightData.Types.WeightedIndexList.Empty">
+            <summary>
+            Empty weighted index list
             </summary>
         </member>
         <member name="M:BrightData.Types.WeightedIndexList.#ctor(BrightData.Types.WeightedIndexList.Item[])">
