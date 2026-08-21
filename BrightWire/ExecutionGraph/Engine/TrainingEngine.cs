@@ -18,6 +18,7 @@ namespace BrightWire.ExecutionGraph.Engine
     class TrainingEngine : IGraphTrainingEngine
     {
         readonly GraphFactory _factory;
+        readonly GraphBatchProcessor.Hooks _hooks;
         float? _lastTestError = null;
         readonly InputFeeder _start;
 
@@ -28,6 +29,9 @@ namespace BrightWire.ExecutionGraph.Engine
             LinearAlgebraProvider = factory.LinearAlgebraProvider;
             LearningContext = new LearningContext(factory, errorMetric);
             Start = _start = new InputFeeder(0, "engine-input-feeder");
+            _hooks = new GraphBatchProcessor.Hooks(
+                (ctx, seq, lc) => new TrainingGraphSequenceContext(lc, ctx, seq),
+                (node, seq, context) => node.Forward(GraphData.Null, context));
         }
 
         public IGraphContext Create(GraphExecutionContext executionContext, MiniBatch.Sequence sequence, ILearningContext? learningContext)
@@ -50,30 +54,11 @@ namespace BrightWire.ExecutionGraph.Engine
             var provider = new MiniBatchProvider(dataSource, null);
             using var executionContext = new GraphExecutionContext(this);
             executionContext.Add(provider.GetMiniBatches(batchSize));
-            float operationCount = executionContext.RemainingOperationCount;
-            var index = 0f;
 
-            while (executionContext.GetNextOperation() is { } operation && !ct.IsCancellationRequested) {
-                LinearAlgebraProvider.PushScope();
-                await foreach (var context in Execute(executionContext, operation, ct)) {
-                    foreach (var result in context.Results)
-                        yield return result;
-                    context.Dispose();
-                }
-                LinearAlgebraProvider.PopScope();
-
-                if (batchCompleteCallback != null) {
-                    var percentage = (++index) / operationCount;
-                    batchCompleteCallback(percentage);
-                }
-            }
+            await foreach (var result in GraphBatchProcessor.ExecuteBatchLoop(LinearAlgebraProvider, executionContext, _hooks, Start, batchCompleteCallback, ct))
+                yield return result;
 
             LinearAlgebraProvider.PopScope();
-        }
-
-        IAsyncEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation, CancellationToken ct)
-        {
-            return Train(executionContext, null, operation, ct);
         }
 
         public NodeBase Start { get; private set; }

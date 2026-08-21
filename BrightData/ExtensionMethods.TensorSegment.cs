@@ -123,8 +123,17 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<IReadOnlyNumericSegment<T>> Split<T>(this IReadOnlyNumericSegment<T> segment, uint blockCount) where T: unmanaged, INumber<T>
         {
-            for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
-                yield return new ReadOnlyTensorSegmentWrapper<T>(segment, i, 1, blockSize);
+            ArgumentOutOfRangeException.ThrowIfZero(blockCount);
+            var size = segment.Size;
+            var blockSize = size / blockCount;
+            var remainder = size % blockCount;
+            uint offset = 0;
+            for (uint i = 0; i < blockCount; i++)
+            {
+                var currentBlockSize = blockSize + (i < remainder ? 1u : 0);
+                yield return new ReadOnlyTensorSegmentWrapper<T>(segment, offset, 1, currentBlockSize);
+                offset += currentBlockSize;
+            }
         }
 
         /// <summary>
@@ -171,10 +180,10 @@ namespace BrightData
         /// </summary>
         /// <param name="segment"></param>
         /// <param name="random">Random number generator</param>
-        public static void SetToRandom(this INumericSegment<float> segment, Random random)
+        public static void SetToRandom(this INumericSegment<float> segment, ThreadSafeRandom random)
         {
             for (uint i = 0, len = segment.Size; i < len; i++)
-                segment[i] = System.Convert.ToSingle(random.NextDouble());
+                segment[i] = random.NextSingle();
         }
 
         /// <summary>

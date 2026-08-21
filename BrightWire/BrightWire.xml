@@ -388,14 +388,44 @@
             Executes (without training) graphs
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Engine.ExecutionEngine.#ctor(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightWire.Models.ExecutionGraphModel,BrightWire.ExecutionGraph.Node.NodeBase)">
-            <summary>
-            Executes (without training) graphs
-            </summary>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionGraphSequenceContext">
             <summary>
             Execution engine context
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor">
+            <summary>
+            Shared batch-processing logic for graph engines.
+            Provides the common outer batch loop, inner sequence processing, and continuation handling.
+            Designed for composition — engines delegate to an instance of this class.
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.Hooks">
+            <summary>
+            Delegates for engine-specific behavior.
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.ExecuteBatchLoop(BrightData.LinearAlgebra.LinearAlgebraProvider{System.Single},BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.Hooks,BrightWire.ExecutionGraph.Node.NodeBase,System.Action{System.Single},System.Threading.CancellationToken)">
+            <summary>
+            Executes the standard batch-processing loop: iterate operations, process each mini-batch,
+            yield results, manage linear algebra scopes, and invoke progress callbacks.
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.ProcessOperation(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.IGraphOperation,BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.Hooks,BrightWire.ExecutionGraph.Node.NodeBase,System.Threading.CancellationToken)">
+            <summary>
+            Processes a single graph operation (mini-batch): handles sequential vs non-sequential
+            sequences, forward propagation, and continuation execution.
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.ProcessOperation(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,BrightWire.IGraphOperation,BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.Hooks,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ILearningContext,System.Threading.CancellationToken)">
+            <summary>
+            Like ProcessOperation but passes a learning context for training scenarios.
+            </summary>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.ProcessContinuations(BrightWire.ExecutionGraph.Helper.MiniBatch,BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.Collections.Generic.Dictionary{BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence,BrightWire.IGraphContext},BrightWire.ExecutionGraph.Engine.Helper.GraphBatchProcessor.Hooks,System.Threading.CancellationToken)">
+            <summary>
+            Handles continuation execution: processes additional mini-batches registered during
+            the forward pass, then continues registered continuation callbacks for each sequence.
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext">
@@ -1563,7 +1593,7 @@
             Divides epochs into a list of mini batches
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatchProvider.#ctor(BrightWire.IDataSource,System.Random)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatchProvider.#ctor(BrightWire.IDataSource,BrightData.Helper.ThreadSafeRandom)">
             <summary>
             Divides epochs into a list of mini batches
             </summary>
@@ -3378,7 +3408,7 @@
             Graph engine that is optimised for inference
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Boolean)">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Boolean,System.Threading.CancellationToken)">
             <summary>
             Executes a data source on the current graph
             </summary>
@@ -3386,16 +3416,18 @@
             <param name="batchSize">Initial size of each mini batch</param>
             <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
             <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
+            <param name="ct">Cancellation token</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[])">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[],System.Threading.CancellationToken)">
             <summary>
             Executes a single vector on the current graph
             </summary>
             <param name="input">Vector to execute</param>
+            <param name="ct">Cancellation token</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSingleSequentialStep(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.UInt32,System.Single[],BrightWire.MiniBatchSequenceType)">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSingleSequentialStep(BrightWire.ExecutionGraph.Engine.Helper.GraphExecutionContext,System.UInt32,System.Single[],BrightWire.MiniBatchSequenceType,System.Threading.CancellationToken)">
             <summary>
             Executes a sequential input on the current graph
             </summary>
@@ -3403,13 +3435,15 @@
             <param name="sequenceIndex">Index of the current sequence (starting from 0)</param>
             <param name="input">Input vector</param>
             <param name="sequenceType">The sequence type (start, standard, end)</param>
+            <param name="ct">Cancellation token</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSequential(System.Single[][])">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSequential(System.Single[][],System.Threading.CancellationToken)">
             <summary>
             Executes a sequence of inputs on the current graph
             </summary>
             <param name="input">List of vector inputs</param>
+            <param name="ct">Cancellation token</param>
             <returns>List of execution results</returns>
         </member>
         <member name="M:BrightWire.IGraphExecutionEngine.CreateExecutionContext">
@@ -5092,7 +5126,7 @@
             The number of REBER characters
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.#ctor(System.Random)">
+        <member name="M:BrightWire.TrainingData.Artificial.ReberGrammar.#ctor(BrightData.Helper.ThreadSafeRandom)">
             <summary>
             Creates a reber grammar builder
             </summary>

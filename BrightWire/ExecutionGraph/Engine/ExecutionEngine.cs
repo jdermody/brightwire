@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Node;
@@ -13,66 +15,30 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// <summary>
 	/// Executes (without training) graphs
 	/// </summary>
-    internal class ExecutionEngine(LinearAlgebraProvider<float> lap, ExecutionGraphModel graph, NodeBase start)
-        : IGraphExecutionEngine
+    internal class ExecutionEngine : IGraphExecutionEngine
     {
-        public NodeBase Start { get; } = start;
-        public ExecutionGraphModel Graph { get; } = graph;
+        readonly GraphBatchProcessor.Hooks _hooks;
+
+        public ExecutionEngine(LinearAlgebraProvider<float> lap, ExecutionGraphModel graph, NodeBase start)
+        {
+            LinearAlgebraProvider = lap;
+            Graph = graph;
+            Start = start;
+            _hooks = new GraphBatchProcessor.Hooks(
+                (ctx, seq, _) => new ExecutionGraphSequenceContext(ctx, seq),
+                (node, seq, context) => node.Forward(GraphData.Null, context));
+        }
+
+        public NodeBase Start { get; }
+        public ExecutionGraphModel Graph { get; }
         public IDataSource? DataSource { get; private set; } = null;
-		public LinearAlgebraProvider<float> LinearAlgebraProvider { get; } = lap;
+		public LinearAlgebraProvider<float> LinearAlgebraProvider { get; }
 
         public ExecutionGraphSequenceContext CreateContext(GraphExecutionContext executionContext, MiniBatch.Sequence sequence) => new(executionContext, sequence);
 
-        async IAsyncEnumerable<IGraphContext> Execute(GraphExecutionContext executionContext, IGraphOperation operation)
-        {
-            var batch = await operation.GetMiniBatch();
-            var table = new Dictionary<MiniBatch.Sequence, IGraphContext>();
-
-            if (batch.IsSequential) {
-                while (batch.GetNextSequence() is { } curr) {
-					var context = CreateContext(executionContext, curr);
-                    Start.Forward(GraphData.Null, context);
-                    table.Add(curr, context);
-                }
-			} else {
-				var context = CreateContext(executionContext, batch.CurrentSequence);
-                Start.Forward(GraphData.Null, context);
-                yield return context;
-            }
-
-            if (executionContext.HasContinuations) {
-                while (executionContext.HasContinuations) {
-                    var additionalContext = new List<(IGraphContext Context, Action<IGraphContext[]> OnEnd)>();
-                    foreach (var item in executionContext.ExecuteAdditionalMiniBatch(null))
-                        additionalContext.Add(item);
-
-                    // after all have executed...
-                    if (additionalContext.Any()) {
-                        var groups = additionalContext.GroupBy(d => d.OnEnd);
-                        foreach (var group in groups)
-                            group.Key(group.Select(d => d.Context).ToArray());
-
-                        foreach (var (context, _) in additionalContext)
-                            yield return context;
-                    }
-
-                    batch.Reset();
-                    while (batch.GetNextSequence() is { } currentSequence) {
-                        var context = table[currentSequence];
-                        executionContext.Continue(context);
-                        yield return context;
-                    }
-                }
-            }
-            else {
-                foreach (var item in table)
-                    yield return item.Value;
-            }
-        }
-
         public GraphExecutionContext CreateExecutionContext() => new(this);
 
-        public async IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false)
+        public async IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false, [EnumeratorCancellation] CancellationToken ct = default)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = dataSource;
@@ -80,28 +46,14 @@ namespace BrightWire.ExecutionGraph.Engine
             using var executionContext = new GraphExecutionContext(this, wantInputInExecutionResults);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(batchSize));
-            float operationCount = executionContext.RemainingOperationCount;
-            var index = 0f;
 
-            while (executionContext.GetNextOperation() is { } operation) {
-                LinearAlgebraProvider.PushScope();
-                await foreach (var context in Execute(executionContext, operation)) {
-                    foreach (var result in context.Results)
-                        yield return result;
-                    context.Dispose();
-                }
-                LinearAlgebraProvider.PopScope();
-
-                if (batchCompleteCallback != null) {
-                    var percentage = (++index) / operationCount;
-                    batchCompleteCallback(percentage);
-                }
-            }
+            await foreach (var result in GraphBatchProcessor.ExecuteBatchLoop(LinearAlgebraProvider, executionContext, _hooks, Start, batchCompleteCallback, ct))
+                yield return result;
 
             LinearAlgebraProvider.PopScope();
         }
 
-        public async IAsyncEnumerable<ExecutionResult> Execute(float[] input)
+        public async IAsyncEnumerable<ExecutionResult> Execute(float[] input, [EnumeratorCancellation] CancellationToken ct = default)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, false, MiniBatchSequenceType.Standard, 0);
@@ -109,9 +61,9 @@ namespace BrightWire.ExecutionGraph.Engine
             using var executionContext = new GraphExecutionContext(this);
             executionContext.Add(provider.GetMiniBatches(1));
 
-            while (executionContext.GetNextOperation() is { } operation) {
+            while (executionContext.GetNextOperation() is { } operation && !ct.IsCancellationRequested) {
                 LinearAlgebraProvider.PushScope();
-                using var context = (await Execute(executionContext, operation).First());
+                using var context = (await ProcessOperation(executionContext, operation, ct).First());
                 yield return context.Results.Single();
                 LinearAlgebraProvider.PopScope();
             }
@@ -119,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = null;
         }
 
-        public async IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
+        public async IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input, [EnumeratorCancellation] CancellationToken ct = default)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SequentialRowDataSource(input, LinearAlgebraProvider);
@@ -128,13 +80,12 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1));
 
-            while (executionContext.GetNextOperation() is { } operation) {
+            while (executionContext.GetNextOperation() is { } operation && !ct.IsCancellationRequested) {
                 LinearAlgebraProvider.PushScope();
-                await foreach (var context in Execute(executionContext, operation)) {
+                await foreach (var context in ProcessOperation(executionContext, operation, ct)) {
                     yield return context.Results.Single();
                     context.Dispose();
                 }
-
                 LinearAlgebraProvider.PopScope();
             }
 
@@ -142,7 +93,7 @@ namespace BrightWire.ExecutionGraph.Engine
             DataSource = null;
         }
 
-        public async IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
+        public async IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType, [EnumeratorCancellation] CancellationToken ct = default)
         {
             LinearAlgebraProvider.PushScope();
             DataSource = new SingleRowDataSource(input, LinearAlgebraProvider, true, sequenceType, sequenceIndex);
@@ -150,12 +101,18 @@ namespace BrightWire.ExecutionGraph.Engine
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1));
 
-            while (executionContext.GetNextOperation() is { } operation) {
-                using var context = (await Execute(executionContext, operation).First());
+            while (executionContext.GetNextOperation() is { } operation && !ct.IsCancellationRequested) {
+                using var context = (await ProcessOperation(executionContext, operation, ct).First());
                 yield return context.Results.Single();
             }
             LinearAlgebraProvider.PopScope();
             DataSource = null;
+        }
+
+        async IAsyncEnumerable<IGraphContext> ProcessOperation(GraphExecutionContext executionContext, IGraphOperation operation, [EnumeratorCancellation] CancellationToken ct = default)
+        {
+            await foreach (var context in GraphBatchProcessor.ProcessOperation(executionContext, operation, _hooks, Start, ct))
+                yield return context;
         }
 
         IGraphContext ICreateGraphContext.Create(GraphExecutionContext executionContext, MiniBatch.Sequence sequence, ILearningContext? learningContext) => CreateContext(executionContext, sequence);

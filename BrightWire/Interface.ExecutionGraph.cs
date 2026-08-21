@@ -385,15 +385,17 @@ namespace BrightWire
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notified after each mini batch has completed</param>
         /// <param name="wantInputInExecutionResults">True to write the input rows to the execution results</param>
+        /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false);
+        IAsyncEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, bool wantInputInExecutionResults = false, CancellationToken ct = default);
 
         /// <summary>
         /// Executes a single vector on the current graph
         /// </summary>
         /// <param name="input">Vector to execute</param>
+        /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        IAsyncEnumerable<ExecutionResult> Execute(float[] input);
+        IAsyncEnumerable<ExecutionResult> Execute(float[] input, CancellationToken ct = default);
 
         /// <summary>
         /// Executes a sequential input on the current graph
@@ -402,15 +404,17 @@ namespace BrightWire
         /// <param name="sequenceIndex">Index of the current sequence (starting from 0)</param>
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
+        /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        IAsyncEnumerable<ExecutionResult> ExecuteSingleSequentialStep(GraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType, CancellationToken ct = default);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
         /// </summary>
         /// <param name="input">List of vector inputs</param>
+        /// <param name="ct">Cancellation token</param>
         /// <returns>List of execution results</returns>
-        IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
+        IAsyncEnumerable<ExecutionResult> ExecuteSequential(float[][] input, CancellationToken ct = default);
 
         /// <summary>
         /// Creates a graph execution context
