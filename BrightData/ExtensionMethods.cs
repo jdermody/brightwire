@@ -119,7 +119,7 @@ namespace BrightData
         /// <param name="rnd">Random number generator to use</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] Shuffle<T>(this IEnumerable<T> seq, Random rnd)
+        public static T[] Shuffle<T>(this IEnumerable<T> seq, ThreadSafeRandom rnd)
         {
             //return seq.OrderBy(_ => rnd.Next());
             var arr = seq.ToArray();
@@ -155,7 +155,7 @@ namespace BrightData
         /// <param name="count">Number of samples</param>
         /// <param name="rnd">Random number generator to use</param>
         /// <returns></returns>
-        public static T[] Bag<T>(this T[] list, uint count, Random rnd)
+        public static T[] Bag<T>(this T[] list, uint count, ThreadSafeRandom rnd)
         {
             return [
                 ..count.AsRange()

@@ -34,7 +34,7 @@ namespace BrightData.Helper
             return val;
         }
 
-        public static T Next(Random rand) => Constrain(T.CreateSaturating(rand.NextDouble()));
+        public static T Next(ThreadSafeRandom rand) => Constrain(T.CreateSaturating(rand.NextDouble()));
 
         public static T Max(T val1, T val2) => val1 > val2 ? val1 : val2;
         public static T Abs(T val) => T.Abs(val);

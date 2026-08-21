@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.Helper;
 using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial
@@ -106,13 +107,13 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         public static int Size => Ch.Count;
 
-	    readonly Random _rnd;
+	    readonly ThreadSafeRandom _rnd;
 
         /// <summary>
         /// Creates a reber grammar builder
         /// </summary>
         /// <param name="random">Random number provider</param>
-        public ReberGrammar(Random random)
+        public ReberGrammar(ThreadSafeRandom random)
         {
             _rnd = random;
         }

@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData;
+using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
     /// <summary>
     /// Divides epochs into a list of mini batches
     /// </summary>
-    internal class MiniBatchProvider(IDataSource dataSource, Random? random)
+    internal class MiniBatchProvider(IDataSource dataSource, ThreadSafeRandom? random)
     {
         public class Operation(uint[] rows, MiniBatchProvider provider) : IGraphOperation
         {

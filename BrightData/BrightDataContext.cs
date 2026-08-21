@@ -22,10 +22,7 @@ namespace BrightData
         public BrightDataContext(LinearAlgebraProvider<float>? lap = null, int? randomSeed = null)
         {
             IsStochastic = !randomSeed.HasValue;
-            Random = randomSeed.HasValue 
-                ? new Random(randomSeed.Value) 
-                : new Random()
-            ;
+            Random = new ThreadSafeRandom(randomSeed);
             LinearAlgebraProviderFactory = () => new(this);
             if (lap is not null)
                 _lap = new(lap);
@@ -44,9 +41,9 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Default random number generator
+        /// Default random number generator (thread safe, so it can be shared across multiple threads)
         /// </summary>
-        public Random Random { get; private set; }
+        public ThreadSafeRandom Random { get; private set; }
 
         /// <summary>
         /// Linear algebra provider
@@ -141,7 +138,7 @@ namespace BrightData
         /// Resets the random seed
         /// </summary>
         /// <param name="seed"></param>
-        public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
+        public void ResetRandom(int? seed) => Random.Reset(seed);
 
         /// <summary>
         /// Optional interface to provide user notification of long-running operations

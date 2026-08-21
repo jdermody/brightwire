@@ -443,7 +443,7 @@
         </member>
         <member name="P:BrightData.BrightDataContext.Random">
             <summary>
-            Default random number generator
+            Default random number generator (thread safe, so it can be shared across multiple threads)
             </summary>
         </member>
         <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
@@ -3114,7 +3114,7 @@
             <param name="to"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Shuffle``1(System.Collections.Generic.IEnumerable{``0},System.Random)">
+        <member name="M:BrightData.ExtensionMethods.Shuffle``1(System.Collections.Generic.IEnumerable{``0},BrightData.Helper.ThreadSafeRandom)">
             <summary>
             Randomly shuffles the items in the sequence
             </summary>
@@ -3132,7 +3132,7 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Bag``1(``0[],System.UInt32,System.Random)">
+        <member name="M:BrightData.ExtensionMethods.Bag``1(``0[],System.UInt32,BrightData.Helper.ThreadSafeRandom)">
             <summary>
             Sample with replacement
             </summary>
@@ -6021,7 +6021,7 @@
             <param name="segment"></param>
             <param name="value">Value to set</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.INumericSegment{System.Single},System.Random)">
+        <member name="M:BrightData.ExtensionMethods.SetToRandom(BrightData.INumericSegment{System.Single},BrightData.Helper.ThreadSafeRandom)">
             <summary>
             Sets all values of this tensor segment to a random floating point number
             </summary>
@@ -6887,6 +6887,19 @@
             <summary>
             Continuous distribution - https://en.wikipedia.org/wiki/Probability_distribution#Absolutely_continuous_probability_distribution
             </summary>
+            <remarks>
+            A null lower bound defaults to zero and a null upper bound defaults to one, so omitting both bounds
+            yields a uniform distribution over [0, 1). Note that a null upper bound is NOT "unbounded" - it simply
+            defaults to one.
+            </remarks>
+        </member>
+        <member name="M:BrightData.Distribution.ContinuousDistribution`1.#ctor(BrightData.BrightDataContext,System.Nullable{`0},System.Nullable{`0})">
+            <summary>
+            Creates a continuous (uniform) distribution over [inclusiveLowerBound, exclusiveUpperBound)
+            </summary>
+            <param name="context"></param>
+            <param name="inclusiveLowerBound">Inclusive lower bound (defaults to zero if null)</param>
+            <param name="exclusiveUpperBound">Exclusive upper bound (defaults to one if null - not "unbounded")</param>
         </member>
         <member name="T:BrightData.Distribution.DiscreteUniformDistribution">
             <summary>
@@ -7764,6 +7777,59 @@
         </member>
         <member name="M:BrightData.Helper.ThreadSafeHashSet`1.GetEnumerator">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.Helper.ThreadSafeRandom">
+            <summary>
+            A thread-safe wrapper around <see cref="T:System.Random"/> that can be shared safely across multiple threads.
+            When no seed is supplied the underlying generator is randomly initialized.
+            </summary>
+            <param name="seed">Initial value of random seed (or null to randomly initialize)</param>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.#ctor(System.Nullable{System.Int32})">
+            <summary>
+            A thread-safe wrapper around <see cref="T:System.Random"/> that can be shared safely across multiple threads.
+            When no seed is supplied the underlying generator is randomly initialized.
+            </summary>
+            <param name="seed">Initial value of random seed (or null to randomly initialize)</param>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.Reset(System.Nullable{System.Int32})">
+            <summary>
+            Resets the underlying random number generator (optionally to a new seed)
+            </summary>
+            <param name="seed">New seed value (or null for a randomly initialized seed)</param>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.Next">
+            <summary>
+            Returns a non-negative random integer (thread safe)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.Next(System.Int32)">
+            <summary>
+            Returns a non-negative random integer less than the specified maximum (thread safe)
+            </summary>
+            <param name="maxExclusive">Exclusive upper bound</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.Next(System.Int32,System.Int32)">
+            <summary>
+            Returns a random integer between a minimum and maximum (thread safe)
+            </summary>
+            <param name="minInclusive">Inclusive lower bound</param>
+            <param name="maxExclusive">Exclusive upper bound</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.NextDouble">
+            <summary>
+            Returns a random double between 0.0 and 1.0 (thread safe)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.ThreadSafeRandom.NextSingle">
+            <summary>
+            Returns a random float between 0f and 1f (thread safe)
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Helper.Vectors.VectorBallTree`1">
             <summary>

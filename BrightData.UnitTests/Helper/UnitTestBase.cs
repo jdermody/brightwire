@@ -8,11 +8,11 @@ namespace BrightData.UnitTests.Helper
     public class UnitTestBase : IDisposable
     {
         protected readonly BrightDataContext _context = new(null, 0);
-        protected readonly Random _random = new(0);
+        protected readonly ThreadSafeRandom _random = new(0);
 
         public IReadOnlyVector<float> CreateRandomVector(uint size = 32)
         {
-            var rand = new Random();
+            var rand = new ThreadSafeRandom();
             return _context.CreateReadOnlyVector(size, _ => Math<float>.Next(rand));
         }
 

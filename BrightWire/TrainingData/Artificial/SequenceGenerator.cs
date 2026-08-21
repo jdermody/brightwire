@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.Helper;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -14,7 +15,7 @@ namespace BrightWire.TrainingData.Artificial
 	    readonly uint _minSize, _maxSize;
         readonly BrightDataContext _context;
         readonly bool _noRepeat;
-        readonly Random _rnd;
+        readonly ThreadSafeRandom _rnd;
 
         static readonly char[] Dictionary;
         static readonly Dictionary<char, int> CharTable;
