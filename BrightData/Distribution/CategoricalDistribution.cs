@@ -26,12 +26,16 @@ namespace BrightData.Distribution
         public uint Sample()
         {
             var total = _context.NextRandomFloat() * CumulativeTotal;
-            uint index = 0;
+            var index = 0;
 
-            while (total > CumulativeValues[index])
+            // linear scan is deliberate: the real call sites have only a handful of categories
+            // (e.g. the 3-way random-projection distribution), where a scan beats a binary search.
+            // The bound is clamped to the last entry so that float rounding of the product can
+            // never push the index past the end (which would throw from inside Sample()).
+            while (index < CumulativeValues.Length - 1 && total > CumulativeValues[index])
                 index++;
 
-            return index;
+            return (uint)index;
         }
     }
 }
