@@ -19,10 +19,12 @@ namespace BrightData.DataTable
         IProvideByteBlocks? tempData = null,
         int blockSize = Consts.DefaultInitialBlockSize,
         int maxBlockSize = Consts.DefaultMaxBlockSize,
-        uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory)
+        uint? maxInMemoryBlocks = Consts.DefaultMaxBlocksInMemory,
+        uint? maxDistinctItems = null)
         : IBuildDataTables
     {
         readonly List<ICompositeBuffer> _columns = [];
+        readonly uint? _defaultMaxDistinctItems = maxDistinctItems;
 
         public MetaData TableMetaData { get; } = new();
         public MetaData[] ColumnMetaData => [.._columns.Select(x => x.MetaData)];
@@ -37,6 +39,18 @@ namespace BrightData.DataTable
 
         public ICompositeBuffer CreateColumn(BrightDataType type, string? name = null)
         {
+            return CreateColumn(type, name, null);
+        }
+
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <param name="type">New column type</param>
+        /// <param name="name">New column name</param>
+        /// <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+        /// <returns></returns>
+        public ICompositeBuffer CreateColumn(BrightDataType type, string? name, uint? maxDistinctItems)
+        {
             var columnMetaData = new MetaData();
             columnMetaData.Set(Consts.Name, DefaultColumnName(name, _columns.Count));
             columnMetaData.Set(Consts.Type, type);
@@ -44,18 +58,62 @@ namespace BrightData.DataTable
             if (type.IsNumeric())
                 columnMetaData.Set(Consts.IsNumeric, true);
 
-            return CreateColumn(type, columnMetaData);
+            return CreateColumn(type, columnMetaData, maxDistinctItems);
         }
 
+        /// <summary>
+        /// Adds a new column, inheriting the provided meta data.
+        /// </summary>
+        /// <param name="type">New column type</param>
+        /// <param name="metaData">Column meta data to inherit</param>
+        /// <returns></returns>
         public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData)
         {
-            var buffer = type.CreateCompositeBuffer(tempData, blockSize, maxBlockSize, maxInMemoryBlocks);
+            return CreateColumn(type, metaData, null);
+        }
+
+        /// <summary>
+        /// Adds a new column, inheriting the provided meta data.
+        /// </summary>
+        /// <remarks>
+        /// The provided meta data is copied wholesale into the new column, so any pre-existing keys
+        /// (column flags, analysis stats, normalisation models, etc) are carried over unexamined.
+        /// Only <c>Consts.ColumnIndex</c> is reassigned to the new column's position. Callers
+        /// passing meta data from another table (eg via CreateColumnsFrom) should be aware that
+        /// index-referential keys such as <c>Consts.VectorisationSourceColumnIndex</c> refer to
+        /// the original table's layout, as do analysis stats computed on the original data.
+        /// </remarks>
+        /// <param name="type">New column type</param>
+        /// <param name="metaData">Column meta data to inherit</param>
+        /// <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+        /// <returns></returns>
+        public ICompositeBuffer CreateColumn(BrightDataType type, MetaData metaData, uint? maxDistinctItems)
+        {
+            // distinct tracking is only enabled when explicitly requested (per column or builder-wide),
+            // it allows the writer to deduplicate repeated items (eg string pools)
+            var buffer = type.CreateCompositeBuffer(tempData, blockSize, maxBlockSize, maxInMemoryBlocks, maxDistinctItems ?? _defaultMaxDistinctItems);
+            // the caller's meta data is intentionally inherited wholesale - projection/split/concat
+            // operations rely on the new column keeping its flags (IsTarget, IsCategorical, ...),
+            // vectorisation wiring and analysis state; only ColumnIndex is reassigned below
             metaData.CopyTo(buffer.MetaData);
             buffer.MetaData.Set(Consts.ColumnIndex, (uint)_columns.Count);
             _columns.Add(buffer);
             return buffer;
         }
 
+        /// <summary>
+        /// Copies column definitions (including their meta data) from another table.
+        /// </summary>
+        /// <remarks>
+        /// Each new column inherits the source column's meta data unexamined (name, type, flags,
+        /// analysis stats, normalisation models) - this is intentional, projection/split/concat
+        /// operations depend on it. Only <c>Consts.ColumnIndex</c> is reassigned to the new
+        /// position. Note: index-referential meta data such as <c>Consts.VectorisationSourceColumnIndex</c>
+        /// still refers to the source table's layout.
+        /// </remarks>
+        /// <param name="table">Other table</param>
+        /// <param name="columnIndices">Indices of column definitions to copy (all if empty)</param>
+        /// <returns></returns>
         public ICompositeBuffer[] CreateColumnsFrom(IDataTable table, params uint[] columnIndices)
         {
             var columnSet = new HashSet<uint>(table.AllOrSpecifiedColumnIndices(false, columnIndices));
@@ -75,16 +133,46 @@ namespace BrightData.DataTable
             return ret;
         }
 
-        public ICompositeBuffer CreateColumn(IReadOnlyBufferWithMetaData buffer)
+        /// <summary>
+        /// Creates a new empty column based on the type and meta data of an existing buffer.
+        /// </summary>
+        /// <remarks>
+        /// The existing buffer's data is NOT copied - a new empty column is created with the
+        /// same type, inheriting the buffer's meta data (only <c>Consts.ColumnIndex</c> is
+        /// reassigned). If the builder was created with a default <c>maxDistinctItems</c>
+        /// (eg via CreateTableBuilder(maxDistinctItems)), the new column will track distinct
+        /// items as rows are appended to it.
+        /// </remarks>
+        /// <param name="buffer">Buffer providing the column type and meta data</param>
+        /// <returns></returns>
+        public ICompositeBuffer CreateEmptyColumnBasedOn(IReadOnlyBufferWithMetaData buffer)
         {
             return CreateColumn(buffer.DataType.GetBrightDataType(), buffer.MetaData);
         }
 
+        /// <summary>
+        /// Copies column definitions (including their meta data) from buffers.
+        /// </summary>
+        /// <remarks>
+        /// Each new column inherits the buffer's meta data unexamined - only
+        /// <c>Consts.ColumnIndex</c> is reassigned to the new position.
+        /// </remarks>
+        /// <param name="buffers">Buffers to copy columns from</param>
+        /// <returns></returns>
         public ICompositeBuffer[] CreateColumnsFrom(params IReadOnlyBufferWithMetaData[] buffers)
         {
             return [.. buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData))];
         }
 
+        /// <summary>
+        /// Copies column definitions (including their meta data) from buffers.
+        /// </summary>
+        /// <remarks>
+        /// Each new column inherits the buffer's meta data unexamined - only
+        /// <c>Consts.ColumnIndex</c> is reassigned to the new position.
+        /// </remarks>
+        /// <param name="buffers">Buffers to copy columns from</param>
+        /// <returns></returns>
         public ICompositeBuffer[] CreateColumnsFrom(IEnumerable<IReadOnlyBufferWithMetaData> buffers)
         {
             return [.. buffers.Select(x => CreateColumn(x.DataType.GetBrightDataType(), x.MetaData))];
@@ -93,8 +181,21 @@ namespace BrightData.DataTable
         public ICompositeBuffer<T> CreateColumn<T>(string? name = null)
             where T : notnull
         {
+            return CreateColumn<T>(name, null);
+        }
+
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <typeparam name="T">Type of the column</typeparam>
+        /// <param name="name">New column name</param>
+        /// <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+        /// <returns></returns>
+        public ICompositeBuffer<T> CreateColumn<T>(string? name, uint? maxDistinctItems)
+            where T : notnull
+        {
             var type = typeof(T).GetBrightDataType();
-            return (ICompositeBuffer<T>)CreateColumn(type, name);
+            return (ICompositeBuffer<T>)CreateColumn(type, name, maxDistinctItems);
         }
 
         public void AddRow(params object[] items)

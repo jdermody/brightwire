@@ -241,6 +241,7 @@ namespace BrightData.DataTable
                             encodingTable.Add(item, converted);
                         }
                     }
+                    stream.Write(span.AsBytes());
                 });
             }
 

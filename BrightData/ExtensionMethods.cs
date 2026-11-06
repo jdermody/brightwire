@@ -574,6 +574,15 @@ namespace BrightData
         public static IBuildDataTables CreateTableBuilder(this BrightDataContext context) => new ColumnOrientedDataTableBuilder(context);
 
         /// <summary>
+        /// Creates a new table builder
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="maxDistinctItems">Default maximum distinct items to track per column (enables string pool deduplication), null to disable by default</param>
+        /// <returns></returns>
+        public static IBuildDataTables CreateTableBuilder(this BrightDataContext context, uint? maxDistinctItems) =>
+            new ColumnOrientedDataTableBuilder(context, maxDistinctItems: maxDistinctItems);
+
+        /// <summary>
         /// Disposes a collection of disposables
         /// </summary>
         /// <param name="disposables"></param>

@@ -1574,10 +1574,104 @@
             Builds a data table dynamically
             </summary>
         </member>
-        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.#ctor(BrightData.BrightDataContext,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32})">
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.#ctor(BrightData.BrightDataContext,BrightData.IProvideByteBlocks,System.Int32,System.Int32,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Builds a data table dynamically
             </summary>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumn(BrightData.BrightDataType,System.String,System.Nullable{System.UInt32})">
+            <summary>
+            Adds a new column
+            </summary>
+            <param name="type">New column type</param>
+            <param name="name">New column name</param>
+            <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumn(BrightData.BrightDataType,BrightData.Types.MetaData)">
+            <summary>
+            Adds a new column, inheriting the provided meta data.
+            </summary>
+            <param name="type">New column type</param>
+            <param name="metaData">Column meta data to inherit</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumn(BrightData.BrightDataType,BrightData.Types.MetaData,System.Nullable{System.UInt32})">
+            <summary>
+            Adds a new column, inheriting the provided meta data.
+            </summary>
+            <remarks>
+            The provided meta data is copied wholesale into the new column, so any pre-existing keys
+            (column flags, analysis stats, normalisation models, etc) are carried over unexamined.
+            Only <c>Consts.ColumnIndex</c> is reassigned to the new column's position. Callers
+            passing meta data from another table (eg via CreateColumnsFrom) should be aware that
+            index-referential keys such as <c>Consts.VectorisationSourceColumnIndex</c> refer to
+            the original table's layout, as do analysis stats computed on the original data.
+            </remarks>
+            <param name="type">New column type</param>
+            <param name="metaData">Column meta data to inherit</param>
+            <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumnsFrom(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Copies column definitions (including their meta data) from another table.
+            </summary>
+            <remarks>
+            Each new column inherits the source column's meta data unexamined (name, type, flags,
+            analysis stats, normalisation models) - this is intentional, projection/split/concat
+            operations depend on it. Only <c>Consts.ColumnIndex</c> is reassigned to the new
+            position. Note: index-referential meta data such as <c>Consts.VectorisationSourceColumnIndex</c>
+            still refers to the source table's layout.
+            </remarks>
+            <param name="table">Other table</param>
+            <param name="columnIndices">Indices of column definitions to copy (all if empty)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateEmptyColumnBasedOn(BrightData.IReadOnlyBufferWithMetaData)">
+            <summary>
+            Creates a new empty column based on the type and meta data of an existing buffer.
+            </summary>
+            <remarks>
+            The existing buffer's data is NOT copied - a new empty column is created with the
+            same type, inheriting the buffer's meta data (only <c>Consts.ColumnIndex</c> is
+            reassigned). If the builder was created with a default <c>maxDistinctItems</c>
+            (eg via CreateTableBuilder(maxDistinctItems)), the new column will track distinct
+            items as rows are appended to it.
+            </remarks>
+            <param name="buffer">Buffer providing the column type and meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumnsFrom(BrightData.IReadOnlyBufferWithMetaData[])">
+            <summary>
+            Copies column definitions (including their meta data) from buffers.
+            </summary>
+            <remarks>
+            Each new column inherits the buffer's meta data unexamined - only
+            <c>Consts.ColumnIndex</c> is reassigned to the new position.
+            </remarks>
+            <param name="buffers">Buffers to copy columns from</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumnsFrom(System.Collections.Generic.IEnumerable{BrightData.IReadOnlyBufferWithMetaData})">
+            <summary>
+            Copies column definitions (including their meta data) from buffers.
+            </summary>
+            <remarks>
+            Each new column inherits the buffer's meta data unexamined - only
+            <c>Consts.ColumnIndex</c> is reassigned to the new position.
+            </remarks>
+            <param name="buffers">Buffers to copy columns from</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.ColumnOrientedDataTableBuilder.CreateColumn``1(System.String,System.Nullable{System.UInt32})">
+            <summary>
+            Adds a new column
+            </summary>
+            <typeparam name="T">Type of the column</typeparam>
+            <param name="name">New column name</param>
+            <param name="maxDistinctItems">Enables distinct item tracking (eg string pools) up to this limit, overrides the builder-wide setting if specified</param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.DataTable.ColumnOrientedDataTableWriter">
             <summary>
@@ -3395,6 +3489,14 @@
             Creates a new table builder
             </summary>
             <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateTableBuilder(BrightData.BrightDataContext,System.Nullable{System.UInt32})">
+            <summary>
+            Creates a new table builder
+            </summary>
+            <param name="context"></param>
+            <param name="maxDistinctItems">Default maximum distinct items to track per column (enables string pool deduplication), null to disable by default</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.DisposeAll(System.Collections.Generic.IEnumerable{System.IDisposable})">
@@ -13246,6 +13348,19 @@
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.SoftmaxDerivativePerRow(BrightData.IReadOnlyNumericSegment{`0}[])">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.MatrixMultiplyTiled3(`0*,`0*,System.Int32,System.UInt32,System.UInt32,`0*)">
+            <summary>
+            Blocked vectorized GEMM for any unmanaged floating point type T.
+            <para>a: rows x size, row i at a[i * size]</para>
+            <para>b: cols x size, row j at b[j * size]</para>
+            <para>ret: column-major rows x cols, ret[j * rows + i] = sum_k a[i * size + k] * b[j * size + k]</para>
+            </summary>
+            <remarks>
+            Uses a 4 x (2 * vectorSize) microkernel: a small block of a-rows and b-rows is
+            accumulated in vector registers while k is streamed once, so the b tile stays in
+            cache and each output row has its own independent FMA dependency chain.
+            </remarks>
+        </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.ToString">
             <inheritdoc />
         </member>
@@ -13257,6 +13372,18 @@
         </member>
         <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.Create(CommunityToolkit.HighPerformance.Buffers.MemoryOwner{`0})">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.MutableMatrix`2.MatrixMultiplyFloat(System.Single*,System.Single*,System.Int32,System.Int32,System.Int32,System.Single*)">
+            <summary>
+            AVX2+FMA blocked GEMM for single precision.
+            a: M x K with row i at a[i * K], b: N x K with row j at b[j * K],
+            ret: column-major M x N with ret[j * M + i] = dot(a[i], b[j]).
+            </summary>
+            <remarks>
+            Uses a 4x4 microkernel with 2D blocking (64 x 32 outer tiles), so both the a and
+            b tiles stay cache resident and the FMA dependency chains are independent per
+            output row, allowing near-peak FMA throughput on AVX2+FMA hardware.
+            </remarks>
         </member>
         <member name="T:BrightData.LinearAlgebra.MutableTensor3D`2">
             <summary>

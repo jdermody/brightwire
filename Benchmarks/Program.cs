@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
 namespace Benchmarks
@@ -7,26 +8,29 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkDataTables();
+            //BenchmarkDataTables();
             //BenchmarkSetProperty();
             //BenchmarkSum();
             //BenchmarkDot();
             //BenchmarkRunner.Run<SortedArrayBenchmarks>();
+            BenchmarkMatrixMultiply(args);
         }
 
         static void BenchmarkDataTables()
         {
-            //var test = new DataTableBenchmarks();
-            //test.GlobalSetup();
-            //test.AdaptedParquet().GetAwaiter().GetResult();
-            //test.SaveDataTable(@"C:\code\brightwire\Benchmarks\Data\house-price.dat").GetAwaiter().GetResult();
-            //test.DataTable().GetAwaiter().GetResult();
-            BenchmarkRunner.Run<DataTableBenchmarks>();
+            BenchmarkRunner.Run<DataTableBenchmarks>(null, Array.Empty<string>());
         }
 
         static void BenchmarkSetProperty()
         {
-            BenchmarkRunner.Run<SetPropertyFromExpression>();
+            BenchmarkRunner.Run<SetPropertyFromExpression>(null, Array.Empty<string>());
+        }
+
+        static void BenchmarkMatrixMultiply(string[] args)
+        {
+            // args (if any) are parsed by BenchmarkDotNet as CLI config overrides
+            // e.g. --filter Size=512 --job short
+            BenchmarkRunner.Run<MatrixMultiplyBenchmarks>(null, args);
         }
 
         static void BenchmarkSum()
@@ -38,13 +42,13 @@ namespace Benchmarks
             Console.WriteLine($"Vector Sum 3:       {Sum.VectorSum3(data1):N0}");
             Console.WriteLine($"Vector Aligned:     {Sum.VectorAligned(data1):N0}");
             Console.WriteLine($"Vector Bulk Aligned:{Sum.VectorBulkAligned(data1):N0}");
-            BenchmarkRunner.Run<Sum>();
+            BenchmarkRunner.Run<Sum>(null, Array.Empty<string>());
         }
 
         static unsafe void BenchmarkDot()
         {
             var data1 = Enumerable.Range(0, 256).Select(x => (float)x).ToArray();
-            var data2 = Enumerable.Range(0, 256).Select(x => (float)(x+1)).ToArray();
+            var data2 = Enumerable.Range(0, 256).Select(x => (float)(x + 1)).ToArray();
             var alignedPtr1 = Dot.GetAligned(data1);
             var alignedPtr2 = Dot.GetAligned(data2);
             try {
@@ -53,7 +57,7 @@ namespace Benchmarks
                 Console.WriteLine($"Vector Dot Aligned: {Dot.VectorAligned(data1, data2):N0}");
                 Console.WriteLine($"Vector Dot Aligned2:{Dot.VectorAligned2(alignedPtr1, alignedPtr2, 256):N0}");
                 Console.WriteLine($"Vector Dot Aligned3:{Dot.VectorAligned3(alignedPtr1, alignedPtr2, 256):N0}");
-                BenchmarkRunner.Run<Dot>();
+                BenchmarkRunner.Run<Dot>(null, Array.Empty<string>());
             }
             finally {
                 NativeMemory.Free(alignedPtr1);

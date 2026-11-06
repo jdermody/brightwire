@@ -1110,9 +1110,9 @@ namespace BrightData
             var columns = new IReadOnlyBufferWithMetaData[dataTable.ColumnCount];
             for (uint i = 0; i < dataTable.ColumnCount; i++) {
                 if (newColumnTable.TryGetValue(i, out var newColumn))
-                    writer.CreateColumn(columns[i] = newColumn);
+                    writer.CreateEmptyColumnBasedOn(columns[i] = newColumn);
                 else {
-                    writer.CreateColumn(columns[i] = dataTable.GetColumn(i));
+                    writer.CreateEmptyColumnBasedOn(columns[i] = dataTable.GetColumn(i));
                 }
             }
             await writer.AddRows(columns);

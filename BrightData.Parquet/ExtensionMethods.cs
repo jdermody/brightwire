@@ -44,9 +44,25 @@ namespace BrightData.Parquet
                 { BrightDataType.Date,    (w, f, d, ct) => w.WriteAsync<DateTime>(f, (DateTime[])d, null, null, ct) },
             };
 
+        /// <summary>
+        /// Normalises the CLR type reported by the Parquet reader. Parquet.Net maps a
+        /// <c>BYTE_ARRAY</c> + <c>UTF8</c> string column to <see cref="ReadOnlyMemory{char}"/>
+        /// rather than <see cref="string"/>, which is not a recognised BrightData column type.
+        /// </summary>
+        static Type GetClrType(DataField field)
+        {
+            var clrType = field.ClrType;
+            if (clrType == typeof(ReadOnlyMemory<char>))
+                return typeof(string);
+            if (clrType == typeof(ReadOnlyMemory<byte>))
+                return typeof(byte);
+            return clrType;
+        }
+
         static Array CreateColumnArray(DataField field, int rowCount)
         {
-            return field.ClrType switch
+            var clrType = GetClrType(field);
+            return clrType switch
             {
                 var t when t == typeof(string)   => new string[rowCount],
                 var t when t == typeof(bool)     => new bool[rowCount],
@@ -74,7 +90,7 @@ namespace BrightData.Parquet
             var reader = await ParquetReader.CreateAsync(inputStream);
             var fields = reader.Schema.DataFields;
             var columnCount = (uint)fields.Length;
-            var columnTypes = fields.Select(f => f.ClrType).ToArray();
+            var columnTypes = fields.Select(GetClrType).ToArray();
             var builder = context.CreateTableBuilder();
             var columnMetaData = new MetaData[columnCount];
             for (int i = 0; i < columnCount; i++)
@@ -186,7 +202,7 @@ namespace BrightData.Parquet
 
         static ICompositeBuffer CreateColumn(ParquetRowGroupReader reader, DataField field, MetaData columnMetaData, IBuildDataTables builder)
         {
-            return builder.CreateColumn(field.ClrType.GetBrightDataType(), columnMetaData);
+            return builder.CreateColumn(GetClrType(field).GetBrightDataType(), columnMetaData);
         }
 
         public static async Task<IDataTable> LoadParquetDataTableFromFile(this BrightDataContext context, string path)

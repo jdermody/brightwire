@@ -48,11 +48,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.2" />
-    <PackageReference Include="DotNext" Version="6.5.0" />
-    <PackageReference Include="DotNext.IO" Version="6.5.0" />
-    <PackageReference Include="DotNext.Unsafe" Version="6.5.0" />
-  </ItemGroup>
+	   <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.2" />
+	   <PackageReference Include="DotNext" Version="6.12.0" />
+	   <PackageReference Include="DotNext.IO" Version="6.12.0" />
+	   <PackageReference Include="DotNext.Unsafe" Version="6.12.0" />
+	 </ItemGroup>
+
+	 <ItemGroup>
+	   <InternalsVisibleTo Include="BrightData.UnitTests" />
+	 </ItemGroup>
 
   <ItemGroup>
     <None Include="..\bw_favicon.png">
